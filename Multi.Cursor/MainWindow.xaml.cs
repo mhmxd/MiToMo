@@ -158,8 +158,6 @@ namespace Multi.Cursor
 
         private int leftSkipTPs = 0;
 
-        private FeatureLogger fLogger; // Singleton
-
         private TouchSimulator simulator;
         private Point prevPoint = new Point(-1, -1);
 
@@ -202,13 +200,6 @@ namespace Multi.Cursor
         private SideWindow _targetSideWindow;
         private Direction _targetSideWindowDir;
 
-        //private enum TrialState
-        //{
-        //    SHOWN, CURSOR_MOVED, 
-        //    ENTERED_START, CLICKED_START, EXITED_START,
-        //    ENTERED_TARGET, CLICKED_TARGET, EXITED_TARGET,
-        //    REENTERED_START
-        //}
         private string _trialState = ""; // Uses Str constants
 
         public MainWindow()
@@ -546,35 +537,6 @@ namespace Multi.Cursor
 
             mainCursorPrevPosition = currentPos;
 
-            //var fixedPosition = new System.Drawing.Point(100, 100); // X, Y coordinate
-            //WinForms.Cursor.Position = fixedPosition;
-
-            //var mousePosition = e.GetPosition(leftWindow);
-            //Console.WriteLine($"Cursor Position: {mousePosition}");
-            //var screenPoint = PointToScreen(mousePosition);
-
-            //// Get the screen where the cursor is located
-            //Screen currentScreen = Screen.FromPoint(new SysDraw.Point((int)screenPoint.X, (int)screenPoint.Y));
-
-            //// Log the screen bounds and cursor position
-
-            //Console.WriteLine($"Screen Bounds: {currentScreen.Bounds}");
-
-            //// Ensure the cursor stays within the screen bounds
-            //var screenBounds = currentScreen.Bounds;
-            //var clampedX = Math.Max(screenBounds.Left, Math.Min(screenPoint.X, screenBounds.Right));
-            //var clampedY = Math.Max(screenBounds.Top, Math.Min(screenPoint.Y, screenBounds.Bottom));
-
-            //// Update cursor position
-            //WinForms.Cursor.Position = new SysDraw.Point((int)clampedX, (int)clampedY);
-
-            //if (prevPoint.X != -1)
-            //{
-            //    leftWindow.MoveSimCursor(point.X - prevPoint.X, point.Y - prevPoint.Y);
-            //}
-
-            //prevPoint = point;
-
         }
 
         private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -680,192 +642,7 @@ namespace Multi.Cursor
 
             //PrintSpan(shotSpan);
 
-            // Get the touch points
-            //List<(int row, int col, byte val)> touchpoints = GetTouchPoints(shotSpan);
-            //PrintSpan(shotSpan);
-
             _touchSurface.Track(shotSpan);
-
-            //List<TouchPoint> touchPoints = _touchSurface.GetTouchPoints();
-
-
-            //List<TouchPoint> topTouchPoints = new List<TouchPoint>();
-            //List<TouchPoint> leftTouchPoints = new List<TouchPoint>();
-            //List<TouchPoint> rightTouchPoints = new List<TouchPoint>();
-            //List<TouchPoint> middleTouchPoints = new List<TouchPoint>();
-
-            //int minRightCol = Config.LAST_TOUCH_COL - Config.LAST_RIGHT_TOUCH_COL;
-            //Console.WriteLine($"Num. Touch Points: {pointers.Count()}");
-            //leftPointerActive = rightPointerActive = topPointerActive = false;
-            //TouchPoint leftTouchPoint = null; TouchPoint rightTouchPoint = null; TouchPoint topTouchPoint = null;
-
-            //--- Detect gestures
-            //_gestureDetector.Detect(touchPoints, OnTap);
-
-            ////--- Set the pointers
-            //foreach (TouchPoint tp in touchPoints)
-            //{
-            //    // Left points
-            //    if (tp.IsCenterColInRange(0, Config.LAST_LEFT_TOUCH_COL))
-            //    {
-            //        leftTouchPoints.Add(tp);
-            //    }
-
-            //    // Right points
-            //    if (tp.IsCenterColInRange(minRightCol, Config.LAST_TOUCH_COL))
-            //    {
-            //        rightTouchPoints.Add(tp);
-            //    }
-
-            //    // Top points
-            //    //if (tp.IsCenterRowInRange(0, Config.LAST_TOP_TOUCH_ROW)
-            //    //    && tp.IsCenterColInRange(Config.LAST_LEFT_TOUCH_COL, minRightCol))
-            //    //{
-            //    //    topTouchPoints.Add(tp);
-            //    //}
-
-            //    // Middle pointers
-            //    if (tp.IsCenterColInRange(Config.LAST_LEFT_TOUCH_COL, minRightCol))
-            //    {
-            //        middleTouchPoints.Add(tp);
-            //    }
-            //}
-
-            ////-- Organize middle pointers
-            //int currentNumMiddlePoints = middleTouchPoints.Count();
-            //if (currentNumMiddlePoints > 0)
-            //{
-            //    // Number of pointers has changed => re-evaluate the pointers
-            //    if (currentNumMiddlePoints != _lastNumMiddleFingers)
-            //    {
-            //        // Reset positioning
-            //        _lastMiddlePointerPos = new Point(-1, -1); // Reset positioning
-
-            //        // Distinguish action pointer (leftmost)
-            //        _actionPointerInd = 0;
-            //        _actionPointer = new Pointer();
-            //        for (int i = 1; i < currentNumMiddlePoints; i++)
-            //        {
-            //            // New pointer to the left
-            //            if (middleTouchPoints[i].GetX() < middleTouchPoints[_actionPointerInd].GetX())
-            //            {
-            //                _actionPointerInd = i;
-            //            }
-            //        }
-
-            //        _lastNumMiddleFingers = currentNumMiddlePoints;
-            //    } else
-            //    { // No changes in the middle points
-            //        (double dX, double dY) = _actionPointer.Update(middleTouchPoints[_actionPointerInd]);
-            //        //TRACK_LOG.Informati
-            //        //on($"dX = {dX}, dY = {dY}");
-            //    }
-
-            //} else
-            //{ // No pointers
-            //    _actionPointerInd = -1;
-            //    _actionPointer = null;
-            //    _lastNumMiddleFingers = 0;
-            //    _lastMiddlePointerPos = new Point(-1, -1); // Reset positioning
-            //}
-
-
-            //--- Manage left points
-            //if (leftTouchPoints.Count > 0)
-            //{
-            //    ShowRadiusor();
-            //    //--- Radiusor
-            //    Point fingerPos = leftTouchPoints[0].GetCenterOfMass();
-            //    if (_lastLeftPointerPos.Y == -1)
-            //    { // First point
-            //        //TRACK_LOG.Information($"First point = {fingerPos:F3}");
-            //        _lastLeftPointerPos = fingerPos;
-            //    }
-            //    else
-            //    {
-            //        double dY = fingerPos.Y - _lastLeftPointerPos.Y;
-
-            //        //TRACK_LOG.Information($"dAngle = {dAngle:F3}");
-            //        if (Abs(dY) > 0.02)
-            //        {
-            //            double dAngle = -dY * 10; // Up => rotate right
-            //            _overlayWindow.RotateLine(dAngle);
-            //        }
-
-
-            //        _lastLeftPointerPos = fingerPos;
-            //    }
-            //}
-            //else
-            //{ // Left fingers off => reset
-            //    _lastLeftPointerPos = new Point(-1, -1);
-            //}
-
-            //--- Control the cross with middle pointers
-            //if (_actionPointerInd != -1 && _lineVisible)
-            //{
-            //    Point actionPointerPos = middleTouchPoints[_actionPointerInd].GetCenterOfMass();
-            //    TRACK_LOG.Information($"AP: {actionPointerPos.Y}, LMP: {_lastMiddlePointerPos.Y}");
-            //    if (_lastMiddlePointerPos.X == -1)
-            //    { // First point
-            //        TRACK_LOG.Information("First point");
-            //        _lastMiddlePointerPos = actionPointerPos;
-            //    }
-            //    else
-            //    {
-            //        // Calculate distance to move the cross
-            //        double dX = actionPointerPos.X - _lastMiddlePointerPos.X;
-            //        double dY = actionPointerPos.Y - _lastMiddlePointerPos.Y;
-            //        TRACK_LOG.Information($"dX = {dX}, dY = {dY}");
-            //        if (Abs(dX) > 0.02 || Abs(dY) > 0.02)
-            //        {
-            //            _overlayWindow.MoveCross(dX * 10, dY * 10);
-            //        }
-
-            //        _lastMiddlePointerPos = actionPointerPos;
-            //    }
-
-            //}
-
-            //--- Manage top points
-            //if (topTouchPoints.Count > 0)
-            //{
-            //    if (topTouchPoints.Count > 1)
-            //    { // Freeze if more fingers are on the top touch-part
-            //        _topAuxPointer.Freeze();
-            //        _lastTopPointerPos = new Point(-1, -1);
-            //    }
-            //    else
-            //    {
-            //        //_topAuxPointer.Unfreeze();
-
-            //        // KF
-            //        //(double dX, double dY) = _topAuxPointer.Move(topTouchPoints[0]);
-            //        //_topWindow.MoveAuxCursor(dX * Config.MAPPING_GAIN, dY * Config.MAPPING_GAIN);
-
-            //        //--- Radiusor
-            //        Point fingerPos = topTouchPoints[0].GetCenterOfMass();
-            //        if (_lastTopPointerPos.X == -1)
-            //        { // First point
-            //            TRACK_LOG.Information($"First point = {fingerPos:F3}");
-            //            _lastTopPointerPos = fingerPos;
-            //        }
-            //        else
-            //        {
-            //            // Calculate distance to move the cross
-            //            double dX = fingerPos.X - _lastLeftPointerPos.X;
-            //            double dY = fingerPos.Y - _lastLeftPointerPos.Y;
-            //            _overlayWindow.MoveCross(dX, dY);
-
-            //            _lastTopPointerPos = fingerPos;
-            //        }
-
-            //    }
-            //}
-            //else
-            //{ // Top fingers off => reset
-            //    _lastTopPointerPos = new Point(-1, -1);
-            //}
 
         }
 
@@ -952,21 +729,6 @@ namespace Multi.Cursor
                 TRIAL_LOG.Error("No valid position found!");
             }
 
-            //--- Set start position (random angle based on the distance)
-
-
-            //bool startPositionValid = false;
-            //while (!startPositionValid)
-            //{
-            //    double theta = RandomAngle(targetPosition);
-
-            //    // Compute target circle position
-            //    startPosition.X = targetPosition.X + _activeTrial.DistancePX * Math.Cos(theta);
-            //    startPosition.Y = targetPosition.Y + _activeTrial.DistancePX * Math.Sin(theta);
-            //    _trialLog.Information(startPosition.ToString());
-            //    // Ensure target is inside the window
-            //    startPositionValid = Utils.IsInside(startPosition, Xmin, Xmax, Ymin, Ymax);
-            //}
 
             //--- Show the start
             // Convert position (rel. to screen) to window position (for showing)
@@ -1128,23 +890,6 @@ namespace Multi.Cursor
 
             _timestamps[Str.START_PRESS] = _trialtWatch.ElapsedMilliseconds;
 
-
-            //if (_timestamps.ContainsKey(Str.START_LAST_RE_ENTRY))
-            //{ // Second time
-            //    // End trial
-            //    _timestamps[Str.TRIAL_END] = _trialtWatch.ElapsedMilliseconds;
-            //    double trialTime = (_timestamps[Str.TRIAL_END] - _timestamps[Str.START_UP]) / 1000.0; 
-            //    TRIAL_LOG.Information($"Trial Time = {trialTime}");
-            //    EndTrial(RESULT.HIT);
-
-            //} else
-            //{ // First time
-
-
-            //}
-
-            //e.Handled = true; // Don't propagate to the window
-
         }
 
         private void Start_MouseUp(object sender, MouseButtonEventArgs e)
@@ -1224,25 +969,11 @@ namespace Multi.Cursor
                 Fill = color
             };
 
-            // Create the circle
-            //_startCircle = new Ellipse
-            //{
-            //    Width = width,
-            //    Height = width,
-            //    Fill = color
-            //};
-
             // Position the Start on the Canvas
-            //Canvas.SetLeft(_startCircle, position.X - width / 2); // Center alignment
-            //Canvas.SetTop(_startCircle, position.Y - width / 2);
             Canvas.SetLeft(_startRectangle, position.X - width / 2); // Center alignment
             Canvas.SetTop(_startRectangle, position.Y - width / 2);
 
             // Add event
-            //_startCircle.MouseEnter += mouseEnterHandler;
-            //_startCircle.MouseLeave += mouseLeaveHandler;
-            //_startCircle.MouseDown += buttonDownHandler;
-            //_startCircle.MouseUp += buttonUpHandler;
             _startRectangle.MouseEnter += mouseEnterHandler;
             _startRectangle.MouseLeave += mouseLeaveHandler;
             _startRectangle.MouseDown += buttonDownHandler;
@@ -1354,62 +1085,6 @@ namespace Multi.Cursor
             if (_experiment.IsTechRadiusor() && _radiusorActive)
             {
                 _overlayWindow.RotateLine(indPoint);
-                // Rotate the Radiusor
-                //Point fingerPos = indPoint.GetCenterOfMass();
-                //if (_lastRotPointerPos.X == -1)
-                //{ // First point
-                //  //TRACK_LOG.Information($"First point = {fingerPos:F3}");
-                //    _lastRotPointerPos = fingerPos;
-                //}
-                //else
-                //{
-
-                //    // Use both axes to rotate
-                //    //double angle = _overlayWindow.GetAngle();
-
-                //    double dX = fingerPos.X - _lastRotPointerPos.X;
-                //    double dY = fingerPos.Y - _lastRotPointerPos.Y;
-
-                //    //double weightX = Abs(Cos(angle * PI / 180));
-                //    //double weightY = Abs(Sin(angle * PI / 180));
-
-                //    //// Apply a threshold to prevent small last-moment jitters from affecting rotation
-                //    //if (Abs(dX) < 0.2 && Abs(dY) < 0.2)
-                //    //{
-                //    //    return; // Ignore tiny movements right before lift-off
-                //    //}
-
-                //    //// Reverse dY effect when the line is on the right side (angle ≤ 90° or angle ≥ 270°)
-                //    //if (angle > 90 && angle < 270)
-                //    //{
-                //    //    dY = -dY; // Flip dY effect on the left side
-                //    //}
-
-                //    //double dAngle = (-dY * weightY + dX * weightX) * 10;
-                //    //GESTURE_LOG.Information($"Current angle = {angle:F3} | dY = {dY:F3} | dAn = {dAngle:F3}");
-                //    //_overlayWindow.RotateLine(dAngle);
-
-                //    if (dX > 0.2 || dY > 0.2) _overlayWindow.RotateLine(dX, dY);
-
-                //    _lastRotPointerPos = fingerPos;
-                //}
-
-                // Move the plus
-                //Point fingerPos = indPoint.GetCenterOfMass();
-                //if (_lastPlusPointerPos.X == -1)
-                //{ // First point
-                //    GESTURE_LOG.Debug($"Index First point = {fingerPos:F3}");
-                //    _lastPlusPointerPos = fingerPos;
-                //}
-                //else
-                //{
-                //    // Calculate distance to move the cross
-                //    double dX = fingerPos.X - _lastPlusPointerPos.X;
-                //    double dY = fingerPos.Y - _lastPlusPointerPos.Y;
-                //    _overlayWindow.MovePlus(dX * 10, dY * 10);
-
-                //    _lastPlusPointerPos = fingerPos;
-                //}
             }
 
         }
@@ -1440,62 +1115,6 @@ namespace Multi.Cursor
             {
                 // Move the plus
                 _overlayWindow.MovePlus(thumbPoint);
-                //Point fingerPos = thumbPoint.GetCenterOfMass();
-                //if (_lastPlusPointerPos.X == -1)
-                //{ // First point
-                //    GESTURE_LOG.Debug($"Index First point = {fingerPos:F3}");
-                //    _lastPlusPointerPos = fingerPos;
-                //}
-                //else
-                //{
-                //    // Calculate distance to move the cross
-                //    double dX = fingerPos.X - _lastPlusPointerPos.X;
-                //    double dY = fingerPos.Y - _lastPlusPointerPos.Y;
-
-                //    if (Abs(dX) > 0.2 || Abs(dY) > 0.2)
-                //    {
-                //        _overlayWindow.MovePlus(dX * 10, dY * 10);
-                //    }
-                    
-
-                //    _lastPlusPointerPos = fingerPos;
-                //}
-
-                // Move the raduisor line
-                //Point fingerPos = thumbPoint.GetCenterOfMass();
-                //if (_lastRotPointerPos.X == -1)
-                //{ // First point
-                //  //TRACK_LOG.Information($"First point = {fingerPos:F3}");
-                //    _lastRotPointerPos = fingerPos;
-                //}
-                //else
-                //{
-
-                //    // Use both axes to rotate
-                //    double angle = _overlayWindow.GetAngle();
-
-                //    double dX = fingerPos.X - _lastRotPointerPos.X;
-                //    double dY = fingerPos.Y - _lastRotPointerPos.Y;
-
-                //    double weightX = 0;
-                //    double weightY = 0;
-
-                //    if (Abs(dX) > 0.1 || Abs(dY) > 0.1)
-                //    {
-                //        weightX = Abs(Cos(angle * PI / 180));   
-                //    }
-
-                //    if (Abs(dY) > 0.05)
-                //    {
-                //        weightY = Abs(Sin(angle * PI / 180)); 
-                //    }
-
-                //    double dAngle = (-dY * weightY + dX * weightX) * 10; // Adjust rotation based on orientation
-                //    _overlayWindow.RotateLine(dAngle);
-
-                //    _lastRotPointerPos = fingerPos;
-                //}
-
 
             }
         }
