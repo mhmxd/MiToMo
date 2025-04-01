@@ -1,9 +1,0 @@
-﻿<Window x:Class="Zoom.Pan.Window1"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Zoom" Height="500" Width="500"
-    MouseWheel="OnMouseWheel">
-    <Canvas x:Name="MyCanvas" Background="White">
-        <Ellipse x:Name="MyCircle" Fill="Blue" Width="100" Height="100" Canvas.Left="200" Canvas.Top="192"/>
-    </Canvas>
-</Window>
