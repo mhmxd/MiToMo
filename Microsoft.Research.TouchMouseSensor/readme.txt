@@ -1,0 +1,1 @@
+﻿An interop wrapper for the TouchMouseSensor DLL.

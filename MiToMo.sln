@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35208.52
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Research.TouchMouseSensor", "Microsoft.Research.TouchMouseSensor\Microsoft.Research.TouchMouseSensor.csproj", "{3111BBCA-A6F1-4AC1-8F7A-EEBD261607B5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Extra", "Extra\Extra.csproj", "{8489C0D4-8C34-46C5-A0CF-B8A80097FAF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Multi.Cursor", "Multi.Cursor\Multi.Cursor.csproj", "{CEF7FB35-8FC7-4C9A-A2E2-E05FADBF1E99}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3111BBCA-A6F1-4AC1-8F7A-EEBD261607B5}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{3111BBCA-A6F1-4AC1-8F7A-EEBD261607B5}.Debug|Any CPU.Build.0 = Debug|x64
+		{3111BBCA-A6F1-4AC1-8F7A-EEBD261607B5}.Debug|x64.ActiveCfg = Debug|x64
+		{3111BBCA-A6F1-4AC1-8F7A-EEBD261607B5}.Debug|x64.Build.0 = Debug|x64
+		{3111BBCA-A6F1-4AC1-8F7A-EEBD261607B5}.Release|Any CPU.ActiveCfg = Release|x64
+		{3111BBCA-A6F1-4AC1-8F7A-EEBD261607B5}.Release|Any CPU.Build.0 = Release|x64
+		{3111BBCA-A6F1-4AC1-8F7A-EEBD261607B5}.Release|x64.ActiveCfg = Release|x64
+		{3111BBCA-A6F1-4AC1-8F7A-EEBD261607B5}.Release|x64.Build.0 = Release|x64
+		{8489C0D4-8C34-46C5-A0CF-B8A80097FAF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8489C0D4-8C34-46C5-A0CF-B8A80097FAF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8489C0D4-8C34-46C5-A0CF-B8A80097FAF3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8489C0D4-8C34-46C5-A0CF-B8A80097FAF3}.Debug|x64.Build.0 = Debug|Any CPU
+		{8489C0D4-8C34-46C5-A0CF-B8A80097FAF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8489C0D4-8C34-46C5-A0CF-B8A80097FAF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8489C0D4-8C34-46C5-A0CF-B8A80097FAF3}.Release|x64.ActiveCfg = Release|Any CPU
+		{8489C0D4-8C34-46C5-A0CF-B8A80097FAF3}.Release|x64.Build.0 = Release|Any CPU
+		{CEF7FB35-8FC7-4C9A-A2E2-E05FADBF1E99}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{CEF7FB35-8FC7-4C9A-A2E2-E05FADBF1E99}.Debug|Any CPU.Build.0 = Debug|x64
+		{CEF7FB35-8FC7-4C9A-A2E2-E05FADBF1E99}.Debug|x64.ActiveCfg = Debug|x64
+		{CEF7FB35-8FC7-4C9A-A2E2-E05FADBF1E99}.Debug|x64.Build.0 = Debug|x64
+		{CEF7FB35-8FC7-4C9A-A2E2-E05FADBF1E99}.Release|Any CPU.ActiveCfg = Release|x64
+		{CEF7FB35-8FC7-4C9A-A2E2-E05FADBF1E99}.Release|Any CPU.Build.0 = Release|x64
+		{CEF7FB35-8FC7-4C9A-A2E2-E05FADBF1E99}.Release|x64.ActiveCfg = Release|x64
+		{CEF7FB35-8FC7-4C9A-A2E2-E05FADBF1E99}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FD2B3BFE-8457-4D92-B552-900A22BA4F9E}
+	EndGlobalSection
+EndGlobal

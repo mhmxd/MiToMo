@@ -1,0 +1,32 @@
+﻿<Window x:Class="Multi.Cursor.IntroDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStartupLocation="CenterOwner"
+        Title="Setup" 
+        Height="300" Width="400"
+        Closing="Window_Closing">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="Participant Number:" Grid.Row="0" Grid.Column="0" Margin="10" VerticalAlignment="Center"/>
+        <TextBox Name="ParticipantNumberTextBox" Grid.Row="0" Grid.Column="1" Margin="10"/>
+
+        <TextBlock Text="Technique:" Grid.Row="1" Grid.Column="0" Margin="10" VerticalAlignment="Center"/>
+        <ComboBox Name="TechniqueComboBox" Grid.Row="1" Grid.Column="1" Margin="10"/>
+
+        <TextBlock Text="Experiment:" Grid.Row="2" Grid.Column="0" Margin="10" VerticalAlignment="Center"/>
+        <ComboBox Name="ExperimentComboBox" Grid.Row="2" Grid.Column="1" Margin="10"/>
+
+        <Button Content="Begin" Grid.Row="3" Grid.ColumnSpan="2" Height="40" Width="200" FontSize="15" Margin="50" Click="BeginButton_Click" HorizontalAlignment="Center"/>
+    </Grid>
+</Window>

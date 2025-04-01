@@ -1,0 +1,31 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Multi.Cursor" x:Class="Multi.Cursor.SideWindow"
+        xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
+        Title="Side Window"
+        WindowStyle="None"
+        Topmost="true"
+        BorderThickness="1"
+        ResizeMode="NoResize">
+    <Window.Resources>
+        <TranslateTransform x:Key="CursorTransform" />
+    </Window.Resources>
+    <Canvas x:Name="canvas">
+        <Image x:Name="cursor_active" Source="/Multi.Cursor;component/Resources/cursor_active.png" 
+               Width="10"
+               Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Image.RenderTransform>
+                <StaticResource ResourceKey="CursorTransform"/>
+            </Image.RenderTransform>
+        </Image>
+        <Image x:Name="cursor_inactive" Source="/Multi.Cursor;component/Resources/cursor_inactive.png" 
+       Width="10"
+       Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Image.RenderTransform>
+                <StaticResource ResourceKey="CursorTransform"/>
+            </Image.RenderTransform>
+        </Image>
+    </Canvas>
+    
+</Window>
