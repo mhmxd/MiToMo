@@ -322,16 +322,16 @@ namespace Multi.Cursor
             switch (e.Key)
             {
                 case SysIput.Key.Right:
-                    _overlayWindow.RotateLine(2, 0);
+                    _overlayWindow.RotateBeam(2, 0);
                     break;
                 case SysIput.Key.Left:
-                    _overlayWindow.RotateLine(-2, 0);
+                    _overlayWindow.RotateBeam(-2, 0);
                     break;
                 case SysIput.Key.Up:
-                    _overlayWindow.RotateLine(0, -2);
+                    _overlayWindow.RotateBeam(0, -2);
                     break;
                 case SysIput.Key.Down:
-                    _overlayWindow.RotateLine(0, 2);
+                    _overlayWindow.RotateBeam(0, 2);
                     break;
             }
         }
@@ -552,7 +552,7 @@ namespace Multi.Cursor
             else
             {
                 // Interpret as vertical scroll
-                _overlayWindow.RotateLine(0, delta / 800.0);
+                _overlayWindow.RotateBeam(0, delta / 800.0);
             }
         }
 
@@ -870,7 +870,7 @@ namespace Multi.Cursor
                 Point cursorScreenPos = FindCursorScreenPos(e);
                 Point overlayCursorPos = FindCursorDestWinPos(cursorScreenPos, _overlayWindow);
 
-                _overlayWindow.ShowLine(cursorScreenPos);
+                _overlayWindow.ShowBeam(cursorScreenPos);
                 _radiusorActive = true;
             }
 
@@ -935,7 +935,7 @@ namespace Multi.Cursor
             // No need for the cursor anymore
             if (_experiment.IsTechRadiusor())
             {
-                _overlayWindow.HideLine();
+                _overlayWindow.HideBeam();
                 _radiusorActive = false;
             }
 
@@ -1082,9 +1082,9 @@ namespace Multi.Cursor
                 }
             }
 
-            if (_experiment.IsTechRadiusor() && _radiusorActive)
+            if (_radiusorActive)
             {
-                _overlayWindow.RotateLine(indPoint);
+                _overlayWindow.RotateBeam(indPoint);
             }
 
         }
@@ -1111,7 +1111,7 @@ namespace Multi.Cursor
 
         public void ThumbMove(TouchPoint thumbPoint)
         {
-            if (_experiment.Active_Technique == Technique.Radiusor && _radiusorActive) // Radiusor
+            if (_radiusorActive) // Radiusor
             {
                 // Move the plus
                 _overlayWindow.MovePlus(thumbPoint);

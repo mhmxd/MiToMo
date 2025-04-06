@@ -46,7 +46,7 @@ namespace Multi.Cursor
 
         // --------------- Radiusor -------------
         public static double SENSITIVIY_FACTOR = 0.1;
-        public static double RAD_GAIN = 30;
+        public static double ANGLE_GAIN = 20;
         // --------------------------------------
 
         // --------------- Times ----------------
@@ -58,6 +58,7 @@ namespace Multi.Cursor
         public static double MOVE_LIMIT = 0.5; // pts
         public static double MOVE_THRESHOLD = 0.7; // pts
         public static double HIGHT_MOVE_THRESHOLD = 2.5; // pts
+        public static double MIN_POINTER_MOVE = 0.1; // pts
         // --------------------------------------
 
         // --------------- Colors ---------------

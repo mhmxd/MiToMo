@@ -28,24 +28,18 @@ namespace Multi.Cursor
     /// </summary>
     public partial class OverlayWindow : Window
     {
-        private double MAX_LINE_LENGTH = 5000; // Arbitrary large length to extend to window limits
-
-        private const double LINE_PART_LENGTH = 4990;  // Adjusted length for part 1 (leaving room for plus sign)
-        private const double PLUS_OFFSET = 5;  // Gap for the plus sign
-        private const double GAP_BETWEEN_SEGMENTS = 10;  // Small gap between the line parts
+        private double MAX_BEAM_LENGTH = 5000; // Arbitrary large length to extend to window limits
 
         private double _sideWinSize;
 
-        private Line _radiusLine;
         //private LineGeometry _radiusLine;
-        private Point _lineStart;
-        private double _lineA, _lineB;
-        //private double _plusTopBound, _plusLeftBound, _plusRightBound;
+        private Point _beamStart;
+
         private Rect _outerRect = new Rect();
         private Rect _innerRect = new Rect();
         private bool _isVisible = false;
 
-        private double _angle = 180; // Rotation angle in degrees
+        private double _angleDeg = 90; // Rotation angle in degrees
         private double _angleRad = 0; // Angle in Radians (updated when _angle updates)
 
         private double _plusDistance = 0;
@@ -56,11 +50,11 @@ namespace Multi.Cursor
         private Point _tlPoint, _trPoint, _blPoint, _brPoint;
 
         //--- Kalman Filters
-        private KalmanVeloFilter _lineKalmanFilter, _plusKalmanFilter; 
-        private List<TouchPoint> _lineTouchFrames, _plusTouchFrames;
-        private Stopwatch _lineStopwatch, _plusStopwatch;
-        private bool _lineTPInitMove, _plusTPInitMove;
-        private Point _lineTPPrevPos, _plusTPPrevPos;
+        private KalmanVeloFilter _beamKalmanFilter, _plusKalmanFilter; 
+        private List<TouchPoint> _beamTouchFrames, _plusTouchFrames;
+        private Stopwatch _beamStopwatch, _plusStopwatch;
+        private bool _beamTPInitMove, _plusTPInitMove;
+        private Point _beamTPPrevPos, _plusTPPrevPos;
 
         [DllImport("user32.dll")]
         public static extern bool GetCursorPos(out POINT lpPoint);
@@ -73,8 +67,8 @@ namespace Multi.Cursor
 
         public double Angle
         {
-            get { return _angle; } // Convert radians to degrees
-            set { _angle = value; } // Convert degrees to radians
+            get { return _angleDeg; } // Convert radians to degrees
+            set { _angleDeg = value; } // Convert degrees to radians
         }
 
         public OverlayWindow()
@@ -116,9 +110,9 @@ namespace Multi.Cursor
         private const int WS_EX_LAYERED = 0x80000;
         private const int WS_EX_TRANSPARENT = 0x20;
 
-        public void ShowLine(Point cursorPos)
+        public void ShowBeam(Point cursorPos)
         {
-            _lineStart = cursorPos;
+            _beamStart = cursorPos;
             _isVisible = true;
 
             //GESTURE_LOG.Information(Output.GetString(_lineStart));
@@ -145,29 +139,29 @@ namespace Multi.Cursor
             //GESTURE_LOG.Information(Output.GetString(_trPoint));
 
             //UpdatePlusPosition();
-            UpdateLine();
+            UpdateBeam();
 
             // Init Kalman
             double dT = Config.FRAME_DUR_MS / 1000.0; // Seconds
 
-            _lineKalmanFilter = new KalmanVeloFilter(dT, 0.1, 30);
-            _plusKalmanFilter = new KalmanVeloFilter(dT, 0.3, 40);
-            _lineStopwatch = new Stopwatch();
+            _beamKalmanFilter = new KalmanVeloFilter(dT, 1.2, 15);
+            _plusKalmanFilter = new KalmanVeloFilter(dT, 0.1, 10);
+            _beamStopwatch = new Stopwatch();
             _plusStopwatch = new Stopwatch();
-            _lineTPInitMove = true;
+            _beamTPInitMove = true;
             _plusTPInitMove = true;
-            _lineTPPrevPos = new Point(-1, -1);
+            _beamTPPrevPos = new Point(-1, -1);
             _plusTPPrevPos = new Point(-1, -1);
-            _lineTouchFrames = new List<TouchPoint>();
+            _beamTouchFrames = new List<TouchPoint>();
             _plusTouchFrames = new List<TouchPoint>();
 
-            _lineStopwatch.Start();
+            _beamStopwatch.Start();
             _plusStopwatch.Start();
 
             this.Show();
         }
 
-        public void HideLine()
+        public void HideBeam()
         {
             _isVisible = false;
             this.Hide();
@@ -175,7 +169,8 @@ namespace Multi.Cursor
 
         private void UpdateAngleRad()
         {
-            _angleRad = _angle * Math.PI / 180.0;
+            double normalAngle = NormalizeAngle(_angleDeg);
+            _angleRad = normalAngle * Math.PI / 180.0;
             GESTURE_LOG.Debug($"RadAngle = {_angleRad}");
         }
 
@@ -187,74 +182,85 @@ namespace Multi.Cursor
             return angle;
         }
 
+
         public double GetAngle()
         {
-            return _angle;
+            return _angleDeg;
+        }
+
+        private double NormalizeAngle(double angle)
+        {
+            angle %= 360.0;
+            if (angle < 0)
+            {
+                angle += 360.0;
+            }
+            return angle;
         }
 
         // 🌀 Rotate the main line
-        public void RotateLine(double deltaAngle)
+        public void RotateBeam(double deltaAngle)
         {
-            _angle += deltaAngle;
+            _angleDeg += deltaAngle;
 
             // Normalize to [0, 360] range correctly
             //while (_angle >= 360) _angle -= 360;
             //while (_angle < 0) _angle += 360;
 
             // Normalize to [0, 360] range correctly
-            while (_angle >= 360) _angle -= 360;
-            while (_angle < 0) _angle += 360;
+            //while (_angle >= 360) _angle -= 360;
+            //while (_angle < 0) _angle += 360;
 
-            UpdateLine();
+            UpdateBeam();
         }
 
-        public void RotateLine(TouchPoint tp)
+        public void RotateBeam(TouchPoint tp)
         {
-            if (_lineStopwatch.ElapsedMilliseconds < Config.FRAME_DUR_MS) // Still collecting frames
+            if (_beamStopwatch.ElapsedMilliseconds < Config.FRAME_DUR_MS) // Still collecting frames
             {
-                _lineTouchFrames.Add(tp);
+                _beamTouchFrames.Add(tp);
             }
             else // Time for action!
             {
-                GESTURE_LOG.Information($"Count = {_lineTouchFrames.Count}");
+                GESTURE_LOG.Debug($"Count = {_beamTouchFrames.Count}");
 
-                if (_lineTPInitMove)
+                if (_beamTPInitMove)
                 {
                     // First touch: Don't move the cursor, just initialize
-                    _lineTPPrevPos = tp.GetCenterOfMass();
-                    _lineKalmanFilter.Initialize(0, 0); // Start with zero velocity
-                    _lineTPInitMove = false;
-                    _lineTouchFrames.Clear();
-                    _lineStopwatch.Restart();
+                    _beamTPPrevPos = tp.GetCenterOfMass();
+                    _beamKalmanFilter.Initialize(0, 0); // Start with zero velocity
+                    _beamTPInitMove = false;
+                    _beamTouchFrames.Clear();
+                    _beamStopwatch.Restart();
                     return;
                 }
 
-                if (_lineTouchFrames.Count <= 1)
+                if (_beamTouchFrames.Count <= 1)
                 {
-                    _lineTouchFrames.Add(tp); //add the current touch point.
-                    _lineTouchFrames.Clear();
-                    _lineStopwatch.Restart();
+                    _beamTouchFrames.Add(tp); //add the current touch point.
+                    _beamTouchFrames.Clear();
+                    _beamStopwatch.Restart();
                     return; // No frames to work with
                 }
 
                 // Compute delta from oldest to newest frame
-                TouchPoint first = _lineTouchFrames.First();
-                TouchPoint last = _lineTouchFrames.Last();
+                TouchPoint first = _beamTouchFrames.First();
+                TouchPoint last = _beamTouchFrames.Last();
 
-                double dXRaw = last.GetCenterOfMass().X - first.GetCenterOfMass().X;
-                double dYRaw = last.GetCenterOfMass().Y - first.GetCenterOfMass().Y;
+                double measureDX = last.GetCenterOfMass().X - first.GetCenterOfMass().X;
+                double measureDY = last.GetCenterOfMass().Y - first.GetCenterOfMass().Y;
 
                 // Compute velocity
-                _lineStopwatch.Stop();
-                double dT = _lineStopwatch.ElapsedMilliseconds / 1000.0; // seconds
-                double vXRaw = dXRaw / dT;
-                double vYRaw = dYRaw / dT;
+                _beamStopwatch.Stop();
+                double dT = _beamStopwatch.ElapsedMilliseconds / 1000.0; // seconds
+                double measureVX = measureDX / dT;
+                double measureVY = measureDY / dT;
 
                 // Kalman filter for velocity
-                _lineKalmanFilter.Predict();
-                _lineKalmanFilter.Update(vXRaw, vYRaw);
+                _beamKalmanFilter.Predict();
+                _beamKalmanFilter.Update(measureVX, measureVY);
 
-                (double fvX, double fvY) filteredV = _lineKalmanFilter.GetEstVelocity();
+                (double fvX, double fvY) filteredV = _beamKalmanFilter.GetEstVelocity();
 
                 // Compute speed and apply dynamic gain
                 double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
@@ -264,18 +270,19 @@ namespace Multi.Cursor
                 double kdX = filteredV.fvX * dT * (gain / 2);
                 double kdY = filteredV.fvY * dT * (gain / 2);
 
-                GESTURE_LOG.Information($"<Line> KF vX = {filteredV.fvX:F3}, vY = {filteredV.fvY:F3}");
-                GESTURE_LOG.Information($"<Line> KF dX = {kdX:F3}, dY = {kdY:F3}");
+                GESTURE_LOG.Information($"<Beam> Measure vX = {measureVX:F3}, vY = {measureVY:F3}");
+                GESTURE_LOG.Information($"<Beam> KalmanF vX = {filteredV.fvX:F3}, vY = {filteredV.fvY:F3}");
+                GESTURE_LOG.Information($"<Beam> KalmanFo dX = {kdX:F3}, dY = {kdY:F3}");
                 GESTURE_LOG.Information(Str.MINOR_LINE);
 
                 // Update previous state
-                _lineTPPrevPos = tp.GetCenterOfMass();
-                _lineTouchFrames.Clear();
-                _lineTouchFrames.Add(tp); //Add the current touch point for the next calculation.
-                _lineStopwatch.Restart();
+                _beamTPPrevPos = tp.GetCenterOfMass();
+                _beamTouchFrames.Clear();
+                _beamTouchFrames.Add(tp); //Add the current touch point for the next calculation.
+                _beamStopwatch.Restart();
 
                 // Make the move!
-                RotateLine(kdX, kdY);
+                RotateBeam(kdX, kdY);
 
 
             }
@@ -286,58 +293,65 @@ namespace Multi.Cursor
         /// </summary>
         /// <param name="dX"></param>
         /// <param name="dY"></param>        
-        public void RotateLine(double dX, double dY)
+        public void RotateBeam(double dX, double dY)
         {
+            // Update radians on the current angle
             UpdateAngleRad();
 
+            // Get the abs of weights
             double weightX = Abs(Sin(_angleRad));
             double weightY = Abs(Cos(_angleRad));
 
-            // Configure weights according to four regions
-            if (_angle >= 0 && _angle <= 90)
+            // Get the normalized angle
+            double normalAngle = NormalizeAngle(_angleDeg);
+
+            // Configure weights according to regions
+            if (Utils.IsBetween(normalAngle, 0, 90))
             {
-                weightX = -weightX;
+                weightX = -weightX; // X- => A+
+                weightY = -weightY; // Y- => A+
             }
 
-            if (_angle > 90 && _angle <= 180)
+            if (Utils.IsBetween(normalAngle, 90, 180))
             {
-                weightX = -weightX;
+                weightX = -weightX; // X- => A+
             }
 
-            //if (_angle > 180 && _angle <= 270)
-            //{
-            //    weightX = -weightX;
-            //    weightY = -weightY;
-            //}
-
-            if (_angle > 270)
+            if (Utils.IsBetween(normalAngle, 180, 270))
             {
-                //weightX = -weightX;
-                weightY = -weightY;
+                // Both weights as they are
             }
 
-            GESTURE_LOG.Debug($"Weights = {weightX}, {weightY}");
-            double dAngle = (dX * weightX + dY * weightY) * Config.RAD_GAIN;
-            _angle += dAngle;
+            if (Utils.IsBetween(normalAngle, 270, 360))
+            {
+                weightY = -weightY; // Y- => A+
+            }
 
-            if (_angle >= 360) _angle -= 360;
-            if (_angle < 0) _angle += 360;
+            GESTURE_LOG.Information($"Weights = {weightX:F3}, {weightY:F3}");
+            double dAngle = (dX * weightX + dY * weightY) * Config.ANGLE_GAIN;
+            _angleDeg += dAngle;
 
-            GESTURE_LOG.Debug($"dX = {dX:F3} | dY = {dY:F3} | dAn = {dAngle:F3} | angle = {_angle:F3}");
-            UpdateLine();
+            UpdateAngleRad();
+
+            GESTURE_LOG.Information($"Angle = {_angleDeg:F3}");
+
+            UpdateBeam();
+
+            GESTURE_LOG.Debug($"dX = {dX:F3} | dY = {dY:F3} | dAn = {dAngle:F3} | angle = {_angleDeg:F3}");
+            
         }
 
         // 🔼🔽 Move cross along the visible part of the line
         public void MovePlus(double dX, double dY)
         {
             // Project movement onto the rotated X-axis
-            double movementAlongLine = dX * Math.Cos(_angleRad) + dY * Math.Sin(_angleRad);
+            double movementAlongBeam = dX * Math.Cos(_angleRad) + dY * Math.Sin(_angleRad);
 
             // Move the cross along the line
-            _plusDistance += movementAlongLine;
+            _plusDistance += movementAlongBeam;
             
             UpdatePlusPosition();
-            DrawLineParts();
+            DrawBeamParts();
         }
 
         public void MovePlus(TouchPoint tp)
@@ -371,18 +385,18 @@ namespace Multi.Cursor
                 TouchPoint first = _plusTouchFrames.First();
                 TouchPoint last = _plusTouchFrames.Last();
 
-                double dXRaw = last.GetCenterOfMass().X - first.GetCenterOfMass().X;
-                double dYRaw = last.GetCenterOfMass().Y - first.GetCenterOfMass().Y;
+                double measureDX = last.GetCenterOfMass().X - first.GetCenterOfMass().X;
+                double measureDY = last.GetCenterOfMass().Y - first.GetCenterOfMass().Y;
 
                 // Compute velocity
                 _plusStopwatch.Stop();
                 double dT = _plusStopwatch.ElapsedMilliseconds / 1000.0; // seconds
-                double vXRaw = dXRaw / dT;
-                double vYRaw = dYRaw / dT;
+                double measureVX = measureDX / dT;
+                double measureVY = -measureDY / dT;
 
                 // Kalman filter for velocity
                 _plusKalmanFilter.Predict();
-                _plusKalmanFilter.Update(vXRaw, vYRaw);
+                _plusKalmanFilter.Update(measureVX, measureVY);
 
                 (double fvX, double fvY) filteredV = _plusKalmanFilter.GetEstVelocity();
 
@@ -394,6 +408,7 @@ namespace Multi.Cursor
                 double kdX = filteredV.fvX * dT * gain * 500;
                 double kdY = filteredV.fvY * dT * gain * 500;
 
+                GESTURE_LOG.Information($"<Plus> Measure vX = {measureVX:F3}, vY = {measureVY:F3}");
                 GESTURE_LOG.Information($"<Plus> KF vX = {filteredV.fvX:F3}, vY = {filteredV.fvY:F3}");
                 GESTURE_LOG.Information($"<Plus> KF dX = {kdX:F3}, dY = {kdY:F3}");
                 GESTURE_LOG.Information(Str.MINOR_LINE);
@@ -433,29 +448,29 @@ namespace Multi.Cursor
         //}
 
         // 📍 Update the line and cross, ensuring they stay within the screen
-        private void UpdateLine()
+        private void UpdateBeam()
         {
             // First update the radian angle
             UpdateAngleRad();
             
             // Get the max visible length from cursor position
-            double maxLength = GetMaxVisibleLineLength(_lineStart, _angle);
+            double maxLength = GetMaxVisibleLineLength(_beamStart, _angleDeg);
             GESTURE_LOG.Verbose($"Sin = {Sin(_angleRad)}, Cos = {Cos(_angleRad)}");
 
             Point lineEnd = new Point(
-                _lineStart.X + MAX_LINE_LENGTH * Cos(_angleRad),
-                _lineStart.Y - MAX_LINE_LENGTH * Sin(_angleRad));
+                _beamStart.X + MAX_BEAM_LENGTH * Cos(_angleRad),
+                _beamStart.Y - MAX_BEAM_LENGTH * Sin(_angleRad));
 
             //Canvas.SetLeft(PlusCanvas, x1 - linePartLength * Math.Cos(_angleRad) - plusOffset);  // Center of the first part
             //Canvas.SetTop(PlusCanvas, y1 - linePartLength * Math.Sin(_angleRad) - plusOffset);  // Center of the first part
 
             // Find the line formula (needed for finding the interception point)
-            _lineA = Tan(_angleRad);
-            _lineB = _lineStart.Y - _lineA * _lineStart.X;
+            //_lineA = Tan(_angleRad);
+            //_lineB = _beamStart.Y - _lineA * _beamStart.X;
 
             // Find the interception points (of the inner and outer rects)
-            Point? innerPoint = GetLineRectangleIntersection(_lineStart, lineEnd, _innerRect);
-            Point? outerPoint = GetLineRectangleIntersection(_lineStart, lineEnd, _outerRect);
+            Point? innerPoint = GetLineRectangleIntersection(_beamStart, lineEnd, _innerRect);
+            Point? outerPoint = GetLineRectangleIntersection(_beamStart, lineEnd, _outerRect);
 
             if (innerPoint != null && outerPoint != null)
             {
@@ -475,8 +490,8 @@ namespace Multi.Cursor
 
                     // Set Plus dist to (start -> mid)
                     double distToMid = Sqrt(
-                        Pow(_lineStart.X - midPoint.X, 2) + 
-                        Pow(_lineStart.Y - midPoint.Y, 2));
+                        Pow(_beamStart.X - midPoint.X, 2) + 
+                        Pow(_beamStart.Y - midPoint.Y, 2));
 
                     GESTURE_LOG.Information($"Dist = {distToMid}");
 
@@ -487,24 +502,24 @@ namespace Multi.Cursor
 
             
             UpdatePlusPosition();
-            DrawLineParts();
+            DrawBeamParts();
         }
 
-        private void DrawLineParts()
+        private void DrawBeamParts()
         {
             //--- Draw line parts
             // Part 1
             double lineP1Dist = _plusDistance - 15;
-            LinePart1.X1 = _lineStart.X;
-            LinePart1.Y1 = _lineStart.Y;
-            LinePart1.X2 = _lineStart.X + lineP1Dist * Cos(_angleRad);
-            LinePart1.Y2 = _lineStart.Y - lineP1Dist * Sin(_angleRad);
+            LinePart1.X1 = _beamStart.X;
+            LinePart1.Y1 = _beamStart.Y;
+            LinePart1.X2 = _beamStart.X + lineP1Dist * Cos(_angleRad);
+            LinePart1.Y2 = _beamStart.Y - lineP1Dist * Sin(_angleRad);
 
             // Part 2
             double lineP2StartDist = lineP1Dist + 30; // gap = 30
 
-            LinePart2.X1 = _lineStart.X + lineP2StartDist * Cos(_angleRad);
-            LinePart2.Y1 = _lineStart.Y - lineP2StartDist * Sin(_angleRad);
+            LinePart2.X1 = _beamStart.X + lineP2StartDist * Cos(_angleRad);
+            LinePart2.Y1 = _beamStart.Y - lineP2StartDist * Sin(_angleRad);
             LinePart2.X2 = _outerPoint.X;
             LinePart2.Y2 = _outerPoint.Y;
         }
@@ -592,7 +607,7 @@ namespace Multi.Cursor
             double limitX = (radians > 0 ? maxX - origin.X : origin.X) / Math.Cos(radians);
             double limitY = (radians > 0 ? maxY - origin.Y : origin.Y) / Math.Sin(radians);
 
-            return Math.Min(MAX_LINE_LENGTH, Math.Min(limitX, limitY));
+            return Math.Min(MAX_BEAM_LENGTH, Math.Min(limitX, limitY));
         }
 
         // 📍 Position the cross correctly within visible screen
@@ -603,15 +618,15 @@ namespace Multi.Cursor
 
             // Length of Plus
             double length = 10;
-
+            GESTURE_LOG.Information($"Plus Dist = {_plusDistance:F3}");
             // Compute new plus position along the line
             Point potentialPos = new Point();
-            potentialPos.X = _lineStart.X + _plusDistance * Math.Cos(_angleRad);
-            potentialPos.Y = _lineStart.Y - _plusDistance * Math.Sin(_angleRad);
+            potentialPos.X = _beamStart.X + _plusDistance * Math.Cos(_angleRad);
+            potentialPos.Y = _beamStart.Y - _plusDistance * Math.Sin(_angleRad);
 
             // If Plus is inside side window, update its position along with the line
-            double distToOuterPoint = Utils.Dist(_lineStart, _outerPoint);
-            double distToInnerPoint = Utils.Dist(_lineStart, _innerPoint);
+            double distToOuterPoint = Utils.Dist(_beamStart, _outerPoint);
+            double distToInnerPoint = Utils.Dist(_beamStart, _innerPoint);
             //Utils.IsBetweenInc(potentialPos.X, _innerPoint.X, _outerPoint.X) &&
             //    Utils.IsBetweenInc(potentialPos.Y, _innerPoint.Y, _outerPoint.Y)
 
@@ -634,7 +649,7 @@ namespace Multi.Cursor
             }
 
             // Update distance
-            _plusDistance = Utils.Dist(_lineStart, _plusPos);
+            _plusDistance = Utils.Dist(_beamStart, _plusPos);
 
             // Draw the Plus
             Canvas.SetLeft(PlusCanvas, _plusPos.X);
