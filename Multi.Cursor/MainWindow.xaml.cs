@@ -81,6 +81,28 @@ namespace Multi.Cursor
             public int X;
             public int Y;
         }
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+        /// <summary>
+        /// Confines the cursor to a rectangular area on the screen.
+        /// </summary>
+        /// <param name="lpRect">A pointer to the structure that contains the screen coordinates of the confining rectangle. If this parameter is NULL (IntPtr.Zero), the cursor is free to move anywhere on the screen.</param>
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ClipCursor(ref RECT lpRect);
+
+        /// <summary>
+        /// Call with IntPtr.Zero to release the cursor clip.
+        /// </summary>
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ClipCursor(IntPtr lpRect); // Overload for releasing
 
         // Constants
         private int INIT_X = 10, INIT_Y = 10;
@@ -173,6 +195,7 @@ namespace Multi.Cursor
         private Random _random;
 
         private bool _touchMouseActive = false; // Is ToMo active?
+        private bool _cursorFreezed = false;
 
         //--- Radiusor
         private int _actionPointerInd = -1;
@@ -991,6 +1014,53 @@ namespace Multi.Cursor
             return new Point(point.X, point.Y);
         }
 
+        private bool FreezeCursor()
+        {
+            if (GetCursorPos(out POINT currentPos))
+            {
+                // Define a 1x1 pixel rectangle at the current cursor position
+                RECT clipRect = new RECT
+                {
+                    Left = currentPos.X,
+                    Top = currentPos.Y,
+                    Right = currentPos.X + 1, // Make it a tiny box
+                    Bottom = currentPos.Y + 1
+                };
+
+                // Apply the clip
+                if (ClipCursor(ref clipRect))
+                {
+                    // Optional: Store the current clip state if you need to restore it later,
+                    // but usually, you just want to fully unclip.
+                    // GetClipCursor(out _originalClipRect);
+                    return true;
+                }
+                else
+                {
+                    // Handle potential error (e.g., log GetLastError())
+                    Console.WriteLine($"ClipCursor failed. Win32 Error Code: {Marshal.GetLastWin32Error()}");
+                    return false;
+                }
+            }
+            else
+            {
+                Console.WriteLine($"GetCursorPos failed. Win32 Error Code: {Marshal.GetLastWin32Error()}");
+                return false;
+            }
+        }
+
+        public static bool UnfreezeCursor()
+        {
+            // Release the clip by passing IntPtr.Zero (null pointer)
+            if (!ClipCursor(IntPtr.Zero))
+            {
+                Console.WriteLine($"ClipCursor(IntPtr.Zero) failed. Win32 Error Code: {Marshal.GetLastWin32Error()}");
+                return false;
+            }
+
+            return true;
+        }
+
         private void ClearCanvas()
         {
             canvas.Children.Clear();
@@ -1066,6 +1136,7 @@ namespace Multi.Cursor
             //{
             //    if (_activeSideWindow != null)
             //    {
+
             //        _activeSideWindow.MoveAuxPointer(indPoint);
             //    }
             //}
@@ -1084,7 +1155,11 @@ namespace Multi.Cursor
 
             if (_radiusorActive)
             {
-                _overlayWindow.RotateBeam(indPoint);
+                bool beamRotated = _overlayWindow.RotateBeam(indPoint);
+
+                if (beamRotated) _cursorFreezed = FreezeCursor();
+                else _cursorFreezed = !UnfreezeCursor();
+
             }
 
         }
@@ -1114,7 +1189,10 @@ namespace Multi.Cursor
             if (_radiusorActive) // Radiusor
             {
                 // Move the plus
-                _overlayWindow.MovePlus(thumbPoint);
+                bool plusMoved = _overlayWindow.MovePlus(thumbPoint);
+
+                if (plusMoved) _cursorFreezed = FreezeCursor();
+                else _cursorFreezed = !UnfreezeCursor();
 
             }
         }

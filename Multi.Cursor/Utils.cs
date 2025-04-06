@@ -5,6 +5,7 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using static System.Math;
 
 namespace Multi.Cursor
 {
@@ -107,6 +108,11 @@ namespace Multi.Cursor
         public static bool IsBetweenInc(double v, double v1, double v2)
         {
             return IsBetween(v, v1, v2) || (v == v1) || (v == v2);
+        }
+
+        public static bool IsEitherAbsMore(double v1, double v2, double threshold)
+        {
+            return Abs(v1) > threshold || Abs(v2) > threshold;
         }
     }
 }

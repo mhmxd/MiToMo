@@ -214,11 +214,12 @@ namespace Multi.Cursor
             UpdateBeam();
         }
 
-        public void RotateBeam(TouchPoint tp)
+        public bool RotateBeam(TouchPoint tp)
         {
             if (_beamStopwatch.ElapsedMilliseconds < Config.FRAME_DUR_MS) // Still collecting frames
             {
                 _beamTouchFrames.Add(tp);
+                return false;
             }
             else // Time for action!
             {
@@ -232,15 +233,15 @@ namespace Multi.Cursor
                     _beamTPInitMove = false;
                     _beamTouchFrames.Clear();
                     _beamStopwatch.Restart();
-                    return;
+                    return false;
                 }
 
                 if (_beamTouchFrames.Count <= 1)
                 {
-                    _beamTouchFrames.Add(tp); //add the current touch point.
+                    //_beamTouchFrames.Add(tp); //add the current touch point.
                     _beamTouchFrames.Clear();
                     _beamStopwatch.Restart();
-                    return; // No frames to work with
+                    return false; // No frames to work with
                 }
 
                 // Compute delta from oldest to newest frame
@@ -249,6 +250,13 @@ namespace Multi.Cursor
 
                 double measureDX = last.GetCenterOfMass().X - first.GetCenterOfMass().X;
                 double measureDY = last.GetCenterOfMass().Y - first.GetCenterOfMass().Y;
+
+                // Ignore smaller movments
+                if (Utils.IsEitherAbsMore(measureDX, measureDY, Config.MIN_CURSOR_MOVE_MM))
+                {
+                    _beamStopwatch.Restart();
+                    return false;
+                }
 
                 // Compute velocity
                 _beamStopwatch.Stop();
@@ -284,7 +292,8 @@ namespace Multi.Cursor
                 // Make the move!
                 RotateBeam(kdX, kdY);
 
-
+                // Beam rotated!
+                return true;
             }
         }
 
@@ -354,11 +363,12 @@ namespace Multi.Cursor
             DrawBeamParts();
         }
 
-        public void MovePlus(TouchPoint tp)
+        public bool MovePlus(TouchPoint tp)
         {
             if (_plusStopwatch.ElapsedMilliseconds < Config.FRAME_DUR_MS) // Still collecting frames
             {
                 _plusTouchFrames.Add(tp);
+                return false;
             }
             else // Time for action!
             {
@@ -370,15 +380,15 @@ namespace Multi.Cursor
                     _plusTPInitMove = false;
                     _plusTouchFrames.Clear();
                     _plusStopwatch.Restart();
-                    return;
+                    return false;
                 }
 
                 if (_plusTouchFrames.Count <= 1)
                 {
-                    _plusTouchFrames.Add(tp); //add the current touch point.
+                    //_plusTouchFrames.Add(tp); //add the current touch point.
                     _plusTouchFrames.Clear();
                     _plusStopwatch.Restart();
-                    return; // No frames to work with
+                    return false; // No frames to work with
                 }
 
                 // Compute delta from oldest to newest frame
@@ -387,6 +397,13 @@ namespace Multi.Cursor
 
                 double measureDX = last.GetCenterOfMass().X - first.GetCenterOfMass().X;
                 double measureDY = last.GetCenterOfMass().Y - first.GetCenterOfMass().Y;
+
+                // Ignore smaller movments
+                if (Utils.IsEitherAbsMore(measureDX, measureDY, Config.MIN_CURSOR_MOVE_MM))
+                {
+                    _beamStopwatch.Restart();
+                    return false;
+                }
 
                 // Compute velocity
                 _plusStopwatch.Stop();
@@ -421,6 +438,9 @@ namespace Multi.Cursor
 
                 // Make the move!
                 MovePlus(kdX, kdY);
+
+                // Result: moved
+                return true;
 
             }
         }
