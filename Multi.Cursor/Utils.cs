@@ -114,5 +114,15 @@ namespace Multi.Cursor
         {
             return Abs(v1) > threshold || Abs(v2) > threshold;
         }
+
+        public static double RandDouble(double min, double max)
+        {
+            return min + (max - min) * Random.NextDouble();
+        }
+
+        public static int ThicknessInPX(double dips)
+        {
+            return (int)(dips * PPI / 96.0);
+        }
     }
 }

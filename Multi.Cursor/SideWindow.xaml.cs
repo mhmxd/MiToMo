@@ -43,7 +43,7 @@ namespace Multi.Cursor
         private InputSimulator inputSimulator = new InputSimulator();
 
         private Rectangle _target = new Rectangle();
-        private int _targetRadius;
+        private int targetHalfW;
         private Point _relPos;
         public Point Rel_Pos
         {
@@ -89,7 +89,7 @@ namespace Multi.Cursor
         /// Show the target
         /// </summary>
         /// <param name="widthMM"> Width (diameter) of the target circle </param>
-        /// <returns> Position of the target center (rel. to the side window) </returns>
+        /// <returns> Position of the target top-left (rel. to this window) </returns>
         public Point ShowTarget(double widthMM, Brush fill, 
             MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
             MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
@@ -98,7 +98,7 @@ namespace Multi.Cursor
             // Radius in pixels
             //const double PPI = 109;
             //const double MM_IN_INCH = 25.4;
-            int width = Utils.MM2PX(widthMM);
+            int targetWidth = Utils.MM2PX(widthMM);
             
             // Get canvas dimensions
             int canvasWidth = (int)canvas.ActualWidth;
@@ -106,10 +106,10 @@ namespace Multi.Cursor
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
             int marginPX = Utils.MM2PX(Config.WINDOW_MARGIN_MM);
-            int minX = marginPX + width;
-            int maxX = canvasWidth - width - marginPX;
-            int minY = marginPX + width;
-            int maxY = canvasHeight - width - marginPX;
+            int minX = marginPX;
+            int maxX = canvasWidth - marginPX;
+            int minY = marginPX;
+            int maxY = canvasHeight - marginPX;
 
             // Generate random position
             Random random = new Random();
@@ -117,17 +117,26 @@ namespace Multi.Cursor
             double randomY = random.Next(minY, maxY);
 
             // Create the target
-            _targetRadius = width / 2;
+            targetHalfW = targetWidth / 2;
             _target = new Rectangle
             {
-                Width = width,
-                Height = width,
+                Width = targetWidth,
+                Height = targetWidth,
                 Fill = fill,
             };
 
             // Position the circle on the Canvas
-            Canvas.SetLeft(_target, randomX - width/2);
-            Canvas.SetTop(_target, randomY - width/2);
+            Canvas.SetLeft(_target, randomX - targetHalfW);
+            Canvas.SetTop(_target, randomY - targetHalfW);
+
+            //--- TEMP (for measurement)
+            // Longest dist
+            //Canvas.SetLeft(_target, minX);
+            //Canvas.SetTop(_target, minY);
+            // Shortest dist
+            //Canvas.SetLeft(_target, maxX - targetWidth);
+            //Canvas.SetTop(_target, minY);
+
 
             // Add events
             _target.MouseEnter += mouseEnterHandler;
@@ -154,8 +163,8 @@ namespace Multi.Cursor
         public bool IsAuxCursorInsideTarget()
         {
             // Get circle's center
-            double centerX = Canvas.GetLeft(_target) + _targetRadius;
-            double centerY = Canvas.GetTop(_target) + _targetRadius;
+            double centerX = Canvas.GetLeft(_target) + targetHalfW;
+            double centerY = Canvas.GetTop(_target) + targetHalfW;
 
             // Calculate distance from the point to the circle's center
             double distance = Math.Sqrt(
@@ -163,7 +172,7 @@ namespace Multi.Cursor
                 );
 
             // Check if the distance is less than or equal to the radius
-            return distance <= _targetRadius;
+            return distance <= targetHalfW;
         }
 
         /// <summary>

@@ -693,7 +693,7 @@ namespace Multi.Cursor
             Point targetPosition = new Point();
             Point startPosition = new Point();
             int marginPX = Utils.MM2PX(Config.WINDOW_MARGIN_MM);
-            int startRadius = Utils.MM2PX(Experiment.START_CIRCLE_WIDTH_MM);
+            int startRadius = Utils.MM2PX(Experiment.START_WIDTH_MM);
 
             // Set the active side window
             switch (_trial.SideWindowDir)
@@ -754,11 +754,37 @@ namespace Multi.Cursor
 
 
             //--- Show the start
+            double startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             // Convert position (rel. to screen) to window position (for showing)
             startPosition.Offset(-this._relLeft, -this._relTop);
             ShowStart(
-                startPosition, Utils.MM2PX(Experiment.START_CIRCLE_WIDTH_MM), Brushes.Green,
+                startPosition, startW, Brushes.Green,
                 Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
+            //--- TEMP (for measurements)
+            //
+            //double targetW = Utils.MM2PX(4);
+            // Longest dist
+            //Point tempStartPos = new Point(
+            //    this.Width - marginPX - startW,
+            //    this.Height - marginPX - startW);
+            //ShowStart(
+            //    tempStartPos, Utils.MM2PX(Experiment.START_WIDTH_MM), Brushes.Green,
+            //    Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
+            //_targetSideWindow = _leftWindow;
+            //_targetSideWindow.ShowTarget(
+            //    4, Brushes.Blue,
+            //    Target_MouseEnter, Target_MouseLeave, Target_ButtonDown, Target_ButtonUp);
+
+            // Sortest dist
+            //Point tempStartPos = new Point(marginPX, 
+            //    marginPX + 0.5*targetW - 0.5*startW);
+            //ShowStart(
+            //    tempStartPos, Utils.MM2PX(Experiment.START_WIDTH_MM), Brushes.Green,
+            //    Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
+            //_targetSideWindow = _leftWindow;
+            //_targetSideWindow.ShowTarget(
+            //    4, Brushes.Blue,
+            //    Target_MouseEnter, Target_MouseLeave, Target_ButtonDown, Target_ButtonUp);
         }
 
         private void ActivateLeftCursor()
@@ -978,8 +1004,18 @@ namespace Multi.Cursor
             _trialState = Str.TARGET_UP;
         }
 
+        /// <summary>
+        /// Show the start circle
+        /// </summary>
+        /// <param name="position">Top left</param>
+        /// <param name="width">In px</param>
+        /// <param name="color"></param>
+        /// <param name="mouseEnterHandler"></param>
+        /// <param name="mouseLeaveHandler"></param>
+        /// <param name="buttonDownHandler"></param>
+        /// <param name="buttonUpHandler"></param>
         private void ShowStart(
-            Point position, int width, Brush color, 
+            Point position, double width, Brush color, 
             SysIput.MouseEventHandler mouseEnterHandler, SysIput.MouseEventHandler mouseLeaveHandler,
             MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
         {
@@ -993,8 +1029,8 @@ namespace Multi.Cursor
             };
 
             // Position the Start on the Canvas
-            Canvas.SetLeft(_startRectangle, position.X - width / 2); // Center alignment
-            Canvas.SetTop(_startRectangle, position.Y - width / 2);
+            Canvas.SetLeft(_startRectangle, position.X);
+            Canvas.SetTop(_startRectangle, position.Y);
 
             // Add event
             _startRectangle.MouseEnter += mouseEnterHandler;

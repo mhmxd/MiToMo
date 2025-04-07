@@ -4,18 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using static System.Math;
+using static Multi.Cursor.Output;
 
 namespace Multi.Cursor
 {
     internal class Experiment
     {
         //-- Variables
-        private List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 };
+        public List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 };
         private List<double> DISTANCES_MM = new List<double>() { 100, 200 };
+        private double _longestDistMM; // BenQ = 568 mm
+        private double _sortestDistMM; // BenQ = 10 mm
+        private double DISTANCE_PADDING_MM = 10; // Padding to keep random dists from being too close
         public enum Technique { Auxursor_Swipe, Auxursor_Tap, Radiusor, Mouse }
 
         //-- Constants
-        public static double START_CIRCLE_WIDTH_MM = 6; // Same as our click experiment
+        public static double START_WIDTH_MM = 6; // Same as our click experiment
 
         //-- States
         public enum RESULT { MISS, HIT }
@@ -47,6 +52,19 @@ namespace Multi.Cursor
             _activeTrialNum = 1;
             _activeTrialInd = 0;
             _activeBlock = _blocks[0];
+
+            //--- Generate the distances
+            double oneThird = DISTANCES_MM.Max() / 3;
+            double twoThird = DISTANCES_MM.Max() * 2 / 3;
+            double midDist = Utils.RandDouble(oneThird, twoThird); // Middle distance
+            double shortDist = Utils.RandDouble(
+                _sortestDistMM, 
+                Min(oneThird, midDist - DISTANCE_PADDING_MM)); // Shortest distance
+            double longDist = Utils.RandDouble(
+                Max(midDist + DISTANCE_PADDING_MM, twoThird),
+                _longestDistMM); // Longest distance
+
+            TRIAL_LOG.Information($"Distances: {shortDist}, {midDist}, {longDist}");
         }
 
         public Experiment(int ptc, int nBlocks)
