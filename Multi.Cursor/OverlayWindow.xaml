@@ -13,10 +13,10 @@
 
     <Canvas x:Name="CanvasOverlay">
         <!-- First part of the line (before the plus sign) -->
-        <Line x:Name="LinePart1" Stroke="Green" StrokeThickness="1" />
+        <Line x:Name="LinePart1" Stroke="Black" StrokeThickness="1" />
 
         <!-- Second part of the line (after the plus sign) -->
-        <Line x:Name="LinePart2" Stroke="Blue" StrokeThickness="1" />
+        <Line x:Name="LinePart2" Stroke="Black" StrokeThickness="1" />
 
         <!-- The Plus Sign (a "plus" symbol made of two lines) -->
         <Canvas x:Name="PlusCanvas">

@@ -107,9 +107,9 @@ namespace Multi.Cursor
             // Ensure the Target stays fully within bounds (min/max for top-left)
             int marginPX = Utils.MM2PX(Config.WINDOW_MARGIN_MM);
             int minX = marginPX;
-            int maxX = canvasWidth - marginPX;
+            int maxX = canvasWidth - marginPX - targetWidth;
             int minY = marginPX;
-            int maxY = canvasHeight - marginPX;
+            int maxY = canvasHeight - marginPX - targetWidth;
 
             // Generate random position
             Random random = new Random();
@@ -125,14 +125,14 @@ namespace Multi.Cursor
                 Fill = fill,
             };
 
-            // Position the circle on the Canvas
-            Canvas.SetLeft(_target, randomX - targetHalfW);
-            Canvas.SetTop(_target, randomY - targetHalfW);
+            // Position the target on the Canvas
+            //Canvas.SetLeft(_target, randomX);
+            //Canvas.SetTop(_target, randomY);
 
             //--- TEMP (for measurement)
             // Longest dist
-            //Canvas.SetLeft(_target, minX);
-            //Canvas.SetTop(_target, minY);
+            Canvas.SetLeft(_target, minX);
+            Canvas.SetTop(_target, minY);
             // Shortest dist
             //Canvas.SetLeft(_target, maxX - targetWidth);
             //Canvas.SetTop(_target, minY);

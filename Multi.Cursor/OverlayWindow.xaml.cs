@@ -145,7 +145,8 @@ namespace Multi.Cursor
             double dT = Config.FRAME_DUR_MS / 1000.0; // Seconds
 
             _beamKalmanFilter = new KalmanVeloFilter(dT, 1.2, 15);
-            _plusKalmanFilter = new KalmanVeloFilter(dT, 0.1, 10);
+            _plusKalmanFilter = new KalmanVeloFilter(dT, 0.4, 40);
+
             _beamStopwatch = new Stopwatch();
             _plusStopwatch = new Stopwatch();
             _beamTPInitMove = true;
