@@ -126,13 +126,13 @@ namespace Multi.Cursor
             };
 
             // Position the target on the Canvas
-            //Canvas.SetLeft(_target, randomX);
-            //Canvas.SetTop(_target, randomY);
+            Canvas.SetLeft(_target, randomX);
+            Canvas.SetTop(_target, randomY);
 
             //--- TEMP (for measurement)
             // Longest dist
-            Canvas.SetLeft(_target, minX);
-            Canvas.SetTop(_target, minY);
+            //Canvas.SetLeft(_target, minX);
+            //Canvas.SetTop(_target, minY);
             // Shortest dist
             //Canvas.SetLeft(_target, maxX - targetWidth);
             //Canvas.SetTop(_target, minY);

@@ -756,24 +756,24 @@ namespace Multi.Cursor
             //--- Show the start
             double startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             // Convert position (rel. to screen) to window position (for showing)
-            //startPosition.Offset(-this._relLeft, -this._relTop);
-            //ShowStart(
-            //    startPosition, startW, Brushes.Green,
-            //    Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
+            startPosition.Offset(-this._relLeft, -this._relTop);
+            ShowStart(
+                startPosition, startW, Brushes.Green,
+                Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
             //--- TEMP (for measurements)
             //
             //double targetW = Utils.MM2PX(4);
             // Longest dist
-            Point tempStartPos = new Point(
-                this.Width - marginPX - startW,
-                this.Height - marginPX - startW);
-            ShowStart(
-                tempStartPos, Utils.MM2PX(Experiment.START_WIDTH_MM), Brushes.Green,
-                Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
-            _targetSideWindow = _leftWindow;
-            _targetSideWindow.ShowTarget(
-                4, Brushes.Blue,
-                Target_MouseEnter, Target_MouseLeave, Target_ButtonDown, Target_ButtonUp);
+            //Point tempStartPos = new Point(
+            //    this.Width - marginPX - startW,
+            //    this.Height - marginPX - startW);
+            //ShowStart(
+            //    tempStartPos, Utils.MM2PX(Experiment.START_WIDTH_MM), Brushes.Green,
+            //    Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
+            //_targetSideWindow = _leftWindow;
+            //_targetSideWindow.ShowTarget(
+            //    4, Brushes.Blue,
+            //    Target_MouseEnter, Target_MouseLeave, Target_ButtonDown, Target_ButtonUp);
 
             // Sortest dist
             //Point tempStartPos = new Point(marginPX, 
@@ -1123,21 +1123,18 @@ namespace Multi.Cursor
                     _leftWindow.ActivateCursor();
                     _topWindow.DeactivateCursor();
                     _rightWindow.DeactivateCursor();
-                    GESTURE_LOG.Information("Left window activated!");
                     break;
                 case Direction.Up:
                     _activeSideWindow = _topWindow;
                     _topWindow.ActivateCursor();
                     _leftWindow.DeactivateCursor();
                     _rightWindow.DeactivateCursor();
-                    GESTURE_LOG.Information("Top window activated!");
                     break;
                 case Direction.Right:
                     _activeSideWindow = _rightWindow;
                     _rightWindow.ActivateCursor();
                     _leftWindow.DeactivateCursor();
                     _topWindow.DeactivateCursor();
-                    GESTURE_LOG.Information("Right window activated!");
                     break;
             }
         }
@@ -1245,7 +1242,6 @@ namespace Multi.Cursor
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                GESTURE_LOG.Information("Thumb Tapped!");
                 ActivateSide(Direction.Left);
             }
             
@@ -1255,7 +1251,6 @@ namespace Multi.Cursor
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                GESTURE_LOG.Information("Middle Tapped!");
                 ActivateSide(Direction.Up);
             }
         }
@@ -1264,7 +1259,14 @@ namespace Multi.Cursor
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                GESTURE_LOG.Information("Ring Tapped!");
+                ActivateSide(Direction.Right);
+            }
+        }
+
+        public void LittleTap()
+        {
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
+            {
                 ActivateSide(Direction.Right);
             }
         }

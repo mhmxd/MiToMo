@@ -36,6 +36,13 @@ namespace Multi.Cursor
                 _start = (_start + 1) % _buffer.Length; // If full, move start pointer
             }
         }
+        public IEnumerable<T> GetFrames()
+        {
+            for (int i = 0; i < _count; i++)
+            {
+                yield return this[i];
+            }
+        }
 
         public T this[int index]
         {
@@ -55,5 +62,7 @@ namespace Multi.Cursor
         public T Last => _buffer[_end];
 
         public T BeforeLast => _buffer[Count - 1];
+
+        
     }
 }

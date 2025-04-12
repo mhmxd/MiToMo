@@ -30,7 +30,7 @@ namespace Multi.Cursor
         void ThumbUp(TouchPoint indPoint);
 
         void MiddleTap();
-
         void RingTap();
+        void LittleTap();
     }
 }

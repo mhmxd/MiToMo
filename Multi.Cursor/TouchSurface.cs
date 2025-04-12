@@ -12,6 +12,7 @@ using static System.Math;
 using System.Diagnostics;
 using System.Windows;
 using MathNet.Numerics.LinearAlgebra.Factorization;
+using System.Web.UI;
 
 namespace Multi.Cursor
 {
@@ -19,6 +20,12 @@ namespace Multi.Cursor
     {
         private const int MIN_TOUCH_VAL = 30; // Minimum value to consider touching the surface
         private const double MAX_MOVEMENT = 1.0; // Max movement allowed to keep the same ID
+
+        private Finger _thumb = new Finger(0, 3);
+        private Finger _index = new Finger(4, 7);
+        private Finger _middle = new Finger(7, 10);
+        private Finger _ring = new Finger(11, 13);
+        private Finger _little = new Finger(14, 15);
 
         //--- Class for each frame on the surface
         private class TouchFrame
@@ -45,6 +52,27 @@ namespace Multi.Cursor
 
                 return false;
             }
+
+            public bool ExcludePointer(int keyMin, int keyMax)
+            {
+                foreach (int key in Pointers.Keys)
+                {
+                    if (Utils.InInc(key, keyMin, keyMax)) return false;
+                }
+
+                return true;
+            }
+
+            public bool DoesNotIncludePointer(Finger finger)
+            {
+                foreach (int key in Pointers.Keys)
+                {
+                    if (Utils.InInc(key, finger.MinCol, finger.MaxCol)) return false;
+                }
+
+                return true;
+            }
+
 
             public TouchPoint GetPointer(int keyMin, int keyMax)
             {
@@ -110,6 +138,11 @@ namespace Multi.Cursor
             }
         }
 
+        /// <summary>
+        /// Fill active touches
+        /// </summary>
+        /// <param name="shotSpan"></param>
+        /// <returns></returns>
         private TouchFrame FillActiveTouches(Span2D<Byte> shotSpan)
         {
             // Reset the dictionary
@@ -252,6 +285,10 @@ namespace Multi.Cursor
             return activeFrame;
         }
 
+        /// <summary>
+        /// Track touches using the shots
+        /// </summary>
+        /// <param name="shotSpan"></param>
         public void Track(Span2D<Byte> shotSpan)
         {
             // First, get the current frame
@@ -266,58 +303,84 @@ namespace Multi.Cursor
             {
                 TouchFrame lastFrame = _frames.Last;
                 TouchFrame beforeLastFrame = _frames.BeforeLast;
-                GESTURE_LOG.Verbose(Str.MINOR_LINE);
-                GESTURE_LOG.Verbose(Output.GetString(beforeLastFrame.Pointers));
-                GESTURE_LOG.Verbose(Str.MINOR_LINE);
+
                 GESTURE_LOG.Verbose(Output.GetString(lastFrame.Pointers));
-                GESTURE_LOG.Verbose(Str.MINOR_LINE);
+                //int frameWithThumb = 0;
+                //foreach (TouchFrame frame in _frames.GetFrames())
+                //{
+                //    if (frame.IncludePointer(0, 3))
+                //    {
+                //        frameWithThumb++;
+                //    }   
+                //}
 
-                //--- Only track multiple fingers if multiple fingers are present!
-                if (lastFrame.Pointers.Count >= 1) 
-                {
-                    // Presence checks are done inside the methods
-                    TrackThumb();
-                    TrackIndex();
-                    TrackMiddle();
-                    TrackRing();
-                }
-                
-
+                // Debug...
+                //--- REMOVED: Only track multiple fingers if multiple fingers are present!
+                // Presence checks are done inside the methods
+                TrackThumb();
+                TrackIndex();
+                TrackMiddle();
+                TrackRing();
+                //TrackLittle();
 
             }
 
         }
 
+
+        /// <summary>
+        /// Tracking of the thumb finger
+        /// </summary>
         private void TrackThumb()
         {
             // Get the last frame
             TouchFrame lastFrame = _frames.Last;
             TouchFrame beforeLastFrame = _frames.BeforeLast;
 
-            if (!lastFrame.IncludePointer(0, 3)) // No thumb present in the last frame
+            if (lastFrame.DoesNotIncludePointer(_thumb)) // No thumb present in the last frame
             {
                 _lastThumbTP = null;
-                // Thumb was present before => Check for Tap
-                if (beforeLastFrame.IncludePointer(0, 3)) 
-                {
+                
+                if (_thumb.IsDown)
+                { 
                     if (_timers[1].ElapsedMilliseconds < Config.TAP_TIME_MS) // Tap!
                     {
                         _gestureReceiver.ThumbTap();
                     }
 
                     _gestureReceiver.ThumbUp(lastFrame.GetPointer(0, 3)); // DON'T DELETE! (Needed for Radiusor)
+
+                    _thumb.LiftUp();
                 }
+
+                //if (beforeLastFrame.IncludePointer(0, 3)) // Thumb was present before => Check for Tap
+                //{
+                    
+                //    if (_timers[1].ElapsedMilliseconds < Config.TAP_TIME_MS) // Tap!
+                //    {
+                //        _gestureReceiver.ThumbTap();
+                //    }
+
+                //    _gestureReceiver.ThumbUp(lastFrame.GetPointer(0, 3)); // DON'T DELETE! (Needed for Radiusor)
+                //}
+
                 return;
             }
 
             //--- Thumb present ----------------------------------------
             TouchPoint thumbTP = lastFrame.GetPointer(0, 3);
 
-            if (!beforeLastFrame.IncludePointer(0, 3)) // Thumb wasn't present => Start Tap-watch
+            if (_thumb.IsUp)
             {
+                // Thumb Down => Start Tap-watch
                 _timers[1].Restart();
-                GESTURE_LOG.Verbose("Timer 1 restarted");
+                _thumb.TouchDown();
             }
+
+            //if (beforeLastFrame.ExcludePointer(0, 3)) // Thumb wasn't present => Start Tap-watch
+            //{
+            //    _timers[1].Restart();
+            //}
 
             // Send the point for analyzing the movement
             _gestureReceiver.ThumbMove(thumbTP); // Managed where implemented (could be 0)
@@ -331,8 +394,8 @@ namespace Multi.Cursor
             long historyEndTimestamp = historyLast.Timestamp;
 
             // History duration
-            double historyDT = 
-                (historyEndTimestamp - historyStartTimestamp) 
+            double historyDT =
+                (historyEndTimestamp - historyStartTimestamp)
                 / (double)Stopwatch.Frequency;
 
             // Not enough history
@@ -429,14 +492,16 @@ namespace Multi.Cursor
             }
         }
 
-
+        /// <summary>
+        /// Tracking the index finger
+        /// </summary>
         private void TrackIndex()
         {
             // Get the last frame
             TouchFrame lastFrame = _frames.Last;
 
             // No index finger present in the frame => reset the last positoin
-            if (!lastFrame.IncludePointer(4, 7))
+            if (lastFrame.ExcludePointer(4, 7))
             {
                 _gestureReceiver.IndexPointUp();
                 _lastIndexTP = null;
@@ -449,70 +514,116 @@ namespace Multi.Cursor
             _gestureReceiver.IndexPointMove(indexTP);
         }
 
+        /// <summary>
+        /// Tracking the middle finger
+        /// </summary>
         private void TrackMiddle()
         {
-            int min = 7; int max = 10; // Typically on 9
-
             // Get the last frame
             TouchFrame lastFrame = _frames.Last;
             TouchFrame beforeLastFrame = _frames.BeforeLast;
 
-            if (!lastFrame.IncludePointer(min, max)) // No middle finger present
+            if (lastFrame.DoesNotIncludePointer(_middle)) // No middle finger present
             {
-                // Middle was present before => Check for Tap
-                if (beforeLastFrame.IncludePointer(min, max))
+
+                if (_middle.IsDown)
                 {
-                    if (_timers[3].ElapsedMilliseconds < Config.TAP_TIME_MS) // Tap!
+                    if (_middle.GetDownTime() < Config.TAP_TIME_MS) // Tap!
                     {
                         _gestureReceiver.MiddleTap();
-                        _timers[3].Reset();
                     }
+
+                    _middle.LiftUp();
                 }
+
                 return;
+
             } else // Middle present
             {
-                // Middle Down => Start Tap-watch
-                if (!beforeLastFrame.IncludePointer(min, max)) 
+
+                if (_middle.IsUp)
                 {
-                    _timers[3].Restart();
-                    GESTURE_LOG.Verbose("Timer 3 restarted");
+                    // Thumb Down => Start Tap-watch
+                    _middle.RestartTimer();
+                    _middle.TouchDown();
                 }
+
             }
 
             
         }
 
+        /// <summary>
+        /// Tracking the ring finger
+        /// </summary>
         private void TrackRing()
         {
-            int min = 11; int max = 15; // Inclusive on both
 
             // Get the last frame
             TouchFrame lastFrame = _frames.Last;
             TouchFrame beforeLastFrame = _frames.BeforeLast;
 
-            if (!lastFrame.IncludePointer(min, max)) // No middle finger present (typically on 9)
+            if (lastFrame.DoesNotIncludePointer(_ring)) // No ring finger present
             {
-                // Thumb was present before => Check for Tap
-                if (beforeLastFrame.IncludePointer(min, max))
+                if (_ring.IsDown)
                 {
-                    if (_timers[4].ElapsedMilliseconds < Config.TAP_TIME_MS) // Tap!
+                    if (_ring.GetDownTime() < Config.TAP_TIME_MS) // Tap!
                     {
                         _gestureReceiver.RingTap();
-                        _timers[4].Reset();
                     }
+                    
+                    _ring.LiftUp(); 
                 }
+
                 return;
-            } else
+
+            } else // Ringer finger is present in the last frame
             {
-                // Ring Down => Start Tap-watch
-                if (!beforeLastFrame.IncludePointer(min, max)) 
+                if (_ring.IsUp)
                 {
-                    _timers[4].Restart();
-                    GESTURE_LOG.Verbose("Timer 4 restarted");
+                    // Ring Down => Start Tap-watch
+                    _ring.RestartTimer();
+                    _ring.TouchDown();   
+                }
+            }
+            
+        }
+
+        /// <summary>
+        /// Tracking the pinky finger
+        /// </summary>
+        private void TrackLittle()
+        {
+
+            // Get the last frame
+            TouchFrame lastFrame = _frames.Last;
+            TouchFrame beforeLastFrame = _frames.BeforeLast;
+
+            if (lastFrame.DoesNotIncludePointer(_little)) // No ring finger present
+            {
+                if (_little.IsDown) // Little finger was down
+                {
+                    if (_little.GetDownTime() < Config.TAP_TIME_MS) // Tap!
+                    {
+                        _gestureReceiver.LittleTap();
+                    }
+
+                    _little.LiftUp();
+                }
+
+                return;
+
+            }
+            else // Ringer finger is present in the last frame
+            {
+                if (_little.IsUp)
+                {
+                    // Ring Down => Start Tap-watch
+                    _little.RestartTimer();
+                    _little.TouchDown();
                 }
             }
 
-            
         }
     }
 }
