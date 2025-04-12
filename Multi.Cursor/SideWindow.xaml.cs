@@ -155,6 +155,56 @@ namespace Multi.Cursor
             return new Point(randomX, randomY);
         }
 
+        /// <summary>
+        /// Show the target for measurement purposes
+        /// </summary>
+        /// <param name="widthMM"></param>
+        /// <param name="fill"></param>
+        /// <returns></returns>
+        public void ShowDummyTarget(double widthMM, Brush fill)
+        {
+
+            // Radius in pixels
+            //const double PPI = 109;
+            //const double MM_IN_INCH = 25.4;
+            int targetWidth = Utils.MM2PX(widthMM);
+
+            // Get canvas dimensions
+            int canvasWidth = (int)canvas.ActualWidth;
+            int canvasHeight = (int)canvas.ActualHeight;
+
+            // Ensure the Target stays fully within bounds (min/max for top-left)
+            int marginPX = Utils.MM2PX(Config.WINDOW_MARGIN_MM);
+            int minX = marginPX;
+            int maxX = canvasWidth - marginPX - targetWidth;
+            int minY = marginPX;
+            int maxY = canvasHeight - marginPX - targetWidth;
+
+            // Create the target
+            targetHalfW = targetWidth / 2;
+            _target = new Rectangle
+            {
+                Width = targetWidth,
+                Height = targetWidth,
+                Fill = fill,
+            };
+
+            // Longest dist
+            Canvas.SetLeft(_target, (canvasWidth - targetWidth)/2);
+            Canvas.SetTop(_target, minY);
+            // Shortest dist
+            //Canvas.SetLeft(_target, maxX - targetWidth);
+            //Canvas.SetTop(_target, minY);
+
+            // Add the circle to the Canvas
+            canvas.Children.Add(_target);
+
+            // Set index
+            Canvas.SetZIndex(_target, 0);
+            Canvas.SetZIndex(cursor_active, 1);
+            Canvas.SetZIndex(cursor_inactive, 1);
+        }
+
         public void ColorTarget(Brush color)
         {
             _target.Fill = color;

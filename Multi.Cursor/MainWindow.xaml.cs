@@ -756,35 +756,30 @@ namespace Multi.Cursor
             //--- Show the start
             double startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             // Convert position (rel. to screen) to window position (for showing)
-            startPosition.Offset(-this._relLeft, -this._relTop);
-            ShowStart(
-                startPosition, startW, Brushes.Green,
-                Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
-            //--- TEMP (for measurements)
-            //
-            //double targetW = Utils.MM2PX(4);
-            // Longest dist
+            //startPosition.Offset(-this._relLeft, -this._relTop);
+            //ShowStart(
+            //    startPosition, startW, Brushes.Green,
+            //    Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
+            //--- TEMP (for measurements) -----------------------------------------------
+            double minTargetW = Experiment.GetMinTargetW();
+            //--- Longest dist
             //Point tempStartPos = new Point(
-            //    this.Width - marginPX - startW,
+            //    (this.Width - startW)/2,
             //    this.Height - marginPX - startW);
             //ShowStart(
             //    tempStartPos, Utils.MM2PX(Experiment.START_WIDTH_MM), Brushes.Green,
             //    Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
-            //_targetSideWindow = _leftWindow;
-            //_targetSideWindow.ShowTarget(
-            //    4, Brushes.Blue,
-            //    Target_MouseEnter, Target_MouseLeave, Target_ButtonDown, Target_ButtonUp);
+            //
+            //_targetSideWindow = _topWindow;
+            //_targetSideWindow.ShowDummyTarget(minTargetW, Brushes.Blue);
 
-            // Sortest dist
-            //Point tempStartPos = new Point(marginPX, 
-            //    marginPX + 0.5*targetW - 0.5*startW);
+            // Sortest dist = 2 * marginPX + minTargetW/2 + startW/2
+            //Point tempStartPos = new Point(marginPX, marginPX + 0.5 * minTargetW - 0.5 * startW);
             //ShowStart(
             //    tempStartPos, Utils.MM2PX(Experiment.START_WIDTH_MM), Brushes.Green,
             //    Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
             //_targetSideWindow = _leftWindow;
-            //_targetSideWindow.ShowTarget(
-            //    4, Brushes.Blue,
-            //    Target_MouseEnter, Target_MouseLeave, Target_ButtonDown, Target_ButtonUp);
+            //_targetSideWindow.ShowDummyTarget(minTargetW, Brushes.Blue);
         }
 
         private void ActivateLeftCursor()

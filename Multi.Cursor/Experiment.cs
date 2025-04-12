@@ -12,8 +12,8 @@ namespace Multi.Cursor
     internal class Experiment
     {
         //-- Variables
-        public List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 };
-        private List<double> DISTANCES_MM = new List<double>() { 100, 200 };
+        private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 };
+        private static List<double> DISTANCES_MM = new List<double>() { 100, 200 };
         private double _longestDistMM; // BenQ = 568 mm
         private double _sortestDistMM; // BenQ = 10 mm
         private double DISTANCE_PADDING_MM = 10; // Padding to keep random dists from being too close
@@ -132,5 +132,9 @@ namespace Multi.Cursor
             return Active_Technique == Technique.Radiusor;
         }
 
+        public static double GetMinTargetW()
+        {
+            return TARGET_WIDTHS_MM.First();
+        }
     }
 }
