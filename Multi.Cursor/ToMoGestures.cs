@@ -25,7 +25,7 @@ namespace Multi.Cursor
         void IndexPointUp();
 
         void ThumbSwipe(Direction dir);
-        void ThumbTap();
+        void ThumbTap(Direction dir); // Not exactly direction, rather position (up/down)
         void ThumbMove(TouchPoint thumbPoint);
         void ThumbUp(TouchPoint indPoint);
 

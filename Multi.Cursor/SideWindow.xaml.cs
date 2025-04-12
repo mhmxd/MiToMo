@@ -36,6 +36,7 @@ namespace Multi.Cursor
 
 
         private int windowWidth, windowHeight;
+        private int _canvasWidth, _canvasHeight;
 
         private bool isCursorVisible;
         private Point lastSimCursorPos = new Point(0, 0);
@@ -101,15 +102,15 @@ namespace Multi.Cursor
             int targetWidth = Utils.MM2PX(widthMM);
             
             // Get canvas dimensions
-            int canvasWidth = (int)canvas.ActualWidth;
-            int canvasHeight = (int)canvas.ActualHeight;
+            _canvasWidth = (int)canvas.ActualWidth;
+            _canvasHeight = (int)canvas.ActualHeight;
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
             int marginPX = Utils.MM2PX(Config.WINDOW_MARGIN_MM);
             int minX = marginPX;
-            int maxX = canvasWidth - marginPX - targetWidth;
+            int maxX = _canvasWidth - marginPX - targetWidth;
             int minY = marginPX;
-            int maxY = canvasHeight - marginPX - targetWidth;
+            int maxY = _canvasHeight - marginPX - targetWidth;
 
             // Generate random position
             Random random = new Random();
@@ -271,10 +272,31 @@ namespace Multi.Cursor
             //windowHeight = (int)this.ActualHeight;
         }
 
-        public void ActivateCursor()
+        public void ActivateCursor(Direction dir)
         {
+            Point position = new Point();
+            position.X = canvas.ActualWidth / 2;
+
+            switch (dir)
+            {
+                case Direction.Left:
+                    break;
+                case Direction.Up:
+                    position.Y = canvas.ActualHeight / 4; // Middle of the top
+                    break;
+                case Direction.Down:
+                    position.Y = canvas.ActualHeight * 3/4; // Middle of the top
+                    break;
+                case Direction.Right:
+
+                    break;
+            }
+
             cursor_inactive.Visibility = Visibility.Hidden;
             cursor_active.Visibility = Visibility.Visible;
+            _cursorTransform.X = position.X;
+            _cursorTransform.Y = position.Y;
+            Output.Print("Cursor activated at: ", position);
             _auxursor.Activate();
         }
 

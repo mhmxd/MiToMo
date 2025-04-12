@@ -20,6 +20,7 @@ namespace Multi.Cursor
     {
         private const int MIN_TOUCH_VAL = 30; // Minimum value to consider touching the surface
         private const double MAX_MOVEMENT = 1.0; // Max movement allowed to keep the same ID
+        private const int THUMB_MID_ROW = 11; // Threshold for thumb tap (row 11) -- range: [9, 13]
 
         private Finger _thumb = new Finger(0, 3);
         private Finger _index = new Finger(4, 7);
@@ -345,7 +346,10 @@ namespace Multi.Cursor
                 { 
                     if (_timers[1].ElapsedMilliseconds < Config.TAP_TIME_MS) // Tap!
                     {
-                        _gestureReceiver.ThumbTap();
+                        // Distinguish where the tap was...
+                        Direction tapDir = Direction.Up;
+                        if (_thumb.GetDownRow() > THUMB_MID_ROW) tapDir = Direction.Down; 
+                        _gestureReceiver.ThumbTap(tapDir);
                     }
 
                     _gestureReceiver.ThumbUp(lastFrame.GetPointer(0, 3)); // DON'T DELETE! (Needed for Radiusor)
@@ -374,7 +378,7 @@ namespace Multi.Cursor
             {
                 // Thumb Down => Start Tap-watch
                 _timers[1].Restart();
-                _thumb.TouchDown();
+                _thumb.TouchDown(lastFrame.GetPointer(_thumb.MinCol, _thumb.MaxCol).GetRow());
             }
 
             //if (beforeLastFrame.ExcludePointer(0, 3)) // Thumb wasn't present => Start Tap-watch
@@ -406,7 +410,6 @@ namespace Multi.Cursor
             // Check the last window of frames that fits the time duration
             for (int i = _frames.Count - 2; i >= 0; i--)
             {
-                GESTURE_LOG.Verbose($"i = {i}, count = {_frames.Count}");
                 TouchFrame firstFrame = _frames[i];
                 long firstTimestamp = firstFrame.Timestamp;
                 double duration = (historyEndTimestamp - firstTimestamp) / (double)Stopwatch.Frequency;
@@ -427,10 +430,6 @@ namespace Multi.Cursor
                 double dX = gestureEnd.GetX() - gestureStart.GetX();
                 double dY = gestureEnd.GetY() - gestureStart.GetY();
 
-                GESTURE_LOG.Debug($"dT: {duration}");
-                GESTURE_LOG.Debug($"Movement X: {gestureStart.GetX():F3} -> {gestureEnd.GetX():F3} = {dX:F3}");
-                GESTURE_LOG.Debug($"Movement Y: {gestureStart.GetY():F3} -> {gestureEnd.GetY():F3} = {dY:F3}");
-
                 //-- Check against thresholds
                 if (Abs(dX) > Config.MOVE_THRESHOLD) // Swipe left/right
                 {
@@ -445,14 +444,12 @@ namespace Multi.Cursor
                     {
                         if (dX > Config.MOVE_THRESHOLD) // Right
                         {
-                            GESTURE_LOG.Debug($"Swiped Right: {dX:F3}, {dY:F3}");
                             _gestureReceiver.ThumbSwipe(Direction.Right);
                             return;
                             //_frames = new FixedBuffer<TouchFrame>(_frames.Count); // Reset
                         }
                         else // Left
                         {
-                            GESTURE_LOG.Debug($"Swiped Left: {dX:F3}, {dY:F3}");
                             _gestureReceiver.ThumbSwipe(Direction.Left);
                             return;
                             //_frames = new FixedBuffer<TouchFrame>(_frames.Count); // Reset
@@ -474,14 +471,12 @@ namespace Multi.Cursor
                     {
                         if (dY > Config.HIGHT_MOVE_THRESHOLD) // Down
                         {
-                            GESTURE_LOG.Debug($"Swiped Down: {dX:F3}, {dY:F3}");
                             _gestureReceiver.ThumbSwipe(Direction.Down);
                             return;
                             //_frames = new FixedBuffer<TouchFrame>(_frames.Count); // Reset
                         }
                         else // Up
                         {
-                            GESTURE_LOG.Debug($"Swiped Up: {dX:F3}, {dY:F3}");
                             _gestureReceiver.ThumbSwipe(Direction.Up);
                             return;
                             //_frames = new FixedBuffer<TouchFrame>(_frames.Count); // Reset
@@ -545,7 +540,7 @@ namespace Multi.Cursor
                 {
                     // Thumb Down => Start Tap-watch
                     _middle.RestartTimer();
-                    _middle.TouchDown();
+                    _middle.TouchDown(lastFrame.GetPointer(_middle.MinCol, _middle.MaxCol).GetRow());
                 }
 
             }
@@ -583,7 +578,7 @@ namespace Multi.Cursor
                 {
                     // Ring Down => Start Tap-watch
                     _ring.RestartTimer();
-                    _ring.TouchDown();   
+                    _ring.TouchDown(lastFrame.GetPointer(_ring.MinCol, _ring.MaxCol).GetRow());   
                 }
             }
             
@@ -620,7 +615,7 @@ namespace Multi.Cursor
                 {
                     // Ring Down => Start Tap-watch
                     _little.RestartTimer();
-                    _little.TouchDown();
+                    _little.TouchDown(lastFrame.GetPointer(_little.MinCol, _little.MaxCol).GetRow());
                 }
             }
 

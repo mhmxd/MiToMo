@@ -12,6 +12,7 @@ namespace Multi.Cursor
         public int MinCol, MaxCol;
         public bool IsDown;
         public bool IsUp => !IsDown;
+        private int downRow;
         
         private Stopwatch _timer = new Stopwatch();
 
@@ -32,9 +33,15 @@ namespace Multi.Cursor
             IsDown = false;
         }
 
-        public void TouchDown()
+        public void TouchDown(int downRow)
         {
             IsDown = true;
+            this.downRow = downRow;
+        }
+
+        public int GetDownRow()
+        {
+            return downRow;
         }
 
         public void RestartTimer()

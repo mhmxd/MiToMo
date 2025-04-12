@@ -1109,25 +1109,25 @@ namespace Multi.Cursor
             _rightWindow.ClearCanvas();
         }
 
-        private void ActivateSide(Direction dir)
+        private void ActivateSide(Direction winDir, Direction tapDir)
         {
-            switch (dir)
+            switch (winDir)
             {
                 case Direction.Left:
                     _activeSideWindow = _leftWindow;
-                    _leftWindow.ActivateCursor();
+                    _leftWindow.ActivateCursor(tapDir);
                     _topWindow.DeactivateCursor();
                     _rightWindow.DeactivateCursor();
                     break;
                 case Direction.Up:
                     _activeSideWindow = _topWindow;
-                    _topWindow.ActivateCursor();
+                    //_topWindow.ActivateCursor();
                     _leftWindow.DeactivateCursor();
                     _rightWindow.DeactivateCursor();
                     break;
                 case Direction.Right:
                     _activeSideWindow = _rightWindow;
-                    _rightWindow.ActivateCursor();
+                    //_rightWindow.ActivateCursor();
                     _leftWindow.DeactivateCursor();
                     _topWindow.DeactivateCursor();
                     break;
@@ -1209,7 +1209,7 @@ namespace Multi.Cursor
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Swipe)
             {
-                ActivateSide(dir);
+                //ActivateSide(dir);
             }
             
         }
@@ -1233,11 +1233,11 @@ namespace Multi.Cursor
             _lastPlusPointerPos.X = -1;
         }
 
-        public void ThumbTap()
+        public void ThumbTap(Direction tapDir)
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                ActivateSide(Direction.Left);
+                ActivateSide(Direction.Left, tapDir);
             }
             
         }
@@ -1246,7 +1246,7 @@ namespace Multi.Cursor
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                ActivateSide(Direction.Up);
+                //ActivateSide(Direction.Up);
             }
         }
 
@@ -1254,7 +1254,7 @@ namespace Multi.Cursor
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                ActivateSide(Direction.Right);
+                //ActivateSide(Direction.Right);
             }
         }
 
@@ -1262,7 +1262,7 @@ namespace Multi.Cursor
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                ActivateSide(Direction.Right);
+                //ActivateSide(Direction.Right);
             }
         }
     }
