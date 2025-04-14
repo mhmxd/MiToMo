@@ -27,7 +27,7 @@ namespace Multi.Cursor
 
         private Finger _thumb = new Finger(0, 3);
         private Finger _index = new Finger(4, 7);
-        private Finger _middle = new Finger(7, 10);
+        private Finger _middle = new Finger(8, 10);
         private Finger _ring = new Finger(12, 13);
         private Finger _little = new Finger(14, 15);
 
@@ -325,7 +325,7 @@ namespace Multi.Cursor
                 TrackIndex();
                 TrackMiddle();
                 TrackRing();
-                TrackLittle();
+                //TrackLittle();
 
             }
 
@@ -530,9 +530,9 @@ namespace Multi.Cursor
                 {
                     if (_middle.GetDownTime() < Config.TAP_TIME_MS) // Tap!
                     {
-                        //Direction tapDir = Direction.Left;
-                        //if (_middle.GetDownCol() > MIDDLE_LEFT_LAST_COL) tapDir = Direction.Right;
-                        _gestureReceiver.MiddleTap(Direction.Left); // Bc of ring, middle always activates left
+                        Direction tapDir = Direction.Left;
+                        if (_middle.GetDownCol() > MIDDLE_LEFT_LAST_COL) tapDir = Direction.Right;
+                        _gestureReceiver.MiddleTap(tapDir); // Bc of ring, middle always activates left
                     }
 
                     _middle.LiftUp();
@@ -572,9 +572,9 @@ namespace Multi.Cursor
                 {
                     if (_ring.GetDownTime() < Config.TAP_TIME_MS) // Tap!
                     {
-                        //Direction tapDir = Direction.Up;
-                        //if (_ring.GetDownRow() > RING_TOP_LOWEST_ROW) tapDir = Direction.Down;
-                        _gestureReceiver.RingTap(Direction.Right); // Ring also activates cursor in top
+                        Direction tapDir = Direction.Up;
+                        if (_ring.GetDownRow() > RING_TOP_LOWEST_ROW) tapDir = Direction.Down;
+                        _gestureReceiver.RingTap(tapDir); // Ring also activates cursor in top
                     }
                     
                     _ring.LiftUp(); 

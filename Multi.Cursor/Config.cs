@@ -31,7 +31,7 @@ namespace Multi.Cursor
 
         // -------------- Cursors
         public static double MAPPING_GAIN = 50;
-        public static double TAP_TIME_MS = 200; // Time to be down for Tap
+        public static double TAP_TIME_MS = 300; // Time to be down for Tap (200ms was too short)
         // --------------------------------------
 
         // --------------- Sizes and Margins

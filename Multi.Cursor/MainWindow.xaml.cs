@@ -1254,8 +1254,8 @@ namespace Multi.Cursor
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                //ActivateSide(Direction.Right, tapDir);
-                ActivateSide(Direction.Up, tapDir);
+                ActivateSide(Direction.Right, tapDir);
+                //ActivateSide(Direction.Up, tapDir);
             }
         }
 
