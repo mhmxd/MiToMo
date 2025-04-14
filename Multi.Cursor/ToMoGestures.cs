@@ -29,8 +29,8 @@ namespace Multi.Cursor
         void ThumbMove(TouchPoint thumbPoint);
         void ThumbUp(TouchPoint indPoint);
 
-        void MiddleTap();
-        void RingTap();
-        void LittleTap();
+        void MiddleTap(Direction dir);
+        void RingTap(Direction dir);
+        void LittleTap(Direction dir);
     }
 }

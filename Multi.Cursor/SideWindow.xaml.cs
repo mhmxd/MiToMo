@@ -275,20 +275,24 @@ namespace Multi.Cursor
         public void ActivateCursor(Direction dir)
         {
             Point position = new Point();
-            position.X = canvas.ActualWidth / 2;
 
             switch (dir)
             {
                 case Direction.Left:
+                    position.X = canvas.ActualWidth / 4; // Middle of the left
+                    position.Y = canvas.ActualHeight / 2; // Middle of height
                     break;
                 case Direction.Up:
+                    position.X = canvas.ActualWidth / 2; // Middle of width
                     position.Y = canvas.ActualHeight / 4; // Middle of the top
                     break;
                 case Direction.Down:
+                    position.X = canvas.ActualWidth / 2; // Middle of width
                     position.Y = canvas.ActualHeight * 3/4; // Middle of the top
                     break;
                 case Direction.Right:
-
+                    position.X = canvas.ActualWidth * 3 / 4; // Middle of the right
+                    position.Y = canvas.ActualHeight / 2; // Middle of height
                     break;
             }
 
@@ -296,7 +300,6 @@ namespace Multi.Cursor
             cursor_active.Visibility = Visibility.Visible;
             _cursorTransform.X = position.X;
             _cursorTransform.Y = position.Y;
-            Output.Print("Cursor activated at: ", position);
             _auxursor.Activate();
         }
 

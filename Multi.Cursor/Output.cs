@@ -89,6 +89,25 @@ namespace Multi.Cursor
             return sb.ToString();
         }
 
+        public static string GetKeys(Dictionary<int, TouchPoint> touchPoints)
+        {
+            if (touchPoints == null)
+            {
+                return "null";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("{");
+
+            foreach (var pair in touchPoints)
+            {
+                sb.Append(pair.Key).Append(", ");
+            }
+            if (sb.Length >= 2) sb.Remove(sb.Length - 2, 2);
+            sb.Append("}");
+            return sb.ToString();
+        }
+
         public static string GetString(Point p)
         {
             return $"(X = {p.X:F3}, Y = {p.Y:F3})";

@@ -756,12 +756,12 @@ namespace Multi.Cursor
             //--- Show the start
             double startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             // Convert position (rel. to screen) to window position (for showing)
-            //startPosition.Offset(-this._relLeft, -this._relTop);
-            //ShowStart(
-            //    startPosition, startW, Brushes.Green,
-            //    Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
+            startPosition.Offset(-this._relLeft, -this._relTop);
+            ShowStart(
+                startPosition, startW, Brushes.Green,
+                Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
             //--- TEMP (for measurements) -----------------------------------------------
-            double minTargetW = Experiment.GetMinTargetW();
+            //double minTargetW = Experiment.GetMinTargetW();
             //--- Longest dist
             //Point tempStartPos = new Point(
             //    (this.Width - startW)/2,
@@ -1121,13 +1121,13 @@ namespace Multi.Cursor
                     break;
                 case Direction.Up:
                     _activeSideWindow = _topWindow;
-                    //_topWindow.ActivateCursor();
+                    _topWindow.ActivateCursor(tapDir);
                     _leftWindow.DeactivateCursor();
                     _rightWindow.DeactivateCursor();
                     break;
                 case Direction.Right:
                     _activeSideWindow = _rightWindow;
-                    //_rightWindow.ActivateCursor();
+                    _rightWindow.ActivateCursor(tapDir);
                     _leftWindow.DeactivateCursor();
                     _topWindow.DeactivateCursor();
                     break;
@@ -1242,27 +1242,28 @@ namespace Multi.Cursor
             
         }
 
-        public void MiddleTap()
+        public void MiddleTap(Direction tapDir)
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                //ActivateSide(Direction.Up);
+                ActivateSide(Direction.Up, tapDir);
             }
         }
 
-        public void RingTap()
+        public void RingTap(Direction tapDir)
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                //ActivateSide(Direction.Right);
+                //ActivateSide(Direction.Right, tapDir);
+                ActivateSide(Direction.Up, tapDir);
             }
         }
 
-        public void LittleTap()
+        public void LittleTap(Direction tapDir)
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                //ActivateSide(Direction.Right);
+                ActivateSide(Direction.Right, tapDir);
             }
         }
     }
