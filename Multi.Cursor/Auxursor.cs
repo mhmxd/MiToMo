@@ -10,7 +10,7 @@ namespace Multi.Cursor
 {
     internal class Auxursor
     {
-        private double PROCESS_NOISE = 0.7;
+        private double PROCESS_NOISE = 1.5;
         private double MEASURE_NOISE = 10;
 
         private bool _active;
@@ -30,7 +30,7 @@ namespace Multi.Cursor
 
         //public KalmanFilter _kf;
         private KalmanVeloFilter _kvf;
-        public int kfSkips = 5;
+        //public int kfSkips = 5;
 
 
         public Auxursor(double dT)
@@ -83,8 +83,6 @@ namespace Multi.Cursor
 
                     dX_raw = last.GetCenterOfMass().X - first.GetCenterOfMass().X;
                     dY_raw = last.GetCenterOfMass().Y - first.GetCenterOfMass().Y;
-
-                    TRACK_LOG.Information($"KF Delta Raw: {dX_raw:F3}, {dY_raw:F3}");
                 }
 
                 if (_initMove)
@@ -115,10 +113,6 @@ namespace Multi.Cursor
 
                     double dX = filteredV.fvX * dT * gain;
                     double dY = filteredV.fvY * dT * gain;
-
-                    TRACK_LOG.Information($"KF Vel.: {filteredV.fvX:F3}, {filteredV.fvY:F3}");
-                    TRACK_LOG.Information($"KF dX, dY: {dX:F3}, {dY:F3}");
-                    TRACK_LOG.Information(Str.MINOR_LINE);
 
                     // Update previous state
                     _prevPosition = tp.GetCenterOfMass();

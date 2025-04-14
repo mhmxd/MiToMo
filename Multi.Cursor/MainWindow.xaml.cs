@@ -678,9 +678,6 @@ namespace Multi.Cursor
 
         private void ShowTrial()
         {
-            // Trial info
-            TRIAL_LOG.Information(_trial.ToString());
-
             // Clear everything
             ClearCanvas();
             ClearSideWindowCanvases();
@@ -711,7 +708,6 @@ namespace Multi.Cursor
                     _targetSideWindowDir = Direction.Up; 
                     break;
             }
-            TRIAL_LOG.Debug("Target Window: " + _trial.SideWindowDir);
 
             //--- Show and find target position (returned position is rel. to side window)
             // Target is firstly 
@@ -722,7 +718,7 @@ namespace Multi.Cursor
             targetPosition = new Point(
                 targetPositionInSideWin.X + _targetSideWindow.Rel_Pos.X,
                 targetPositionInSideWin.Y + _targetSideWindow.Rel_Pos.Y);
-            TRIAL_LOG.Debug("Target Position = " + targetPosition.ToString());
+
 
             //--- Create a list of possible positions to randomly choose from
             // Limits
@@ -730,7 +726,7 @@ namespace Multi.Cursor
             int Xmax = (int)(_relRight - marginPX - startRadius);
             int Ymin = (int)(_relTop + marginPX + startRadius);
             int Ymax = (int)(_relBottom - marginPX - startRadius);
-            TRIAL_LOG.Debug($"Limits = {Xmin}, {Xmax}, {Ymin}, {Ymax}");
+
             // Go through angles and find fitting ones
             List<Point> validStartPositions = new List<Point>();
             for (double angle = 0; angle < 2 * Math.PI; angle += 0.1) // Sample angles
@@ -762,14 +758,14 @@ namespace Multi.Cursor
                 Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
             //--- TEMP (for measurements) -----------------------------------------------
             //double minTargetW = Experiment.GetMinTargetW();
-            //--- Longest dist
+            ////--- Longest dist
             //Point tempStartPos = new Point(
-            //    (this.Width - startW)/2,
+            //    (this.Width - startW) / 2,
             //    this.Height - marginPX - startW);
             //ShowStart(
             //    tempStartPos, Utils.MM2PX(Experiment.START_WIDTH_MM), Brushes.Green,
             //    Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
-            //
+
             //_targetSideWindow = _topWindow;
             //_targetSideWindow.ShowDummyTarget(minTargetW, Brushes.Blue);
 
@@ -795,12 +791,10 @@ namespace Multi.Cursor
                 if (_targetSideWindow.IsAuxCursorInsideTarget()) // Auxursor in target
                 {
                     TargetButtonDown();
-                    TRIAL_LOG.Information("HIT");
                 }
                 else
                 {
                     // Don't do anything for now
-                    TRIAL_LOG.Information("MISS");
                 }
             }
 
@@ -810,19 +804,14 @@ namespace Multi.Cursor
                 Point crossScreenPos = _overlayWindow.PointToScreen(crossPos);
                 Point crossSideWinPos = _targetSideWindow.PointFromScreen(crossScreenPos);
 
-                GESTURE_LOG.Debug($"Target Dir: {_targetSideWindowDir}");
-                GESTURE_LOG.Debug($"Cross OvW Pos: {Output.GetString(crossPos)}");
-                GESTURE_LOG.Debug($"Cross SiW Pos: {Output.GetString(crossSideWinPos)}");
-
                 // Trial result
                 if (_targetSideWindow.IsPointInsideTarget(crossSideWinPos)) // Cross in target
                 {
                     TargetButtonDown();
-                    TRIAL_LOG.Information("HIT");
                 }
                 else
                 {
-                    TRIAL_LOG.Information("MISS");
+                    // Nothing for now
                 }
 
                 // Release the cursor
@@ -834,14 +823,13 @@ namespace Multi.Cursor
 
         private void EndTrial(RESULT result)
         {
-            TRIAL_LOG.Information(result.ToString());
             if (_activeTrialNum == _block.GetNumTrials()) // Was last trial
             {
-                TRIAL_LOG.Information("End of block");
                 if (_activeBlockNum == _experiment.GetNumBlocks()) // Was last block
                 {
-                    TRIAL_LOG.Information("End of technique");
-                } else
+                    // Do nothing for now
+                }
+                else
                 {
                     _activeBlockNum++;
                     _block = _experiment.GetBlock(_activeBlockNum);
@@ -877,8 +865,6 @@ namespace Multi.Cursor
 
         private void Start_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            TRIAL_LOG.Information("Start MouseDown");
-
             if (_experiment.IsTechAuxCursor())
             {
                 if (_timestamps.ContainsKey(Str.TARGET_DOWN)) // Target hit, Start click again => End trial
@@ -943,8 +929,6 @@ namespace Multi.Cursor
 
         private void Start_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            TRIAL_LOG.Information("Start MouseUp");
-
             if (_timestamps.ContainsKey(Str.START_PRESS)) // First time
             { 
                 _timestamps[Str.START_UP] = _trialtWatch.ElapsedMilliseconds;

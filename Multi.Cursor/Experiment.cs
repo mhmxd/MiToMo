@@ -13,10 +13,10 @@ namespace Multi.Cursor
     {
         //-- Variables
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 };
-        private static List<double> DISTANCES_MM = new List<double>() { 100, 200 };
-        private double _longestDistMM; // BenQ = 568 mm
-        private double _sortestDistMM; // BenQ = 10 mm
-        private double DISTANCE_PADDING_MM = 10; // Padding to keep random dists from being too close
+        private static List<double> _distances = new List<double>(); // Generated in constructor
+        private double LONGEST_DIST_MM = 293; // BenQ = 293 mm
+        private double SHORTEST_DIST_MM = 10; // BenQ = 10 mm
+        private double _distPaddingMM; // Padding to keep random dists from being too close (set to 0.1 Total Dist)
         public enum Technique { Auxursor_Swipe, Auxursor_Tap, Radiusor, Mouse }
 
         //-- Constants
@@ -39,10 +39,25 @@ namespace Multi.Cursor
         {
             ParticipantNumber = 100;
 
+            //--- Generate the distances
+            double distDiff = LONGEST_DIST_MM - SHORTEST_DIST_MM;
+            _distPaddingMM = 0.1 * distDiff;
+            double oneThird = distDiff / 3;
+            double twoThird = distDiff * 2 / 3;
+            double midDist = Utils.RandDouble(oneThird, twoThird); // Middle distance
+            double shortDist = Utils.RandDouble(
+                SHORTEST_DIST_MM,
+                Min(oneThird, midDist - _distPaddingMM)); // Shortest distance
+            _distances.Add(shortDist);
+            double longDist = Utils.RandDouble(
+                Max(midDist + _distPaddingMM, twoThird),
+                LONGEST_DIST_MM); // Longest distance
+            _distances.Add(longDist);
+
             //-- Create blocks of trials
             for (int i = 0; i < 1; i++)
             {
-                Block block = new Block(ParticipantNumber * 100 + i, TARGET_WIDTHS_MM, DISTANCES_MM);
+                Block block = new Block(ParticipantNumber * 100 + i, TARGET_WIDTHS_MM, _distances);
                 _blocks.Add(block);
             }
 
@@ -53,18 +68,7 @@ namespace Multi.Cursor
             _activeTrialInd = 0;
             _activeBlock = _blocks[0];
 
-            //--- Generate the distances
-            double oneThird = DISTANCES_MM.Max() / 3;
-            double twoThird = DISTANCES_MM.Max() * 2 / 3;
-            double midDist = Utils.RandDouble(oneThird, twoThird); // Middle distance
-            double shortDist = Utils.RandDouble(
-                _sortestDistMM, 
-                Min(oneThird, midDist - DISTANCE_PADDING_MM)); // Shortest distance
-            double longDist = Utils.RandDouble(
-                Max(midDist + DISTANCE_PADDING_MM, twoThird),
-                _longestDistMM); // Longest distance
-
-            TRIAL_LOG.Information($"Distances: {shortDist}, {midDist}, {longDist}");
+            
         }
 
         public Experiment(int ptc, int nBlocks)
@@ -74,7 +78,7 @@ namespace Multi.Cursor
             //-- Create blocks of trials
             for (int i = 0; i < nBlocks; i++)
             {
-                Block block = new Block(ParticipantNumber * 100 + i, TARGET_WIDTHS_MM, DISTANCES_MM);
+                Block block = new Block(ParticipantNumber * 100 + i, TARGET_WIDTHS_MM, _distances);
                 _blocks.Add(block);
             }
 
