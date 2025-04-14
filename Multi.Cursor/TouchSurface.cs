@@ -633,5 +633,25 @@ namespace Multi.Cursor
             }
 
         }
+
+        private string ShowPointers(TouchFrame frame)
+        {
+            if (frame == null || frame.Pointers == null)
+            {
+                return "";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("{");
+
+            foreach (var pair in frame.Pointers)
+            {
+                sb.Append(pair.Key).Append(", ");
+            }
+            if (sb.Length >= 2) sb.Remove(sb.Length - 2, 2);
+            sb.Append("}");
+
+            return sb.ToString();
+        }
     }
 }
