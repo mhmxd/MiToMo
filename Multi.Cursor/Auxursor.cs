@@ -10,7 +10,7 @@ namespace Multi.Cursor
 {
     internal class Auxursor
     {
-        private double PROCESS_NOISE = 1.5;
+        private double PROCESS_NOISE = 1.7;
         private double MEASURE_NOISE = 10;
 
         private bool _active;

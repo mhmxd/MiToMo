@@ -28,7 +28,7 @@ namespace Multi.Cursor
         private Finger _thumb = new Finger(0, 3);
         private Finger _index = new Finger(4, 7);
         private Finger _middle = new Finger(8, 10);
-        private Finger _ring = new Finger(12, 13);
+        private Finger _ring = new Finger(11, 13);
         private Finger _little = new Finger(14, 15);
 
         //--- Class for each frame on the surface
@@ -83,6 +83,17 @@ namespace Multi.Cursor
                 foreach (var kv in Pointers)
                 {
                     if (Utils.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
+                }
+
+                return null;
+            }
+
+            public TouchPoint GetPointer(int rMin, int rMax, int cMin, int cMax)
+            {
+                foreach (var kv in Pointers)
+                {
+                    if (Utils.InInc(kv.Key, cMin, cMax)
+                        && Utils.InInc(kv.Value.GetRow(), rMin, rMax)) return kv.Value;
                 }
 
                 return null;
@@ -345,14 +356,14 @@ namespace Multi.Cursor
             if (thumbPoint == null) // No thumb present in the last frame
             {
                 _lastThumbTP = null;
-                
+
                 if (_thumb.IsDown)
-                { 
+                {
                     if (_timers[1].ElapsedMilliseconds < Config.TAP_TIME_MS) // Tap!
                     {
                         // Distinguish where the tap was...
                         Direction tapDir = Direction.Up;
-                        if (_thumb.GetDownRow() > THUMB_TOP_LOWEST_ROW) tapDir = Direction.Down; 
+                        if (_thumb.GetDownRow() > THUMB_TOP_LOWEST_ROW) tapDir = Direction.Down;
                         _gestureReceiver.ThumbTap(tapDir);
                     }
 
@@ -363,7 +374,7 @@ namespace Multi.Cursor
 
                 //if (beforeLastFrame.IncludePointer(0, 3)) // Thumb was present before => Check for Tap
                 //{
-                    
+
                 //    if (_timers[1].ElapsedMilliseconds < Config.TAP_TIME_MS) // Tap!
                 //    {
                 //        _gestureReceiver.ThumbTap();
@@ -540,7 +551,8 @@ namespace Multi.Cursor
 
                 return;
 
-            } else // Middle present
+            }
+            else // Middle present
             {
 
                 if (_middle.IsUp)
@@ -552,7 +564,7 @@ namespace Multi.Cursor
 
             }
 
-            
+
         }
 
         /// <summary>
@@ -564,7 +576,7 @@ namespace Multi.Cursor
             // Get the last frame
             TouchFrame lastFrame = _frames.Last;
             TouchFrame beforeLastFrame = _frames.BeforeLast;
-            TouchPoint ringTouchPoint = lastFrame.GetPointer(_ring.MinCol, _ring.MaxCol);
+            TouchPoint ringTouchPoint = lastFrame.GetPointer(0, 10, _ring.MinCol, _ring.MaxCol);
 
             if (ringTouchPoint == null) // No ring finger present
             {
@@ -576,22 +588,23 @@ namespace Multi.Cursor
                         if (_ring.GetDownRow() > RING_TOP_LOWEST_ROW) tapDir = Direction.Down;
                         _gestureReceiver.RingTap(tapDir); // Ring also activates cursor in top
                     }
-                    
-                    _ring.LiftUp(); 
+
+                    _ring.LiftUp();
                 }
 
                 return;
 
-            } else // Ringer finger is present in the last frame
+            }
+            else // Ringer finger is present in the last frame
             {
-                if (_ring.IsUp)
+                if (_ring.IsUp) // Ring was up before
                 {
                     // Ring Down => Start Tap-watch
                     _ring.RestartTimer();
-                    _ring.TouchDown(ringTouchPoint.GetRow(), ringTouchPoint.GetCol());   
+                    _ring.TouchDown(ringTouchPoint.GetRow(), ringTouchPoint.GetCol());
                 }
             }
-            
+
         }
 
         /// <summary>
@@ -651,6 +664,20 @@ namespace Multi.Cursor
             if (sb.Length >= 2) sb.Remove(sb.Length - 2, 2);
             sb.Append("}");
 
+            return sb.ToString();
+        }
+
+        private string ShowHistory()
+        {
+            int nHistory = _frames.Count;
+            StringBuilder sb = new StringBuilder();
+            sb.Append("{");
+            for (int i = nHistory - 1; i > nHistory - 4; i--)
+            {
+                sb.Append(ShowPointers(_frames[i])).Append("||");
+            }
+            if (sb.Length >= 2) sb.Remove(sb.Length - 2, 2);
+            sb.Append("}");
             return sb.ToString();
         }
     }
