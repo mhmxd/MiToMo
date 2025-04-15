@@ -136,8 +136,8 @@ namespace Multi.Cursor
                 for (int j = 0; j < 3; j++)
                 {
                     byte mass = _values[i * 3 + j];
-                    sumR += i * mass; // Weight row index by mass
-                    sumC += j * mass; // Weight column index by mass
+                    sumR += (i - 1) * mass; // Weight row index by mass
+                    sumC += (j - 1) * mass; // Weight column index by mass
                 }
             }
 

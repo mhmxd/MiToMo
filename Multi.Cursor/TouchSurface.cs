@@ -28,7 +28,7 @@ namespace Multi.Cursor
         private Finger _thumb = new Finger(0, 3);
         private Finger _index = new Finger(4, 7);
         private Finger _middle = new Finger(8, 10);
-        private Finger _ring = new Finger(11, 13);
+        private Finger _ring = new Finger(11, 12);
         private Finger _little = new Finger(14, 15);
 
         //--- Class for each frame on the surface
@@ -44,7 +44,18 @@ namespace Multi.Cursor
 
             public void AddPointer(int key, TouchPoint pointer)
             {
-                Pointers.Add(key, pointer);
+                if (Pointers.ContainsKey(key))
+                {
+                    if (pointer.GetMass() > Pointers[key].GetMass())
+                    {
+                        Pointers[key] = pointer;
+                    }
+
+                }
+                else
+                {
+                    Pointers.Add(key, pointer);
+                }
             }
 
             public bool IncludePointer(int keyMin, int keyMax)
@@ -162,6 +173,7 @@ namespace Multi.Cursor
         {
             // Reset the dictionary
             //_activeFrame.Clear();
+            //Output.PrintSpan(shotSpan);
 
             // Result
             TouchFrame activeFrame = new TouchFrame();
@@ -174,7 +186,8 @@ namespace Multi.Cursor
             (byte val, int row)[] colMax = new (byte, int)[15]; // (value, row)
             byte max;
             int maxInd;
-            for (int c = 0; c < shotSpan.Width; c++)
+            int c = 0;
+            while (c < shotSpan.Width)
             {
                 byte[] column = shotSpan.GetColumn(c).ToArray();
                 max = column.Max();
@@ -184,7 +197,8 @@ namespace Multi.Cursor
                     byte[] col1 = shotSpan.GetColumn(1).ToArray();
                     if (max > MIN_TOUCH_VAL && max > col1.Max())
                     {
-                        TouchPoint touchPoint = new TouchPoint(max, maxInd, c);
+                        TouchPoint touchPoint = new TouchPoint
+                            (max, maxInd, c);
 
                         //--- Add values around
                         // Above
@@ -204,10 +218,10 @@ namespace Multi.Cursor
                         // Right
                         touchPoint.SetValue(5, col1[maxInd]);
 
-                        // Add the touch point to the dictionary (using column)
-                        int tpId = touchPoint.GetCol();
+                        //int tpId = touchPoint.GetCol(); // Using CoM as ID
+                        int tpId = c; // Use the column as ID
                         touchPoint.Id = tpId;
-                        activeFrame.AddPointer(tpId, touchPoint);
+                        activeFrame.AddPointer(tpId, touchPoint); // Add to the frame
 
                         //activeTouchPoints.Add(fingerTouchPoint);
                         //UpdatePointers(fingerTouchPoint);
@@ -217,9 +231,9 @@ namespace Multi.Cursor
                     }
                 }
                 else if (c == 14)
-                { // Only check against col. 13
+                { // DO NOT check agianst col. 13 (both can have values)!
                     byte[] col13 = shotSpan.GetColumn(13).ToArray();
-                    if (max > MIN_TOUCH_VAL && max > col13.Max())
+                    if (max > MIN_TOUCH_VAL)
                     {
                         TouchPoint touchPoint = new TouchPoint(max, maxInd, c);
 
@@ -241,15 +255,54 @@ namespace Multi.Cursor
                         // Left
                         touchPoint.SetValue(3, col13[maxInd]);
 
-                        // Add the touch point to the dictionary (using column)
-                        int tpId = touchPoint.GetCol();
+                        //int tpId = touchPoint.GetCol(); // Using CoM as ID
+                        int tpId = c; // Use the column as ID
                         touchPoint.Id = tpId;
-                        activeFrame.AddPointer(tpId, touchPoint);
+                        activeFrame.AddPointer(tpId, touchPoint); // Add to the frame
 
                         //activeTouchPoints.Add(fingerTouchPoint);
                         //UpdatePointers(touchPoint);
 
                     }
+
+                    break;
+                }
+                else if (c == 13)
+                { // Only check against col. 12
+                    byte[] col12 = shotSpan.GetColumn(12).ToArray();
+                    if (max > MIN_TOUCH_VAL && max > col12.Max())
+                    {
+                        TouchPoint touchPoint = new TouchPoint(max, maxInd, c);
+
+                        //--- Add values around
+                        // Above
+                        if (maxInd != 0)
+                        {
+                            touchPoint.SetValue(1, column[maxInd - 1]); // Above
+                            touchPoint.SetValue(0, col12[maxInd - 1]); // Left above
+                        }
+
+                        // Below
+                        if (maxInd != column.Length - 1)
+                        {
+                            touchPoint.SetValue(7, column[maxInd + 1]); // Below
+                            touchPoint.SetValue(6, col12[maxInd + 1]); // Left below
+                        }
+
+                        // Left
+                        touchPoint.SetValue(3, col12[maxInd]);
+
+                        //int tpId = touchPoint.GetCol(); // Using CoM as ID
+                        int tpId = c; // Use the column as ID
+                        touchPoint.Id = tpId;
+                        activeFrame.AddPointer(tpId, touchPoint); // Add to the frame
+
+                        //activeTouchPoints.Add(fingerTouchPoint);
+                        //UpdatePointers(touchPoint);
+
+                    }
+
+                    c += 1; // Check 14 as well
                 }
                 else
                 {
@@ -282,17 +335,22 @@ namespace Multi.Cursor
                         touchPoint.SetValue(3, prevCol[maxInd]);
                         touchPoint.SetValue(5, nextCol[maxInd]);
 
-                        // Add the touch point to the dictionary (using column)
-                        int tpId = touchPoint.GetCol();
+                        //int tpId = touchPoint.GetCol(); // Using CoM as ID
+                        int tpId = c; // Use the column as ID
                         touchPoint.Id = tpId;
-                        activeFrame.AddPointer(tpId, touchPoint);
+                        activeFrame.AddPointer(tpId, touchPoint); // Add to the frame
 
                         // Jump one column forward (next col is certainly not touch point)
                         c += 2;
 
                         //activeTouchPoints.Add(fingerTouchPoint);
                         //UpdatePointers(touchPoint);
+                    } else // Next column should be checked
+                    {
+                        c += 1;
                     }
+
+                    
                 }
 
             }

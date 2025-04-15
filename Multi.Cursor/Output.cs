@@ -51,8 +51,9 @@ namespace Multi.Cursor
             Console.WriteLine(timeName + $" = {(end - start)/1000.0}");
         }
 
-        private void PrintSpan(Span2D<Byte> span)
+        public static void PrintSpan(Span2D<Byte> span)
         {
+            Console.WriteLine("---------------------------------");
             for (int i = 0; i < span.Height; i++)
             {
                 for (int j = 0; j < span.Width; j++)
@@ -61,7 +62,7 @@ namespace Multi.Cursor
                 }
                 Console.WriteLine();
             }
-            Console.WriteLine("---------------------------------");
+            
         }
 
         public static string GetString(Dictionary<int, TouchPoint> touchPoints)
