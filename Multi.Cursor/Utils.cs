@@ -129,6 +129,18 @@ namespace Multi.Cursor
             return "{" + string.Join(", ", list) + "}";
         }
 
+        public static bool Contains(Rect rect, List<Point> points)
+        {
+            foreach (Point p in points)
+            {
+                if (!rect.Contains(p))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
         
     }
 }

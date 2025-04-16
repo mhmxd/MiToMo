@@ -156,6 +156,44 @@ namespace Multi.Cursor
             return new Point(randomX, randomY);
         }
 
+        public void ShowTarget(Point position, double widthMM, Brush fill,
+            MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
+            MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
+        {
+
+            // Radius in pixels
+            //const double PPI = 109;
+            //const double MM_IN_INCH = 25.4;
+            int targetWidth = Utils.MM2PX(widthMM);
+
+            // Create the target
+            targetHalfW = targetWidth / 2;
+            _target = new Rectangle
+            {
+                Width = targetWidth,
+                Height = targetWidth,
+                Fill = fill,
+            };
+
+            // Position the target on the Canvas
+            Canvas.SetLeft(_target, position.X);
+            Canvas.SetTop(_target, position.Y);
+
+            // Add events
+            _target.MouseEnter += mouseEnterHandler;
+            _target.MouseLeave += mouseLeaveHandler;
+            _target.MouseLeftButtonDown += buttonDownHandler;
+            _target.MouseLeftButtonUp += buttonUpHandler;
+
+            // Add the circle to the Canvas
+            canvas.Children.Add(_target);
+
+            // Set index
+            Canvas.SetZIndex(_target, 0);
+            Canvas.SetZIndex(cursor_active, 1);
+            Canvas.SetZIndex(cursor_inactive, 1);
+        }
+
         /// <summary>
         /// Show the target for measurement purposes
         /// </summary>

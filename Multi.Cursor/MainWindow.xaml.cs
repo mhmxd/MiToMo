@@ -691,41 +691,72 @@ namespace Multi.Cursor
             Point startPosition = new Point();
             int marginPX = Utils.MM2PX(Config.WINDOW_MARGIN_MM);
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
-
-            // Set the active side window
+            
+            // Set the active side window and jump positions
+            List<Point> jumpPositions = new List<Point>();
             switch (_trial.SideWindowDir)
             {
                 case Direction.Left: 
                     _targetSideWindow = _leftWindow; 
-                    _targetSideWindowDir = Direction.Left; 
+                    _targetSideWindowDir = Direction.Left;
+                    jumpPositions.Add(new Point(_leftWindow.Width / 2, _leftWindow.Height / 4)); // Top
+                    jumpPositions.Add(new Point(_leftWindow.Width / 2, _leftWindow.Height * 3 / 4)); // Bottom
                     break;
                 case Direction.Right: 
                     _targetSideWindow = _rightWindow; 
-                    _targetSideWindowDir = Direction.Right; 
+                    _targetSideWindowDir = Direction.Right;
+                    jumpPositions.Add(new Point(_rightWindow.Width / 2, _rightWindow.Height / 4)); // Top
+                    jumpPositions.Add(new Point(_rightWindow.Width / 2, _rightWindow.Height * 3 / 4)); // Bottom
                     break;
                 case Direction.Up: 
                     _targetSideWindow = _topWindow; 
-                    _targetSideWindowDir = Direction.Up; 
+                    _targetSideWindowDir = Direction.Up;
+                    jumpPositions.Add(new Point(_topWindow.Width / 4, _topWindow.Height / 2)); // Left
+                    jumpPositions.Add(new Point(_topWindow.Width / 2, _topWindow.Height / 2)); // Middle
+                    jumpPositions.Add(new Point(_topWindow.Width * 3 / 4, _topWindow.Height / 2)); // Right
                     break;
             }
 
+            //--- First find a suitable position for the Target 
+            Rect targetPossibleArea = new Rect(marginPX, marginPX,
+                _targetSideWindow.Width - 2 * marginPX,
+                _targetSideWindow.Height - 2 * marginPX);
+
+            // Get random position until it is not the jump position
+            Point targetPosInSideWin = new Point();
+            Rect possibltTarget = new Rect();
+            do
+            {
+                targetPosInSideWin = new Point(
+                _random.Next((int)targetPossibleArea.X, (int)targetPossibleArea.Right-_trial.TargetWidthPX),
+                _random.Next((int)targetPossibleArea.Y, (int)targetPossibleArea.Bottom-_trial.TargetWidthPX));
+
+                possibltTarget = new Rect(
+                    targetPosInSideWin.X - _trial.TargetWidthPX / 2,
+                    targetPosInSideWin.Y - _trial.TargetWidthPX / 2,
+                    _trial.TargetWidthPX,
+                    _trial.TargetWidthPX);
+            } while (Utils.Contains(possibltTarget, jumpPositions));
+
             //--- Show and find target position (returned position is rel. to side window)
-            // Target is firstly 
-            Point targetPositionInSideWin = _targetSideWindow.ShowTarget(
-                _trial.TargetWidthMM, Brushes.Blue,
+            // Target is first
+            _targetSideWindow.ShowTarget(targetPosInSideWin, _trial.TargetWidthMM, Brushes.Blue,
                 Target_MouseEnter, Target_MouseLeave, Target_ButtonDown, Target_ButtonUp);
             // Convert to screen coordinates
-            targetPosition = new Point(
-                targetPositionInSideWin.X + _targetSideWindow.Rel_Pos.X,
-                targetPositionInSideWin.Y + _targetSideWindow.Rel_Pos.Y);
-
+            targetPosition = Utils.Offset(targetPosInSideWin, 
+                _targetSideWindow.Rel_Pos.X, _targetSideWindow.Rel_Pos.Y);
 
             //--- Create a list of possible positions to randomly choose from
-            // Limits
-            int Xmin = (int)(_relLeft + marginPX);
-            int Xmax = (int)(_relRight - marginPX);
-            int Ymin = (int)(_relTop + marginPX);
-            int Ymax = (int)(_relBottom - marginPX);
+            // Start possible area (relative to screen)
+            Rect startPossibleArea = new Rect(
+                _relLeft + marginPX,
+                _relTop + marginPX,
+                _relRight - _relLeft - 2 * marginPX,
+                _relBottom - _relTop - 2 * marginPX);
+            //int Xmin = (int)(_relLeft + marginPX);
+            //int Xmax = (int)(_relRight - marginPX);
+            //int Ymin = (int)(_relTop + marginPX);
+            //int Ymax = (int)(_relBottom - marginPX);
 
             //-- TEMP: only horizontal and vertical positions
             //Point startCenterPosition = new Point();
@@ -750,20 +781,22 @@ namespace Multi.Cursor
             {
                 double x = targetCenter.X + _trial.DistancePX * Math.Cos(angle);
                 double y = targetCenter.Y + _trial.DistancePX * Math.Sin(angle);
-                Point candidate = new Point(x, y);
+                Point candidatePos = new Point(x - startW/2, y - startW/2); // Get the top-left corner from center
 
-                if (Utils.IsInside(candidate, Xmin, Xmax, Ymin, Ymax))
-                    validStartPositions.Add(candidate);
+                //if (Utils.IsInside(candidate, Xmin, Xmax, Ymin, Ymax))
+                //    validStartPositions.Add(candidate);
+                if (startPossibleArea.Contains(candidatePos)) validStartPositions.Add(candidatePos);
             }
 
 
-            //if (validStartPositions.Count() > 0)
-            //{
-            //    startPosition = validStartPositions[_random.Next(validStartPositions.Count())];
-            //} else
-            //{
-            //    TRIAL_LOG.Error("No valid position found!");
-            //}
+            if (validStartPositions.Count() > 0)
+            {
+                startPosition = validStartPositions[_random.Next(validStartPositions.Count())];
+            }
+            else
+            {
+                TRIAL_LOG.Error("No valid position found!");
+            }
 
 
             //--- Show the start
