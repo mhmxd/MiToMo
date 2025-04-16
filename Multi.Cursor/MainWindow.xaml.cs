@@ -690,7 +690,7 @@ namespace Multi.Cursor
             Point targetPosition = new Point();
             Point startPosition = new Point();
             int marginPX = Utils.MM2PX(Config.WINDOW_MARGIN_MM);
-            int startRadius = Utils.MM2PX(Experiment.START_WIDTH_MM);
+            int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
 
             // Set the active side window
             switch (_trial.SideWindowDir)
@@ -722,35 +722,51 @@ namespace Multi.Cursor
 
             //--- Create a list of possible positions to randomly choose from
             // Limits
-            int Xmin = (int)(_relLeft + marginPX + startRadius);
-            int Xmax = (int)(_relRight - marginPX - startRadius);
-            int Ymin = (int)(_relTop + marginPX + startRadius);
-            int Ymax = (int)(_relBottom - marginPX - startRadius);
+            int Xmin = (int)(_relLeft + marginPX);
+            int Xmax = (int)(_relRight - marginPX);
+            int Ymin = (int)(_relTop + marginPX);
+            int Ymax = (int)(_relBottom - marginPX);
 
+            //-- TEMP: only horizontal and vertical positions
+            //Point startCenterPosition = new Point();
+            //Point targetCenter = Utils.Offset(targetPosition, _trial.TargetWidthPX / 2, _trial.TargetWidthPX / 2);
+            //if (_targetSideWindow == _leftWindow)
+            //{
+            //    startCenterPosition = new Point(targetCenter.X + _trial.DistancePX, targetCenter.Y);
+            //}
+            //if (_targetSideWindow == _rightWindow)
+            //{
+            //    startCenterPosition = new Point(targetCenter.X - _trial.DistancePX, targetCenter.Y);
+            //}
+            //if (_targetSideWindow == _topWindow)
+            //{
+            //    startCenterPosition = new Point(targetCenter.X, targetCenter.Y + _trial.DistancePX);
+            //}
+            //startPosition = Utils.Offset(startCenterPosition, -startW/2, -startW/2);
             // Go through angles and find fitting ones
+            Point targetCenter = Utils.Offset(targetPosition, _trial.TargetWidthPX / 2, _trial.TargetWidthPX / 2);
             List<Point> validStartPositions = new List<Point>();
             for (double angle = 0; angle < 2 * Math.PI; angle += 0.1) // Sample angles
             {
-                double x = targetPosition.X + _trial.DistancePX * Math.Cos(angle);
-                double y = targetPosition.Y + _trial.DistancePX * Math.Sin(angle);
+                double x = targetCenter.X + _trial.DistancePX * Math.Cos(angle);
+                double y = targetCenter.Y + _trial.DistancePX * Math.Sin(angle);
                 Point candidate = new Point(x, y);
 
                 if (Utils.IsInside(candidate, Xmin, Xmax, Ymin, Ymax))
                     validStartPositions.Add(candidate);
             }
 
-            startPosition = new Point();
-            if (validStartPositions.Count() > 0)
-            {
-                startPosition = validStartPositions[_random.Next(validStartPositions.Count())];
-            } else
-            {
-                TRIAL_LOG.Error("No valid position found!");
-            }
+
+            //if (validStartPositions.Count() > 0)
+            //{
+            //    startPosition = validStartPositions[_random.Next(validStartPositions.Count())];
+            //} else
+            //{
+            //    TRIAL_LOG.Error("No valid position found!");
+            //}
 
 
             //--- Show the start
-            double startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             // Convert position (rel. to screen) to window position (for showing)
             startPosition.Offset(-this._relLeft, -this._relTop);
             ShowStart(

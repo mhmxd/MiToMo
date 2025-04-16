@@ -9,7 +9,7 @@ using static System.Math;
 
 namespace Multi.Cursor
 {
-    internal class Utils
+    internal static class Utils
     {
         public struct Range
         {
@@ -124,5 +124,11 @@ namespace Multi.Cursor
         {
             return (int)(dips * PPI / 96.0);
         }
+        public static string ListToString<T>(List<T> list)
+        {
+            return "{" + string.Join(", ", list) + "}";
+        }
+
+        
     }
 }

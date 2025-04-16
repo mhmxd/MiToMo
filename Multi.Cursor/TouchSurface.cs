@@ -21,9 +21,9 @@ namespace Multi.Cursor
         private const int MIN_TOUCH_VAL = 30; // Minimum value to consider touching the surface
         private const double MAX_MOVEMENT = 1.0; // Max movement allowed to keep the same ID
         private const int THUMB_TOP_LOWEST_ROW = 10; // Lowest row for top region (incl.) -- range: [9, 13]
-        private const int MIDDLE_LEFT_LAST_COL = 9; // Last col. accepted as left -- range: [8, 10]
+        private const int MIDDLE_LEFT_LAST_COL = 8; // Last col. accepted as left -- range: [8, 10]
         private const int RING_TOP_LOWEST_ROW = 3; //  Lowest row for top region (incl.) -- range: [2, 6]
-        private const int LITTLE_TOP_LOWEST_ROW = 8; //  Lowest row for top region (incl.) -- range: [9, 13]
+        private const int LITTLE_TOP_LOWEST_ROW = 7; //  Lowest row for top region (incl.) -- range: [9, 13]
 
         private Finger _thumb = new Finger(0, 3);
         private Finger _index = new Finger(4, 7);
@@ -229,6 +229,8 @@ namespace Multi.Cursor
                         // Jump one column forward (1 is certainly not touch point center)
                         c = 2;
                     }
+
+                    c += 1; // Check next column
                 }
                 else if (c == 14)
                 { // DO NOT check agianst col. 13 (both can have values)!
@@ -393,8 +395,8 @@ namespace Multi.Cursor
                 TrackThumb();
                 TrackIndex();
                 TrackMiddle();
-                TrackRing();
-                //TrackLittle();
+                //TrackRing();
+                TrackLittle();
 
             }
 
@@ -634,7 +636,7 @@ namespace Multi.Cursor
             // Get the last frame
             TouchFrame lastFrame = _frames.Last;
             TouchFrame beforeLastFrame = _frames.BeforeLast;
-            TouchPoint ringTouchPoint = lastFrame.GetPointer(0, 10, _ring.MinCol, _ring.MaxCol);
+            TouchPoint ringTouchPoint = lastFrame.GetPointer(_ring.MinCol, _ring.MaxCol);
 
             if (ringTouchPoint == null) // No ring finger present
             {
@@ -646,6 +648,7 @@ namespace Multi.Cursor
                         if (_ring.GetDownRow() > RING_TOP_LOWEST_ROW) tapDir = Direction.Down;
                         _gestureReceiver.RingTap(tapDir); // Ring also activates cursor in top
                     }
+
 
                     _ring.LiftUp();
                 }
@@ -683,7 +686,7 @@ namespace Multi.Cursor
                     if (_little.GetDownTime() < Config.TAP_TIME_MS) // Tap!
                     {
                         Direction tapDir = Direction.Up;
-                        if (_ring.GetDownRow() > LITTLE_TOP_LOWEST_ROW) tapDir = Direction.Down;
+                        if (_little.GetDownRow() > LITTLE_TOP_LOWEST_ROW) tapDir = Direction.Down;
                         _gestureReceiver.LittleTap(tapDir);
                     }
 

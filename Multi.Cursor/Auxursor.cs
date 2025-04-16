@@ -10,8 +10,8 @@ namespace Multi.Cursor
 {
     internal class Auxursor
     {
-        private double PROCESS_NOISE = 1.7;
-        private double MEASURE_NOISE = 10;
+        private double PROCESS_NOISE = 2.0;
+        private double MEASURE_NOISE = 20;
 
         private bool _active;
         private bool _freezed; // For setting when mouse moves
@@ -49,7 +49,7 @@ namespace Multi.Cursor
         { 
             _active = true;
             // _firstTouch is changed when moving
-            _stopWatch.Start();
+            _stopWatch.Restart();
         }
 
         public void Deactivate() 
@@ -61,9 +61,12 @@ namespace Multi.Cursor
 
         public (double dX, double dY) Move(TouchPoint tp)
         {
-            if (_freezed) return (0, 0); // Don't move!
+            //if (_freezed) return (0, 0); // Don't move!
 
-            if (!_active) _active = true;
+            //if (!_active) _active = true;
+
+            if (!_active) return (0, 0); // Not active
+
             if (!_stopWatch.IsRunning) _stopWatch.Start();
 
             if (_stopWatch.ElapsedMilliseconds < Config.FRAME_DUR_MS)

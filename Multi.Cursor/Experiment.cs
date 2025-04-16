@@ -49,6 +49,7 @@ namespace Multi.Cursor
                 SHORTEST_DIST_MM,
                 Min(oneThird, midDist - _distPaddingMM)); // Shortest distance
             _distances.Add(shortDist);
+            _distances.Add(midDist);
             double longDist = Utils.RandDouble(
                 Max(midDist + _distPaddingMM, twoThird),
                 LONGEST_DIST_MM); // Longest distance
@@ -139,6 +140,11 @@ namespace Multi.Cursor
         public static double GetMinTargetW()
         {
             return TARGET_WIDTHS_MM.First();
+        }
+
+        private string ListToString<T>(List<T> list)
+        {
+            return "{" + string.Join(", ", list) + "}";
         }
     }
 }
