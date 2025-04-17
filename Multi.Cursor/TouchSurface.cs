@@ -379,7 +379,7 @@ namespace Multi.Cursor
                 TouchFrame lastFrame = _frames.Last;
                 TouchFrame beforeLastFrame = _frames.BeforeLast;
 
-                GESTURE_LOG.Verbose(Output.GetKeys(lastFrame.Pointers));
+                //GESTURE_LOG.Information(Output.GetKeys(lastFrame.Pointers));
                 //int frameWithThumb = 0;
                 //foreach (TouchFrame frame in _frames.GetFrames())
                 //{
@@ -395,7 +395,7 @@ namespace Multi.Cursor
                 TrackThumb();
                 TrackIndex();
                 TrackMiddle();
-                //TrackRing();
+                TrackRing();
                 TrackLittle();
 
             }
@@ -447,7 +447,6 @@ namespace Multi.Cursor
             }
 
             //--- Thumb present ----------------------------------------
-            TouchPoint thumbTP = lastFrame.GetPointer(0, 3);
 
             if (_thumb.IsUp)
             {
@@ -462,7 +461,7 @@ namespace Multi.Cursor
             //}
 
             // Send the point for analyzing the movement
-            _gestureReceiver.ThumbMove(thumbTP); // Managed where implemented (could be 0)
+            _gestureReceiver.ThumbMove(thumbPoint); // Managed where implemented (could be 0)
 
             //--- Track gestures 
             // First and last frames
@@ -575,7 +574,7 @@ namespace Multi.Cursor
 
             if (indexTouchPoint == null) // No index finger present in the frame => reset the last position
             {
-                if (_index.IsDown)
+                if (_index.IsDown) // It was previously down
                 {
                     // If the index was down and hasn't moved outside of Tap limit => Tap!
                     if (_index.GetDownTime() < Config.TAP_TIME_MS 
@@ -587,9 +586,9 @@ namespace Multi.Cursor
                     _index.LiftUp();
                     _gestureReceiver.IndexUp();
                     _lastIndexTP = null;
-
-                    return;
                 }
+
+                return;
             } 
             else // Index is present
             {
@@ -615,19 +614,18 @@ namespace Multi.Cursor
         {
             // Get the last frame
             TouchFrame lastFrame = _frames.Last;
-            TouchFrame beforeLastFrame = _frames.BeforeLast;
             TouchPoint middleTouchPoint = lastFrame.GetPointer(_middle.MinCol, _middle.MaxCol);
 
             if (middleTouchPoint == null) // No middle finger present
             {
 
-                if (_middle.IsDown)
+                if (_middle.IsDown) // It was previously down
                 {
-                    if (_middle.GetDownTime() < Config.TAP_TIME_MS) // Tap!
+                    // If the middle was down and hasn't moved outside of Tap limit => Tap!
+                    if (_middle.GetDownTime() < Config.TAP_TIME_MS
+                        && _middle.GetTravelDist() < Config.TAP_MOVE_LIMIT)
                     {
-                        //Location tapLoc = Location.Left;
-                        //if (_middle.GetDownCol() > MIDDLE_LEFT_LAST_COL) tapLoc = Location.Right;
-                        _gestureReceiver.MiddleTap(); // Bc of ring, middle always activates left
+                        _gestureReceiver.MiddleTap();
                     }
 
                     _middle.LiftUp();
@@ -635,15 +633,27 @@ namespace Multi.Cursor
 
                 return;
 
+                //if (_middle.GetDownTime() < Config.TAP_TIME_MS) // Tap!
+                //{
+                //    //Location tapLoc = Location.Left;
+                //    //if (_middle.GetDownCol() > MIDDLE_LEFT_LAST_COL) tapLoc = Location.Right;
+                //    _gestureReceiver.MiddleTap(); // Bc of ring, middle always activates left
+                //}
+
+                //_middle.LiftUp();
+
             }
             else // Middle present
             {
 
                 if (_middle.IsUp)
                 {
-                    // Thumb Down => Start Tap-watch
-                    _middle.TouchDown(middleTouchPoint.GetRow(), middleTouchPoint.GetCol());
+                    // Finger Down => Start Tap-watch
+                    _middle.TouchDown(middleTouchPoint.GetCenterOfMass());
                     _middle.RestartTimer();
+                } else
+                {
+                    _middle.TouchMove(middleTouchPoint.GetCenterOfMass());
                 }
 
             }
@@ -659,20 +669,18 @@ namespace Multi.Cursor
 
             // Get the last frame
             TouchFrame lastFrame = _frames.Last;
-            TouchFrame beforeLastFrame = _frames.BeforeLast;
             TouchPoint ringTouchPoint = lastFrame.GetPointer(_ring.MinCol, _ring.MaxCol);
 
             if (ringTouchPoint == null) // No ring finger present
             {
                 if (_ring.IsDown)
                 {
-                    if (_ring.GetDownTime() < Config.TAP_TIME_MS) // Tap!
+                    // If the finger was down and hasn't moved outside of Tap limit => Tap!
+                    if (_ring.GetDownTime() < Config.TAP_TIME_MS
+                        && _ring.GetTravelDist() < Config.TAP_MOVE_LIMIT)
                     {
-                        //Location tapLoc = Location.Top;
-                        //if (_ring.GetDownRow() > RING_TOP_LOWEST_ROW) tapLoc = Location.Bottom;
-                        _gestureReceiver.RingTap(); // Ring also activates cursor in top
+                        _gestureReceiver.RingTap();
                     }
-
 
                     _ring.LiftUp();
                 }
@@ -680,13 +688,17 @@ namespace Multi.Cursor
                 return;
 
             }
-            else // Ringer finger is present in the last frame
+            else // Ring finger is present in the last frame
             {
-                if (_ring.IsUp) // Ring was up before
+                if (_ring.IsUp)
                 {
-                    // Ring Down => Start Tap-watch
+                    // Finger Down => Start Tap-watch
+                    _ring.TouchDown(ringTouchPoint.GetCenterOfMass());
                     _ring.RestartTimer();
-                    _ring.TouchDown(ringTouchPoint.GetRow(), ringTouchPoint.GetCol());
+                }
+                else
+                {
+                    _ring.TouchMove(ringTouchPoint.GetCenterOfMass());
                 }
             }
 
