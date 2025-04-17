@@ -55,6 +55,7 @@ namespace Multi.Cursor
         // --------------------------------------
 
         // --------------- Movement Thresholds --
+        public static double TAP_MOVE_LIMIT = 0.2; // Amount of allowed movement for Tap
         public static double MOVE_LIMIT = 0.5; // pts
         public static double MOVE_THRESHOLD = 0.7; // pts
         public static double HIGHT_MOVE_THRESHOLD = 2.5; // pts

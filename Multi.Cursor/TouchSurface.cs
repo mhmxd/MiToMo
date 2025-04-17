@@ -422,9 +422,9 @@ namespace Multi.Cursor
                     if (_timers[1].ElapsedMilliseconds < Config.TAP_TIME_MS) // Tap!
                     {
                         // Distinguish where the tap was...
-                        Direction tapDir = Direction.Up;
-                        if (_thumb.GetDownRow() > THUMB_TOP_LOWEST_ROW) tapDir = Direction.Down;
-                        _gestureReceiver.ThumbTap(tapDir);
+                        Location tapLoc = Location.Top;
+                        if (_thumb.GetDownRow() > THUMB_TOP_LOWEST_ROW) tapLoc = Location.Bottom;
+                        _gestureReceiver.ThumbTap(tapLoc);
                     }
 
                     _gestureReceiver.ThumbUp(lastFrame.GetPointer(0, 3)); // DON'T DELETE! (Needed for Radiusor)
@@ -519,13 +519,13 @@ namespace Multi.Cursor
                     {
                         if (dX > Config.MOVE_THRESHOLD) // Right
                         {
-                            _gestureReceiver.ThumbSwipe(Direction.Right);
+                            _gestureReceiver.ThumbSwipe(Location.Right);
                             return;
                             //_frames = new FixedBuffer<TouchFrame>(_frames.Count); // Reset
                         }
                         else // Left
                         {
-                            _gestureReceiver.ThumbSwipe(Direction.Left);
+                            _gestureReceiver.ThumbSwipe(Location.Left);
                             return;
                             //_frames = new FixedBuffer<TouchFrame>(_frames.Count); // Reset
                         }
@@ -546,13 +546,13 @@ namespace Multi.Cursor
                     {
                         if (dY > Config.HIGHT_MOVE_THRESHOLD) // Down
                         {
-                            _gestureReceiver.ThumbSwipe(Direction.Down);
+                            _gestureReceiver.ThumbSwipe(Location.Bottom);
                             return;
                             //_frames = new FixedBuffer<TouchFrame>(_frames.Count); // Reset
                         }
                         else // Up
                         {
-                            _gestureReceiver.ThumbSwipe(Direction.Up);
+                            _gestureReceiver.ThumbSwipe(Location.Top);
                             return;
                             //_frames = new FixedBuffer<TouchFrame>(_frames.Count); // Reset
                         }
@@ -568,20 +568,44 @@ namespace Multi.Cursor
         private void TrackIndex()
         {
             // Get the last frame
+            //TouchFrame beforeLastFrame = _frames.BeforeLast;
+            //TouchPoint indexLastDown = beforeLastFrame.GetPointer(_index.MinCol, _index.MaxCol);
             TouchFrame lastFrame = _frames.Last;
+            TouchPoint indexTouchPoint = lastFrame.GetPointer(_index.MinCol, _index.MaxCol);
 
-            // No index finger present in the frame => reset the last positoin
-            if (lastFrame.ExcludePointer(4, 7))
+            if (indexTouchPoint == null) // No index finger present in the frame => reset the last position
             {
-                _gestureReceiver.IndexPointUp();
-                _lastIndexTP = null;
-                return;
+                if (_index.IsDown)
+                {
+                    // If the index was down and hasn't moved outside of Tap limit => Tap!
+                    if (_index.GetDownTime() < Config.TAP_TIME_MS 
+                        && _index.GetTravelDist() < Config.TAP_MOVE_LIMIT) 
+                    {
+                        _gestureReceiver.IndexTap();
+                    }
+
+                    _index.LiftUp();
+                    _gestureReceiver.IndexUp();
+                    _lastIndexTP = null;
+
+                    return;
+                }
+            } 
+            else // Index is present
+            {
+                _index.TouchMove(indexTouchPoint.GetCenterOfMass());
+
+                if (_index.IsUp) // Index was up before
+                {
+                    _index.TouchDown(indexTouchPoint.GetCenterOfMass());
+                    _index.RestartTimer(); // Index Down => Start Tap-watch
+                }
+                else // Index is still down => movement
+                {
+                    // Send the point for analyzing the movement
+                    _gestureReceiver.IndexMove(indexTouchPoint);
+                }
             }
-
-            //--- Index finger present ------------------
-            TouchPoint indexTP = lastFrame.GetPointer(4, 7);
-
-            _gestureReceiver.IndexPointMove(indexTP);
         }
 
         /// <summary>
@@ -601,9 +625,9 @@ namespace Multi.Cursor
                 {
                     if (_middle.GetDownTime() < Config.TAP_TIME_MS) // Tap!
                     {
-                        Direction tapDir = Direction.Left;
-                        if (_middle.GetDownCol() > MIDDLE_LEFT_LAST_COL) tapDir = Direction.Right;
-                        _gestureReceiver.MiddleTap(tapDir); // Bc of ring, middle always activates left
+                        //Location tapLoc = Location.Left;
+                        //if (_middle.GetDownCol() > MIDDLE_LEFT_LAST_COL) tapLoc = Location.Right;
+                        _gestureReceiver.MiddleTap(); // Bc of ring, middle always activates left
                     }
 
                     _middle.LiftUp();
@@ -644,9 +668,9 @@ namespace Multi.Cursor
                 {
                     if (_ring.GetDownTime() < Config.TAP_TIME_MS) // Tap!
                     {
-                        Direction tapDir = Direction.Up;
-                        if (_ring.GetDownRow() > RING_TOP_LOWEST_ROW) tapDir = Direction.Down;
-                        _gestureReceiver.RingTap(tapDir); // Ring also activates cursor in top
+                        //Location tapLoc = Location.Top;
+                        //if (_ring.GetDownRow() > RING_TOP_LOWEST_ROW) tapLoc = Location.Bottom;
+                        _gestureReceiver.RingTap(); // Ring also activates cursor in top
                     }
 
 
@@ -685,9 +709,9 @@ namespace Multi.Cursor
                 {
                     if (_little.GetDownTime() < Config.TAP_TIME_MS) // Tap!
                     {
-                        Direction tapDir = Direction.Up;
-                        if (_little.GetDownRow() > LITTLE_TOP_LOWEST_ROW) tapDir = Direction.Down;
-                        _gestureReceiver.LittleTap(tapDir);
+                        Location tapLoc = Location.Top;
+                        if (_little.GetDownRow() > LITTLE_TOP_LOWEST_ROW) tapLoc = Location.Bottom;
+                        _gestureReceiver.LittleTap(tapLoc);
                     }
 
                     _little.LiftUp();

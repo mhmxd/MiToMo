@@ -10,4 +10,9 @@ namespace Multi.Cursor
     {
         Up, Down, Left, Right
     }
+
+    public enum Location
+    {
+        Top, Bottom, Middle, Left, Right
+    }
 }

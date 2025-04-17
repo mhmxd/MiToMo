@@ -33,11 +33,11 @@ namespace Multi.Cursor
         // Trial number (not needed for now)
         //private int _number { get; set; }
 
-        private Direction _sideWindowDir; // 0 (left), 1 (right), 2 (top) -> side window to show target in
-        public Direction SideWindowDir
+        private Location _sideWindow; // Side window to show target in
+        public Location SideWindow
         {
-            get => _sideWindowDir;
-            set => _sideWindowDir = value;
+            get => _sideWindow;
+            set => _sideWindow = value;
         }
 
         //private int _sideWindowInd; // 0 (left), 1 (right), 2 (top) -> side window to show target in
@@ -68,8 +68,8 @@ namespace Multi.Cursor
             _id = id;
             _targetWidthMM = targetWidthMM;
             _distanceMM = distMM;
-            Direction[] validDirections = { Direction.Up, Direction.Left, Direction.Right };
-            _sideWindowDir = validDirections[Utils.Random.Next(validDirections.Length)];
+            Location[] validDirections = { Location.Top, Location.Left, Location.Right };
+            _sideWindow = validDirections[Utils.Random.Next(validDirections.Length)];
             //_straightPath = true;
         }
 

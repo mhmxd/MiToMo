@@ -19,18 +19,19 @@ namespace Multi.Cursor
 
         void LeftMove(double dX, double dY);
 
-        void IndexPointDown(TouchPoint indPoint);
-        void IndexPointMove(double dX, double dY);
-        void IndexPointMove(TouchPoint indPoint);
-        void IndexPointUp();
+        void IndexDown(TouchPoint indPoint);
+        void IndexTap();
+        void IndexMove(double dX, double dY);
+        void IndexMove(TouchPoint indPoint);
+        void IndexUp();
 
-        void ThumbSwipe(Direction dir);
-        void ThumbTap(Direction dir); // Not exactly direction, rather position (up/down)
+        void ThumbSwipe(Location loc);
+        void ThumbTap(Location loc); // Not exactly direction, rather position (up/down)
         void ThumbMove(TouchPoint thumbPoint);
         void ThumbUp(TouchPoint indPoint);
 
-        void MiddleTap(Direction dir);
-        void RingTap(Direction dir);
-        void LittleTap(Direction dir);
+        void MiddleTap();
+        void RingTap();
+        void LittleTap(Location loc);
     }
 }

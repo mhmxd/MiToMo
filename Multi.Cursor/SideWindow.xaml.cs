@@ -310,28 +310,32 @@ namespace Multi.Cursor
             //windowHeight = (int)this.ActualHeight;
         }
 
-        public void ActivateCursor(Direction dir)
+        public void ActivateCursor(Location dir)
         {
             Point position = new Point();
 
             switch (dir)
             {
-                case Direction.Left:
+                case Location.Left:
                     position.X = canvas.ActualWidth / 4; // Middle of the left
                     position.Y = canvas.ActualHeight / 2; // Middle of height
                     break;
-                case Direction.Up:
+                case Location.Top:
                     position.X = canvas.ActualWidth / 2; // Middle of width
                     position.Y = canvas.ActualHeight / 4; // Middle of the top
                     break;
-                case Direction.Down:
+                case Location.Bottom:
                     position.X = canvas.ActualWidth / 2; // Middle of width
                     position.Y = canvas.ActualHeight * 3/4; // Middle of the top
                     break;
-                case Direction.Right:
+                case Location.Right:
                     position.X = canvas.ActualWidth * 3 / 4; // Middle of the right
                     position.Y = canvas.ActualHeight / 2; // Middle of height
                     break;
+                case Location.Middle:
+                    position.X = canvas.ActualWidth / 2; // Middle of width
+                    position.Y = canvas.ActualHeight / 2; // Middle of height
+                break;
             }
 
             cursor_inactive.Visibility = Visibility.Hidden;

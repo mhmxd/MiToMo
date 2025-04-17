@@ -264,7 +264,7 @@
       <DependentUpon>BackgroundWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Block.cs" />
-    <Compile Include="Direction.cs" />
+    <Compile Include="Enums.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="CursorControl.xaml.cs">
       <DependentUpon>CursorControl.xaml</DependentUpon>

@@ -221,7 +221,7 @@ namespace Multi.Cursor
         //private Ellipse _startCircle;
         private Rectangle _startRectangle;
         private SideWindow _targetSideWindow;
-        private Direction _targetSideWindowDir;
+        //private Enums _targetSideWindowDir;
 
         private string _trialState = ""; // Uses Str constants
 
@@ -694,23 +694,23 @@ namespace Multi.Cursor
             
             // Set the active side window and jump positions
             List<Point> jumpPositions = new List<Point>();
-            switch (_trial.SideWindowDir)
+            switch (_trial.SideWindow)
             {
-                case Direction.Left: 
+                case Location.Left: 
                     _targetSideWindow = _leftWindow; 
-                    _targetSideWindowDir = Direction.Left;
+                    //_targetSideWindowDir = Location.Left;
                     jumpPositions.Add(new Point(_leftWindow.Width / 2, _leftWindow.Height / 4)); // Top
                     jumpPositions.Add(new Point(_leftWindow.Width / 2, _leftWindow.Height * 3 / 4)); // Bottom
                     break;
-                case Direction.Right: 
+                case Location.Right: 
                     _targetSideWindow = _rightWindow; 
-                    _targetSideWindowDir = Direction.Right;
+                    //_targetSideWindowDir = Location.Right;
                     jumpPositions.Add(new Point(_rightWindow.Width / 2, _rightWindow.Height / 4)); // Top
                     jumpPositions.Add(new Point(_rightWindow.Width / 2, _rightWindow.Height * 3 / 4)); // Bottom
                     break;
-                case Direction.Up: 
+                case Location.Top: 
                     _targetSideWindow = _topWindow; 
-                    _targetSideWindowDir = Direction.Up;
+                    //_targetSideWindowDir = Location.Top;
                     jumpPositions.Add(new Point(_topWindow.Width / 4, _topWindow.Height / 2)); // Left
                     jumpPositions.Add(new Point(_topWindow.Width / 2, _topWindow.Height / 2)); // Middle
                     jumpPositions.Add(new Point(_topWindow.Width * 3 / 4, _topWindow.Height / 2)); // Right
@@ -1142,25 +1142,25 @@ namespace Multi.Cursor
             _rightWindow.ClearCanvas();
         }
 
-        private void ActivateSide(Direction winDir, Direction tapDir)
+        private void ActivateSideWin(Location window, Location tapLoc)
         {
-            switch (winDir)
+            switch (window)
             {
-                case Direction.Left:
+                case Location.Left:
                     _activeSideWindow = _leftWindow;
-                    _leftWindow.ActivateCursor(tapDir);
+                    _leftWindow.ActivateCursor(tapLoc);
                     _topWindow.DeactivateCursor();
                     _rightWindow.DeactivateCursor();
                     break;
-                case Direction.Up:
+                case Location.Top:
                     _activeSideWindow = _topWindow;
-                    _topWindow.ActivateCursor(tapDir);
+                    _topWindow.ActivateCursor(tapLoc);
                     _leftWindow.DeactivateCursor();
                     _rightWindow.DeactivateCursor();
                     break;
-                case Direction.Right:
+                case Location.Right:
                     _activeSideWindow = _rightWindow;
-                    _rightWindow.ActivateCursor(tapDir);
+                    _rightWindow.ActivateCursor(tapLoc);
                     _leftWindow.DeactivateCursor();
                     _topWindow.DeactivateCursor();
                     break;
@@ -1196,7 +1196,7 @@ namespace Multi.Cursor
             
         }
 
-        public void IndexPointDown(TouchPoint indPoint)
+        public void IndexDown(TouchPoint indPoint)
         {
             //if (Technique == 1)
             //{
@@ -1208,7 +1208,12 @@ namespace Multi.Cursor
             //}
         }
 
-        public void IndexPointMove(TouchPoint indPoint)
+        public void IndexTap()
+        {
+            ActivateSideWin(Location.Top, Location.Left);
+        }
+
+        public void IndexMove(TouchPoint indPoint)
         {
             
             if (_experiment.IsTechAuxCursor())
@@ -1227,18 +1232,18 @@ namespace Multi.Cursor
 
         }
 
-        public void IndexPointMove(double dX, double dY)
+        public void IndexMove(double dX, double dY)
         {
             throw new NotImplementedException();
         }
 
-        public void IndexPointUp()
+        public void IndexUp()
         {
             //_lastPlusPointerPos.X = -1;
             _lastRotPointerPos.X = -1;
         }
 
-        public void ThumbSwipe(Direction dir)
+        public void ThumbSwipe(Location dir)
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Swipe)
             {
@@ -1266,37 +1271,37 @@ namespace Multi.Cursor
             _lastPlusPointerPos.X = -1;
         }
 
-        public void ThumbTap(Direction tapDir)
+        public void ThumbTap(Location tapLoc)
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                ActivateSide(Direction.Left, tapDir);
+                ActivateSideWin(Location.Left, tapLoc);
             }
             
         }
 
-        public void MiddleTap(Direction tapDir)
+        public void MiddleTap()
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                ActivateSide(Direction.Up, tapDir);
+                ActivateSideWin(Location.Top, Location.Middle);
             }
         }
 
-        public void RingTap(Direction tapDir)
+        public void RingTap()
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                ActivateSide(Direction.Right, tapDir);
+                ActivateSideWin(Location.Top, Location.Right); // Right side of the top window
                 //ActivateSide(Direction.Up, tapDir);
             }
         }
 
-        public void LittleTap(Direction tapDir)
+        public void LittleTap(Location tapLoc)
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                ActivateSide(Direction.Right, tapDir);
+                ActivateSideWin(Location.Right, tapLoc);
             }
         }
     }

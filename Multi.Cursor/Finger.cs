@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Multi.Cursor
 {
@@ -14,6 +15,8 @@ namespace Multi.Cursor
         public bool IsUp => !IsDown;
         
         private int _downRow, _downCol;
+        private Point _downPosition;
+        private Point _lastPosition;
 
         private Stopwatch _timer = new Stopwatch();
 
@@ -41,6 +44,22 @@ namespace Multi.Cursor
             this._downCol = downCol;
         }
 
+        public void TouchDown(Point downPoint)
+        {
+            IsDown = true;
+            this._downPosition = downPoint;
+        }
+
+        public void TouchMove(Point newPoint)
+        {
+            _lastPosition = newPoint;
+        }
+
+        public Point GetDownPoint()
+        {
+            return _downPosition;
+        }
+
         public int GetDownRow()
         {
             return _downRow;
@@ -49,6 +68,12 @@ namespace Multi.Cursor
         public int GetDownCol()
         {
             return _downCol;
+        }
+
+        public double GetTravelDist()
+        {
+            if (_lastPosition == null) return 0;
+            return Utils.Dist(_lastPosition, _downPosition);
         }
 
         public void RestartTimer()
