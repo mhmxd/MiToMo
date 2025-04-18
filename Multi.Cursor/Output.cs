@@ -114,6 +114,21 @@ namespace Multi.Cursor
             return $"(X = {p.X:F3}, Y = {p.Y:F3})";
         }
 
+        public static string GetString(List<double> numbers)
+        {
+            if (numbers == null || !numbers.Any())
+            {
+                return string.Empty;
+            }
+
+            return string.Join(", ", numbers.Select(n => n.ToString("F3")));
+        }
+
+        public static string GetString(Rect rect)
+        {
+            return $"{{X={rect.X},Y={rect.Y},Width={rect.Width},Height={rect.Height}}}";
+        }
+
         public static void Info(Line l)
         {
             TRACK_LOG.Information($"Line: ({l.X1:F3}, {l.Y1:F3}) -> ({l.X2:F3}, {l.Y2:F3})");

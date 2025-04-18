@@ -141,7 +141,7 @@ namespace Multi.Cursor
         private int _sideWindowSize = Utils.MM2PX(Config.SIDE_WINDOW_SIZE_MM);
         private OverlayWindow _overlayWindow;
 
-        private double _relLeft, _relRight, _relTop, _relBottom;
+        private double _absLeft, _absRight, _absTop, _absBottom;
 
         private TouchMouseCallback touchMouseCallback;
 
@@ -471,10 +471,10 @@ namespace Multi.Cursor
                 //rightWinHeightRatio = rightWindow.Height / (TOMOPAD_LAST_ROW - TOMOPAD_SIDE_SIZE);
 
                 // Get the absolute position of the window
-                _relLeft = _sideWindowSize;
-                _relTop = _sideWindowSize;
-                _relRight = _relLeft + Width;
-                _relBottom = _relTop + Height;
+                _absLeft = _sideWindowSize;
+                _absTop = _sideWindowSize;
+                _absRight = _absLeft + Width;
+                _absBottom = _absTop + Height;
 
                 //--- Overlay window
                 var bounds = screens[1].Bounds;
@@ -724,19 +724,19 @@ namespace Multi.Cursor
 
             // Get random position until it is not the jump position
             Point targetPosInSideWin = new Point();
-            Rect possibltTarget = new Rect();
+            Rect possibleTarget = new Rect();
             do
             {
                 targetPosInSideWin = new Point(
                 _random.Next((int)targetPossibleArea.X, (int)targetPossibleArea.Right-_trial.TargetWidthPX),
                 _random.Next((int)targetPossibleArea.Y, (int)targetPossibleArea.Bottom-_trial.TargetWidthPX));
 
-                possibltTarget = new Rect(
+                possibleTarget = new Rect(
                     targetPosInSideWin.X - _trial.TargetWidthPX / 2,
                     targetPosInSideWin.Y - _trial.TargetWidthPX / 2,
                     _trial.TargetWidthPX,
                     _trial.TargetWidthPX);
-            } while (Utils.Contains(possibltTarget, jumpPositions));
+            } while (Utils.Contains(possibleTarget, jumpPositions));
 
             //--- Show and find target position (returned position is rel. to side window)
             // Target is first
@@ -744,15 +744,15 @@ namespace Multi.Cursor
                 Target_MouseEnter, Target_MouseLeave, Target_ButtonDown, Target_ButtonUp);
             // Convert to screen coordinates
             targetPosition = Utils.Offset(targetPosInSideWin, 
-                _targetSideWindow.Rel_Pos.X, _targetSideWindow.Rel_Pos.Y);
+                _targetSideWindow.Left, _targetSideWindow.Top);
 
             //--- Create a list of possible positions to randomly choose from
             // Start possible area (relative to screen)
             Rect startPossibleArea = new Rect(
-                _relLeft + marginPX,
-                _relTop + marginPX,
-                _relRight - _relLeft - 2 * marginPX,
-                _relBottom - _relTop - 2 * marginPX);
+                this.Left + marginPX + startW/2,
+                this.Top + marginPX + startW/2,
+                this.Width - 2 * marginPX - startW,
+                this.Height - 2 * marginPX - startW);
             //int Xmin = (int)(_relLeft + marginPX);
             //int Xmax = (int)(_relRight - marginPX);
             //int Ymin = (int)(_relTop + marginPX);
@@ -775,33 +775,47 @@ namespace Multi.Cursor
             //}
             //startPosition = Utils.Offset(startCenterPosition, -startW/2, -startW/2);
             // Go through angles and find fitting ones
+
             Point targetCenter = Utils.Offset(targetPosition, _trial.TargetWidthPX / 2, _trial.TargetWidthPX / 2);
-            List<Point> validStartPositions = new List<Point>();
-            for (double angle = 0; angle < 2 * Math.PI; angle += 0.1) // Sample angles
-            {
-                double x = targetCenter.X + _trial.DistancePX * Math.Cos(angle);
-                double y = targetCenter.Y + _trial.DistancePX * Math.Sin(angle);
-                Point candidatePos = new Point(x - startW/2, y - startW/2); // Get the top-left corner from center
+            //Rect startAreaRect = new Rect(
+            //    this.Left + marginPX + startW / 2,
+            //    this.Top + marginPX + startW / 2,
+            //    this.Width - 2 * marginPX - startW,
+            //    this.Height - 2 * marginPX - startW);
+            List<double> intersectAngles = Utils.GetIntersectionAngles(
+                targetCenter, 
+                _trial.DistancePX, 
+                startPossibleArea);
+            GESTURE_LOG.Information($"Target center: {Output.GetString(targetCenter)}");
+            GESTURE_LOG.Information($"Start area: {Output.GetString(startPossibleArea)}");
+            GESTURE_LOG.Information($"Radius: {_trial.DistancePX}");
+            GESTURE_LOG.Information($"Intersect angles: {Output.GetString(intersectAngles)}");
+            //List<Point> validStartPositions = new List<Point>();
+            //for (double angle = 0; angle < 2 * Math.PI; angle += 0.1) // Sample angles
+            //{
+            //    double x = targetCenter.X + _trial.DistancePX * Math.Cos(angle);
+            //    double y = targetCenter.Y + _trial.DistancePX * Math.Sin(angle);
+            //    Point candidatePos = new Point(x - startW/2, y - startW/2); // Get the top-left corner from center
 
-                //if (Utils.IsInside(candidate, Xmin, Xmax, Ymin, Ymax))
-                //    validStartPositions.Add(candidate);
-                if (startPossibleArea.Contains(candidatePos)) validStartPositions.Add(candidatePos);
-            }
+            //    //if (Utils.IsInside(candidate, Xmin, Xmax, Ymin, Ymax))
+            //    //    validStartPositions.Add(candidate);
+            //    if (startPossibleArea.Contains(candidatePos)) validStartPositions.Add(candidatePos);
+            //}
 
 
-            if (validStartPositions.Count() > 0)
-            {
-                startPosition = validStartPositions[_random.Next(validStartPositions.Count())];
-            }
-            else
-            {
-                TRIAL_LOG.Error("No valid position found!");
-            }
+            //if (validStartPositions.Count() > 0)
+            //{
+            //    startPosition = validStartPositions[_random.Next(validStartPositions.Count())];
+            //}
+            //else
+            //{
+            //    TRIAL_LOG.Error("No valid position found!");
+            //}
 
 
             //--- Show the start
             // Convert position (rel. to screen) to window position (for showing)
-            startPosition.Offset(-this._relLeft, -this._relTop);
+            startPosition.Offset(-this._absLeft, -this._absTop);
             ShowStart(
                 startPosition, startW, Brushes.Green,
                 Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);

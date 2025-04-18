@@ -141,6 +141,78 @@ namespace Multi.Cursor
 
             return true;
         }
-        
+
+        public static List<double> GetIntersectionAngles(Point circleCenter, double radius, Rect rect)
+        {
+            List<double> angles = new List<double>();
+
+            // Define the rectangle's sides as segments
+            List<(Point A, Point B)> edges = new List<(Point, Point)>
+        {
+            (new Point(rect.Left, rect.Top),    new Point(rect.Right, rect.Top)),    // Top
+            (new Point(rect.Right, rect.Top),   new Point(rect.Right, rect.Bottom)), // Right
+            (new Point(rect.Right, rect.Bottom),new Point(rect.Left, rect.Bottom)),  // Bottom
+            (new Point(rect.Left, rect.Bottom), new Point(rect.Left, rect.Top))      // Left
+        };
+
+            foreach (var (A, B) in edges)
+            {
+                foreach (var p in LineCircleIntersections(circleCenter, radius, A, B))
+                {
+                    double angle = Math.Atan2(p.Y - circleCenter.Y, p.X - circleCenter.X);
+                    angles.Add(angle);
+                }
+            }
+
+            return angles;
+        }
+
+        private static List<Point> LineCircleIntersections(Point center, double radius, Point p1, Point p2)
+        {
+            List<Point> intersections = new List<Point>();
+
+            // Convert to vector form: P = p1 + t*(p2 - p1)
+            double dx = p2.X - p1.X;
+            double dy = p2.Y - p1.Y;
+
+            double fx = p1.X - center.X;
+            double fy = p1.Y - center.Y;
+
+            double a = dx * dx + dy * dy;
+            double b = 2 * (fx * dx + fy * dy);
+            double c = fx * fx + fy * fy - radius * radius;
+
+            double discriminant = b * b - 4 * a * c;
+
+            if (discriminant < 0)
+            {
+                // No intersection
+                return intersections;
+            }
+
+            discriminant = Math.Sqrt(discriminant);
+
+            double t1 = (-b - discriminant) / (2 * a);
+            double t2 = (-b + discriminant) / (2 * a);
+
+            if (t1 >= 0 && t1 <= 1)
+            {
+                intersections.Add(new Point(p1.X + t1 * dx, p1.Y + t1 * dy));
+            }
+            if (t2 >= 0 && t2 <= 1 && discriminant > 0)
+            {
+                intersections.Add(new Point(p1.X + t2 * dx, p1.Y + t2 * dy));
+            }
+
+            return intersections;
+        }
+
+        private static double NormalizeAngle(double angle)
+        {
+            while (angle < 0) angle += 2 * Math.PI;
+            while (angle >= 2 * Math.PI) angle -= 2 * Math.PI;
+            return angle;
+        }
+
     }
 }
