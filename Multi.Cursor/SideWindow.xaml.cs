@@ -106,7 +106,7 @@ namespace Multi.Cursor
             _canvasHeight = (int)canvas.ActualHeight;
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = Utils.MM2PX(Config.WINDOW_MARGIN_MM);
+            int marginPX = Utils.MM2PX(Config.WINDOW_PADDING_MM);
             int minX = marginPX;
             int maxX = _canvasWidth - marginPX - targetWidth;
             int minY = marginPX;
@@ -213,7 +213,7 @@ namespace Multi.Cursor
             int canvasHeight = (int)canvas.ActualHeight;
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = Utils.MM2PX(Config.WINDOW_MARGIN_MM);
+            int marginPX = Utils.MM2PX(Config.WINDOW_PADDING_MM);
             int minX = marginPX;
             int maxX = canvasWidth - marginPX - targetWidth;
             int minY = marginPX;

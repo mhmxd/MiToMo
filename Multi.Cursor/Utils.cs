@@ -129,11 +129,24 @@ namespace Multi.Cursor
             return "{" + string.Join(", ", list) + "}";
         }
 
-        public static bool Contains(Rect rect, List<Point> points)
+        //public static bool Contains(Rect rect, List<Point> points)
+        //{
+        //    foreach (Point p in points)
+        //    {
+        //        if (!rect.Contains(p))
+        //        {
+        //            return false;
+        //        }
+        //    }
+
+        //    return true;
+        //}
+
+        public static bool ContainsNot(Rect rect, List<Point> points)
         {
             foreach (Point p in points)
             {
-                if (!rect.Contains(p))
+                if (rect.Contains(p))
                 {
                     return false;
                 }
@@ -207,11 +220,75 @@ namespace Multi.Cursor
             return intersections;
         }
 
-        private static double NormalizeAngle(double angle)
+        public static double NormalizeAngleRadian(double angle)
         {
             while (angle < 0) angle += 2 * Math.PI;
             while (angle >= 2 * Math.PI) angle -= 2 * Math.PI;
             return angle;
+        }
+
+        public static double RadToDeg(double rad)
+        {
+            return rad * 180 / Math.PI;
+        }
+
+        public static double DegToRad(double deg)
+        {
+            return deg * Math.PI / 180;
+        }
+
+        //public static double RandAngleClockwise(double angle1, double angle2)
+        //{
+        //    double range;
+        //    if (angle1 >= angle2)
+        //    {
+        //        range = angle1 - angle2;
+        //    }
+        //    else
+        //    {
+        //        range = (2*PI - angle2) + angle1;
+        //    }
+
+        //    Random random = new Random();
+        //    double randomOffset = random.NextDouble() * range;
+
+        //    double randomAngle = angle2 + randomOffset;
+
+        //    return NormalizeAngleRadian(randomAngle);
+        //}
+
+        public static double RandAngleClockwise(double angle1, double angle2)
+        {
+            double delta = NormalizeAngleRadian(angle2 - angle1);
+            double range;
+
+            if (delta <= PI)
+            {
+                // Clockwise arc is the shorter arc
+                range = delta;
+            }
+            else
+            {
+                // Clockwise arc is the longer arc (go the other way around)
+                range = 2*PI - delta;
+            }
+
+            Random random = new Random();
+            double randomOffset = random.NextDouble() * range;
+            double randomAngle;
+
+            if (delta <= PI)
+            {
+                // Add the offset to angle1 in the clockwise direction
+                randomAngle = angle1 + randomOffset;
+            }
+            else
+            {
+                // Add the offset to angle2 in the clockwise direction (which is the shorter way from angle2 to angle1)
+                randomAngle = angle2 + randomOffset;
+            }
+
+            return NormalizeAngleRadian(randomAngle);
         }
 
     }

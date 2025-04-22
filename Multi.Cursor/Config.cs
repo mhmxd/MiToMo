@@ -37,7 +37,7 @@ namespace Multi.Cursor
         // --------------- Sizes and Margins
         public static Size SCREEN_SIZE_MM = new Size(545, 302);
         public static int SIDE_WINDOW_SIZE_MM = 50;
-        public static double WINDOW_MARGIN_MM = 2;
+        public static double WINDOW_PADDING_MM = 2;
         // --------------------------------------
 
         // --------------- Screen

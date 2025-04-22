@@ -41,18 +41,21 @@ namespace Multi.Cursor
 
             //--- Generate the distances
             double distDiff = LONGEST_DIST_MM - SHORTEST_DIST_MM;
-            _distPaddingMM = 0.1 * distDiff;
+            //_distPaddingMM = 0.1 * distDiff;
+            _distPaddingMM = 2.5; // 2.5 mm padding
             double oneThird = distDiff / 3;
             double twoThird = distDiff * 2 / 3;
-            double midDist = Utils.RandDouble(oneThird, twoThird); // Middle distance
+            double midDist = Utils.RandDouble(
+                oneThird + _distPaddingMM, 
+                twoThird - _distPaddingMM); // Middle distance
             double shortDist = Utils.RandDouble(
                 SHORTEST_DIST_MM,
-                Min(oneThird, midDist - _distPaddingMM)); // Shortest distance
+                oneThird - _distPaddingMM); // Shortest distance
+            double longDist = Utils.RandDouble(
+                twoThird + _distPaddingMM,
+                LONGEST_DIST_MM); // Longest distance
             _distances.Add(shortDist);
             _distances.Add(midDist);
-            double longDist = Utils.RandDouble(
-                Max(midDist + _distPaddingMM, twoThird),
-                LONGEST_DIST_MM); // Longest distance
             _distances.Add(longDist);
 
             //-- Create blocks of trials
