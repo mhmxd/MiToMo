@@ -8,7 +8,7 @@ using System.Windows;
 
 namespace Multi.Cursor
 {
-    internal class Finger
+    internal class TouchFinger
     {
         public int MinCol, MaxCol;
         public bool IsDown;
@@ -20,7 +20,7 @@ namespace Multi.Cursor
 
         private Stopwatch _timer = new Stopwatch();
 
-        public Finger(int minCol, int maxCol)
+        public TouchFinger(int minCol, int maxCol)
         {
             MinCol = minCol;
             MaxCol = maxCol;
@@ -74,6 +74,18 @@ namespace Multi.Cursor
         {
             if (_lastPosition == null) return 0;
             return Utils.Dist(_lastPosition, _downPosition);
+        }
+
+        public double GetTravelDistX()
+        {
+            if (_lastPosition == null) return 0;
+            return Math.Abs(_lastPosition.X - _downPosition.X);
+        }
+
+        public double GetTravelDistY()
+        {
+            if (_lastPosition == null) return 0;
+            return Math.Abs(_lastPosition.Y - _downPosition.Y);
         }
 
         public void RestartTimer()

@@ -25,11 +25,11 @@ namespace Multi.Cursor
         private const int RING_TOP_LOWEST_ROW = 3; //  Lowest row for top region (incl.) -- range: [2, 6]
         private const int LITTLE_TOP_LOWEST_ROW = 7; //  Lowest row for top region (incl.) -- range: [9, 13]
 
-        private Finger _thumb = new Finger(0, 3);
-        private Finger _index = new Finger(4, 7);
-        private Finger _middle = new Finger(8, 10);
-        private Finger _ring = new Finger(11, 12);
-        private Finger _little = new Finger(14, 15);
+        private TouchFinger _thumb = new TouchFinger(0, 3);
+        private TouchFinger _index = new TouchFinger(4, 7);
+        private TouchFinger _middle = new TouchFinger(8, 10);
+        private TouchFinger _ring = new TouchFinger(11, 13);
+        private TouchFinger _little = new TouchFinger(14, 15);
 
         //--- Class for each frame on the surface
         private class TouchFrame
@@ -78,7 +78,7 @@ namespace Multi.Cursor
                 return true;
             }
 
-            public bool DoesNotIncludePointer(Finger finger)
+            public bool DoesNotIncludePointer(TouchFinger finger)
             {
                 foreach (int key in Pointers.Keys)
                 {
@@ -164,6 +164,8 @@ namespace Multi.Cursor
             }
         }
 
+        private 
+
         /// <summary>
         /// Fill active touches
         /// </summary>
@@ -174,6 +176,7 @@ namespace Multi.Cursor
             // Reset the dictionary
             //_activeFrame.Clear();
             //Output.PrintSpan(shotSpan);
+            FILOG.Information(Output.GetString(shotSpan));
 
             // Result
             TouchFrame activeFrame = new TouchFrame();
@@ -190,8 +193,8 @@ namespace Multi.Cursor
             while (c < shotSpan.Width)
             {
                 byte[] column = shotSpan.GetColumn(c).ToArray();
-                max = column.Max();
-                maxInd = Array.IndexOf(column, max);
+                max = column.Max(); maxInd = Array.IndexOf(column, max);
+
                 if (c == 0)
                 { // Only check against col. 1
                     byte[] col1 = shotSpan.GetColumn(1).ToArray();
@@ -232,6 +235,7 @@ namespace Multi.Cursor
 
                     c += 1; // Check next column
                 }
+
                 else if (c == 14)
                 { // DO NOT check agianst col. 13 (both can have values)!
                     byte[] col13 = shotSpan.GetColumn(13).ToArray();
@@ -269,6 +273,7 @@ namespace Multi.Cursor
 
                     break;
                 }
+
                 else if (c == 13)
                 { // Only check against col. 12
                     byte[] col12 = shotSpan.GetColumn(12).ToArray();
@@ -306,7 +311,8 @@ namespace Multi.Cursor
 
                     c += 1; // Check 14 as well
                 }
-                else
+
+                else // Rest of columns
                 {
                     byte[] prevCol = shotSpan.GetColumn(c - 1).ToArray();
                     byte[] nextCol = shotSpan.GetColumn(c + 1).ToArray();
@@ -576,10 +582,14 @@ namespace Multi.Cursor
             {
                 if (_index.IsDown) // It was previously down
                 {
+                    FILOG.Information($"{ShowPointers(lastFrame),-18} Index up: down time = {_index.GetDownTime()} | " +
+                        $"travel dist = {_index.GetTravelDistX():F2}, {_index.GetTravelDistY():F2}");
                     // If the index was down and hasn't moved outside of Tap limit => Tap!
                     if (_index.GetDownTime() < Config.TAP_TIME_MS 
-                        && _index.GetTravelDist() < Config.TAP_MOVE_LIMIT) 
+                        && _index.GetTravelDistX() < Config.TAP_X_MOVE_LIMIT
+                        && _index.GetTravelDistY() < Config.TAP_Y_MOVE_LIMIT) 
                     {
+                        FILOG.Information("Index tapped!");
                         _gestureReceiver.IndexTap();
                     }
 
@@ -596,6 +606,7 @@ namespace Multi.Cursor
 
                 if (_index.IsUp) // Index was up before
                 {
+                    FILOG.Information($"{ShowPointers(lastFrame),-18} Index down");
                     _index.TouchDown(indexTouchPoint.GetCenterOfMass());
                     _index.RestartTimer(); // Index Down => Start Tap-watch
                 }
@@ -621,10 +632,14 @@ namespace Multi.Cursor
 
                 if (_middle.IsDown) // It was previously down
                 {
+                    FILOG.Information($"{ShowPointers(lastFrame),-18} Middle up: down time = {_middle.GetDownTime()} | " +
+                        $"travel dist = {_middle.GetTravelDistX():F2}, {_middle.GetTravelDistY():F2}");
                     // If the middle was down and hasn't moved outside of Tap limit => Tap!
                     if (_middle.GetDownTime() < Config.TAP_TIME_MS
-                        && _middle.GetTravelDist() < Config.TAP_MOVE_LIMIT)
+                        && _middle.GetTravelDistX() < Config.TAP_X_MOVE_LIMIT
+                        && _middle.GetTravelDistY() < Config.TAP_Y_MOVE_LIMIT)
                     {
+                        FILOG.Information("Middle tapped!");
                         _gestureReceiver.MiddleTap();
                     }
 
@@ -648,6 +663,7 @@ namespace Multi.Cursor
 
                 if (_middle.IsUp)
                 {
+                    FILOG.Information($"{ShowPointers(lastFrame),-18} Middle down");
                     // Finger Down => Start Tap-watch
                     _middle.TouchDown(middleTouchPoint.GetCenterOfMass());
                     _middle.RestartTimer();
@@ -675,10 +691,14 @@ namespace Multi.Cursor
             {
                 if (_ring.IsDown)
                 {
+                    FILOG.Information($"{ShowPointers(lastFrame),-18} Ring up: down time = {_ring.GetDownTime()} | " +
+                        $"travel dist = {_ring.GetTravelDistX():F2}, {_ring.GetTravelDistY():F2}");
                     // If the finger was down and hasn't moved outside of Tap limit => Tap!
                     if (_ring.GetDownTime() < Config.TAP_TIME_MS
-                        && _ring.GetTravelDist() < Config.TAP_MOVE_LIMIT)
+                        && _ring.GetTravelDistX() < Config.TAP_X_MOVE_LIMIT
+                        && _ring.GetTravelDistY() < Config.TAP_Y_MOVE_LIMIT)
                     {
+                        FILOG.Information("Ring tapped!");
                         _gestureReceiver.RingTap();
                     }
 
@@ -692,6 +712,7 @@ namespace Multi.Cursor
             {
                 if (_ring.IsUp)
                 {
+                    FILOG.Information($"{ShowPointers(lastFrame),-18} Ring down");
                     // Finger Down => Start Tap-watch
                     _ring.TouchDown(ringTouchPoint.GetCenterOfMass());
                     _ring.RestartTimer();
@@ -776,6 +797,11 @@ namespace Multi.Cursor
             if (sb.Length >= 2) sb.Remove(sb.Length - 2, 2);
             sb.Append("}");
             return sb.ToString();
+        }
+
+        private string Dig2(double d)
+        {
+            return $"{d:F2}";
         }
     }
 }

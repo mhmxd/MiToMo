@@ -9,20 +9,29 @@ using System.Xml.Linq;
 using SeriLog = Serilog.Log;
 using Serilog;
 using System.Windows.Shapes;
-using CommunityToolkit.HighPerformance; // Alias Serilog's Log class
+using CommunityToolkit.HighPerformance;
+using System.IO; // Alias Serilog's Log class
 
 namespace Multi.Cursor
 {
     internal class Output
     {
+        private static readonly string LOG_PATH = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            "Multi.Cursor.Logs", "trace_log.txt"
+        );
+
         public static ILogger TRACK_LOG;
         public static ILogger TRIAL_LOG;
         public static ILogger GESTURE_LOG;
+
+        public static ILogger FILOG;
         static Output()
         {
             // Configure Serilog
             SeriLog.Logger = new LoggerConfiguration()
-                .WriteTo.Console(outputTemplate: "[{Level:u3}] {Tag} {Message:lj}{NewLine}")
+                .WriteTo.Console(outputTemplate: "[{Level:u3}] {Timestamp:yyyy-MM-dd HH:mm:ss.fff}" +
+                "{Tag} {Message:lj}{NewLine}")
                 .Enrich.WithProperty("Tag", "Default") // Default tag
                 .MinimumLevel.Information() // Ignore Debug and Verbose
                 .Filter.ByIncludingOnly(logEvent =>
@@ -30,10 +39,16 @@ namespace Multi.Cursor
                     (logEvent.Properties["Tag"].ToString() == "\"{GESTURE}\"" ||
                     logEvent.Properties["Tag"].ToString() == "\"{TRIAL}\"")) // Only include logs with Tag = "App"
                 .CreateLogger();
-
+              
             TRACK_LOG = SeriLog.ForContext("Tag", "{TRACK}");
             TRIAL_LOG = SeriLog.ForContext("Tag", "{TRIAL}");
             GESTURE_LOG = SeriLog.ForContext("Tag", "{GESTURE}");
+
+            FILOG = new LoggerConfiguration()
+                .WriteTo.File(LOG_PATH, outputTemplate: "[{Level:u3}] -{Timestamp:HH:mm:ss.fff}-" +
+                " {Message:lj}{NewLine}")
+                .MinimumLevel.Information() // Ignore Debug and Verbose
+                .CreateLogger();
         }
 
         public static void Print(string output)
@@ -63,6 +78,22 @@ namespace Multi.Cursor
                 Console.WriteLine();
             }
             
+        }
+
+        public static string GetString(Span2D<Byte> span)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("---------------------------------");
+            for (int i = 0; i < span.Height; i++)
+            {
+                for (int j = 0; j < span.Width; j++)
+                {
+                    sb.Append(span[i, j]).Append("\t");
+                }
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
         }
 
         public static string GetString(Dictionary<int, TouchPoint> touchPoints)
@@ -133,5 +164,7 @@ namespace Multi.Cursor
         {
             TRACK_LOG.Information($"Line: ({l.X1:F3}, {l.Y1:F3}) -> ({l.X2:F3}, {l.Y2:F3})");
         }
+
+        
     }
 }

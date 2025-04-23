@@ -141,6 +141,9 @@
     <Reference Include="Serilog.Sinks.Console, Version=6.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.Sinks.Console.6.0.0\lib\net471\Serilog.Sinks.Console.dll</HintPath>
     </Reference>
+    <Reference Include="Serilog.Sinks.File, Version=6.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.Sinks.File.6.0.0\lib\net471\Serilog.Sinks.File.dll</HintPath>
+    </Reference>
     <Reference Include="ShimSkiaSharp, Version=2.0.0.4, Culture=neutral, PublicKeyToken=dafe96fe6c845a74, processorArchitecture=MSIL">
       <HintPath>..\packages\ShimSkiaSharp.2.0.0.4\lib\net461\ShimSkiaSharp.dll</HintPath>
     </Reference>
@@ -271,6 +274,7 @@
     </Compile>
     <Compile Include="Experiment.cs" />
     <Compile Include="Finger.cs" />
+    <Compile Include="Filog.cs" />
     <Compile Include="GestureDetector.cs" />
     <Compile Include="FixedBuffer.cs" />
     <Compile Include="KalmanVeloFilter.cs" />
