@@ -273,6 +273,8 @@
       <DependentUpon>CursorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Experiment.cs" />
+    <Compile Include="Finger.cs" />
+    <Compile Include="FingerTracker.cs" />
     <Compile Include="TouchFinger.cs" />
     <Compile Include="Filog.cs" />
     <Compile Include="GestureDetector.cs" />

@@ -19,6 +19,9 @@ namespace Multi.Cursor
         public static int TIME_CURSOR_MOVE_RESET = 2; // Cursor timer is reset after 2 seconds 
         public static double MIN_CURSOR_MOVE_MM = 5; // Minimum cursor movement to be considered as mouse moved 
 
+        // -------------- Touch
+        public static readonly int MIN_PRESSURE = 30; // Minimum value to consider touching the surface
+
         // -------------- Kalman Filter
         public static int FRAME_DUR_MS = 20; // Duration of each frame to pass to Kalman
         public static double KF_PROC_NOISE_STD = 1.0;
@@ -57,8 +60,8 @@ namespace Multi.Cursor
 
         // --------------- Movement Thresholds --
         public static double TAP_MOVE_LIMIT = 0.2; // Amount of allowed movement for Tap
-        public static float TAP_X_MOVE_LIMIT = 0.3f; // Amount of allowed X movement for Tap
-        public static float TAP_Y_MOVE_LIMIT = 1.0f; // Amount of allowed Y movement for Tap
+        public static float TAP_X_MOVE_LIMIT = 0.5f; // Amount of allowed X movement for Tap
+        public static float TAP_Y_MOVE_LIMIT = 0.5f; // Amount of allowed Y movement for Tap
         public static double MOVE_LIMIT = 0.5; // pts
         public static double MOVE_THRESHOLD = 0.7; // pts
         public static double HIGHT_MOVE_THRESHOLD = 2.5; // pts

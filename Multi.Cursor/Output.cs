@@ -30,7 +30,7 @@ namespace Multi.Cursor
         {
             // Configure Serilog
             SeriLog.Logger = new LoggerConfiguration()
-                .WriteTo.Console(outputTemplate: "[{Level:u3}] {Timestamp:yyyy-MM-dd HH:mm:ss.fff}" +
+                .WriteTo.Console(outputTemplate: "[{Level:u3}] {Timestamp:HH:mm:ss.fff} " +
                 "{Tag} {Message:lj}{NewLine}")
                 .Enrich.WithProperty("Tag", "Default") // Default tag
                 .MinimumLevel.Information() // Ignore Debug and Verbose

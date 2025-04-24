@@ -51,8 +51,8 @@ namespace Multi.Cursor
                     TouchPoint first = _frames.First();
                     TouchPoint last = _frames.Last();
 
-                    dX_raw = last.GetCenterOfMass().X - first.GetCenterOfMass().X;
-                    dY_raw = last.GetCenterOfMass().Y - first.GetCenterOfMass().Y;
+                    dX_raw = last.GetCenter().X - first.GetCenter().X;
+                    dY_raw = last.GetCenter().Y - first.GetCenter().Y;
 
                     TRACK_LOG.Information($"KF Delta Raw: {dX_raw:F3}, {dY_raw:F3}");
                 }
@@ -60,7 +60,7 @@ namespace Multi.Cursor
                 if (_initMove)
                 {
                     // First touch: Don't move the cursor, just initialize
-                    _prevPos = tp.GetCenterOfMass();
+                    _prevPos = tp.GetCenter();
                     _kf.Initialize(new Point(0, 0)); // Start at zero movement
                     _initMove = false;
                 }
@@ -91,7 +91,7 @@ namespace Multi.Cursor
                     TRACK_LOG.Information(Str.MINOR_LINE);
 
                     // Update previous state
-                    _prevPos = tp.GetCenterOfMass();
+                    _prevPos = tp.GetCenter();
                     _frames.Clear();
                     _stopWatch.Restart();
 

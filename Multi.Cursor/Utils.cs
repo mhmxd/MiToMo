@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using static System.Math;
+using static System.Windows.Rect;
 
 namespace Multi.Cursor
 {
@@ -79,6 +80,11 @@ namespace Multi.Cursor
             return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
         }
 
+        //public static double DistX(Point p1, Point p2)
+        //{
+        //    return Abs(p1.X - p2.X);
+        //}
+
         public static int MM2PX(double mm)
         {
             return (int)(mm / MM_IN_INCH * PPI);
@@ -91,12 +97,12 @@ namespace Multi.Cursor
 
         public static Point Relative(Point p, double originX, double originY)
         {
-            return new Point(p.X - originX, p.Y - originY);
+            return new Point((int)(p.X - originX), (int)(p.Y - originY));
         }
 
         public static Point Offset(Point p, double offsetX, double offsetY)
         {
-            return new Point(p.X + offsetX, p.Y + offsetY);
+            return new Point((int)(p.X + offsetX), (int)(p.Y + offsetY));
         }
 
         public static bool IsBetween(double v, double v1, double v2)

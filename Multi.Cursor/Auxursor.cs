@@ -84,14 +84,14 @@ namespace Multi.Cursor
                     TouchPoint first = _touchFrames.First();
                     TouchPoint last = _touchFrames.Last();
 
-                    dX_raw = last.GetCenterOfMass().X - first.GetCenterOfMass().X;
-                    dY_raw = last.GetCenterOfMass().Y - first.GetCenterOfMass().Y;
+                    dX_raw = last.GetCenter().X - first.GetCenter().X;
+                    dY_raw = last.GetCenter().Y - first.GetCenter().Y;
                 }
 
                 if (_initMove)
                 {
                     // First touch: Don't move the cursor, just initialize
-                    _prevPosition = tp.GetCenterOfMass();
+                    _prevPosition = tp.GetCenter();
                     _kvf.Initialize(0, 0); // Start at zero movement
                     _initMove = false;
                 }
@@ -118,7 +118,7 @@ namespace Multi.Cursor
                     double dY = filteredV.fvY * dT * gain;
 
                     // Update previous state
-                    _prevPosition = tp.GetCenterOfMass();
+                    _prevPosition = tp.GetCenter();
                     _touchFrames.Clear();
                     _stopWatch.Restart();
 

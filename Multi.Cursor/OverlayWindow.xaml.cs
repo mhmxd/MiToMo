@@ -229,7 +229,7 @@ namespace Multi.Cursor
                 if (_beamTPInitMove)
                 {
                     // First touch: Don't move the cursor, just initialize
-                    _beamTPPrevPos = tp.GetCenterOfMass();
+                    _beamTPPrevPos = tp.GetCenter();
                     _beamKalmanFilter.Initialize(0, 0); // Start with zero velocity
                     _beamTPInitMove = false;
                     _beamTouchFrames.Clear();
@@ -249,8 +249,8 @@ namespace Multi.Cursor
                 TouchPoint first = _beamTouchFrames.First();
                 TouchPoint last = _beamTouchFrames.Last();
 
-                double measureDX = last.GetCenterOfMass().X - first.GetCenterOfMass().X;
-                double measureDY = last.GetCenterOfMass().Y - first.GetCenterOfMass().Y;
+                double measureDX = last.GetCenter().X - first.GetCenter().X;
+                double measureDY = last.GetCenter().Y - first.GetCenter().Y;
 
                 // Ignore smaller movments
                 if (Utils.IsEitherAbsMore(measureDX, measureDY, Config.MIN_CURSOR_MOVE_MM))
@@ -285,7 +285,7 @@ namespace Multi.Cursor
                 GESTURE_LOG.Information(Str.MINOR_LINE);
 
                 // Update previous state
-                _beamTPPrevPos = tp.GetCenterOfMass();
+                _beamTPPrevPos = tp.GetCenter();
                 _beamTouchFrames.Clear();
                 _beamTouchFrames.Add(tp); //Add the current touch point for the next calculation.
                 _beamStopwatch.Restart();
@@ -376,7 +376,7 @@ namespace Multi.Cursor
                 if (_plusTPInitMove)
                 {
                     // First touch: Don't move the cursor, just initialize
-                    _plusTPPrevPos = tp.GetCenterOfMass();
+                    _plusTPPrevPos = tp.GetCenter();
                     _plusKalmanFilter.Initialize(0, 0); // Start with zero velocity
                     _plusTPInitMove = false;
                     _plusTouchFrames.Clear();
@@ -396,8 +396,8 @@ namespace Multi.Cursor
                 TouchPoint first = _plusTouchFrames.First();
                 TouchPoint last = _plusTouchFrames.Last();
 
-                double measureDX = last.GetCenterOfMass().X - first.GetCenterOfMass().X;
-                double measureDY = last.GetCenterOfMass().Y - first.GetCenterOfMass().Y;
+                double measureDX = last.GetCenter().X - first.GetCenter().X;
+                double measureDY = last.GetCenter().Y - first.GetCenter().Y;
 
                 // Ignore smaller movments
                 if (Utils.IsEitherAbsMore(measureDX, measureDY, Config.MIN_CURSOR_MOVE_MM))
@@ -432,7 +432,7 @@ namespace Multi.Cursor
                 GESTURE_LOG.Information(Str.MINOR_LINE);
 
                 // Update previous state
-                _plusTPPrevPos = tp.GetCenterOfMass();
+                _plusTPPrevPos = tp.GetCenter();
                 _plusTouchFrames.Clear();
                 _plusTouchFrames.Add(tp); //Add the current touch point for the next calculation.
                 _plusStopwatch.Restart();
