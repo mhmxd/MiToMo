@@ -27,7 +27,7 @@ namespace Multi.Cursor
 
         //-- Information
         public int ParticipantNumber { get; set; }
-        public Technique Active_Technique = Technique.Auxursor_Tap;
+        public static Technique Active_Technique = Technique.Auxursor_Swipe;
         private int _activeBlockNum;
         private int _activeBlockInd;
         private int _activeTrialNum;

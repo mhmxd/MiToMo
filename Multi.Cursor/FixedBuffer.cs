@@ -63,6 +63,11 @@ namespace Multi.Cursor
 
         public T BeforeLast => _buffer[Count - 1];
 
-        
+        public void Clear()
+        {
+            _count = 0;
+            _start = 0;
+            _end = -1;
+        }
     }
 }

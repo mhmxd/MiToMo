@@ -13,6 +13,7 @@ using System.Diagnostics;
 using MathNet.Numerics.LinearAlgebra.Factorization;
 using System.Web.UI;
 using System.Windows;
+using Serilog.Core;
 
 namespace Multi.Cursor
 {
@@ -42,6 +43,8 @@ namespace Multi.Cursor
         private Dictionary<Finger, Stopwatch> _touchTimers = new Dictionary<Finger, Stopwatch>();
         private Dictionary<Finger, Point> _downPositions = new Dictionary<Finger, Point>();
         private Dictionary<Finger, Point> _lastPositions = new Dictionary<Finger, Point>();
+        private FixedBuffer<TouchFrame> _thumbGestureFrames = new FixedBuffer<TouchFrame>(100);
+        private TouchFrame _thumbGestureStart;
 
         private enum Finger
         {
@@ -192,10 +195,10 @@ namespace Multi.Cursor
 
         public TouchSurface(ToMoGestures gestureReceiver)
         {
+            _gestureReceiver = gestureReceiver;
+
             _upPointerIds = new List<int>() { -1 };
             _downPointersIds = new List<int>() { -1 };
-
-            _gestureReceiver = gestureReceiver;
 
             _touchTimers.Add(Finger.Thumb, new Stopwatch());
             _touchTimers.Add(Finger.Index, new Stopwatch());
@@ -274,14 +277,13 @@ namespace Multi.Cursor
                 }
             }
 
-
-            FILOG.Information(Output.GetKeys(activeFrame.Pointers));
+            //FILOG.Information(Output.GetKeys(activeFrame.Pointers));
             //GESTURE_LOG.Information(Output.GetKeys(activeFrame.Pointers));
 
             return activeFrame;
 
             // Convert ShotSpan to array of columns
-            byte[,] columns = new byte[15, 13];
+            //byte[,] columns = new byte[15, 13];
             //(byte val, int row)[] colMax = new (byte, int)[15]; // (value, row)
             //byte max;
             //int maxInd;
@@ -525,68 +527,89 @@ namespace Multi.Cursor
                 // Debug...
                 //--- REMOVED: Only track multiple fingers if multiple fingers are present!
                 // Presence checks are done inside the methods
-                TrackThumb();
-                TrackIndex();
-                TrackMiddle();
-                TrackRing();
-                TrackLittle();
+
+                if (Experiment.Active_Technique == Experiment.Technique.Auxursor_Tap)
+                {
+                    TapTechTrackThumb();
+                    TapTechTrackIndex();
+                    TapTechTrackMiddle();
+                    TapTechTrackRing();
+                    TapTechTrackLittle();
+                }
+
+                if (Experiment.Active_Technique == Experiment.Technique.Auxursor_Swipe)
+                {
+                    SwipeTechTrackThumb();
+                    SwipeTechTrackIndex();
+                    SwipeTechTrackMiddle();
+                    SwipeTechTrackRing();
+                    SwipeTechTrackLittle();
+                }
+
 
             }
 
         }
 
 
+        //========= Tap tech tracking ==========================
+
         /// <summary>
         /// Tracking of the thumb finger
         /// </summary>
-        private void TrackThumb()
+        private void TapTechTrackThumb()
         {
             // Get the last frame
             TouchFrame currentFrame = _frames.Last;
-            TouchFrame beforeLastFrame = _frames.BeforeLast;
+            //TouchFrame beforeLastFrame = _frames.BeforeLast;
             //TouchPoint thumbPoint = currentFrame.GetPointer(Finger.Thumb);
+            Finger finger = Finger.Thumb;
 
-            if (currentFrame.HasTouchPoint(Finger.Thumb)) // middle present
+            if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
-                Point center = currentFrame.GetPointer(Finger.Thumb).GetCenter();
-                if (_touchTimers[Finger.Thumb].IsRunning) // Already active => update position (move)
+                Point center = currentFrame.GetPointer(finger).GetCenter();
+                if (_touchTimers[finger].IsRunning) // Already active => update position
                 {
-                    _lastPositions[Finger.Thumb] = center;
-                    // Mange the Swipe (later)
+                    _lastPositions[finger] = center; // Update position
                 }
                 else // First touch
                 {
-                    _downPositions[Finger.Thumb] = center;
-                    _lastPositions[Finger.Thumb] = center;
-                    _touchTimers[Finger.Thumb].Restart(); // Start the timer
+                    _downPositions[finger] = center;
+                    _lastPositions[finger] = center;
+                    _touchTimers[finger].Restart(); // Start the timer
+                    _thumbGestureStart = currentFrame;
                 }
             }
-            else // No middle present in the current frame
+            else // Finger NOT present in the current frame
             {
-                Point downPosition = _downPositions[Finger.Thumb];
-                Point lastPosition = _lastPositions[Finger.Thumb];
-                if (_touchTimers[Finger.Thumb].IsRunning) // Was active => Lifted up
+                if (_lastPositions.ContainsKey(finger))
                 {
-                    // Check Tap time and movement conditions
-                    if (_touchTimers[Finger.Thumb].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                    Point downPosition = _downPositions[finger];
+                    Point lastPosition = _lastPositions[finger];
+                    if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                     {
-                        // Find the Tap position (Top or Bottom)
-                        if (lastPosition.Y < THUMB_TOP_LOWEST_ROW) // Top
+                        // Check Tap time and movement conditions
+                        if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
+                            && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
+                            && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
                         {
-                            _gestureReceiver.ThumbTap(Location.Top);
-                            FILOG.Information("Thumb tapped! Top.");
+                            // Find the Tap position (Top or Bottom)
+                            if (lastPosition.Y < THUMB_TOP_LOWEST_ROW) // Top
+                            {
+                                _gestureReceiver.ThumbTap(Location.Top);
+                                FILOG.Information($"{finger.ToString()} Tapped! Top.");
+                            }
+                            else // Bottom
+                            {
+                                _gestureReceiver.ThumbTap(Location.Bottom);
+                                FILOG.Information($"{finger.ToString()} Tapped! Bottom.");
+                            }
                         }
-                        else // Bottom
-                        {
-                            _gestureReceiver.ThumbTap(Location.Bottom);
-                            FILOG.Information("Thumb tapped! Bottom.");
-                        }
-                    }
 
-                    _touchTimers[Finger.Thumb].Stop();
+                        _touchTimers[finger].Stop();
+                    }
                 }
+                
             }
 
             //if (thumbPoint == null) // Thumb not present in the current frame
@@ -743,7 +766,7 @@ namespace Multi.Cursor
         /// <summary>
         /// Tracking the index finger
         /// </summary>
-        private void TrackIndex()
+        private void TapTechTrackIndex()
         {
             // Get the last frame
             //TouchFrame beforeLastFrame = _frames.BeforeLast;
@@ -755,38 +778,45 @@ namespace Multi.Cursor
 
             if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
-                Point center = currentFrame.GetPointer(finger).GetCenter();
+                TouchPoint touchPoint = currentFrame.GetPointer(finger);
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
-                    _lastPositions[finger] = center;
-                    // Mange the Swipe (later)
+                    _lastPositions[finger] = touchPoint.GetCenter();
+
+                    // Index moving
+                    _gestureReceiver.IndexMove(currentFrame.GetPointer(finger));
                 }
                 else // First touch
                 {
-                    _downPositions[finger] = center;
-                    _lastPositions[finger] = center;
+                    FILOG.Information($"{finger.ToString()} Down.");
+                    _downPositions[finger] = touchPoint.GetCenter();
+                    _lastPositions[finger] = touchPoint.GetCenter();
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
             else // Finger not present in the current frame
             {
-                Point downPosition = _downPositions[finger];
-                Point lastPosition = _lastPositions[finger];
-                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
+                if (_lastPositions.ContainsKey(finger))
                 {
-                    FILOG.Information($"Index Up: {_touchTimers[finger].ElapsedMilliseconds}" +
-                        $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
-                        $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
-                    if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                    Point downPosition = _downPositions[finger];
+                    Point lastPosition = _lastPositions[finger];
+                    if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                     {
-                        FILOG.Information("Index tapped!");
-                        _gestureReceiver.IndexTap();
-                    }
+                        FILOG.Information($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                            $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
+                            $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
+                        if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
+                            && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
+                            && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                        {
+                            FILOG.Information($"{finger.ToString()} Tapped!");
+                            _gestureReceiver.IndexTap();
+                        }
 
-                    _touchTimers[finger].Stop();
+                        _touchTimers[finger].Stop();
+                    }
                 }
+                
             }
 
             //if (indexTouchPoint == null) // No index finger present in the frame => reset the last position
@@ -832,47 +862,52 @@ namespace Multi.Cursor
         /// <summary>
         /// Tracking the middle finger
         /// </summary>
-        private void TrackMiddle()
+        private void TapTechTrackMiddle()
         {
             // Get the last frame
             TouchFrame currentFrame = _frames.Last;
             //TouchPoint middleTouchPoint = lastFrame.GetPointer(Finger.Middle);
             Finger finger = Finger.Middle;
 
-            if (currentFrame.HasTouchPoint(finger)) // middle present
+            if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
                 Point center = currentFrame.GetPointer(finger).GetCenter();
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
                     _lastPositions[finger] = center;
-                    // Mange the Swipe (later)
+
                 }
                 else // First touch
                 {
+                    FILOG.Information($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
-            else // No middle present in the current frame
+            else // Finger NOT present in the current frame
             {
-                Point downPosition = _downPositions[finger];
-                Point lastPosition = _lastPositions[finger];
-                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
+                if (_lastPositions.ContainsKey(finger))
                 {
-                    FILOG.Information($"Middle Up: {_touchTimers[finger].ElapsedMilliseconds}" +
-                        $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
-                        $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
-                    if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                    Point downPosition = _downPositions[finger];
+                    Point lastPosition = _lastPositions[finger];
+                    if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                     {
-                        _gestureReceiver.MiddleTap();
-                        FILOG.Information("Middle tapped!");
-                    }
+                        FILOG.Information($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                            $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
+                            $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
+                        if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
+                            && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
+                            && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                        {
+                            _gestureReceiver.MiddleTap();
+                            FILOG.Information($"{finger.ToString()} Tapped!");
+                        }
 
-                    _touchTimers[finger].Stop();
+                        _touchTimers[finger].Stop();
+                    }
                 }
+                
             }
 
             //if (middleTouchPoint == null) // No middle finger present
@@ -928,7 +963,7 @@ namespace Multi.Cursor
         /// <summary>
         /// Tracking the ring finger
         /// </summary>
-        private void TrackRing()
+        private void TapTechTrackRing()
         {
 
             // Get the last frame
@@ -937,40 +972,44 @@ namespace Multi.Cursor
 
             Finger finger = Finger.Ring;
 
-            if (currentFrame.HasTouchPoint(finger)) // middle present
+            if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
                 Point center = currentFrame.GetPointer(finger).GetCenter();
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
                     _lastPositions[finger] = center;
-                    // Mange the Swipe (later)
                 }
                 else // First touch
                 {
+                    FILOG.Information($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
-            else // No middle present in the current frame
+            else // Finger NOT present in the current frame
             {
-                Point downPosition = _downPositions[finger];
-                Point lastPosition = _lastPositions[finger];
-                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
+                if (_lastPositions.ContainsKey(finger)) // Finger was present before
                 {
-                    FILOG.Information($"Ring Up: {_touchTimers[finger].ElapsedMilliseconds}" +
-                        $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
-                        $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
-                    if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                    Point downPosition = _downPositions[finger];
+                    Point lastPosition = _lastPositions[finger];
+                    if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                     {
-                        _gestureReceiver.RingTap();
-                        FILOG.Information("Ring tapped!");
-                    }
+                        FILOG.Information($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                            $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
+                            $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
+                        if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
+                            && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
+                            && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                        {
+                            _gestureReceiver.RingTap();
+                            FILOG.Information($"{finger.ToString()} Tapped!");
+                        }
 
-                    _touchTimers[finger].Stop();
+                        _touchTimers[finger].Stop();
+                    }
                 }
+                
             }
 
             //if (ringTouchPoint == null) // No ring finger present
@@ -1014,7 +1053,7 @@ namespace Multi.Cursor
         /// <summary>
         /// Tracking the pinky finger
         /// </summary>
-        private void TrackLittle()
+        private void TapTechTrackLittle()
         {
 
             // Get the last frame
@@ -1024,7 +1063,7 @@ namespace Multi.Cursor
 
             Finger finger = Finger.Little;
 
-            if (currentFrame.HasTouchPoint(finger)) // middle present
+            if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
                 Point center = currentFrame.GetPointer(finger).GetCenter();
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
@@ -1034,68 +1073,257 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
+                    FILOG.Information($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
-            else // No middle present in the current frame
+            else // Finger NOT present in the current frame
             {
-                Point downPosition = _downPositions[finger];
-                Point lastPosition = _lastPositions[finger];
-                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
+                if (_lastPositions.ContainsKey(finger))
                 {
-                    FILOG.Information($"Ring Up: {_touchTimers[finger].ElapsedMilliseconds}" +
-                        $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
-                        $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
-                    if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                    Point downPosition = _downPositions[finger];
+                    Point lastPosition = _lastPositions[finger];
+                    if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                     {
-                        // Find the Tap position (Top or Bottom)
-                        if (lastPosition.Y < LITTLE_TOP_LOWEST_ROW) // Top
+                        FILOG.Information($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                            $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
+                            $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
+                        if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
+                            && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
+                            && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
                         {
-                            _gestureReceiver.LittleTap(Location.Top);
-                            FILOG.Information("Little tapped! Top.");
+                            // Find the Tap position (Top or Bottom)
+                            if (lastPosition.Y < LITTLE_TOP_LOWEST_ROW) // Top
+                            {
+                                _gestureReceiver.LittleTap(Location.Top);
+                                FILOG.Information($"{finger.ToString()} Tapped! Top.");
+                            }
+                            else // Bottom
+                            {
+                                _gestureReceiver.LittleTap(Location.Bottom);
+                                FILOG.Information($"{finger.ToString()} Tapped! Bottom.");
+                            }
                         }
-                        else // Bottom
+
+                        _touchTimers[finger].Stop();
+                    }
+                }
+                
+            }
+
+        }
+
+        //========= Swipe tech tracking ==========================
+
+        /// <summary>
+        /// Tracking of the thumb finger
+        /// </summary>
+        private void SwipeTechTrackThumb()
+        {
+            TouchFrame currentFrame = _frames.Last; // Get the current frame
+            Finger finger = Finger.Thumb;
+
+            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            {
+                Point center = currentFrame.GetPointer(finger).GetCenter();
+                if (_touchTimers[finger].IsRunning) // Already active => update position (move)
+                {
+                    _lastPositions[finger] = center;
+
+                    // Check if Swipe happened
+                    float gestureDT = (currentFrame.Timestamp - _thumbGestureStart.Timestamp)
+                        / (float)Stopwatch.Frequency;
+
+                    // Duration is good => Check movement
+                    if (gestureDT < Config.SWIPE_TIME_MAX)
+                    {
+                        TouchPoint firstTouchPoint = _thumbGestureStart.GetPointer(finger);
+                        double dX = center.X - firstTouchPoint.GetX();
+                        double dY = center.Y - firstTouchPoint.GetY();
+                        FILOG.Debug($"dT = {gestureDT:F2} | dX = {dX:F2}, dY = {dY:F2}");
+                        if (Abs(dX) > Config.SWIPE_MOVE_THRESHOLD) // Good amount of movement along X
                         {
-                            _gestureReceiver.LittleTap(Location.Bottom);
-                            FILOG.Information("Little tapped! Bottom.");
+                            if (Abs(dY) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
+                            {
+                                // Swipe along X
+                                _gestureReceiver.ThumbSwipe(dX > 0 ? Direction.Right : Direction.Left);
+                                //_thumbGestureFrames.Clear(); // Reset after gesture is dected
+                                _thumbGestureStart = currentFrame; // Reset after gesture is detected
+                                FILOG.Debug($"{finger.ToString()} Swiped!");
+                            }
                         }
+                        else if (Abs(dY) > Config.SWIPE_MOVE_THRESHOLD) // Good amount of movement along Y
+                        {
+                            if (Abs(dX) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
+                            {
+                                // Swipe along Y
+                                _gestureReceiver.ThumbSwipe(dY > 0 ? Direction.Down : Direction.Up);
+                                //_thumbGestureFrames.Clear(); // Reset after gesture is dected
+                                _thumbGestureStart = currentFrame; // Reset after gesture is detected
+                                FILOG.Debug($"{finger.ToString()} Swiped!");
+                            }
+                        }
+
+                    }
+                    else // (Probably) gesture time expired => start over
+                    {
+                        _thumbGestureStart = currentFrame;
                     }
 
+                }
+                else // First touch
+                {
+                    _downPositions[finger] = center;
+                    _lastPositions[finger] = center;
+                    _touchTimers[finger].Restart(); // Start the timer
+                    _thumbGestureStart = currentFrame;
+                }
+            }
+            else // Finger NOT present in the current frame
+            {
+                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
+                {
                     _touchTimers[finger].Stop();
                 }
             }
 
-            //if (littleTouchPoint == null) // No ring finger present
-            //{
-            //    if (_little.IsDown) // Little finger was down
-            //    {
-            //        if (_little.GetDownTime() < Config.TAP_TIME_MS) // Tap!
-            //        {
-            //            Location tapLoc = Location.Top;
-            //            if (_little.GetDownRow() > LITTLE_TOP_LOWEST_ROW) tapLoc = Location.Bottom;
-            //            _gestureReceiver.LittleTap(tapLoc);
-            //        }
+        }
 
-            //        _little.LiftUp();
-            //    }
+        /// <summary>
+        /// Tracking the index finger
+        /// </summary>
+        private void SwipeTechTrackIndex()
+        {
+            TouchFrame currentFrame = _frames.Last; // Get the current frame
 
-            //    return;
+            Finger finger = Finger.Index;
 
-            //}
-            //else // Ringer finger is present in the last frame
-            //{
-            //    if (_little.IsUp)
-            //    {
-            //        // Ring Down => Start Tap-watch
-            //        _little.RestartTimer();
-            //        //_little.TouchDown(littleTouchPoint.GetRow(), littleTouchPoint.GetCol());
-            //        _little.TouchDown(littleTouchPoint.GetCenter());
-            //    }
-            //}
+            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            {
+                TouchPoint touchPoint = currentFrame.GetPointer(finger);
+                if (_touchTimers[finger].IsRunning) // Already active => update position (move)
+                {
+                    _lastPositions[finger] = touchPoint.GetCenter();
+
+                    // Index moving
+                    _gestureReceiver.IndexMove(currentFrame.GetPointer(finger));
+                }
+                else // First touch
+                {
+                    FILOG.Information($"{finger.ToString()} Down.");
+                    _downPositions[finger] = touchPoint.GetCenter();
+                    _lastPositions[finger] = touchPoint.GetCenter();
+                    _touchTimers[finger].Restart(); // Start the timer
+                }
+            }
+            else // Finger not present in the current frame
+            {
+                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
+                {
+                    _touchTimers[finger].Stop();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Tracking the middle finger
+        /// </summary>
+        private void SwipeTechTrackMiddle()
+        {
+            TouchFrame currentFrame = _frames.Last; // Get current frame
+            Finger finger = Finger.Middle;
+
+            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            {
+                Point center = currentFrame.GetPointer(finger).GetCenter();
+                if (_touchTimers[finger].IsRunning) // Already active => update position (move)
+                {
+                    _lastPositions[finger] = center;
+
+                }
+                else // First touch
+                {
+                    FILOG.Information($"{finger.ToString()} Down.");
+                    _downPositions[finger] = center;
+                    _lastPositions[finger] = center;
+                    _touchTimers[finger].Restart(); // Start the timer
+                }
+            }
+            else // Finger NOT present in the current frame
+            {
+                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
+                {
+                    _touchTimers[finger].Stop();
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Tracking the ring finger
+        /// </summary>
+        private void SwipeTechTrackRing()
+        {
+            TouchFrame currentFrame = _frames.Last; // Get the current frame
+            Finger finger = Finger.Ring;
+
+            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            {
+                Point center = currentFrame.GetPointer(finger).GetCenter();
+                if (_touchTimers[finger].IsRunning) // Already active => update position (move)
+                {
+                    _lastPositions[finger] = center;
+                }
+                else // First touch
+                {
+                    FILOG.Information($"{finger.ToString()} Down.");
+                    _downPositions[finger] = center;
+                    _lastPositions[finger] = center;
+                    _touchTimers[finger].Restart(); // Start the timer
+                }
+            }
+            else // Finger NOT present in the current frame
+            {
+                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
+                {
+                    _touchTimers[finger].Stop();
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Tracking the pinky finger
+        /// </summary>
+        private void SwipeTechTrackLittle()
+        {
+            TouchFrame currentFrame = _frames.Last; // Get the current frame
+            Finger finger = Finger.Little;
+
+            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            {
+                Point center = currentFrame.GetPointer(finger).GetCenter();
+                if (_touchTimers[finger].IsRunning) // Already active => update position (move)
+                {
+                    _lastPositions[finger] = center;
+                }
+                else // First touch
+                {
+                    FILOG.Information($"{finger.ToString()} Down.");
+                    _downPositions[finger] = center;
+                    _lastPositions[finger] = center;
+                    _touchTimers[finger].Restart(); // Start the timer
+                }
+            }
+            else // Finger NOT present in the current frame
+            {
+                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
+                {
+                    _touchTimers[finger].Stop();
+                }
+            }
 
         }
 

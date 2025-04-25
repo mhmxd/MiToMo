@@ -293,7 +293,7 @@ namespace Multi.Cursor
                 { // Mouse
 
                     _touchMouseActive = false;
-                    _experiment.Active_Technique = Technique.Mouse;
+                    Experiment.Active_Technique = Technique.Mouse;
                     // Nothing for now
                 }
             }
@@ -1124,7 +1124,7 @@ namespace Multi.Cursor
                 _cursorFreezed = FreezeCursor();
             }
 
-            if (_experiment.Active_Technique == Technique.Mouse)
+            if (Experiment.Active_Technique == Technique.Mouse)
             {
                 if (_timestamps.ContainsKey(Str.TARGET_DOWN)) // Target hit, Start click again => End trial
                 {
@@ -1409,11 +1409,22 @@ namespace Multi.Cursor
             _lastRotPointerPos.X = -1;
         }
 
-        public void ThumbSwipe(Location dir)
+        public void ThumbSwipe(Direction dir)
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Swipe)
+            if (Experiment.Active_Technique == Technique.Auxursor_Swipe)
             {
-                //ActivateSide(dir);
+                switch (dir)
+                {
+                    case Direction.Left:
+                        ActivateSideWin(Location.Left, Location.Middle);
+                        break;
+                    case Direction.Right:
+                        ActivateSideWin(Location.Right, Location.Middle);
+                        break;
+                    case Direction.Up:
+                        ActivateSideWin(Location.Top, Location.Middle);
+                        break;
+                }
             }
             
         }
@@ -1439,7 +1450,7 @@ namespace Multi.Cursor
 
         public void ThumbTap(Location tapLoc)
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
+            if (Experiment.Active_Technique == Technique.Auxursor_Tap)
             {
                 ActivateSideWin(Location.Left, tapLoc);
             }
@@ -1448,7 +1459,7 @@ namespace Multi.Cursor
 
         public void MiddleTap()
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
+            if (Experiment.Active_Technique == Technique.Auxursor_Tap)
             {
                 ActivateSideWin(Location.Top, Location.Middle);
             }
@@ -1456,7 +1467,7 @@ namespace Multi.Cursor
 
         public void RingTap()
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
+            if (Experiment.Active_Technique == Technique.Auxursor_Tap)
             {
                 ActivateSideWin(Location.Top, Location.Right); // Right side of the top window
                 //ActivateSide(Direction.Up, tapDir);
@@ -1465,7 +1476,7 @@ namespace Multi.Cursor
 
         public void LittleTap(Location tapLoc)
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
+            if (Experiment.Active_Technique == Technique.Auxursor_Tap)
             {
                 ActivateSideWin(Location.Right, tapLoc);
             }

@@ -45,7 +45,7 @@ namespace Multi.Cursor
             GESTURE_LOG = SeriLog.ForContext("Tag", "{GESTURE}");
 
             FILOG = new LoggerConfiguration()
-                .WriteTo.File(LOG_PATH, outputTemplate: "[{Level:u3}] -{Timestamp:HH:mm:ss.fff}-" +
+                .WriteTo.File(LOG_PATH, outputTemplate: "[{Level:u3}] [{Timestamp:HH:mm:ss.fff}]" +
                 " {Message:lj}{NewLine}")
                 .MinimumLevel.Information() // Ignore Debug and Verbose
                 .CreateLogger();
