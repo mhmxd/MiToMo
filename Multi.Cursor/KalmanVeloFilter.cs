@@ -19,8 +19,8 @@ namespace Multi.Cursor
 
         private Vector<double> x; // State: [velocityX, accelerationX, velocityY, accelerationY]
 
-        private double _prcNoiseStd = 0.7; // Process noise std
-        private double _msrNoiseStd = 10; // Measurement noise std
+        private double _prcNoiseStd; // Process noise std
+        private double _msrNoiseStd; // Measurement noise std
 
         public KalmanVeloFilter(double dT, double prcNoiseStd, double msrNoiseStd)
         {

@@ -10,9 +10,6 @@ namespace Multi.Cursor
 {
     internal class Auxursor
     {
-        private double PROCESS_NOISE = 2.0;
-        private double MEASURE_NOISE = 20;
-
         private bool _active;
         private bool _freezed; // For setting when mouse moves
         private bool _initMove;
@@ -42,7 +39,7 @@ namespace Multi.Cursor
             _touchFrames = new List<TouchPoint>();
 
             //_kf = new KalmanFilter(dT);
-            _kvf = new KalmanVeloFilter(dT, PROCESS_NOISE, MEASURE_NOISE);
+            _kvf = new KalmanVeloFilter(dT, Config.AUX_VKF_PROCESS_NOISE, Config.AUX_VKF_MEASURE_NOISE);
         }
 
         public void Activate()
@@ -111,8 +108,8 @@ namespace Multi.Cursor
 
                     // Compute speed and apply dynamic gain
                     double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
-                    double gain = Config.BASE_GAIN +
-                        Config.SCALE_FACTOR * Tanh(speed * Config.SENSITIVITY);
+                    double gain = Config.AUX_BASE_GAIN +
+                        Config.AUX_SCALE_FACTOR * Tanh(speed * Config.AUX_SENSITIVITY);
 
                     double dX = filteredV.fvX * dT * gain;
                     double dY = filteredV.fvY * dT * gain;

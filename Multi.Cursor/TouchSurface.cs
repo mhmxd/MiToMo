@@ -768,12 +768,7 @@ namespace Multi.Cursor
         /// </summary>
         private void TapTechTrackIndex()
         {
-            // Get the last frame
-            //TouchFrame beforeLastFrame = _frames.BeforeLast;
-            //TouchPoint indexLastDown = beforeLastFrame.GetPointer(_index.MinCol, _index.MaxCol);
-            TouchFrame currentFrame = _frames.Last;
-            //TouchPoint indexTouchPoint = lastFrame.GetPointer(_index.MinCol, _index.MaxCol);
-            //TouchPoint indexTouchPoint = lastFrame.GetPointer(Finger.Index);
+            TouchFrame currentFrame = _frames.Last; // Get current frame
             Finger finger = Finger.Index;
 
             if (currentFrame.HasTouchPoint(finger)) // Finger present
@@ -784,7 +779,7 @@ namespace Multi.Cursor
                     _lastPositions[finger] = touchPoint.GetCenter();
 
                     // Index moving
-                    _gestureReceiver.IndexMove(currentFrame.GetPointer(finger));
+                    _gestureReceiver.IndexMove(touchPoint);
                 }
                 else // First touch
                 {

@@ -19,22 +19,27 @@ namespace Multi.Cursor
         public static int TIME_CURSOR_MOVE_RESET = 2; // Cursor timer is reset after 2 seconds 
         public static double MIN_CURSOR_MOVE_MM = 5; // Minimum cursor movement to be considered as mouse moved 
 
-        // -------------- Touch
+        // -------------- Touch -----------------
         public static readonly int MIN_PRESSURE = 30; // Minimum value to consider touching the surface
+        // --------------------------------------
 
-        // -------------- Kalman Filter
+        // -------------- Vel. Kalman Filter ----
         public static int FRAME_DUR_MS = 20; // Duration of each frame to pass to Kalman
-        public static double KF_PROC_NOISE_STD = 1.0;
-        public static double KF_MEASURE_NOISE_STD = 50.0;
-        public static double BASE_GAIN = 1.5;       // Minimum movement amplification (adjust for small target selection)
-        public static double SCALE_FACTOR = 4.0;    // Maximum gain at high speed (adjust for fast movement)
-        public static double SENSITIVITY = 0.02;    // Controls how quickly gain increases (adjust for balance)
-        public static double JUMP_THRESHOLD = 0.5;
+
+        public static double AUX_VKF_PROCESS_NOISE = 50;
+        public static double AUX_VKF_MEASURE_NOISE = 10;
+        public static double AUX_BASE_GAIN = 100;       // Minimum movement amplification (adjust for small target selection)
+        public static double AUX_SCALE_FACTOR = 10;    // Maximum gain at high speed (adjust for fast movement)
+        public static double AUX_SENSITIVITY = 5;    // Controls how quickly gain increases (adjust for balance)
+
+        public static double RAD_BEAM_VKF_PROCESS_NOISE_STD = 1.2;
+        public static double RAD_BEAM_VKF_MEASURE_NOISE_STD = 15.0;
+        public static double RAD_PLUS_VKF_PROCESS_NOISE_STD = 0.4;
+        public static double RAD_PLUS_VKF_MEASURE_NOISE_STD = 40.0;
         // --------------------------------------
 
         // -------------- Cursors
-        public static double MAPPING_GAIN = 50;
-        
+        public static double MAPPING_GAIN = 1; // Was 50
         // --------------------------------------
 
         // --------------- Sizes and Margins
