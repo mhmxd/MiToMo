@@ -39,7 +39,7 @@ namespace Multi.Cursor
         // --------------------------------------
 
         // -------------- Cursors
-        public static double MAPPING_GAIN = 1; // Was 50
+        public static double MAPPING_GAIN = 1; // Was 50 // Let's not use it (KvF will take care of it)
         // --------------------------------------
 
         // --------------- Sizes and Margins

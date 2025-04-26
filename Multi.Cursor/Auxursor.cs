@@ -56,78 +56,133 @@ namespace Multi.Cursor
             _stopWatch.Reset(); // Also stops
         }
 
+        /// <summary>
+        /// Finger lifted up or auxursor deactivated
+        /// </summary>
+        public void Stop()
+        {
+            _initMove = true;
+        }
+
         public (double dX, double dY) Move(TouchPoint tp)
         {
-            //if (_freezed) return (0, 0); // Don't move!
-
-            //if (!_active) _active = true;
-
             if (!_active) return (0, 0); // Not active
 
-            if (!_stopWatch.IsRunning) _stopWatch.Start();
-
-            if (_stopWatch.ElapsedMilliseconds < Config.FRAME_DUR_MS)
-            { // Still collecting frames
-                _touchFrames.Add(tp);
+            Point currentPosition = tp.GetCenter();
+            if (_initMove)
+            {
+                // First move: Don't move the cursor, just initialize
+                _prevPosition = currentPosition;
+                _kvf.Initialize(0, 0); // Start at zero VELOCITY!
+                _initMove = false;
             }
             else
-            { // Collected enough frames
+            {
+                // Compute velocity
+                _stopWatch.Stop();
+                double dT = _stopWatch.ElapsedMilliseconds / 1000.0; // seconds
+                double dX_raw = currentPosition.X - _prevPosition.X;
+                double dY_raw = currentPosition.Y - _prevPosition.Y;
+                double rawVX = dX_raw / dT;
+                double rawVY = dY_raw / dT;
+                FILOG.Information($"Raw V: {rawVX:F2}, {rawVY:F2}");
 
-                // Compute movement delta (ignore absolute positions!)
-                double dX_raw = 0, dY_raw = 0;
-                if (_touchFrames.Count > 1)
-                {
-                    // Compute delta from oldest to newest frame
-                    TouchPoint first = _touchFrames.First();
-                    TouchPoint last = _touchFrames.Last();
+                // Use Kalman filter for velocity
+                _kvf.Predict();
+                _kvf.Update(rawVX, rawVY);
 
-                    dX_raw = last.GetCenter().X - first.GetCenter().X;
-                    dY_raw = last.GetCenter().Y - first.GetCenter().Y;
-                }
+                (double fvX, double fvY) filteredV = _kvf.GetEstVelocity();
+                FILOG.Information($"Raw V: {filteredV.fvX:F2}, {filteredV.fvY:F2}");
+                // Compute speed and apply dynamic gain
+                double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
+                double gain = Config.AUX_BASE_GAIN +
+                    Config.AUX_SCALE_FACTOR * Tanh(speed * Config.AUX_SENSITIVITY);
 
-                if (_initMove)
-                {
-                    // First touch: Don't move the cursor, just initialize
-                    _prevPosition = tp.GetCenter();
-                    _kvf.Initialize(0, 0); // Start at zero movement
-                    _initMove = false;
-                }
-                else
-                {
-                    // Compute velocity
-                    _stopWatch.Stop();
-                    double dT = _stopWatch.ElapsedMilliseconds / 1000.0; // seconds
-                    double rawVX = dX_raw / dT;
-                    double rawVY = dY_raw / dT;
+                double dX = filteredV.fvX * dT * gain;
+                double dY = filteredV.fvY * dT * gain;
 
-                    // Kalman filter for velocity
-                    _kvf.Predict();
-                    _kvf.Update(rawVX, rawVY);
+                // Update previous state
+                _prevPosition = currentPosition;
+                _stopWatch.Restart();
 
-                    (double fvX, double fvY) filteredV = _kvf.GetEstVelocity();
-
-                    // Compute speed and apply dynamic gain
-                    double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
-                    double gain = Config.AUX_BASE_GAIN +
-                        Config.AUX_SCALE_FACTOR * Tanh(speed * Config.AUX_SENSITIVITY);
-
-                    double dX = filteredV.fvX * dT * gain;
-                    double dY = filteredV.fvY * dT * gain;
-
-                    // Update previous state
-                    _prevPosition = tp.GetCenter();
-                    _touchFrames.Clear();
-                    _stopWatch.Restart();
-
-                    return (dX, dY);
-                }
-
+                return (dX, dY); // Return resulting movement
             }
 
-            // Default
-            return (0, 0);
-
+            return (0, 0); // Default
         }
+
+        //public (double dX, double dY) Move(TouchPoint tp)
+        //{
+        //    //if (_freezed) return (0, 0); // Don't move!
+
+        //    //if (!_active) _active = true;
+
+        //    if (!_active) return (0, 0); // Not active
+
+        //    if (!_stopWatch.IsRunning) _stopWatch.Start();
+
+        //    if (_stopWatch.ElapsedMilliseconds < Config.FRAME_DUR_MS)
+        //    { // Still collecting frames
+        //        _touchFrames.Add(tp);
+        //    }
+        //    else
+        //    { // Collected enough frames
+
+        //        // Compute movement delta (ignore absolute positions!)
+        //        double dX_raw = 0, dY_raw = 0;
+        //        if (_touchFrames.Count > 1)
+        //        {
+        //            // Compute delta from oldest to newest frame
+        //            TouchPoint first = _touchFrames.First();
+        //            TouchPoint last = _touchFrames.Last();
+
+        //            dX_raw = last.GetCenter().X - first.GetCenter().X;
+        //            dY_raw = last.GetCenter().Y - first.GetCenter().Y;
+        //        }
+
+        //        if (_initMove)
+        //        {
+        //            // First touch: Don't move the cursor, just initialize
+        //            _prevPosition = tp.GetCenter();
+        //            _kvf.Initialize(0, 0); // Start at zero velocity
+        //            _initMove = false;
+        //        }
+        //        else
+        //        {
+        //            // Compute velocity
+        //            _stopWatch.Stop();
+        //            double dT = _stopWatch.ElapsedMilliseconds / 1000.0; // seconds
+        //            double rawVX = dX_raw / dT;
+        //            double rawVY = dY_raw / dT;
+        //            FILOG.Information($"Raw V: {rawVX:F2}, {rawVY:F2}");
+        //            // Kalman filter for velocity
+        //            _kvf.Predict();
+        //            _kvf.Update(rawVX, rawVY);
+
+        //            (double fvX, double fvY) filteredV = _kvf.GetEstVelocity();
+        //            FILOG.Information($"Raw V: {filteredV.fvX:F2}, {filteredV.fvY:F2}");
+        //            // Compute speed and apply dynamic gain
+        //            double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
+        //            double gain = Config.AUX_BASE_GAIN +
+        //                Config.AUX_SCALE_FACTOR * Tanh(speed * Config.AUX_SENSITIVITY);
+
+        //            double dX = filteredV.fvX * dT * gain;
+        //            double dY = filteredV.fvY * dT * gain;
+
+        //            // Update previous state
+        //            _prevPosition = tp.GetCenter();
+        //            _touchFrames.Clear();
+        //            _stopWatch.Restart();
+
+        //            return (dX, dY);
+        //        }
+
+        //    }
+
+        //    // Default
+        //    return (0, 0);
+
+        //}
 
 
     }

@@ -360,7 +360,7 @@ namespace Multi.Cursor
         public void MoveAuxPointer(TouchPoint tp)
         {
             (double dX, double dY) = _auxursor.Move(tp);
-            MoveAuxCursor(dX * Config.MAPPING_GAIN, dY * Config.MAPPING_GAIN);
+            MoveAuxCursor(dX, dY);
         }
 
         public void ShowSimCursorInMiddle()

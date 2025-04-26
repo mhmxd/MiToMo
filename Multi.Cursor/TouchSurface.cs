@@ -46,6 +46,8 @@ namespace Multi.Cursor
         private FixedBuffer<TouchFrame> _thumbGestureFrames = new FixedBuffer<TouchFrame>(100);
         private TouchFrame _thumbGestureStart;
 
+        private Stopwatch debugWatch = new Stopwatch();
+
         private enum Finger
         {
             Thumb = 1,
@@ -500,6 +502,16 @@ namespace Multi.Cursor
         /// <param name="shotSpan"></param>
         public void Track(Span2D<Byte> shotSpan)
         {
+            //--- Debug
+            if (debugWatch.IsRunning)
+            {
+                debugWatch.Stop();
+                FILOG.Information($"Track time = {debugWatch.ElapsedMilliseconds} ms");
+            }
+            else
+            {
+                debugWatch.Restart();
+            }
             //TrackFingers(shotSpan);
             // First, get the current frame
             TouchFrame activeFrame = FillActiveTouches(shotSpan);
