@@ -71,8 +71,6 @@ namespace Multi.Cursor
                 { 0, 0, 1, 0 },
                 { 0, 0, 0, 1 }
             });
-
-            Output.FILOG.Information($"Initialize x: {x.ToString()}");
         }
 
         public void Predict(double dT)
@@ -99,14 +97,10 @@ namespace Multi.Cursor
             // Predict!
             x = F * x;
             P = (F * P * F.Transpose()) + Q;
-
-            Output.FILOG.Information($"Predict x: {x.ToString()}");
         }
 
         public void Update(double vX, double vY)
         {
-            Output.FILOG.Information($"Begin Update x: {x.ToString()}");
-            Output.FILOG.Information($"Begin Update P: {P.ToString()}");
             // Measurement
             Vector<double> z = Vector<double>.Build.Dense(new double[] { vX, vY });
 
@@ -118,7 +112,7 @@ namespace Multi.Cursor
             
             // Kalman gain
             Matrix<double> K = P * H.Transpose() * S.Inverse();
-            Output.FILOG.Information($"K After calc: {K.ToString()}");
+            
             // Update the state
             x = x + (K * y);
 
@@ -126,9 +120,6 @@ namespace Multi.Cursor
             int size = P.RowCount;
             Matrix<double> I = Matrix<double>.Build.DenseIdentity(size);
             P = (I - K * H) * P;
-
-            Output.FILOG.Information($"End Update x: {x.ToString()}");
-            Output.FILOG.Information($"End Update P: {P.ToString()}");
         }
 
         public (double, double) GetEstVelocity()

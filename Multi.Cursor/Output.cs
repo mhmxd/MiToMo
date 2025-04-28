@@ -142,7 +142,7 @@ namespace Multi.Cursor
 
         public static string GetString(Point p)
         {
-            return $"(X = {p.X:F3}, Y = {p.Y:F3})";
+            return $"(X = {p.X:F2}, Y = {p.Y:F2})";
         }
 
         public static string GetString(List<double> numbers)

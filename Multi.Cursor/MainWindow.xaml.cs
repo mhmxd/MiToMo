@@ -691,6 +691,12 @@ namespace Multi.Cursor
             int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
 
+            // Rects for checking the positions
+            Rect mainWinRect = new Rect(0, 0, this.Width, this.Height);
+            Rect leftWinRect = new Rect(0, 0, _leftWindow.Width, _leftWindow.Height);
+            Rect rightWinRect = new Rect(0, 0, _rightWindow.Width, _rightWindow.Height);
+            Rect topWinRect = new Rect(0, 0, _topWindow.Width, _topWindow.Height);
+
             foreach (Trial trial in _block.Trials) // Go through trials
             {
                 int targetW = Utils.MM2PX(trial.TargetWidthMM);
@@ -700,51 +706,87 @@ namespace Multi.Cursor
                 Point startPositionInMainWin = new Point();
                 Point targetPositionInSideWin = new Point();
                 List<Point> jumpPositions = new List<Point>();
-                
-                switch (trial.SideWindow)
+
+                int nRetries = 100;
+                bool validPosFound = false;
+
+                for (int t = 0; t < nRetries; t++)
                 {
-                    case Location.Left:
-                        _targetSideWindow = _leftWindow;
-                        //_targetSideWindowDir = Location.Left;
-                        jumpPositions.Add(new Point(_leftWindow.Width / 2, _leftWindow.Height / 4)); // Top
-                        jumpPositions.Add(new Point(_leftWindow.Width / 2, _leftWindow.Height * 3 / 4)); // Bottom
-                        (startPositionInMainWin, targetPositionInSideWin) = LeftTargetPositionElements(
-                            padding, startW, targetW, dist, jumpPositions);
+                    switch (trial.SideWindow)
+                    {
+                        case Location.Left:
+                            _targetSideWindow = _leftWindow;
+                            //_targetSideWindowDir = Location.Left;
+                            jumpPositions.Add(new Point(_leftWindow.Width / 2, _leftWindow.Height / 4)); // Top
+                            jumpPositions.Add(new Point(_leftWindow.Width / 2, _leftWindow.Height * 3 / 4)); // Bottom
+                            (startPositionInMainWin, targetPositionInSideWin) = LeftTargetPositionElements(
+                                padding, startW, targetW, dist, jumpPositions);
+                            // Check target position
+                            if (!leftWinRect.Contains(targetPositionInSideWin)) // Target not properly positioned
+                            {
+                                //TRIAL_LOG.Error($"Couldn't find a valid Target position for Trial#{trial.Id}");
+                                continue;
+                            }
+
+                            break;
+
+                        case Location.Right:
+                            _targetSideWindow = _rightWindow;
+                            //_targetSideWindowDir = Location.Right;
+                            jumpPositions.Add(new Point(_rightWindow.Width / 2, _rightWindow.Height / 4)); // Top
+                            jumpPositions.Add(new Point(_rightWindow.Width / 2, _rightWindow.Height * 3 / 4)); // Bottom
+                            (startPositionInMainWin, targetPositionInSideWin) = RightTargetPositionElements(
+                                padding, startW, targetW, dist, jumpPositions);
+                            // Check target position
+                            if (!rightWinRect.Contains(targetPositionInSideWin)) // Target not properly positioned
+                            {
+                                //TRIAL_LOG.Error($"Couldn't find a valid Target position for Trial#{trial.Id}");
+                                continue;
+                            }
+
+                            break;
+
+                        case Location.Top:
+                            _targetSideWindow = _topWindow;
+                            //_targetSideWindowDir = Location.Top;
+                            jumpPositions.Add(new Point(_topWindow.Width / 4, _topWindow.Height / 2)); // Left
+                            jumpPositions.Add(new Point(_topWindow.Width / 2, _topWindow.Height / 2)); // Middle
+                            jumpPositions.Add(new Point(_topWindow.Width * 3 / 4, _topWindow.Height / 2)); // Right
+                            (startPositionInMainWin, targetPositionInSideWin) = TopTargetPositionElements(
+                                padding, startW, targetW, dist, jumpPositions);
+                            // Check target position
+                            if (!topWinRect.Contains(targetPositionInSideWin)) // Target not properly positioned
+                            {
+                                //TRIAL_LOG.Error($"Couldn't find a valid Target position for Trial#{trial.Id}");
+                                continue;
+                            }
+
+                            break;
+                    }
+
+                    // Check if the Start positions are valid
+                    if (mainWinRect.Contains(startPositionInMainWin)) // Valid positions foud
+                    {
+                        trial.StartPosition = startPositionInMainWin;
+                        trial.TargetPosition = targetPositionInSideWin;
+                        validPosFound = true;
+                        TRIAL_LOG.Debug($"St.P: {Output.GetString(startPositionInMainWin)}");
+                        TRIAL_LOG.Debug($"{trial.SideWindow.ToString()} " +
+                            $"-- Tgt.P: {Output.GetString(targetPositionInSideWin)}");
                         break;
-                    case Location.Right:
-                        _targetSideWindow = _rightWindow;
-                        //_targetSideWindowDir = Location.Right;
-                        jumpPositions.Add(new Point(_rightWindow.Width / 2, _rightWindow.Height / 4)); // Top
-                        jumpPositions.Add(new Point(_rightWindow.Width / 2, _rightWindow.Height * 3 / 4)); // Bottom
-                        (startPositionInMainWin, targetPositionInSideWin) = RightTargetPositionElements(
-                            padding, startW, targetW, dist, jumpPositions);
-                        break;
-                    case Location.Top:
-                        _targetSideWindow = _topWindow;
-                        //_targetSideWindowDir = Location.Top;
-                        jumpPositions.Add(new Point(_topWindow.Width / 4, _topWindow.Height / 2)); // Left
-                        jumpPositions.Add(new Point(_topWindow.Width / 2, _topWindow.Height / 2)); // Middle
-                        jumpPositions.Add(new Point(_topWindow.Width * 3 / 4, _topWindow.Height / 2)); // Right
-                        (startPositionInMainWin, targetPositionInSideWin) = TopTargetPositionElements(
-                            padding, startW, targetW, dist, jumpPositions);
-                        break;
+                    } 
+                    
                 }
 
-                // Check if the positions are valid
-                if (startPositionInMainWin.X == 0 && startPositionInMainWin.Y == 0)
+                if (!validPosFound) // No valid position found for this trial (after retries)
                 {
-                    // No valid position found
-                    TRIAL_LOG.Error($"Couldn't find a valid position for Trial#{trial.Id}");
+                    TRIAL_LOG.Error($"Couldn't find a valid Start position for Trial#{trial.Id}");
                     return false;
                 }
-                else // Valid position found
-                {
-                    trial.StartPosition = startPositionInMainWin;
-                    trial.TargetPosition = targetPositionInSideWin;
-                }
+                
             }
 
-            TRIAL_LOG.Information($"Block#{_block.Id}: Valid positions found for all trials.");
+            TRIAL_LOG.Debug($"Block#{_block.Id}: Valid positions found for all trials.");
             return true; // All trials have valid positions
         }
 
@@ -763,6 +805,14 @@ namespace Multi.Cursor
             int targetW = Utils.MM2PX(_trial.TargetWidthMM);
             ShowStart(_trial.StartPosition, startW, Brushes.Green,
                 Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
+
+            // Set the target window and show the Target
+            switch (_trial.SideWindow)
+            {
+                case Location.Left: _targetSideWindow = _leftWindow; break;
+                case Location.Right: _targetSideWindow = _rightWindow; break;
+                case Location.Top: _targetSideWindow = _topWindow; break;
+            }
 
             _targetSideWindow.ShowTarget(_trial.TargetPosition, targetW, Brushes.Blue,
                 Target_MouseEnter, Target_MouseLeave, Target_ButtonDown, Target_ButtonUp);
@@ -1023,7 +1073,7 @@ namespace Multi.Cursor
             double maxTheta = PI - minTheta;
             GESTURE_LOG.Verbose($"Max Angle = {Utils.RadToDeg(maxTheta):F2}");
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 5000; i++)
             {
                 // Randomly place target
                 double targetCenterX = _random.NextDouble() * (targetMaxX - targetMinX) + targetMinX;

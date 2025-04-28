@@ -89,14 +89,14 @@ namespace Multi.Cursor
                 {
                     double rawVX = dX_raw / dT;
                     double rawVY = dY_raw / dT;
-                    FILOG.Information($"Raw V: {rawVX:F2}, {rawVY:F2}");
+                    FILOG.Debug($"Raw V: {rawVX:F2}, {rawVY:F2}");
 
                     // Use Kalman filter for velocity
                     _kvf.Predict(dT);
                     _kvf.Update(rawVX, rawVY);
 
                     (double fvX, double fvY) filteredV = _kvf.GetEstVelocity();
-                    FILOG.Information($"KvF V: {filteredV.fvX:F2}, {filteredV.fvY:F2}");
+                    FILOG.Debug($"KvF V: {filteredV.fvX:F2}, {filteredV.fvY:F2}");
                     // Compute speed and apply dynamic gain
                     double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
                     double gain = Config.AUX_BASE_GAIN +

@@ -811,8 +811,8 @@ namespace Multi.Cursor
                     if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                     {
                         FILOG.Information($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
-                            $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
-                            $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
+                            $" | dX = {Abs(lastPosition.X - downPosition.X):F2}" +
+                            $" | dY = {Abs(lastPosition.Y - downPosition.Y):F2}");
                         if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
                             && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
                             && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
@@ -902,7 +902,7 @@ namespace Multi.Cursor
                     Point lastPosition = _lastPositions[finger];
                     if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                     {
-                        FILOG.Debug($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                        FILOG.Information($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                             $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
                             $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                         if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS

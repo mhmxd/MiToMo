@@ -156,29 +156,24 @@ namespace Multi.Cursor
             return new Point(randomX, randomY);
         }
 
-        public void ShowTarget(Point position, double widthMM, Brush fill,
+        public void ShowTarget(Point position, int targetW, Brush fill,
             MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
             MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
         {
 
-            // Radius in pixels
-            //const double PPI = 109;
-            //const double MM_IN_INCH = 25.4;
-            int targetWidth = Utils.MM2PX(widthMM);
-
             // Create the target
-            targetHalfW = targetWidth / 2;
+            targetHalfW = targetW / 2;
             _target = new Rectangle
             {
-                Width = targetWidth,
-                Height = targetWidth,
+                Width = targetW,
+                Height = targetW,
                 Fill = fill,
             };
 
             // Position the target on the Canvas
             Canvas.SetLeft(_target, position.X);
             Canvas.SetTop(_target, position.Y);
-
+            
             // Add events
             _target.MouseEnter += mouseEnterHandler;
             _target.MouseLeave += mouseLeaveHandler;
