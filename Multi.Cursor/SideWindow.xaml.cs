@@ -89,9 +89,9 @@ namespace Multi.Cursor
         /// <summary>
         /// Show the target
         /// </summary>
-        /// <param name="widthMM"> Width (diameter) of the target circle </param>
+        /// <param name="targetWidth"> Width (diameter) of the target circle </param>
         /// <returns> Position of the target top-left (rel. to this window) </returns>
-        public Point ShowTarget(double widthMM, Brush fill, 
+        public Point ShowTarget(int targetWidth, Brush fill, 
             MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
             MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
         {
@@ -99,7 +99,7 @@ namespace Multi.Cursor
             // Radius in pixels
             //const double PPI = 109;
             //const double MM_IN_INCH = 25.4;
-            int targetWidth = Utils.MM2PX(widthMM);
+            //int targetWidth = Utils.MM2PX(widthMM);
             
             // Get canvas dimensions
             _canvasWidth = (int)canvas.ActualWidth;

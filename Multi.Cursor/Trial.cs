@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Multi.Cursor
 {
@@ -11,6 +12,11 @@ namespace Multi.Cursor
     {
         // Trial Id
         private int _id { get; set; }
+        public int Id
+        {
+            get => _id;
+            set => _id = value;
+        }
 
         // Target circle diameter
         private double _targetWidthMM;
@@ -29,6 +35,8 @@ namespace Multi.Cursor
             set => _distanceMM = value;
         }
         public int DistancePX => Utils.MM2PX(DistanceMM);
+
+        public Point StartPosition, TargetPosition; // Relative to the respective windows
 
         // Trial number (not needed for now)
         //private int _number { get; set; }

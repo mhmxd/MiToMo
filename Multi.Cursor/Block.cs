@@ -10,7 +10,17 @@ namespace Multi.Cursor
     internal class Block
     {
         private List<Trial> _trials = new List<Trial>();
+        public List<Trial> Trials
+        {
+            get => _trials;
+            set => _trials = value;
+        }
         private int _id {  get; set; }
+        public int Id
+        {
+            get => _id;
+            set => _id = value;
+        }
 
         public Block(int id, List<double> targetWidthsMM, List<double> distsMM) 
         {
