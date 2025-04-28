@@ -357,10 +357,15 @@ namespace Multi.Cursor
             ShowAuxCursor((int)p.X, (int)p.Y);
         }
 
-        public void MoveAuxPointer(TouchPoint tp)
+        public void UpdateAuxursor(TouchPoint tp)
         {
-            (double dX, double dY) = _auxursor.Move(tp);
+            (double dX, double dY) = _auxursor.Update(tp);
             MoveAuxCursor(dX, dY);
+        }
+
+        public void StopAuxursor()
+        {
+            _auxursor.Stop();
         }
 
         public void ShowSimCursorInMiddle()

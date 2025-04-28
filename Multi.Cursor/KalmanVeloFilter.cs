@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Math;
 
 namespace Multi.Cursor
 {
@@ -22,33 +23,23 @@ namespace Multi.Cursor
         private double _prcNoiseStd; // Process noise std
         private double _msrNoiseStd; // Measurement noise std
 
-        public KalmanVeloFilter(double dT, double prcNoiseStd, double msrNoiseStd)
+        private readonly MatrixBuilder<double> _mBuilder = Matrix<double>.Build; // Single instance
+
+        public KalmanVeloFilter(double prcNoiseStd, double msrNoiseStd)
         {
             _prcNoiseStd = prcNoiseStd;
             _msrNoiseStd = msrNoiseStd;
-            dt = dT;
-
-            var mBuilder = Matrix<double>.Build;
-
-            // State transition matrix F
-            F = mBuilder.DenseOfArray(new double[,]
-            {
-                { 1, dt, 0, 0 },
-                { 0, 1, 0, 0 },
-                { 0, 0, 1, dt },
-                { 0, 0, 0, 1 }
-            });
 
             // Measurement matrix H (velocity observed)
-            H = mBuilder.DenseOfArray(new double[,]
+            H = _mBuilder.DenseOfArray(new double[,]
             {
                 { 1, 0, 0, 0 },
                 { 0, 0, 1, 0 }
             });
 
-            // Process noise covariance matrix
-            double q = Math.Pow(_prcNoiseStd, 2);
-            Q = mBuilder.DenseOfArray(new double[,]
+            // Process noise covariance matrix (will be updated in Predict with new dTs)
+            double q = Pow(_prcNoiseStd, 2);
+            Q = _mBuilder.DenseOfArray(new double[,]
             {
                 { q, 0, 0, 0 },
                 { 0, q, 0, 0 },
@@ -57,44 +48,65 @@ namespace Multi.Cursor
             });
 
             // Measurement noise covariance matrix
-            double r = Math.Pow(_msrNoiseStd, 2);
-            R = mBuilder.DenseOfArray(new double[,]
+            double r = Pow(_msrNoiseStd, 2);
+            R = _mBuilder.DenseOfArray(new double[,]
             {
                 { r, 0 },
                 { 0, r }
             });
         }
 
-        //public KalmanVeloFilter(double dT) : this(dT, 0.7, 10) { }
-
-        //public KalmanVeloFilter(double dT) : this(dT, 0.1, 30) { }
-
         public void Initialize(double vX0, double vY0)
         {
-            var mBuilder = Matrix<double>.Build;
 
             // Initial state vector [velocityX, accelerationX, velocityY, accelerationY]
             x = Vector<double>.Build.DenseOfArray(new double[]
                 { vX0, 0, vX0, 0 }
             );
 
-            P = mBuilder.DenseOfArray(new double[,]
+            P = _mBuilder.DenseOfArray(new double[,]
             {
                 { 1, 0, 0, 0 },
                 { 0, 1, 0, 0 },
                 { 0, 0, 1, 0 },
                 { 0, 0, 0, 1 }
             });
+
+            Output.FILOG.Information($"Initialize x: {x.ToString()}");
         }
 
-        public void Predict()
+        public void Predict(double dT)
         {
+            // State transition matrix F
+            F = _mBuilder.DenseOfArray(new double[,]
+            {
+                { 1, dT, 0, 0 },
+                { 0, 1, 0, 0 },
+                { 0, 0, 1, dT },
+                { 0, 0, 0, 1 }
+            });
+
+            // Recalculate Process noise covariance matrix Q based on current dT (scaling might be needed)
+            double q = Pow(_prcNoiseStd, 2) * dT; // Simple scaling, you might need a more sophisticated model
+            Q = _mBuilder.DenseOfArray(new double[,]
+            {
+                { q, 0, 0, 0 },
+                { 0, q, 0, 0 },
+                { 0, 0, q, 0 },
+                { 0, 0, 0, q }
+            });
+
+            // Predict!
             x = F * x;
             P = (F * P * F.Transpose()) + Q;
+
+            Output.FILOG.Information($"Predict x: {x.ToString()}");
         }
 
         public void Update(double vX, double vY)
         {
+            Output.FILOG.Information($"Begin Update x: {x.ToString()}");
+            Output.FILOG.Information($"Begin Update P: {P.ToString()}");
             // Measurement
             Vector<double> z = Vector<double>.Build.Dense(new double[] { vX, vY });
 
@@ -103,10 +115,10 @@ namespace Multi.Cursor
 
             // Innovation (residual) covariance
             Matrix<double> S = (H * P * H.Transpose()) + R;
-
+            
             // Kalman gain
             Matrix<double> K = P * H.Transpose() * S.Inverse();
-
+            Output.FILOG.Information($"K After calc: {K.ToString()}");
             // Update the state
             x = x + (K * y);
 
@@ -114,6 +126,9 @@ namespace Multi.Cursor
             int size = P.RowCount;
             Matrix<double> I = Matrix<double>.Build.DenseIdentity(size);
             P = (I - K * H) * P;
+
+            Output.FILOG.Information($"End Update x: {x.ToString()}");
+            Output.FILOG.Information($"End Update P: {P.ToString()}");
         }
 
         public (double, double) GetEstVelocity()

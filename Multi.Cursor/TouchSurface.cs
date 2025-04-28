@@ -228,15 +228,15 @@ namespace Multi.Cursor
 
         //private void TrackFingers(Span2D<Byte> touchFrame)
         //{
-        //    FILOG.Information(Output.GetString(touchFrame));
+        //    FILOG.Debug(Output.GetString(touchFrame));
         //    Finger[] fingers = tracker.ProcessFrame(touchFrame);
 
         //    foreach (Finger finger in fingers)
         //    {
-        //        FILOG.Information(finger.ToString());
+        //        FILOG.Debug(finger.ToString());
         //    }
 
-        //    FILOG.Information("------------------------------");
+        //    FILOG.Debug("------------------------------");
         //}
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace Multi.Cursor
             // Reset the dictionary
             //_activeFrame.Clear();
             //Output.PrintSpan(shotSpan);
-            //FILOG.Information(Output.GetString(shotSpan));
+            //FILOG.Debug(Output.GetString(shotSpan));
 
             // Result
             TouchFrame activeFrame = new TouchFrame();
@@ -273,13 +273,13 @@ namespace Multi.Cursor
                 // If total pressure was above 2 X MIN_PRESSURE => finger actie
                 if (touchPoint.GetTotalPressure() > 2 * Config.MIN_PRESSURE)
                 {
-                    //FILOG.Information($"Pressure #{f + 1} = {touchPoint.GetTotalPressure()}");
+                    //FILOG.Debug($"Pressure #{f + 1} = {touchPoint.GetTotalPressure()}");
                     touchPoint.Id = f + 1;
                     activeFrame.AddPointer(touchPoint.Id, touchPoint);
                 }
             }
 
-            //FILOG.Information(Output.GetKeys(activeFrame.Pointers));
+            //FILOG.Debug(Output.GetKeys(activeFrame.Pointers));
             //GESTURE_LOG.Information(Output.GetKeys(activeFrame.Pointers));
 
             return activeFrame;
@@ -506,7 +506,7 @@ namespace Multi.Cursor
             if (debugWatch.IsRunning)
             {
                 debugWatch.Stop();
-                FILOG.Information($"Track time = {debugWatch.ElapsedMilliseconds} ms");
+                FILOG.Debug($"Track time = {debugWatch.ElapsedMilliseconds} ms");
             }
             else
             {
@@ -786,9 +786,10 @@ namespace Multi.Cursor
             if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
                 TouchPoint touchPoint = currentFrame.GetPointer(finger);
+                Point tpCenter = touchPoint.GetCenter();
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
-                    _lastPositions[finger] = touchPoint.GetCenter();
+                    _lastPositions[finger] = tpCenter;
 
                     // Index moving
                     _gestureReceiver.IndexMove(touchPoint);
@@ -796,14 +797,14 @@ namespace Multi.Cursor
                 else // First touch
                 {
                     FILOG.Information($"{finger.ToString()} Down.");
-                    _downPositions[finger] = touchPoint.GetCenter();
-                    _lastPositions[finger] = touchPoint.GetCenter();
+                    _downPositions[finger] = tpCenter;
+                    _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
             else // Finger not present in the current frame
             {
-                if (_lastPositions.ContainsKey(finger))
+                if (_lastPositions.ContainsKey(finger)) // It was previously present
                 {
                     Point downPosition = _downPositions[finger];
                     Point lastPosition = _lastPositions[finger];
@@ -820,6 +821,7 @@ namespace Multi.Cursor
                             _gestureReceiver.IndexTap();
                         }
 
+                        _gestureReceiver.IndexUp();
                         _touchTimers[finger].Stop();
                     }
                 }
@@ -830,14 +832,14 @@ namespace Multi.Cursor
             //{
             //    if (_index.IsDown) // It was previously down
             //    {
-            //        FILOG.Information($"{ShowPointers(lastFrame),-18} Index up: down time = {_index.GetDownTime()} | " +
+            //        FILOG.Debug($"{ShowPointers(lastFrame),-18} Index up: down time = {_index.GetDownTime()} | " +
             //            $"travel dist = {_index.GetTravelDistX():F2}, {_index.GetTravelDistY():F2}");
             //        // If the index was down and hasn't moved outside of Tap limit => Tap!
             //        if (_index.GetDownTime() < Config.TAP_TIME_MS 
             //            && _index.GetTravelDistX() < Config.TAP_X_MOVE_LIMIT
             //            && _index.GetTravelDistY() < Config.TAP_Y_MOVE_LIMIT) 
             //        {
-            //            FILOG.Information("Index tapped!");
+            //            FILOG.Debug("Index tapped!");
             //            _gestureReceiver.IndexTap();
             //        }
 
@@ -854,7 +856,7 @@ namespace Multi.Cursor
 
             //    if (_index.IsUp) // Index was up before
             //    {
-            //        FILOG.Information($"{ShowPointers(lastFrame),-18} Index down");
+            //        FILOG.Debug($"{ShowPointers(lastFrame),-18} Index down");
             //        _index.TouchDown(indexTouchPoint.GetCenter());
             //        _index.RestartTimer(); // Index Down => Start Tap-watch
             //    }
@@ -886,7 +888,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Information($"{finger.ToString()} Down.");
+                    FILOG.Debug($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -900,7 +902,7 @@ namespace Multi.Cursor
                     Point lastPosition = _lastPositions[finger];
                     if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                     {
-                        FILOG.Information($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                        FILOG.Debug($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                             $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
                             $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                         if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
@@ -908,7 +910,7 @@ namespace Multi.Cursor
                             && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
                         {
                             _gestureReceiver.MiddleTap();
-                            FILOG.Information($"{finger.ToString()} Tapped!");
+                            FILOG.Debug($"{finger.ToString()} Tapped!");
                         }
 
                         _touchTimers[finger].Stop();
@@ -922,14 +924,14 @@ namespace Multi.Cursor
 
             //    if (_middle.IsDown) // It was previously down
             //    {
-            //        FILOG.Information($"{ShowPointers(lastFrame),-18} Middle up: down time = {_middle.GetDownTime()} | " +
+            //        FILOG.Debug($"{ShowPointers(lastFrame),-18} Middle up: down time = {_middle.GetDownTime()} | " +
             //            $"travel dist = {_middle.GetTravelDistX():F2}, {_middle.GetTravelDistY():F2}");
             //        // If the middle was down and hasn't moved outside of Tap limit => Tap!
             //        if (_middle.GetDownTime() < Config.TAP_TIME_MS
             //            && _middle.GetTravelDistX() < Config.TAP_X_MOVE_LIMIT
             //            && _middle.GetTravelDistY() < Config.TAP_Y_MOVE_LIMIT)
             //        {
-            //            FILOG.Information("Middle tapped!");
+            //            FILOG.Debug("Middle tapped!");
             //            _gestureReceiver.MiddleTap();
             //        }
 
@@ -953,7 +955,7 @@ namespace Multi.Cursor
 
             //    if (_middle.IsUp)
             //    {
-            //        FILOG.Information($"{ShowPointers(lastFrame),-18} Middle down");
+            //        FILOG.Debug($"{ShowPointers(lastFrame),-18} Middle down");
             //        // Finger Down => Start Tap-watch
             //        _middle.TouchDown(middleTouchPoint.GetCenter());
             //        _middle.RestartTimer();
@@ -988,7 +990,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Information($"{finger.ToString()} Down.");
+                    FILOG.Debug($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -1002,7 +1004,7 @@ namespace Multi.Cursor
                     Point lastPosition = _lastPositions[finger];
                     if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                     {
-                        FILOG.Information($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                        FILOG.Debug($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                             $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
                             $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                         if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
@@ -1010,7 +1012,7 @@ namespace Multi.Cursor
                             && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
                         {
                             _gestureReceiver.RingTap();
-                            FILOG.Information($"{finger.ToString()} Tapped!");
+                            FILOG.Debug($"{finger.ToString()} Tapped!");
                         }
 
                         _touchTimers[finger].Stop();
@@ -1023,14 +1025,14 @@ namespace Multi.Cursor
             //{
             //    if (_ring.IsDown)
             //    {
-            //        FILOG.Information($"{ShowPointers(lastFrame),-18} Ring up: down time = {_ring.GetDownTime()} | " +
+            //        FILOG.Debug($"{ShowPointers(lastFrame),-18} Ring up: down time = {_ring.GetDownTime()} | " +
             //            $"travel dist = {_ring.GetTravelDistX():F2}, {_ring.GetTravelDistY():F2}");
             //        // If the finger was down and hasn't moved outside of Tap limit => Tap!
             //        if (_ring.GetDownTime() < Config.TAP_TIME_MS
             //            && _ring.GetTravelDistX() < Config.TAP_X_MOVE_LIMIT
             //            && _ring.GetTravelDistY() < Config.TAP_Y_MOVE_LIMIT)
             //        {
-            //            FILOG.Information("Ring tapped!");
+            //            FILOG.Debug("Ring tapped!");
             //            _gestureReceiver.RingTap();
             //        }
 
@@ -1044,7 +1046,7 @@ namespace Multi.Cursor
             //{
             //    if (_ring.IsUp)
             //    {
-            //        FILOG.Information($"{ShowPointers(lastFrame),-18} Ring down");
+            //        FILOG.Debug($"{ShowPointers(lastFrame),-18} Ring down");
             //        // Finger Down => Start Tap-watch
             //        _ring.TouchDown(ringTouchPoint.GetCenter());
             //        _ring.RestartTimer();
@@ -1080,7 +1082,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Information($"{finger.ToString()} Down.");
+                    FILOG.Debug($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -1094,7 +1096,7 @@ namespace Multi.Cursor
                     Point lastPosition = _lastPositions[finger];
                     if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                     {
-                        FILOG.Information($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                        FILOG.Debug($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                             $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
                             $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                         if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
@@ -1105,12 +1107,12 @@ namespace Multi.Cursor
                             if (lastPosition.Y < LITTLE_TOP_LOWEST_ROW) // Top
                             {
                                 _gestureReceiver.LittleTap(Location.Top);
-                                FILOG.Information($"{finger.ToString()} Tapped! Top.");
+                                FILOG.Debug($"{finger.ToString()} Tapped! Top.");
                             }
                             else // Bottom
                             {
                                 _gestureReceiver.LittleTap(Location.Bottom);
-                                FILOG.Information($"{finger.ToString()} Tapped! Bottom.");
+                                FILOG.Debug($"{finger.ToString()} Tapped! Bottom.");
                             }
                         }
 
@@ -1219,7 +1221,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Information($"{finger.ToString()} Down.");
+                    FILOG.Debug($"{finger.ToString()} Down.");
                     _downPositions[finger] = touchPoint.GetCenter();
                     _lastPositions[finger] = touchPoint.GetCenter();
                     _touchTimers[finger].Restart(); // Start the timer
@@ -1252,7 +1254,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Information($"{finger.ToString()} Down.");
+                    FILOG.Debug($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -1285,7 +1287,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Information($"{finger.ToString()} Down.");
+                    FILOG.Debug($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -1318,7 +1320,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Information($"{finger.ToString()} Down.");
+                    FILOG.Debug($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer

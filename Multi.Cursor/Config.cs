@@ -28,7 +28,7 @@ namespace Multi.Cursor
 
         public static double AUX_VKF_PROCESS_NOISE = 50;
         public static double AUX_VKF_MEASURE_NOISE = 10;
-        public static double AUX_BASE_GAIN = 100;       // Minimum movement amplification (adjust for small target selection)
+        public static double AUX_BASE_GAIN = 10;       // Minimum movement amplification (adjust for small target selection)
         public static double AUX_SCALE_FACTOR = 10;    // Maximum gain at high speed (adjust for fast movement)
         public static double AUX_SENSITIVITY = 5;    // Controls how quickly gain increases (adjust for balance)
 

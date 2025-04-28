@@ -39,7 +39,7 @@ namespace Multi.Cursor
             _touchFrames = new List<TouchPoint>();
 
             //_kf = new KalmanFilter(dT);
-            _kvf = new KalmanVeloFilter(dT, Config.AUX_VKF_PROCESS_NOISE, Config.AUX_VKF_MEASURE_NOISE);
+            _kvf = new KalmanVeloFilter(Config.AUX_VKF_PROCESS_NOISE, Config.AUX_VKF_MEASURE_NOISE);
         }
 
         public void Activate()
@@ -64,7 +64,7 @@ namespace Multi.Cursor
             _initMove = true;
         }
 
-        public (double dX, double dY) Move(TouchPoint tp)
+        public (double dX, double dY) Update(TouchPoint tp)
         {
             if (!_active) return (0, 0); // Not active
 
@@ -83,29 +83,41 @@ namespace Multi.Cursor
                 double dT = _stopWatch.ElapsedMilliseconds / 1000.0; // seconds
                 double dX_raw = currentPosition.X - _prevPosition.X;
                 double dY_raw = currentPosition.Y - _prevPosition.Y;
-                double rawVX = dX_raw / dT;
-                double rawVY = dY_raw / dT;
-                FILOG.Information($"Raw V: {rawVX:F2}, {rawVY:F2}");
 
-                // Use Kalman filter for velocity
-                _kvf.Predict();
-                _kvf.Update(rawVX, rawVY);
+                // dT may become zero! => NaN
+                if (dT > 1e-9)
+                {
+                    double rawVX = dX_raw / dT;
+                    double rawVY = dY_raw / dT;
+                    FILOG.Information($"Raw V: {rawVX:F2}, {rawVY:F2}");
 
-                (double fvX, double fvY) filteredV = _kvf.GetEstVelocity();
-                FILOG.Information($"Raw V: {filteredV.fvX:F2}, {filteredV.fvY:F2}");
-                // Compute speed and apply dynamic gain
-                double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
-                double gain = Config.AUX_BASE_GAIN +
-                    Config.AUX_SCALE_FACTOR * Tanh(speed * Config.AUX_SENSITIVITY);
+                    // Use Kalman filter for velocity
+                    _kvf.Predict(dT);
+                    _kvf.Update(rawVX, rawVY);
 
-                double dX = filteredV.fvX * dT * gain;
-                double dY = filteredV.fvY * dT * gain;
+                    (double fvX, double fvY) filteredV = _kvf.GetEstVelocity();
+                    FILOG.Information($"KvF V: {filteredV.fvX:F2}, {filteredV.fvY:F2}");
+                    // Compute speed and apply dynamic gain
+                    double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
+                    double gain = Config.AUX_BASE_GAIN +
+                        Config.AUX_SCALE_FACTOR * Tanh(speed * Config.AUX_SENSITIVITY);
 
-                // Update previous state
-                _prevPosition = currentPosition;
-                _stopWatch.Restart();
+                    double dX = filteredV.fvX * dT * gain;
+                    double dY = filteredV.fvY * dT * gain;
 
-                return (dX, dY); // Return resulting movement
+                    // Update previous state
+                    _prevPosition = currentPosition;
+                    _stopWatch.Restart();
+
+                    return (dX, dY); // Return resulting movement
+                }
+                else // dT next to zero or zero => skip calculations
+                {
+                    _stopWatch.Restart();
+                    return (0, 0);
+                }
+                
+
             }
 
             return (0, 0); // Default
@@ -154,13 +166,13 @@ namespace Multi.Cursor
         //            double dT = _stopWatch.ElapsedMilliseconds / 1000.0; // seconds
         //            double rawVX = dX_raw / dT;
         //            double rawVY = dY_raw / dT;
-        //            FILOG.Information($"Raw V: {rawVX:F2}, {rawVY:F2}");
+        //            FILOG.Debug($"Raw V: {rawVX:F2}, {rawVY:F2}");
         //            // Kalman filter for velocity
         //            _kvf.Predict();
         //            _kvf.Update(rawVX, rawVY);
 
         //            (double fvX, double fvY) filteredV = _kvf.GetEstVelocity();
-        //            FILOG.Information($"Raw V: {filteredV.fvX:F2}, {filteredV.fvY:F2}");
+        //            FILOG.Debug($"Raw V: {filteredV.fvX:F2}, {filteredV.fvY:F2}");
         //            // Compute speed and apply dynamic gain
         //            double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
         //            double gain = Config.AUX_BASE_GAIN +

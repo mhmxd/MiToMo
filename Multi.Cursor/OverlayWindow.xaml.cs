@@ -144,8 +144,8 @@ namespace Multi.Cursor
             // Init Kalman
             double dT = Config.FRAME_DUR_MS / 1000.0; // Seconds
 
-            _beamKalmanFilter = new KalmanVeloFilter(dT, 1.2, 15);
-            _plusKalmanFilter = new KalmanVeloFilter(dT, 0.4, 40);
+            _beamKalmanFilter = new KalmanVeloFilter(1.2, 15);
+            _plusKalmanFilter = new KalmanVeloFilter(0.4, 40);
 
             _beamStopwatch = new Stopwatch();
             _plusStopwatch = new Stopwatch();
@@ -266,7 +266,7 @@ namespace Multi.Cursor
                 double measureVY = measureDY / dT;
 
                 // Kalman filter for velocity
-                _beamKalmanFilter.Predict();
+                _beamKalmanFilter.Predict(dT);
                 _beamKalmanFilter.Update(measureVX, measureVY);
 
                 (double fvX, double fvY) filteredV = _beamKalmanFilter.GetEstVelocity();
@@ -413,7 +413,7 @@ namespace Multi.Cursor
                 double measureVY = -measureDY / dT;
 
                 // Kalman filter for velocity
-                _plusKalmanFilter.Predict();
+                _plusKalmanFilter.Predict(dT);
                 _plusKalmanFilter.Update(measureVX, measureVY);
 
                 (double fvX, double fvY) filteredV = _plusKalmanFilter.GetEstVelocity();

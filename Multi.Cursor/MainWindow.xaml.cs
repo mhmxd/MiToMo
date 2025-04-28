@@ -676,6 +676,18 @@ namespace Multi.Cursor
             else return alpha * points.Last() + (1- alpha) * EMA(points.GetRange(0, points.Count() - 1), alpha); 
         }
 
+        /// <summary>
+        /// Find positions for all the trials in the block
+        /// </summary>
+        private void FindPosForTrials()
+        {
+            // Find the positions for the trials
+            // 1. Get the distance between the start and target
+            // 2. Get the angle to the target
+            // 3. Get the position of the target
+            // 4. Get the position of the start
+            // 5. Show the start and target
+        }
 
         private void ShowTrial()
         {
@@ -1386,7 +1398,7 @@ namespace Multi.Cursor
             {
                 if (_activeSideWindow != null)
                 {
-                    _activeSideWindow.MoveAuxPointer(indPoint);
+                    _activeSideWindow.UpdateAuxursor(indPoint);
                 }
             }
 
@@ -1405,8 +1417,13 @@ namespace Multi.Cursor
 
         public void IndexUp()
         {
+            if (_experiment.IsTechAuxCursor() && _activeSideWindow != null)
+            {
+                _activeSideWindow.StopAuxursor();
+            }
             //_lastPlusPointerPos.X = -1;
             _lastRotPointerPos.X = -1;
+
         }
 
         public void ThumbSwipe(Direction dir)
