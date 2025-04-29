@@ -9,7 +9,13 @@
         BorderThickness="1"
         WindowStartupLocation="CenterScreen">
     <Grid>
-        <Canvas x:Name="canvas">
+        <Canvas x:Name="canvas"
+                Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"
+                Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}">
+            <TextBlock x:Name="infoLabel"
+                       Text="Trial 0 | Block 0"
+                       SizeChanged="InfoLabel_SizeChanged"
+                       FontSize="13" FontWeight="Medium"/>
         </Canvas>
     </Grid>
 </Window>

@@ -237,6 +237,8 @@ namespace Multi.Cursor
 
             InitializeWindows();
 
+            UpdateLabel();
+
             //-- Events
             this.MouseMove += Window_MouseMove;
             this.MouseDown += Window_MouseDown;
@@ -345,6 +347,27 @@ namespace Multi.Cursor
                     System.Windows.Application.Current.Shutdown();
                 }
             }
+        }
+
+        private void UpdateLabel()
+        {
+            if (canvas != null && infoLabel != null)
+            {
+                // 1/10th of the height from the bottom
+                Canvas.SetBottom(infoLabel, canvas.ActualHeight * 0.03);
+                //Canvas.SetBottom(infoLabel, 100);
+
+                // Center horizontally
+                Canvas.SetLeft(infoLabel, (canvas.ActualWidth - infoLabel.ActualWidth) / 2);
+                //Canvas.SetLeft(infoLabel, 400);
+
+                if (!canvas.Children.Contains(infoLabel)) canvas.Children.Add(infoLabel);
+            }
+        }
+
+        private void InfoLabel_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateLabel(); // Reposition when the label's size changes (due to text update)
         }
 
         private void Window_KeyDown(object sender, SysIput.KeyEventArgs e)
@@ -796,6 +819,11 @@ namespace Multi.Cursor
             ClearCanvas();
             ClearSideWindowCanvases();
             _timestamps.Clear();
+
+            // Show the info
+            infoLabel.Text = $"Trial {_activeTrialNum} | Block {_activeBlockNum} ";
+            UpdateLabel();
+            
 
             // Start the stopwatch
             _trialtWatch.Restart();
