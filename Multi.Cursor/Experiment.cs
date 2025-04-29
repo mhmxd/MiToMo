@@ -14,9 +14,14 @@ namespace Multi.Cursor
         //-- Variables
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 };
         private static List<double> _distances = new List<double>(); // Generated in constructor
+        private static int N_REPS_IN_BLOCK = 1;
+        private double _distPaddingMM; // Padding to each side of the dist thresholds
+        public static Technique Active_Technique = Technique.Auxursor_Tap; // Set in the info dialog
+
+        //-- Constants
         private double LONGEST_DIST_MM = 293; // BenQ = 293 mm
         private double SHORTEST_DIST_MM = 10; // BenQ = 10 mm
-        private double _distPaddingMM; // Padding to keep random dists from being too close (set to 0.1 Total Dist)
+
         public enum Technique { Auxursor_Swipe, Auxursor_Tap, Radiusor, Mouse }
 
         //-- Constants
@@ -27,7 +32,6 @@ namespace Multi.Cursor
 
         //-- Information
         public int ParticipantNumber { get; set; }
-        public static Technique Active_Technique = Technique.Auxursor_Tap;
         private int _activeBlockNum;
         private int _activeBlockInd;
         private int _activeTrialNum;
@@ -61,7 +65,8 @@ namespace Multi.Cursor
             //-- Create blocks of trials
             for (int i = 0; i < 1; i++)
             {
-                Block block = new Block(ParticipantNumber * 100 + i, TARGET_WIDTHS_MM, _distances);
+                int blockId = ParticipantNumber * 100 + i;
+                Block block = new Block(blockId, TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
                 _blocks.Add(block);
             }
 
@@ -82,7 +87,8 @@ namespace Multi.Cursor
             //-- Create blocks of trials
             for (int i = 0; i < nBlocks; i++)
             {
-                Block block = new Block(ParticipantNumber * 100 + i, TARGET_WIDTHS_MM, _distances);
+                int blockId = ParticipantNumber * 100 + i;
+                Block block = new Block(blockId, TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
                 _blocks.Add(block);
             }
 

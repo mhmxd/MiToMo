@@ -13,6 +13,6 @@ namespace Multi.Cursor
 
     public enum Location
     {
-        Top, Bottom, Middle, Left, Right
+        Left, Top, Right, Bottom, Center
     }
 }

@@ -22,22 +22,39 @@ namespace Multi.Cursor
             set => _id = value;
         }
 
-        public Block(int id, List<double> targetWidthsMM, List<double> distsMM) 
+        public Block(int id, List<double> targetWidthsMM, List<double> distsMM, int rep) 
         {
             _id = id;
 
-            //-- Create trials (trial id = _id * 100 + num)
+            //-- Create trials (dist x targetWidth x sideWindow)
+            // trial id = _id * 100 + num
             int trialNum = 1;
-            foreach (double targetWidthMM in targetWidthsMM)
+            for (int r = 0; r < rep; r++)
             {
-                foreach (double distMM in distsMM)
+                foreach (double targetWidthMM in targetWidthsMM)
                 {
-                    Trial trial = new Trial(_id * 100 + trialNum, targetWidthMM, distMM);
-                    _trials.Add(trial);
-                    trialNum++;
+                    foreach (double distMM in distsMM)
+                    {
+                        for (int locInd = 0; locInd < 2; locInd++)
+                        {
+                            Location sideWindow = (Location)locInd;
+                            Trial trial = new Trial(_id * 100 + trialNum, targetWidthMM, distMM, sideWindow);
+                            _trials.Add(trial);
+                            trialNum++;
+                        }
+                        
+                    }
                 }
             }
-            
+
+            // Shuffle the trials
+            _trials.Shuffle();
+
+            // TESTING
+            foreach (Trial trial in _trials)
+            {
+                Output.TRIAL_LOG.Information(trial.ToString());
+            }
         }
 
         public Trial GetTrial(int trialNum)

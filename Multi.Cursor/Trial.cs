@@ -71,19 +71,20 @@ namespace Multi.Cursor
         /// </summary>
         /// <param name="targetWidthMM"> Target width in mm</param>
         /// <param name="distMM">Distance to target in mm</param>
-        public Trial(int id, double targetWidthMM, double distMM)
+        public Trial(int id, double targetWidthMM, double distMM, Location sideWin)
         {
             _id = id;
             _targetWidthMM = targetWidthMM;
             _distanceMM = distMM;
-            Location[] validDirections = { Location.Top, Location.Left, Location.Right };
-            _sideWindow = validDirections[Utils.Random.Next(validDirections.Length)];
+            _sideWindow = sideWin;
+            //Location[] validDirections = { Location.Top, Location.Left, Location.Right };
+            //_sideWindow = validDirections[Utils.Random.Next(validDirections.Length)];
             //_straightPath = true;
         }
 
         public override string ToString()
         {
-            return $"Trial: [Id = {_id}, W = {_targetWidthMM}mm, D = {_distanceMM}mm]";
+            return $"Trial: [Id = {_id}, W = {_targetWidthMM}mm, D = {_distanceMM:F2}mm, Loc = {_sideWindow}]";
         }
     
         

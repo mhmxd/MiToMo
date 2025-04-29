@@ -928,6 +928,7 @@ namespace Multi.Cursor
             if (double.IsNaN(bottomAngle)) bottomAngle = bottomPossibleAngle;
             topAngle = Utils.NormalizeAngleRadian(topAngle);
             bottomAngle = Utils.NormalizeAngleRadian(bottomAngle);
+
             GESTURE_LOG.Verbose($"Angles: {Utils.RadToDeg(topAngle):F3}, {Utils.RadToDeg(bottomAngle):F3}");
 
             // Get a random angle
@@ -1551,13 +1552,13 @@ namespace Multi.Cursor
                 switch (dir)
                 {
                     case Direction.Left:
-                        ActivateSideWin(Location.Left, Location.Middle);
+                        ActivateSideWin(Location.Left, Location.Center);
                         break;
                     case Direction.Right:
-                        ActivateSideWin(Location.Right, Location.Middle);
+                        ActivateSideWin(Location.Right, Location.Center);
                         break;
                     case Direction.Up:
-                        ActivateSideWin(Location.Top, Location.Middle);
+                        ActivateSideWin(Location.Top, Location.Center);
                         break;
                 }
             }
@@ -1596,7 +1597,7 @@ namespace Multi.Cursor
         {
             if (Experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                ActivateSideWin(Location.Top, Location.Middle);
+                ActivateSideWin(Location.Top, Location.Center);
             }
         }
 

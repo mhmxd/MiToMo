@@ -327,7 +327,7 @@ namespace Multi.Cursor
                     position.X = canvas.ActualWidth * 3 / 4; // Middle of the right
                     position.Y = canvas.ActualHeight / 2; // Middle of height
                     break;
-                case Location.Middle:
+                case Location.Center:
                     position.X = canvas.ActualWidth / 2; // Middle of width
                     position.Y = canvas.ActualHeight / 2; // Middle of height
                 break;
