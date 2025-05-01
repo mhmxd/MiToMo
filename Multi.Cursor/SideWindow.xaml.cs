@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using WindowsInput;
 using static Multi.Cursor.Output;
+using Seril = Serilog.Log;
 
 namespace Multi.Cursor
 {
@@ -374,7 +375,7 @@ namespace Multi.Cursor
             cursor_active.Visibility = Visibility.Hidden;
             _cursorTransform.X = windowWidth / 2;
             _cursorTransform.Y = windowHeight / 2;
-            TRACK_LOG.Debug($"Show the cursor at {_cursorTransform.ToString()}");
+            Seril.Debug($"Show the cursor at {_cursorTransform.ToString()}");
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -385,7 +386,7 @@ namespace Multi.Cursor
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
             var cursorPoint = e.GetPosition(this);
-            TRACK_LOG.Debug($"Cursor Position: {cursorPoint.ToString()}");
+            Seril.Debug($"Cursor Position: {cursorPoint.ToString()}");
             _cursorTransform.X = cursorPoint.X;
             _cursorTransform.Y = cursorPoint.Y;
         }
@@ -398,7 +399,7 @@ namespace Multi.Cursor
         private void PositionCursor(int x, int y)
         {
             var windowPosition = PointToScreen(new Point(0, 0));
-            TRACK_LOG.Debug($"Set pos X = {(int)(windowPosition.X + x)}, Y = {(int)(windowPosition.Y + y)}");
+            Seril.Debug($"Set pos X = {(int)(windowPosition.X + x)}, Y = {(int)(windowPosition.Y + y)}");
             SetCursorPos((int)(windowPosition.X + x), (int)(windowPosition.Y + y));
         }
 
@@ -432,7 +433,7 @@ namespace Multi.Cursor
             // Move the cursor
             _cursorTransform.X += dX;
             _cursorTransform.Y += dY;
-            TRACK_LOG.Debug($"Sim cursor moved ({dX:F3}, {dY:F3})");
+            Seril.Debug($"Sim cursor moved ({dX:F3}, {dY:F3})");
             lastSimCursorPos.X = _cursorTransform.X;
             lastSimCursorPos.Y = _cursorTransform.Y;
 
@@ -452,7 +453,7 @@ namespace Multi.Cursor
             int currentX = (int)relativeCursorPos.X;
             int currentY = (int)relativeCursorPos.Y;
 
-            TRACK_LOG.Debug($"Pos: ({currentX}, {currentY}); Delta: ({dX}, {dY})");
+            Seril.Debug($"Pos: ({currentX}, {currentY}); Delta: ({dX}, {dY})");
 
             // Potential new position
             int potentialX = currentX + dX;
@@ -482,10 +483,10 @@ namespace Multi.Cursor
 
                 // Move the cursor
                 inputSimulator.Mouse.MoveMouseBy(dX, dY);
-                TRACK_LOG.Debug($"Moved by: ({dX}, {dY})");
+                Seril.Debug($"Moved by: ({dX}, {dY})");
             }
 
-            TRACK_LOG.Debug("--------------------------------------------");
+            Seril.Debug("--------------------------------------------");
         }
 
         public void HideSimCursor()

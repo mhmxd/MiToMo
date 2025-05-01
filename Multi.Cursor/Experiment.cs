@@ -18,9 +18,14 @@ namespace Multi.Cursor
         private double _distPaddingMM; // Padding to each side of the dist thresholds
         public static Technique Active_Technique = Technique.Auxursor_Tap; // Set in the info dialog
 
-        //-- Constants
-        private double LONGEST_DIST_MM = 293; // BenQ = 293 mm
-        private double SHORTEST_DIST_MM = 10; // BenQ = 10 mm
+        public static double Min_Target_Width_MM = TARGET_WIDTHS_MM.Min();
+        public static double Max_Target_Width_MM = TARGET_WIDTHS_MM.Max();
+
+        //-- Calculated
+        public double Longest_Dist_MM;
+        public double Shortest_Dist_MM;
+        //private double LONGEST_DIST_MM = 293; // BenQ = 293 mm
+        //private double SHORTEST_DIST_MM = 10; // BenQ = 10 mm
 
         public enum Technique { Auxursor_Swipe, Auxursor_Tap, Radiusor, Mouse }
 
@@ -39,25 +44,27 @@ namespace Multi.Cursor
         private Block _activeBlock;
         private List<Block> _blocks = new List<Block>();
 
-        public Experiment()
+        public Experiment(double shortDistMM, double longDistMM)
         {
-            ParticipantNumber = 100;
+            ParticipantNumber = 100; // Default
+            Shortest_Dist_MM = shortDistMM;
+            Longest_Dist_MM = longDistMM;
 
             //--- Generate the distances
-            double distDiff = LONGEST_DIST_MM - SHORTEST_DIST_MM;
+            double distDiff = Longest_Dist_MM - Shortest_Dist_MM;
             //_distPaddingMM = 0.1 * distDiff;
             _distPaddingMM = 2.5; // 2.5 mm padding
             double oneThird = distDiff / 3;
             double twoThird = distDiff * 2 / 3;
             double midDist = Utils.RandDouble(
-                oneThird + _distPaddingMM, 
+                oneThird + _distPaddingMM,
                 twoThird - _distPaddingMM); // Middle distance
             double shortDist = Utils.RandDouble(
-                SHORTEST_DIST_MM,
+                Shortest_Dist_MM,
                 oneThird - _distPaddingMM); // Shortest distance
             double longDist = Utils.RandDouble(
                 twoThird + _distPaddingMM,
-                LONGEST_DIST_MM); // Longest distance
+                Longest_Dist_MM); // Longest distance
             _distances.Add(shortDist);
             _distances.Add(midDist);
             _distances.Add(longDist);
@@ -77,7 +84,7 @@ namespace Multi.Cursor
             _activeTrialInd = 0;
             _activeBlock = _blocks[0];
 
-            
+            Outlog<Experiment>().Information(ListToString(_distances));
         }
 
         public Experiment(int ptc, int nBlocks)
@@ -146,7 +153,7 @@ namespace Multi.Cursor
             return Active_Technique == Technique.Radiusor;
         }
 
-        public static double GetMinTargetW()
+        public static double GetMinTargetWidthMM()
         {
             return TARGET_WIDTHS_MM.First();
         }

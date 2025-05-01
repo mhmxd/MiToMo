@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Seril = Serilog.Log;
 
 namespace Multi.Cursor
 {
@@ -53,7 +54,7 @@ namespace Multi.Cursor
             // TESTING
             foreach (Trial trial in _trials)
             {
-                Output.TRIAL_LOG.Information(trial.ToString());
+                Seril.Information(trial.ToString());
             }
         }
 

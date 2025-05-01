@@ -12,6 +12,8 @@ namespace Multi.Cursor
 {
     internal static class Utils
     {
+        private static Random _random = new Random();
+
         public struct Range
         {
             public double Min { get; set; }
@@ -88,6 +90,11 @@ namespace Multi.Cursor
         public static int MM2PX(double mm)
         {
             return (int)(mm / MM_IN_INCH * PPI);
+        }
+
+        public static double PX2MM(double px)
+        {
+            return px * MM_IN_INCH / PPI;
         }
 
         public static Point Relative(Point p, Point origin)
@@ -279,8 +286,7 @@ namespace Multi.Cursor
                 range = 2*PI - delta;
             }
 
-            Random random = new Random();
-            double randomOffset = random.NextDouble() * range;
+            double randomOffset = _random.NextDouble() * range;
             double randomAngle;
 
             if (delta <= PI)

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-
+using Seril = Serilog.Log;
 using static Multi.Cursor.Output;
 using static System.Math;
 
@@ -54,7 +54,7 @@ namespace Multi.Cursor
                     dX_raw = last.GetCenter().X - first.GetCenter().X;
                     dY_raw = last.GetCenter().Y - first.GetCenter().Y;
 
-                    TRACK_LOG.Information($"KF Delta Raw: {dX_raw:F3}, {dY_raw:F3}");
+                    Seril.Information($"KF Delta Raw: {dX_raw:F3}, {dY_raw:F3}");
                 }
 
                 if (_initMove)
@@ -86,9 +86,9 @@ namespace Multi.Cursor
                     double dX = filteredV.fvX * dT * gain;
                     double dY = filteredV.fvY * dT * gain;
 
-                    TRACK_LOG.Information($"KF Vel.: {filteredV.fvX:F3}, {filteredV.fvY:F3}");
-                    TRACK_LOG.Information($"KF dX, dY: {dX:F3}, {dY:F3}");
-                    TRACK_LOG.Information(Str.MINOR_LINE);
+                    Seril.Information($"KF Vel.: {filteredV.fvX:F3}, {filteredV.fvY:F3}");
+                    Seril.Information($"KF dX, dY: {dX:F3}, {dY:F3}");
+                    Seril.Information(Str.MINOR_LINE);
 
                     // Update previous state
                     _prevPos = tp.GetCenter();

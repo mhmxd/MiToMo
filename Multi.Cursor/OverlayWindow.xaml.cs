@@ -20,6 +20,7 @@ using static System.Math;
 using static Multi.Cursor.Utils;
 using System.Diagnostics;
 using Tensorflow;
+using Seril = Serilog.Log;
 
 namespace Multi.Cursor
 {
@@ -115,7 +116,7 @@ namespace Multi.Cursor
             _beamStart = cursorPos;
             _isVisible = true;
 
-            //GESTURE_LOG.Information(Output.GetString(_lineStart));
+            //Seril.Information(Output.GetString(_lineStart));
 
             // Find the four corners of the main region
             _sideWinSize = Utils.MM2PX(Config.SIDE_WINDOW_SIZE_MM);
@@ -136,7 +137,7 @@ namespace Multi.Cursor
             _outerRect = new Rect(
                 0, 0,
                 this.Width, this.Height);
-            //GESTURE_LOG.Information(Output.GetString(_trPoint));
+            //Seril.Information(Output.GetString(_trPoint));
 
             //UpdatePlusPosition();
             UpdateBeam();
@@ -172,7 +173,7 @@ namespace Multi.Cursor
         {
             double normalAngle = NormalizeAngle(_angleDeg);
             _angleRad = normalAngle * Math.PI / 180.0;
-            GESTURE_LOG.Debug($"RadAngle = {_angleRad}");
+            Seril.Debug($"RadAngle = {_angleRad}");
         }
 
         private double CalculateAngle(Point p1, Point p2)
@@ -224,7 +225,7 @@ namespace Multi.Cursor
             }
             else // Time for action!
             {
-                GESTURE_LOG.Debug($"Count = {_beamTouchFrames.Count}");
+                Seril.Debug($"Count = {_beamTouchFrames.Count}");
 
                 if (_beamTPInitMove)
                 {
@@ -279,10 +280,10 @@ namespace Multi.Cursor
                 double kdX = filteredV.fvX * dT * (gain / 2);
                 double kdY = filteredV.fvY * dT * (gain / 2);
 
-                GESTURE_LOG.Information($"<Beam> Measure vX = {measureVX:F3}, vY = {measureVY:F3}");
-                GESTURE_LOG.Information($"<Beam> KalmanF vX = {filteredV.fvX:F3}, vY = {filteredV.fvY:F3}");
-                GESTURE_LOG.Information($"<Beam> KalmanFo dX = {kdX:F3}, dY = {kdY:F3}");
-                GESTURE_LOG.Information(Str.MINOR_LINE);
+                Seril.Information($"<Beam> Measure vX = {measureVX:F3}, vY = {measureVY:F3}");
+                Seril.Information($"<Beam> KalmanF vX = {filteredV.fvX:F3}, vY = {filteredV.fvY:F3}");
+                Seril.Information($"<Beam> KalmanFo dX = {kdX:F3}, dY = {kdY:F3}");
+                Seril.Information(Str.MINOR_LINE);
 
                 // Update previous state
                 _beamTPPrevPos = tp.GetCenter();
@@ -337,17 +338,17 @@ namespace Multi.Cursor
                 weightY = -weightY; // Y- => A+
             }
 
-            GESTURE_LOG.Information($"Weights = {weightX:F3}, {weightY:F3}");
+            Seril.Information($"Weights = {weightX:F3}, {weightY:F3}");
             double dAngle = (dX * weightX + dY * weightY) * Config.ANGLE_GAIN;
             _angleDeg += dAngle;
 
             UpdateAngleRad();
 
-            GESTURE_LOG.Information($"Angle = {_angleDeg:F3}");
+            Seril.Information($"Angle = {_angleDeg:F3}");
 
             UpdateBeam();
 
-            GESTURE_LOG.Debug($"dX = {dX:F3} | dY = {dY:F3} | dAn = {dAngle:F3} | angle = {_angleDeg:F3}");
+            Seril.Debug($"dX = {dX:F3} | dY = {dY:F3} | dAn = {dAngle:F3} | angle = {_angleDeg:F3}");
             
         }
 
@@ -426,10 +427,10 @@ namespace Multi.Cursor
                 double kdX = filteredV.fvX * dT * gain * 500;
                 double kdY = filteredV.fvY * dT * gain * 500;
 
-                GESTURE_LOG.Information($"<Plus> Measure vX = {measureVX:F3}, vY = {measureVY:F3}");
-                GESTURE_LOG.Information($"<Plus> KF vX = {filteredV.fvX:F3}, vY = {filteredV.fvY:F3}");
-                GESTURE_LOG.Information($"<Plus> KF dX = {kdX:F3}, dY = {kdY:F3}");
-                GESTURE_LOG.Information(Str.MINOR_LINE);
+                Seril.Information($"<Plus> Measure vX = {measureVX:F3}, vY = {measureVY:F3}");
+                Seril.Information($"<Plus> KF vX = {filteredV.fvX:F3}, vY = {filteredV.fvY:F3}");
+                Seril.Information($"<Plus> KF dX = {kdX:F3}, dY = {kdY:F3}");
+                Seril.Information(Str.MINOR_LINE);
 
                 // Update previous state
                 _plusTPPrevPos = tp.GetCenter();
@@ -476,7 +477,7 @@ namespace Multi.Cursor
             
             // Get the max visible length from cursor position
             double maxLength = GetMaxVisibleLineLength(_beamStart, _angleDeg);
-            GESTURE_LOG.Verbose($"Sin = {Sin(_angleRad)}, Cos = {Cos(_angleRad)}");
+            Seril.Verbose($"Sin = {Sin(_angleRad)}, Cos = {Cos(_angleRad)}");
 
             Point lineEnd = new Point(
                 _beamStart.X + MAX_BEAM_LENGTH * Cos(_angleRad),
@@ -495,8 +496,8 @@ namespace Multi.Cursor
 
             if (innerPoint != null && outerPoint != null)
             {
-                GESTURE_LOG.Debug($"Inner: {Output.GetString((Point)innerPoint)}");
-                GESTURE_LOG.Debug($"Outer: {Output.GetString((Point)outerPoint)}");
+                Seril.Debug($"Inner: {Output.GetString((Point)innerPoint)}");
+                Seril.Debug($"Outer: {Output.GetString((Point)outerPoint)}");
 
                 _innerPoint = (Point)innerPoint;
                 _outerPoint = (Point)outerPoint;
@@ -514,7 +515,7 @@ namespace Multi.Cursor
                         Pow(_beamStart.X - midPoint.X, 2) + 
                         Pow(_beamStart.Y - midPoint.Y, 2));
 
-                    GESTURE_LOG.Information($"Dist = {distToMid}");
+                    Seril.Information($"Dist = {distToMid}");
 
                     _plusDistance = distToMid;
                 }
@@ -639,7 +640,7 @@ namespace Multi.Cursor
 
             // Length of Plus
             double length = 10;
-            GESTURE_LOG.Information($"Plus Dist = {_plusDistance:F3}");
+            Seril.Information($"Plus Dist = {_plusDistance:F3}");
             // Compute new plus position along the line
             Point potentialPos = new Point();
             potentialPos.X = _beamStart.X + _plusDistance * Math.Cos(_angleRad);

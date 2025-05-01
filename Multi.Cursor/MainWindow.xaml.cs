@@ -46,7 +46,7 @@ using System.Windows.Input;
 using static Multi.Cursor.Output;
 using static Multi.Cursor.Utils;
 using static Multi.Cursor.Experiment;
-using SeriLog = Serilog.Log;
+using Seril = Serilog.Log;
 using Serilog;
 using MessageBox = System.Windows.Forms.MessageBox;
 using System.Numerics; // Alias Serilog's Log class
@@ -142,6 +142,8 @@ namespace Multi.Cursor
         private int _sideWindowSize = Utils.MM2PX(Config.SIDE_WINDOW_SIZE_MM);
         private OverlayWindow _overlayWindow;
 
+        private double _monitorHeightMM;
+
         private int _absLeft, _absRight, _absTop, _absBottom;
 
         private TouchMouseCallback touchMouseCallback;
@@ -230,6 +232,9 @@ namespace Multi.Cursor
         {
             InitializeComponent();
 
+            // Initialize logging
+            Output.Init();
+
             // Initialize random
             _random = new Random();
 
@@ -251,8 +256,13 @@ namespace Multi.Cursor
             MouseLeftButtonDown += Window_MouseLeftButtonDown;
 
             //-- Create a default Experiment
-            _experiment = new Experiment();
-
+            double longestDistMM =
+                _monitorHeightMM - (2 * Config.WINDOW_PADDING_MM)
+                - (Experiment.START_WIDTH_MM / 2) - (Experiment.Max_Target_Width_MM / 2);
+            double shortestDistMM = 2 * Config.WINDOW_PADDING_MM
+                + (Experiment.START_WIDTH_MM / 2) + (Experiment.Max_Target_Width_MM / 2);
+            Outlog<MainWindow>().Information($"Monitor H = {_monitorHeightMM} | Min D = {shortestDistMM} | Max D = {longestDistMM}");
+            _experiment = new Experiment(shortestDistMM, longestDistMM);
             //--- Show the intro dialog (the choices affect the rest)
             IntroDialog introDialog = new IntroDialog() { Owner = this };
             bool result = false;
@@ -267,7 +277,7 @@ namespace Multi.Cursor
 
             
             //bool? result = introDialog.ShowDialog();
-            //TRACK_LOG.Information($"Result = ", result);
+            //Seril.Information($"Result = ", result);
             if (result == true)
             {
                 _experiment = new Experiment(introDialog.ParticipantNumber, 1);
@@ -448,6 +458,10 @@ namespace Multi.Cursor
                 // Show and then maximize
                 _backgroundWindow.Show();
                 _backgroundWindow.WindowState = WindowState.Maximized;
+
+                // Set the height as mm
+                _monitorHeightMM = Utils.PX2MM(Config.ACTIVE_SCREEN.WorkingArea.Height);
+
                 //---
 
                 // Set the window position to the second monitor's working area
@@ -548,19 +562,19 @@ namespace Multi.Cursor
         private void Window_TouchDown(object sender, TouchEventArgs e)
         {
             var touchPoint = e.GetTouchPoint(this);
-            TRACK_LOG.Debug($"TouchDown at ({touchPoint.Position.X}, {touchPoint.Position.Y})");
+            Seril.Debug($"TouchDown at ({touchPoint.Position.X}, {touchPoint.Position.Y})");
         }
 
         private void Window_TouchUp(object sender, TouchEventArgs e)
         {
             var touchPoint = e.GetTouchPoint(this);
-            TRACK_LOG.Debug($"TouchUp at ({touchPoint.Position.X}, {touchPoint.Position.Y})");
+            Seril.Debug($"TouchUp at ({touchPoint.Position.X}, {touchPoint.Position.Y})");
         }
 
         private void Window_TouchMove(object sender, TouchEventArgs e)
         {
             var touchPoint = e.GetTouchPoint(this);
-            TRACK_LOG.Debug($"TouchMove at ({touchPoint.Position.X}, {touchPoint.Position.Y})");
+            Seril.Debug($"TouchMove at ({touchPoint.Position.X}, {touchPoint.Position.Y})");
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -710,6 +724,7 @@ namespace Multi.Cursor
         /// </summary>
         private bool FindPosForTrials()
         {
+            
             // (Positions all relative to screen)
             int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
@@ -722,8 +737,9 @@ namespace Multi.Cursor
 
             foreach (Trial trial in _block.Trials) // Go through trials
             {
+                Outlog<MainWindow>().Information($"Finding positions for Trial#{trial.Id} [D = {trial.DistanceMM}]");
                 int targetW = Utils.MM2PX(trial.TargetWidthMM);
-                int dist = Utils.MM2PX(trial.DistanceMM);
+                int dist = trial.DistancePX;
 
                 // Set the active side window and find Start and Target positions
                 Point startPositionInMainWin = new Point();
@@ -747,7 +763,6 @@ namespace Multi.Cursor
                             // Check target position
                             if (!leftWinRect.Contains(targetPositionInSideWin)) // Target not properly positioned
                             {
-                                //TRIAL_LOG.Error($"Couldn't find a valid Target position for Trial#{trial.Id}");
                                 continue;
                             }
 
@@ -763,7 +778,6 @@ namespace Multi.Cursor
                             // Check target position
                             if (!rightWinRect.Contains(targetPositionInSideWin)) // Target not properly positioned
                             {
-                                //TRIAL_LOG.Error($"Couldn't find a valid Target position for Trial#{trial.Id}");
                                 continue;
                             }
 
@@ -780,7 +794,7 @@ namespace Multi.Cursor
                             // Check target position
                             if (!topWinRect.Contains(targetPositionInSideWin)) // Target not properly positioned
                             {
-                                //TRIAL_LOG.Error($"Couldn't find a valid Target position for Trial#{trial.Id}");
+                                Outlog<MainWindow>().Error($"Target position not valid for Trial#{trial.Id} - {topWinRect}");
                                 continue;
                             }
 
@@ -788,13 +802,14 @@ namespace Multi.Cursor
                     }
 
                     // Check if the Start positions are valid
-                    if (mainWinRect.Contains(startPositionInMainWin)) // Valid positions foud
+                    if (mainWinRect.Contains(startPositionInMainWin)) // Valid positions found
                     {
+                        Outlog<MainWindow>().Information("Valid positions found! ----------------------");
                         trial.StartPosition = startPositionInMainWin;
                         trial.TargetPosition = targetPositionInSideWin;
                         validPosFound = true;
-                        TRIAL_LOG.Debug($"St.P: {Output.GetString(startPositionInMainWin)}");
-                        TRIAL_LOG.Debug($"{trial.SideWindow.ToString()} " +
+                        Outlog<MainWindow>().Debug($"St.P: {Output.GetString(startPositionInMainWin)}");
+                        Outlog<MainWindow>().Debug($"{trial.SideWindow.ToString()} " +
                             $"-- Tgt.P: {Output.GetString(targetPositionInSideWin)}");
                         break;
                     } 
@@ -803,13 +818,13 @@ namespace Multi.Cursor
 
                 if (!validPosFound) // No valid position found for this trial (after retries)
                 {
-                    TRIAL_LOG.Error($"Couldn't find a valid Start position for Trial#{trial.Id}");
+                    Outlog<MainWindow>().Error($"Couldn't find a valid Start position for Trial#{trial.Id} - {trial.SideWindow}");
                     return false;
                 }
                 
             }
 
-            TRIAL_LOG.Debug($"Block#{_block.Id}: Valid positions found for all trials.");
+            Outlog<MainWindow>().Information($"Block#{_block.Id}: Valid positions found for all trials.");
             return true; // All trials have valid positions
         }
 
@@ -915,10 +930,11 @@ namespace Multi.Cursor
             Rect possibleTargetInSideWin = new Rect();
             for (int i = 0; i < 1000; i++)
             {
+                Outlog<MainWindow>().Debug($"i = {i} - Padding: {padding}, targetHalfW: {targetHalfW}, _targetSideWindow.Width: {_targetSideWindow.Width}, dist: {dist}, startHalfW: {startHalfW}");
                 targetCenterPosInSideWin = new Point(
                     _random.Next(targetXMinInSideWin, targetXMaxInSideWin),
                     _random.Next(targetYMinInSideWin, targetYMaxInSideWin));
-
+                Outlog<MainWindow>().Debug($"i = {i} - Bounds X: {targetXMinInSideWin}, {targetXMaxInSideWin}");
                 possibleTargetInSideWin = new Rect(
                     targetCenterPosInSideWin.X - targetHalfW,
                     targetCenterPosInSideWin.Y - targetHalfW,
@@ -926,11 +942,12 @@ namespace Multi.Cursor
 
                 if (Utils.ContainsNot(possibleTargetInSideWin, jumpPositions))
                 {
+                    Outlog<MainWindow>().Debug($"i = {i} - Position found");
                     break; // Found a valid position
                 }
                 else
                 {
-                    return (new Point(), new Point()); // No valid position found
+                    continue;
                 }
             }
 
@@ -957,14 +974,14 @@ namespace Multi.Cursor
             topAngle = Utils.NormalizeAngleRadian(topAngle);
             bottomAngle = Utils.NormalizeAngleRadian(bottomAngle);
 
-            GESTURE_LOG.Verbose($"Angles: {Utils.RadToDeg(topAngle):F3}, {Utils.RadToDeg(bottomAngle):F3}");
+            Seril.Verbose($"Angles: {Utils.RadToDeg(topAngle):F3}, {Utils.RadToDeg(bottomAngle):F3}");
 
             // Get a random angle
             double randAngle = Utils.RandAngleClockwise(topAngle, bottomAngle);
             Point startCenterPosition = new Point(
                 targetCenterPosition.X + dist * Cos(randAngle),
                 targetCenterPosition.Y + dist * Sin(randAngle));
-            GESTURE_LOG.Verbose($"Random Angle = {randAngle:F3}");
+            Seril.Verbose($"Random Angle = {randAngle:F3}");
             // Convert start center position to screen coordinates
             startPosition = Utils.Offset(startCenterPosition, -startHalfW, -startHalfW);
             Point startPositionInMainWin = Utils.Offset(startPosition, 
@@ -988,6 +1005,7 @@ namespace Multi.Cursor
             Point startPosition = new Point();
             int startHalfW = startW / 2;
             int targetHalfW = targetW / 2;
+            
 
             // Target boundaries in the side window
             int targetXMinInSideWin = padding + targetHalfW;
@@ -1042,14 +1060,14 @@ namespace Multi.Cursor
             if (double.IsNaN(bottomAngle)) bottomAngle = bottomPossibleAngle;
             topAngle = Utils.NormalizeAngleRadian(topAngle);
             bottomAngle = Utils.NormalizeAngleRadian(bottomAngle);
-            GESTURE_LOG.Debug($"Angles: {topAngle:F2}, {bottomAngle:F2}");
+            Seril.Debug($"Angles: {topAngle:F2}, {bottomAngle:F2}");
 
             // Get a random angle
             double randAngle = Utils.RandAngleClockwise(topAngle, bottomAngle);
             Point startCenterPosition = new Point(
                 targetCenterPosition.X + dist * Cos(randAngle),
                 targetCenterPosition.Y + dist * Sin(randAngle));
-            GESTURE_LOG.Debug($"Random Angle = {randAngle:F2}");
+            Seril.Debug($"Random Angle = {randAngle:F2}");
             // Convert start center position to screen coordinates
             startPosition = Utils.Offset(startCenterPosition, -startHalfW, -startHalfW);
             Point startPositionInMainWin = Utils.Offset(startPosition,
@@ -1075,86 +1093,111 @@ namespace Multi.Cursor
             int startHalfW = startW / 2;
             int targetHalfW = targetW / 2;
 
-            //--- New way (v.4!)
-            int targetMinX = padding + targetHalfW;
-            int targetMaxX = (int)_topWindow.Width - padding - targetHalfW;
-            int targetMinY = (int)(_topWindow.Top) + padding + targetHalfW;
-            int targetMaxY = (int)(_topWindow.Top + _topWindow.Height) - padding - targetHalfW;
+            //--- v.5
+            int targetXMin = (int)(_topWindow.Left) + padding + targetHalfW;
+            int targetXMax = (int)(_topWindow.Left + _topWindow.Width) - padding - targetHalfW;
+            int targetYMin = (int)(_topWindow.Top) + padding + targetHalfW;
+            int targetYMax = (int)(_topWindow.Top + _topWindow.Height) - padding - targetHalfW;
 
-            int startMinY = (int)this.Top + padding + startHalfW;
-            int startMaxY = (int)(this.Top + this.Height) - padding - startHalfW;
-            int startMinX = (int)this.Left + padding + startHalfW;
-            int startMaxX = (int)(this.Left + this.Width) - padding - startHalfW;
+            int startXMin = (int)this.Left + padding + startHalfW;
+            int startXMax = (int)(this.Left + this.Width) - padding - startHalfW;
+            int startYMin = (int)this.Top + padding + startHalfW;
+            int startYMax = (int)(this.Top + this.Height) - padding - startHalfW;
 
-            Rect topRect = new Rect(
-                targetMinX, targetMinY,
-                targetMaxX - targetMinX, targetMaxY - targetMinY);
-
-            Rect mainRect = new Rect(
-                startMinX, startMinY,
-                startMaxX - startMinX, startMaxY - startMinY);
-
-            // Find min angle as Target is in on lower left and Start on Ymin
-            double minTheta = Asin((double)(startMinY - targetMaxY) / dist);
-            GESTURE_LOG.Verbose($"Min Angle = {Utils.RadToDeg(minTheta):F2}");
-
-            // Find max angle as Target is in on upper right and Start on Ymax
-            double maxTheta = PI - minTheta;
-            GESTURE_LOG.Verbose($"Max Angle = {Utils.RadToDeg(maxTheta):F2}");
-
-            for (int i = 0; i < 5000; i++)
+            // Min/Max Y for Start
+            int nRetries = 100;
+            for (int retry = 0; retry < 100; retry++)
             {
-                // Randomly place target
-                double targetCenterX = _random.NextDouble() * (targetMaxX - targetMinX) + targetMinX;
-                double targetCenterY = _random.NextDouble() * (targetMaxY - targetMinY) + targetMinY;
+                int stYMinPossible = (int)(targetYMin + Sqrt(Pow(dist, 2) - Pow(startXMin - targetXMax, 2)));
+                int stYMin = Max(stYMinPossible, startYMin);
+                int stYMax = Min(targetYMax + dist, startYMax);
+                int stPosY = _random.Next(stYMin, stYMax);
+                int stPosX = _random.Next(startXMin, startXMax);
 
-                // Choose a random angle
-                double randAngle = Utils.RandAngleClockwise(minTheta, maxTheta);
-                GESTURE_LOG.Verbose($"Random Angle = {Utils.RadToDeg(randAngle):F2}");
+                Outlog<MainWindow>().Information($"Found Start: {stPosX}, {stPosY}");
 
-                // Calculate potential start center
-                double potentialStartX = targetCenterX + dist * Cos(randAngle);
-                double potentialStartY = targetCenterY + dist * Sin(randAngle);
-                GESTURE_LOG.Verbose($"Potential Start = ({potentialStartX:F2}, {potentialStartY:F2})");
+                // Choose a random Y for target
+                int tgRandY = _random.Next(targetYMin, targetYMax);
 
-                // Check if potential start center is within main window usable area
-                startCenterPosition = new Point(potentialStartX, potentialStartY);
-                targetCenterPosition = new Point(targetCenterX, targetCenterY);
-                // Convert target center position to screen coordinates
-                Point targetPosition = Utils.Offset(targetCenterPosition, -targetHalfW, -targetHalfW);
-                Point targetPositionInSideWin = Utils.Offset(targetPosition,
-                    -_targetSideWindow.Left,
-                    -_targetSideWindow.Top);
+                // Solve for X
+                int tgPossibleX1 = stPosX + (int)(Sqrt(Pow(dist, 2) - Pow(stPosY - tgRandY, 2)));
+                int tgPossibleX2 = stPosX - (int)(Sqrt(Pow(dist, 2) - Pow(stPosY - tgRandY, 2)));
 
-                Rect targetInSideWinRect = new Rect(
-                    targetPositionInSideWin.X,
-                    targetPositionInSideWin.Y,
+                Outlog<MainWindow>().Information($"Possible Target 1: {tgPossibleX1}, {tgRandY}");
+                Outlog<MainWindow>().Information($"Possible Target 2: {tgPossibleX2}, {tgRandY}");
+                Outlog<MainWindow>().Information($"Target Bounds: {targetXMin}, {targetXMax} | {targetYMin}, {targetYMax}");
+
+                // Check which possible X positions are within the target bounds and doesn't lie inside jump positions
+                Rect possibleTarget1 = new Rect(
+                    tgPossibleX1 - targetHalfW,
+                    tgRandY - targetHalfW,
                     targetW, targetW);
+                Rect possibleTarget2 = new Rect(
+                    tgPossibleX2 - targetHalfW,
+                    tgRandY - targetHalfW,
+                    targetW, targetW);
+                bool isPos1Valid = Utils.In(tgPossibleX1, targetXMin, targetXMax) && Utils.ContainsNot(possibleTarget1, jumpPositions);
+                bool isPos2Valid = Utils.In(tgPossibleX2, targetXMin, targetXMax) && Utils.ContainsNot(possibleTarget2, jumpPositions);
 
-                if (mainRect.Contains(startCenterPosition) && 
-                    
-                    Utils.ContainsNot(targetInSideWinRect, jumpPositions))
+                Outlog<MainWindow>().Information($"Position 1 valid: {isPos1Valid}");
+                Outlog<MainWindow>().Information($"Position 2 valid: {isPos2Valid}");
+
+                if (isPos1Valid && !isPos2Valid) // Only position 1 is valid
                 {
-                    
-                    // Convert start center position to screen coordinates
+                    startCenterPosition = new Point(stPosX, stPosY);
+                    targetCenterPosition = new Point(tgPossibleX1, tgRandY);
+
+                    // Convert to top-left and respective window coordinates
                     startPosition = Utils.Offset(startCenterPosition, -startHalfW, -startHalfW);
                     Point startPositionInMainWin = Utils.Offset(startPosition,
                         -this.Left,
                         -this.Top);
-                    
-
+                    Point targetPosition = Utils.Offset(targetCenterPosition, -targetHalfW, -targetHalfW);
+                    Point targetPositionInSideWin = Utils.Offset(targetPosition,
+                        -_topWindow.Left,
+                        -_topWindow.Top);
+                    Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
 
                 }
+                else if (!isPos1Valid && isPos2Valid) // Only position 2 is valid
+                {
+                    startCenterPosition = new Point(stPosX, stPosY);
+                    targetCenterPosition = new Point(tgPossibleX2, tgRandY);
+
+                    // Convert to top-left and respective window coordinates
+                    startPosition = Utils.Offset(startCenterPosition, -startHalfW, -startHalfW);
+                    Point startPositionInMainWin = Utils.Offset(startPosition,
+                        -this.Left,
+                        -this.Top);
+                    Point targetPosition = Utils.Offset(targetCenterPosition, -targetHalfW, -targetHalfW);
+                    Point targetPositionInSideWin = Utils.Offset(targetPosition,
+                        -_topWindow.Left,
+                        -_topWindow.Top);
+                    Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
+                    return (startPositionInMainWin, targetPositionInSideWin);
+                }
+                else if (isPos1Valid && isPos2Valid) // Both positions are valid => choose one by random
+                {
+                    startCenterPosition = new Point(stPosX, stPosY);
+                    targetCenterPosition = new Point(_random.NextDouble() < 0.5 ? tgPossibleX1 : tgPossibleX2, tgRandY);
+
+                    // Convert to top-left and respective window coordinates
+                    startPosition = Utils.Offset(startCenterPosition, -startHalfW, -startHalfW);
+                    Point startPositionInMainWin = Utils.Offset(startPosition,
+                        -this.Left,
+                        -this.Top);
+                    Point targetPosition = Utils.Offset(targetCenterPosition, -targetHalfW, -targetHalfW);
+                    Point targetPositionInSideWin = Utils.Offset(targetPosition,
+                        -_topWindow.Left,
+                        -_topWindow.Top);
+                    Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
+                    return (startPositionInMainWin, targetPositionInSideWin);
+                }
             }
 
-            GESTURE_LOG.Information("Failed to find a valid placement within the retry limit.");
+            Seril.Information("Failed to find a valid placement within the retry limit.");
             return (new Point(), new Point()); // Indicate failure
-        }
-
-        private void ActivateLeftCursor()
-        {
-            _activeSideWindow = _leftWindow;
         }
 
         private void ToMo_ButtonDown()
