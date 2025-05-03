@@ -275,39 +275,28 @@ namespace Multi.Cursor
                 MessageBox.Show($"Error opening dialog: {ex.Message}");
             }
 
-            
-            //bool? result = introDialog.ShowDialog();
-            //Seril.Information($"Result = ", result);
+
+            // Set the info from the dialog
             if (result == true)
             {
-                _experiment = new Experiment(introDialog.ParticipantNumber, 1);
+                _experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
+            }
 
-                if (introDialog.Technique == Str.TOUCH_MOUSE)
-                { // Touch-mouse
+            if (_experiment.IsTechAuxCursor()) // Touch-mouse techniques
+            { 
+                _touchMouseActive = true;
 
-                    _touchMouseActive = true;
+                // Show aux cursors
+                _leftWindow.ShowSimCursorInMiddle();
+                _topWindow.ShowSimCursorInMiddle();
+                _rightWindow.ShowSimCursorInMiddle();
+            }
+            else
+            { // Mouse
 
-                    // Init cursors
-                    //_leftAuxPointer._kf = new KalmanFilter(Config.FRAME_DUR_MS / 1000.0);
-                    //_rightAuxPointer._kf = new KalmanFilter(Config.FRAME_DUR_MS / 1000.0);
-                    //_topAuxPointer._kf = new KalmanFilter(Config.FRAME_DUR_MS / 1000.0);
-
-                    // if technique is auxursor => show aux cursors (in the middle of the windows)
-                    if (_experiment.IsTechAuxCursor())
-                    {
-                        _leftWindow.ShowSimCursorInMiddle();
-                        _topWindow.ShowSimCursorInMiddle();
-                        _rightWindow.ShowSimCursorInMiddle();
-                    }
-                    
-
-                } else
-                { // Mouse
-
-                    _touchMouseActive = false;
-                    Experiment.Active_Technique = Technique.Mouse;
-                    // Nothing for now
-                }
+                _touchMouseActive = false;
+                _experiment.Active_Technique = Technique.Mouse;
+                // Nothing for now
             }
 
             _stopWatch.Start();
@@ -579,12 +568,63 @@ namespace Multi.Cursor
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (_timestamps.ContainsKey(Str.FIRST_MOVE))
+            {
+                // Start has its own event, so we handle other scenarios...
+                if (_timestamps.ContainsKey(Str.START_RELEASE)) // Phase 2 or 3
+                {
+                    if (_targetSideWindow.IsAuxCursorInsideTarget()) // Auxursor in target
+                    {
+                        TargetButtonDown();
+                    }
+                    else // Pressed outside target => MISS
+                    {
+                        EndTrial(RESULT.MISS);
+                    }
+                }
+                else // Phase 1
+                {
+                    Outlog<MainWindow>().Information($"{_timestamps.Stringify()}");
+                    if (!_timestamps.ContainsKey(Str.START_PRESS)) // Clicked outside Start
+                    {
+                        EndTrial(RESULT.NO_START);
+                    }
 
-            ToMo_ButtonDown();
+                }
+            }
+            
+
+
+            if (_experiment.IsTechRadiusor())
+            {
+                Point crossPos = _overlayWindow.GetCrossPosition();
+                Point crossScreenPos = _overlayWindow.PointToScreen(crossPos);
+                Point crossSideWinPos = _targetSideWindow.PointFromScreen(crossScreenPos);
+
+                // Trial result
+                if (_targetSideWindow.IsPointInsideTarget(crossSideWinPos)) // Cross in target
+                {
+                    TargetButtonDown();
+                }
+                else
+                {
+                    // Nothing for now
+                }
+
+                // Release the cursor
+                _cursorFreezed = !UnfreezeCursor();
+            }
         }
 
         private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
+            bool notMovedYet = !_timestamps.ContainsKey(Str.FIRST_MOVE);
+            if (notMovedYet)
+            {
+                _timestamps.Add(Str.FIRST_MOVE, _stopWatch.ElapsedMilliseconds);
+            }
+
+
             // Freeze other cursors when the mouse moves (outside a threshold)
             Point currentPos = System.Windows.Input.Mouse.GetPosition(null);
             cursorTravelDist = Utils.Dist(mainCursorPrevPosition, currentPos);
@@ -644,7 +684,7 @@ namespace Multi.Cursor
             // Cursor position relative to the screen
             Point cursorPos = e.GetPosition(this);
             
-            return Utils.Offset(cursorPos, _leftWindow.Width, _topWindow.Height); ;
+            return Utils.Offset(cursorPos, _leftWindow.Width, _topWindow.Height);
         }
 
         private Point FindCursorDestWinPos(Point screenPos, Window destWin)
@@ -670,7 +710,7 @@ namespace Multi.Cursor
             if (_touchMouseActive) 
             { // Only track the touch if the main cursor isn't moving
                 if (_gestureDetector == null) _gestureDetector = new GestureDetector();
-                if (_touchSurface == null) _touchSurface = new TouchSurface(this);
+                if (_touchSurface == null) _touchSurface = new TouchSurface(this, _experiment.Active_Technique);
 
                 Dispatcher.Invoke((Action<TouchMouseSensorEventArgs>)TrackTouch, e);
             }
@@ -708,7 +748,6 @@ namespace Multi.Cursor
             }
 
             //PrintSpan(shotSpan);
-
             _touchSurface.Track(shotSpan);
 
         }
@@ -839,9 +878,11 @@ namespace Multi.Cursor
             infoLabel.Text = $"Trial {_activeTrialNum} | Block {_activeBlockNum} ";
             UpdateLabel();
             
-
             // Start the stopwatch
             _trialtWatch.Restart();
+
+            // Add trial show timestamp
+            _timestamps.Add(Str.TRIAL_SHOW, _trialtWatch.ElapsedMilliseconds);
 
             // Show Start and Target
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
@@ -859,54 +900,6 @@ namespace Multi.Cursor
 
             _targetSideWindow.ShowTarget(_trial.TargetPosition, targetW, Brushes.Blue,
                 Target_MouseEnter, Target_MouseLeave, Target_ButtonDown, Target_ButtonUp);
-
-            // Positions all relative to screen
-            //int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            //int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);  
-            //int targetW = Utils.MM2PX(_trial.TargetWidthMM);
-            //int dist = Utils.MM2PX(_trial.DistanceMM);
-
-            //// Set the active side window and find Start and Target positions
-            //Point startPositionInMainWin = new Point(); 
-            //Point targetPositionInSideWin = new Point();
-            //List<Point> jumpPositions = new List<Point>();
-            //_trial.SideWindow = Location.Top; // TEMP
-            //switch (_trial.SideWindow)
-            //{
-            //    case Location.Left: 
-            //        _targetSideWindow = _leftWindow; 
-            //        //_targetSideWindowDir = Location.Left;
-            //        jumpPositions.Add(new Point(_leftWindow.Width / 2, _leftWindow.Height / 4)); // Top
-            //        jumpPositions.Add(new Point(_leftWindow.Width / 2, _leftWindow.Height * 3 / 4)); // Bottom
-            //        (startPositionInMainWin, targetPositionInSideWin) = LeftTargetPositionElements(
-            //            padding, startW, targetW, dist, jumpPositions);
-            //        break;
-            //    case Location.Right: 
-            //        _targetSideWindow = _rightWindow; 
-            //        //_targetSideWindowDir = Location.Right;
-            //        jumpPositions.Add(new Point(_rightWindow.Width / 2, _rightWindow.Height / 4)); // Top
-            //        jumpPositions.Add(new Point(_rightWindow.Width / 2, _rightWindow.Height * 3 / 4)); // Bottom
-            //        (startPositionInMainWin, targetPositionInSideWin) = RightTargetPositionElements(
-            //            padding, startW, targetW, dist, jumpPositions);
-            //        break;
-            //    case Location.Top: 
-            //        _targetSideWindow = _topWindow; 
-            //        //_targetSideWindowDir = Location.Top;
-            //        jumpPositions.Add(new Point(_topWindow.Width / 4, _topWindow.Height / 2)); // Left
-            //        jumpPositions.Add(new Point(_topWindow.Width / 2, _topWindow.Height / 2)); // Middle
-            //        jumpPositions.Add(new Point(_topWindow.Width * 3 / 4, _topWindow.Height / 2)); // Right
-            //        (startPositionInMainWin, targetPositionInSideWin) = TopTargetPositionElements(
-            //            padding, startW, targetW, dist, jumpPositions);
-            //        break;
-            //}
-
-            // Show Start and Target
-            //ShowStart(
-            //    startPositionInMainWin, startW, Brushes.Green,
-            //    Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp); 
-
-            //_targetSideWindow.ShowTarget(targetPositionInSideWin, _trial.TargetWidthMM, Brushes.Blue,
-            //    Target_MouseEnter, Target_MouseLeave, Target_ButtonDown, Target_ButtonUp);
         }
 
         private (Point, Point) LeftTargetPositionElements(int padding, int startW, int targetW, 
@@ -1200,51 +1193,16 @@ namespace Multi.Cursor
             return (new Point(), new Point()); // Indicate failure
         }
 
-        private void ToMo_ButtonDown()
-        {
-            if (_experiment.IsTechAuxCursor())
-            {
-                // Trial result
-                if (_targetSideWindow.IsAuxCursorInsideTarget()) // Auxursor in target
-                {
-                    TargetButtonDown();
-                }
-                else
-                {
-                    // Don't do anything for now
-                }
-            }
-
-            if (_experiment.IsTechRadiusor())
-            {
-                Point crossPos = _overlayWindow.GetCrossPosition();
-                Point crossScreenPos = _overlayWindow.PointToScreen(crossPos);
-                Point crossSideWinPos = _targetSideWindow.PointFromScreen(crossScreenPos);
-
-                // Trial result
-                if (_targetSideWindow.IsPointInsideTarget(crossSideWinPos)) // Cross in target
-                {
-                    TargetButtonDown();
-                }
-                else
-                {
-                    // Nothing for now
-                }
-
-                // Release the cursor
-                 _cursorFreezed = !UnfreezeCursor();
-            }
-  
-        }
-
 
         private void EndTrial(RESULT result)
         {
+            double trialTime = (_timestamps[Str.TRIAL_END] - _timestamps[Str.START_RELEASE]) / 1000.00;
+            Outlog<MainWindow>().Information($"Trial#{_activeTrialNum} finished: {result} | Time = {trialTime:F2}");
             if (_activeTrialNum == _block.GetNumTrials()) // Was last trial
             {
                 if (_activeBlockNum == _experiment.GetNumBlocks()) // Was last block
                 {
-                    // Do nothing for now
+                    Outlog<MainWindow>().Information("Experiment finished!");
                 }
                 else
                 {
@@ -1265,7 +1223,7 @@ namespace Multi.Cursor
         private void Start_MouseEnter(object sender, SysIput.MouseEventArgs e)
         {
             //--- Set the time and state
-            if (_timestamps.ContainsKey(Str.TARGET_UP))
+            if (_timestamps.ContainsKey(Str.TARGET_RELEASE))
             { // Return from target
                 _timestamps[Str.START_LAST_RE_ENTRY] = _trialtWatch.ElapsedMilliseconds;
             } else
@@ -1282,73 +1240,77 @@ namespace Multi.Cursor
 
         private void Start_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (_experiment.IsTechAuxCursor())
+            Outlog<MainWindow>().Information($"{_timestamps.Stringify()}");
+            if (_timestamps.ContainsKey(Str.TARGET_RELEASE)) // Phase 3 (Target hit, Start click again => End trial)
             {
-                if (_timestamps.ContainsKey(Str.TARGET_DOWN)) // Target hit, Start click again => End trial
-                {
-                    EndTrial(RESULT.HIT);
-                    return;
-                }
-
-                if (_timestamps.ContainsKey(Str.START_UP)) // Start already clicked, it's actually aux click
-                {
-                    ToMo_ButtonDown();
-                    return;
-
-                }
-
+                _timestamps.Add(Str.TRIAL_END, _trialtWatch.ElapsedMilliseconds);
+                EndTrial(RESULT.HIT);
+                return;
             }
-
-            if (_experiment.IsTechRadiusor())
+            else // Phase 1 or 2
             {
-                if (_timestamps.ContainsKey(Str.TARGET_DOWN)) // Target hit, Start click again => End trial
+                if (_timestamps.ContainsKey(Str.START_RELEASE)) // Start already clicked, it's actually Aux click
                 {
-                    EndTrial(RESULT.HIT);
+                    if (_targetSideWindow.IsAuxCursorInsideTarget()) // Inside target => Target hit
+                    {
+                        TargetButtonDown();
+                    }
+                    else // Pressed outside target => MISS
+                    {
+                        EndTrial(RESULT.MISS);
+                    }
+
                     return;
                 }
-
-                if (_timestamps.ContainsKey(Str.START_UP)) // Start already clicked, it's actually cross click
+                else // First click on the Start
                 {
-                    ToMo_ButtonDown();
-                    return;
-
-                }
-
-                //--- First click on Start ----------------------------------------------------
-                // Show line at the cursor position
-                Point cursorScreenPos = FindCursorScreenPos(e);
-                Point overlayCursorPos = FindCursorDestWinPos(cursorScreenPos, _overlayWindow);
-
-                _overlayWindow.ShowBeam(cursorScreenPos);
-                _radiusorActive = true;
-
-                // Freeze main cursor
-                _cursorFreezed = FreezeCursor();
-            }
-
-            if (Experiment.Active_Technique == Technique.Mouse)
-            {
-                if (_timestamps.ContainsKey(Str.TARGET_DOWN)) // Target hit, Start click again => End trial
-                {
-                    EndTrial(RESULT.HIT);
-                    return;
+                    _timestamps.Add(Str.START_PRESS, _trialtWatch.ElapsedMilliseconds);
+                    _targetSideWindow.ColorTarget(Brushes.Green);
+                    _startRectangle.Fill = Brushes.Red;
+                    
                 }
             }
 
-            //--- First click in any technique
-            _targetSideWindow.ColorTarget(Brushes.Green);
-            //_startCircle.Fill = Brushes.Red;
-            _startRectangle.Fill = Brushes.Red;
+            
 
-            _timestamps[Str.START_PRESS] = _trialtWatch.ElapsedMilliseconds;
+            //if (_experiment.IsTechRadiusor())
+            //{
+
+            //    //--- First click on Start ----------------------------------------------------
+            //    // Show line at the cursor position
+            //    Point cursorScreenPos = FindCursorScreenPos(e);
+            //    Point overlayCursorPos = FindCursorDestWinPos(cursorScreenPos, _overlayWindow);
+
+            //    _overlayWindow.ShowBeam(cursorScreenPos);
+            //    _radiusorActive = true;
+
+            //    // Freeze main cursor
+            //    _cursorFreezed = FreezeCursor();
+            //}
+
+            //if (Experiment.Active_Technique == Technique.Mouse)
+            //{
+            //    if (_timestamps.ContainsKey(Str.TARGT_PRESS)) // Target hit, Start click again => End trial
+            //    {
+            //        EndTrial(RESULT.HIT);
+            //        return;
+            //    }
+            //}
+
+            
 
         }
 
         private void Start_MouseUp(object sender, MouseButtonEventArgs e)
         {
+            Outlog<MainWindow>().Information($"{_timestamps.Stringify()}");
             if (_timestamps.ContainsKey(Str.START_PRESS)) // First time
-            { 
-                _timestamps[Str.START_UP] = _trialtWatch.ElapsedMilliseconds;
+            {
+                _timestamps[Str.START_RELEASE] = _trialtWatch.ElapsedMilliseconds;
+            }
+            else // Pressed outside the Start => Repeat the trial
+            {
+                Outlog<MainWindow>().Error("Pressed outside the Start!");
             }
         }
 
@@ -1375,7 +1337,7 @@ namespace Multi.Cursor
         private void TargetButtonDown()
         {
             // Set the time
-            _timestamps[Str.TARGET_DOWN] = _trialtWatch.ElapsedMilliseconds;
+            _timestamps[Str.TARGET_PRESS] = _trialtWatch.ElapsedMilliseconds;
 
             //--- Change the colors
             _targetSideWindow.ColorTarget(Brushes.Red);
@@ -1401,8 +1363,8 @@ namespace Multi.Cursor
         private void Target_ButtonUp(object sender, MouseButtonEventArgs e)
         {
             // Set the time and state
-            _timestamps[Str.TARGET_UP] = _trialtWatch.ElapsedMilliseconds;
-            _trialState = Str.TARGET_UP;
+            _timestamps[Str.TARGET_RELEASE] = _trialtWatch.ElapsedMilliseconds;
+            _trialState = Str.TARGET_RELEASE;
         }
 
         /// <summary>
@@ -1618,7 +1580,7 @@ namespace Multi.Cursor
 
         public void ThumbSwipe(Direction dir)
         {
-            if (Experiment.Active_Technique == Technique.Auxursor_Swipe)
+            if (_experiment.Active_Technique == Technique.Auxursor_Swipe)
             {
                 switch (dir)
                 {
@@ -1657,7 +1619,7 @@ namespace Multi.Cursor
 
         public void ThumbTap(Location tapLoc)
         {
-            if (Experiment.Active_Technique == Technique.Auxursor_Tap)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
                 ActivateSideWin(Location.Left, tapLoc);
             }
@@ -1666,7 +1628,7 @@ namespace Multi.Cursor
 
         public void MiddleTap()
         {
-            if (Experiment.Active_Technique == Technique.Auxursor_Tap)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
                 ActivateSideWin(Location.Top, Location.Center);
             }
@@ -1674,7 +1636,7 @@ namespace Multi.Cursor
 
         public void RingTap()
         {
-            if (Experiment.Active_Technique == Technique.Auxursor_Tap)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
                 ActivateSideWin(Location.Top, Location.Right); // Right side of the top window
                 //ActivateSide(Direction.Up, tapDir);
@@ -1683,7 +1645,7 @@ namespace Multi.Cursor
 
         public void LittleTap(Location tapLoc)
         {
-            if (Experiment.Active_Technique == Technique.Auxursor_Tap)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
                 ActivateSideWin(Location.Right, tapLoc);
             }

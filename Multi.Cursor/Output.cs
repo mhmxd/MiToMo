@@ -18,7 +18,7 @@ using System.Runtime.CompilerServices;
 
 namespace Multi.Cursor
 {
-    internal class Output
+    internal static class Output
     {
         private static readonly string LOG_PATH = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
@@ -204,11 +204,32 @@ namespace Multi.Cursor
             return $"{{X={rect.X},Y={rect.Y},Width={rect.Width},Height={rect.Height}}}";
         }
 
+        public static string Stringify<TKey, TValue>(this Dictionary<TKey, TValue> dictionary)
+        {
+            if (dictionary == null)
+            {
+                return "null";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("{ ");
+            bool first = true;
+            foreach (KeyValuePair<TKey, TValue> pair in dictionary)
+            {
+                if (!first)
+                {
+                    sb.Append(", ");
+                }
+                sb.Append($"{pair.Key}: {pair.Value}");
+                first = false;
+            }
+            sb.Append(" }");
+            return sb.ToString();
+        }
+
         public static void Info(Line l)
         {
             Seril.Information($"Line: ({l.X1:F3}, {l.Y1:F3}) -> ({l.X2:F3}, {l.Y2:F3})");
         }
-
-        
     }
 }

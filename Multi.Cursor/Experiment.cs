@@ -14,9 +14,10 @@ namespace Multi.Cursor
         //-- Variables
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 };
         private static List<double> _distances = new List<double>(); // Generated in constructor
+        private static int N_BLOCKS = 1; // Number of blocks in the experiment
         private static int N_REPS_IN_BLOCK = 1;
         private double _distPaddingMM; // Padding to each side of the dist thresholds
-        public static Technique Active_Technique = Technique.Auxursor_Tap; // Set in the info dialog
+        
 
         public static double Min_Target_Width_MM = TARGET_WIDTHS_MM.Min();
         public static double Max_Target_Width_MM = TARGET_WIDTHS_MM.Max();
@@ -32,21 +33,23 @@ namespace Multi.Cursor
         //-- Constants
         public static double START_WIDTH_MM = 6; // Same as our click experiment
 
-        //-- States
-        public enum RESULT { MISS, HIT }
+        //-- Current state
+        
+        public enum RESULT { MISS, HIT, NO_START }
 
         //-- Information
-        public int ParticipantNumber { get; set; }
+        public Technique Active_Technique = Technique.Auxursor_Tap; // Set in the info dialog
+        public int Participant_Number { get; set; } // Set in the info dialog
         private int _activeBlockNum;
         private int _activeBlockInd;
         private int _activeTrialNum;
         private int _activeTrialInd;
-        private Block _activeBlock;
+        //private Block _activeBlock;
         private List<Block> _blocks = new List<Block>();
 
         public Experiment(double shortDistMM, double longDistMM)
         {
-            ParticipantNumber = 100; // Default
+            Participant_Number = 100; // Default
             Shortest_Dist_MM = shortDistMM;
             Longest_Dist_MM = longDistMM;
 
@@ -72,7 +75,7 @@ namespace Multi.Cursor
             //-- Create blocks of trials
             for (int i = 0; i < 1; i++)
             {
-                int blockId = ParticipantNumber * 100 + i;
+                int blockId = Participant_Number * 100 + i;
                 Block block = new Block(blockId, TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
                 _blocks.Add(block);
             }
@@ -82,19 +85,22 @@ namespace Multi.Cursor
             _activeBlockInd = 0;
             _activeTrialNum = 1;
             _activeTrialInd = 0;
-            _activeBlock = _blocks[0];
+            //_activeBlock = _blocks[0];
 
             Outlog<Experiment>().Information(ListToString(_distances));
         }
 
-        public Experiment(int ptc, int nBlocks)
+        public void Init(int ptc, string tech)
         {
-            ParticipantNumber = ptc;
+            Participant_Number = ptc;
+            if (tech == Str.TOUCH_MOUSE_TAP) Active_Technique = Technique.Auxursor_Tap;
+            else if (tech == Str.TOUCH_MOUSE_SWIPE) Active_Technique = Technique.Auxursor_Swipe;
+            else if (tech == Str.MOUSE) Active_Technique = Technique.Mouse;
 
             //-- Create blocks of trials
-            for (int i = 0; i < nBlocks; i++)
+            for (int i = 0; i < N_BLOCKS; i++)
             {
-                int blockId = ParticipantNumber * 100 + i;
+                int blockId = Participant_Number * 100 + i;
                 Block block = new Block(blockId, TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
                 _blocks.Add(block);
             }
@@ -104,7 +110,7 @@ namespace Multi.Cursor
             _activeBlockInd = 0;
             _activeTrialNum = 1;
             _activeTrialInd = 0;
-            _activeBlock = _blocks[0];
+            //_activeBlock = _blocks[0];
         }
 
         public int GetNumBlocks()
@@ -118,29 +124,6 @@ namespace Multi.Cursor
             if (index < _blocks.Count()) return _blocks[index];
             else return null;
         }
-
-        public Trial GetFirstTrial()
-        {
-            if (_blocks.Count() > 0) return _activeBlock.GetTrial(_activeTrialNum);
-            else return null;
-        }
-
-        //public bool IsLastTrialInBlock()
-        //{
-        //    return _activeTrialNum == _activeBlock.GetNumTrials();
-        //}
-
-        //public Trial GetNextTrial()
-        //{
-        //    if (_activeTrialNum < _activeBlock.GetNumTrials())
-        //    {
-        //        _activeTrialNum++;
-        //        return _activeBlock.GetTrial(_activeTrialNum);
-        //    } else
-        //    {
-        //        return null;
-        //    }
-        //}
 
         public bool IsTechAuxCursor()
         {

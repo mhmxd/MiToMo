@@ -31,7 +31,7 @@ namespace Multi.Cursor
             InitializeComponent();
 
             ParticipantNumberTextBox.Text = "100";
-            TechniqueComboBox.ItemsSource = new string[] { Str.TOUCH_MOUSE, Str.MOUSE };
+            TechniqueComboBox.ItemsSource = new string[] { Str.TOUCH_MOUSE_TAP, Str.TOUCH_MOUSE_SWIPE, Str.MOUSE };
             TechniqueComboBox.SelectedValue = Str.MOUSE;
             ExperimentComboBox.ItemsSource = new string[] { Str.PRACTICE, Str.TEST };
             ExperimentComboBox.SelectedValue = Str.PRACTICE;

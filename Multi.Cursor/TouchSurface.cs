@@ -57,7 +57,9 @@ namespace Multi.Cursor
             Little = 5
         }
 
-        FingerTracker tracker = new FingerTracker();    
+        FingerTracker tracker = new FingerTracker();
+
+        private Experiment.Technique _activeTechnique = Experiment.Technique.Auxursor_Tap; // Set in the constructor
 
         //--- Class for each frame on the surface
         private class TouchFrame
@@ -195,7 +197,7 @@ namespace Multi.Cursor
         private TouchPoint _lastIndexTP = null;
         private TouchPoint _lastThumbTP = null;
 
-        public TouchSurface(ToMoGestures gestureReceiver)
+        public TouchSurface(ToMoGestures gestureReceiver, Experiment.Technique activeTechnique)
         {
             _gestureReceiver = gestureReceiver;
 
@@ -213,6 +215,8 @@ namespace Multi.Cursor
             _downPositions.Add(Finger.Middle, new Point(-1, -1));
             _downPositions.Add(Finger.Ring, new Point(-1, -1));
             _downPositions.Add(Finger.Little, new Point(-1, -1));
+
+            _activeTechnique = activeTechnique;
 
             //_touchPoints = new List<TouchPoint>();
             //_pointerDown = PointerDown;
@@ -540,7 +544,7 @@ namespace Multi.Cursor
                 //--- REMOVED: Only track multiple fingers if multiple fingers are present!
                 // Presence checks are done inside the methods
 
-                if (Experiment.Active_Technique == Experiment.Technique.Auxursor_Tap)
+                if (_activeTechnique == Experiment.Technique.Auxursor_Tap)
                 {
                     TapTechTrackThumb();
                     TapTechTrackIndex();
@@ -549,7 +553,7 @@ namespace Multi.Cursor
                     TapTechTrackLittle();
                 }
 
-                if (Experiment.Active_Technique == Experiment.Technique.Auxursor_Swipe)
+                if (_activeTechnique == Experiment.Technique.Auxursor_Swipe)
                 {
                     SwipeTechTrackThumb();
                     SwipeTechTrackIndex();
