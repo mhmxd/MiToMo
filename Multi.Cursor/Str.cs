@@ -9,7 +9,7 @@ namespace Multi.Cursor
     internal class Str
     {
         public static string TRIAL_SHOW = "trial_show";
-        public static string FIRST_MOVE = "FIRST_MOVE";
+        public static string FIRST_MOVE = "first_move";
         public static string START_LAST_ENTRY = "start_last_entry";
         public static string START_PRESS = "start_press";
         public static string START_RELEASE = "start_release";

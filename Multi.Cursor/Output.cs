@@ -4,17 +4,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Xml.Linq;
 using Seril = Serilog.Log;
 using Serilog;
-using System.Windows.Shapes;
 using CommunityToolkit.HighPerformance;
 using System.IO;
 using Serilog.Enrichers.WithCaller;
 using Serilog.Enrichers.CallerInfo; // Alias Serilog's Log class
 using ILogger = Serilog.ILogger;
 using System.Runtime.CompilerServices;
+using static Multi.Cursor.MainWindow;
+using System.Windows;
+using System.Windows.Shapes;
 
 namespace Multi.Cursor
 {
@@ -226,6 +227,33 @@ namespace Multi.Cursor
             sb.Append(" }");
             return sb.ToString();
         }
+
+        public static string GetCorners(this Rect rect)
+        {
+            return $"TL: ({rect.TopLeft.X:F0} | {rect.TopLeft.Y:F0}) | " +
+                   $"TR: ({rect.TopRight.X:F0} | {rect.TopRight.Y:F0}) | " +
+                   $"BR: ({rect.BottomRight.X:F0} | {rect.BottomRight.Y:F0}) | " +
+                   $"BL: ({rect.BottomLeft.X:F0} | {rect.BottomLeft.Y:F0})";
+        }
+
+        public static string GetCorners(this Window window)
+        {
+            var windowRect = window.GetRect();
+            return $"TL: ({windowRect.TopLeft.X:F0} | {windowRect.TopLeft.Y:F0}) | " +
+                    $"TR: ({windowRect.TopRight.X:F0} | {windowRect.TopRight.Y:F0}) | " +
+                    $"BR: ({windowRect.BottomRight.X:F0} | {windowRect.BottomRight.Y:F0}) | " +
+                    $"BL: ({windowRect.BottomLeft.X:F0} | {windowRect.BottomLeft.Y:F0})";
+        }
+
+        public static string GetCorners(this Window window, int padding)
+        {
+            var windowRect = window.GetRect();
+            return $"TL: ({windowRect.TopLeft.X:F0} | {windowRect.TopLeft.Y:F0}) | " +
+                    $"TR: ({windowRect.TopRight.X:F0} | {windowRect.TopRight.Y:F0}) | " +
+                    $"BR: ({windowRect.BottomRight.X:F0} | {windowRect.BottomRight.Y:F0}) | " +
+                    $"BL: ({windowRect.BottomLeft.X:F0} | {windowRect.BottomLeft.Y:F0})";
+        }
+
 
         public static void Info(Line l)
         {

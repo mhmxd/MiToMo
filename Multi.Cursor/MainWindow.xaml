@@ -5,7 +5,6 @@
         WindowStyle="None" 
         Background="White"
         ResizeMode="NoResize"
-
         BorderThickness="1"
         WindowStartupLocation="CenterScreen">
     <Grid>

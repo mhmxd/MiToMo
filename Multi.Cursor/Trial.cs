@@ -41,11 +41,11 @@ namespace Multi.Cursor
         // Trial number (not needed for now)
         //private int _number { get; set; }
 
-        private Location _sideWindow; // Side window to show target in
-        public Location SideWindow
+        private Location _targetLocation; // Side window to show target in
+        public Location TargetLocation
         {
-            get => _sideWindow;
-            set => _sideWindow = value;
+            get => _targetLocation;
+            set => _targetLocation = value;
         }
 
         //private int _sideWindowInd; // 0 (left), 1 (right), 2 (top) -> side window to show target in
@@ -76,7 +76,7 @@ namespace Multi.Cursor
             _id = id;
             _targetWidthMM = targetWidthMM;
             _distanceMM = distMM;
-            _sideWindow = sideWin;
+            _targetLocation = sideWin;
             //Location[] validDirections = { Location.Top, Location.Left, Location.Right };
             //_sideWindow = validDirections[Utils.Random.Next(validDirections.Length)];
             //_straightPath = true;
@@ -84,7 +84,7 @@ namespace Multi.Cursor
 
         public override string ToString()
         {
-            return $"Trial: [Id = {_id}, W = {_targetWidthMM}mm, D = {_distanceMM:F2}mm, Loc = {_sideWindow}]";
+            return $"Trial: [Id = {_id}, W = {_targetWidthMM}mm, D = {_distanceMM:F2}mm, Loc = {_targetLocation}]";
         }
     
         

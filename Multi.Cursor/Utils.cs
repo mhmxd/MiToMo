@@ -142,18 +142,15 @@ namespace Multi.Cursor
             return "{" + string.Join(", ", list) + "}";
         }
 
-        //public static bool Contains(Rect rect, List<Point> points)
-        //{
-        //    foreach (Point p in points)
-        //    {
-        //        if (!rect.Contains(p))
-        //        {
-        //            return false;
-        //        }
-        //    }
+        public static Rect GetRect(this Window window)
+        {
+            return new Rect(window.Left, window.Top, window.Width, window.Height);
+        }
 
-        //    return true;
-        //}
+        public static Rect GetRect(this Window window, int padding)
+        {
+            return new Rect(window.Left + padding, window.Top + padding, window.Width - 2*padding, window.Height - 2*padding);
+        }
 
         public static bool ContainsNot(Rect rect, List<Point> points)
         {
