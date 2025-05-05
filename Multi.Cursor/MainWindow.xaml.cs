@@ -1046,8 +1046,8 @@ namespace Multi.Cursor
                 int possibleStartXMin = (int)(targetCenterBounds.Left - dist);
                 int possibleStartXMax = (int)(targetCenterBounds.Right + dist);
 
-                int stXMin = (int)Max(possibleStartXMin, targetCenterBounds.Left);
-                int stXMax = (int)Min(possibleStartXMax, targetCenterBounds.Right);
+                int stXMin = (int)Max(possibleStartXMin, startCenterBounds.Left);
+                int stXMax = (int)Min(possibleStartXMax, startCenterBounds.Right);
 
                 int stPosX = _random.Next(stXMin, stXMax + 1); // Add +1 because Next() is exclusive of the upper bound
 
@@ -1094,13 +1094,13 @@ namespace Multi.Cursor
                     // Convert to top-left and respective window coordinates
                     startPosition = Utils.Offset(startCenterPosition, -startHalfW, -startHalfW);
                     Point startPositionInMainWin = Utils.Offset(startPosition,
-                        -this.Left,
-                        -this.Top);
+                        -_mainWinRect.Left,
+                        -_mainWinRect.Top);
                     //Point targetPosition = Utils.Offset(targetCenterPosition, -targetHalfW, -targetHalfW);
                     Point targetPosition = possibleTarget1.TopLeft;
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
-                        -_leftWindow.Left,
-                        -_leftWindow.Top);
+                        -_leftWinRect.Left,
+                        -_leftWinRect.Top);
                     Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
 
@@ -1131,13 +1131,13 @@ namespace Multi.Cursor
                     // Convert to top-left and respective window coordinates
                     startPosition = Utils.Offset(startCenterPosition, -startHalfW, -startHalfW);
                     Point startPositionInMainWin = Utils.Offset(startPosition,
-                        -this.Left,
-                        -this.Top);
+                        -_mainWinRect.Left,
+                        -_mainWinRect.Top);
                     //Point targetPosition = Utils.Offset(targetCenterPosition, -targetHalfW, -targetHalfW);
                     Point targetPosition = _random.NextDouble() < 0.5 ? possibleTarget1.TopLeft : possibleTarget2.TopLeft;
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
-                        -_leftWindow.Left,
-                        -_leftWindow.Top);
+                        -_leftWinRect.Left,
+                        -_leftWinRect.Top);
                     Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
                 }
@@ -1239,13 +1239,13 @@ namespace Multi.Cursor
                     // Convert to top-left and respective window coordinates
                     startPosition = Utils.Offset(startCenterPosition, -startHalfW, -startHalfW);
                     Point startPositionInMainWin = Utils.Offset(startPosition,
-                        -this.Left,
-                        -this.Top);
+                        -_mainWinRect.Left,
+                        -_mainWinRect.Top);
                     //Point targetPosition = Utils.Offset(targetCenterPosition, -targetHalfW, -targetHalfW);
                     Point targetPosition = possibleTarget2.TopLeft;
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
-                        -_rightWindow.Left,
-                        -_rightWindow.Top);
+                        -_rightWinRect.Left,
+                        -_rightWinRect.Top);
                     Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
                 }
@@ -1257,13 +1257,13 @@ namespace Multi.Cursor
                     // Convert to top-left and respective window coordinates
                     startPosition = Utils.Offset(startCenterPosition, -startHalfW, -startHalfW);
                     Point startPositionInMainWin = Utils.Offset(startPosition,
-                        -this.Left,
-                        -this.Top);
+                        -_mainWinRect.Left,
+                        -_mainWinRect.Top);
                     //Point targetPosition = Utils.Offset(targetCenterPosition, -targetHalfW, -targetHalfW);
                     Point targetPosition = _random.NextDouble() < 0.5 ? possibleTarget1.TopLeft : possibleTarget2.TopLeft;
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
-                        -_rightWindow.Left,
-                        -_rightWindow.Top);
+                        -_rightWinRect.Left,
+                        -_rightWinRect.Top);
                     Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
                 }
