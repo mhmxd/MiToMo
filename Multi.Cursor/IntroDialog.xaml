@@ -27,6 +27,7 @@
         <TextBlock Text="Experiment:" Grid.Row="2" Grid.Column="0" Margin="10" VerticalAlignment="Center"/>
         <ComboBox Name="ExperimentComboBox" Grid.Row="2" Grid.Column="1" Margin="10"/>
 
-        <Button Content="Begin" Grid.Row="3" Grid.ColumnSpan="2" Height="40" Width="200" FontSize="15" Margin="50" Click="BeginButton_Click" HorizontalAlignment="Center"/>
+        <Button Name ="BigButton" Content="Initialize" Grid.Row="3" Grid.ColumnSpan="2" Height="40" Width="200" FontSize="15" Margin="50" 
+                Click="BeginButton_ClickAsync" HorizontalAlignment="Center"/>
     </Grid>
 </Window>

@@ -26,6 +26,8 @@ namespace Multi.Cursor
 
         private bool _isClosingFromButton = false; // Begin button was pressed to close, not x
 
+        private bool _isPositionsFound = false;
+
         public IntroDialog()
         {
             InitializeComponent();
@@ -34,19 +36,53 @@ namespace Multi.Cursor
             TechniqueComboBox.ItemsSource = new string[] { Str.TOUCH_MOUSE_TAP, Str.TOUCH_MOUSE_SWIPE, Str.MOUSE };
             TechniqueComboBox.SelectedValue = Str.MOUSE;
             ExperimentComboBox.ItemsSource = new string[] { Str.PRACTICE, Str.TEST };
-            ExperimentComboBox.SelectedValue = Str.PRACTICE;
+            ExperimentComboBox.SelectedValue = Str.PRACTICE;  
         }
 
-        private void BeginButton_Click(object sender, RoutedEventArgs e)
+        private async void IntroDialog_Loaded(object sender, RoutedEventArgs e)
         {
-            _isClosingFromButton = true;
-
-            ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
-            Technique = TechniqueComboBox.SelectedItem as string;
-            SelectedExperiment = ExperimentComboBox.SelectedItem as string;
-            DialogResult = true;
             
-            Close();
+        }
+
+        private async void BeginButton_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            if (_isPositionsFound)
+            {
+                _isClosingFromButton = true;
+
+                ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
+                Technique = TechniqueComboBox.SelectedItem as string;
+                SelectedExperiment = ExperimentComboBox.SelectedItem as string;
+                DialogResult = true;
+
+                Close();
+            } 
+            else
+            {
+                if (Owner is MainWindow ownerWindow)
+                {
+
+                    BigButton.Content = "Initializing...";
+                    BigButton.IsEnabled = false;
+
+                    _isPositionsFound = await Task.Run(() => ownerWindow.FindPositionsForAllBlocks());
+
+                    BigButton.Content = "Begin";
+                    BigButton.IsEnabled = true;
+
+                    // Now you have the result, and you are still on a background thread.
+                    // If you need to update the UI, you MUST use Dispatcher.Invoke or BeginInvoke.
+                    //Dispatcher.Invoke(() =>
+                    //{
+                    //    // Safe to update UI elements here, e.g.,
+                    //    BigButton.Content = "Begin";
+                    //    BigButton.IsEnabled = true;
+                    //});
+                }
+            }
+            
+
+            
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

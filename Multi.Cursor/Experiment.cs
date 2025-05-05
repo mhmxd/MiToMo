@@ -44,8 +44,10 @@ namespace Multi.Cursor
         private int _activeBlockInd;
         private int _activeTrialNum;
         private int _activeTrialInd;
-        //private Block _activeBlock;
+        
         private List<Block> _blocks = new List<Block>();
+        public List<Block> Blocks { get { return _blocks; } }
+
 
         public Experiment(double shortDistMM, double longDistMM)
         {
