@@ -67,8 +67,16 @@ namespace Multi.Cursor
 
                     _isPositionsFound = await Task.Run(() => ownerWindow.FindPositionsForAllBlocks());
 
-                    BigButton.Content = "Begin";
-                    BigButton.IsEnabled = true;
+                    if (_isPositionsFound)
+                    {
+                        BigButton.Content = "Begin";
+                        BigButton.IsEnabled = true;
+                    }
+                    else
+                    {
+                        BigButton.Content = "Error";
+                    }
+
 
                     // Now you have the result, and you are still on a background thread.
                     // If you need to update the UI, you MUST use Dispatcher.Invoke or BeginInvoke.
