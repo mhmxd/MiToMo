@@ -501,6 +501,7 @@ namespace Multi.Cursor
                 _topWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
                 _topWindow.Top = Config.ACTIVE_SCREEN.WorkingArea.Top;
                 _topWindow.MouseDown += SideWindow_MouseDown;
+                _topWindow.MouseUp += SideWindow_MouseUp;
                 _topWindow.Show();
                 _topWinRect = Utils.GetRect(_topWindow);
                 _topWinRectPadded = Utils.GetRect(_topWindow, PADDING);
@@ -517,6 +518,7 @@ namespace Multi.Cursor
                 _leftWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
                 _leftWindow.Top = this.Top;
                 _leftWindow.MouseDown += SideWindow_MouseDown;
+                _leftWindow.MouseUp += SideWindow_MouseUp;
                 _leftWindow.Show();
                 _leftWinRect = Utils.GetRect(_leftWindow);
                 _lefWinRectPadded = Utils.GetRect(_leftWindow, PADDING);
@@ -533,6 +535,7 @@ namespace Multi.Cursor
                 _rightWindow.Left = this.Left + this.Width;
                 _rightWindow.Top = this.Top;
                 _rightWindow.MouseDown += SideWindow_MouseDown;
+                _rightWindow.MouseUp += SideWindow_MouseUp;
                 _rightWindow.Show();
                 _rightWinRect = Utils.GetRect(_rightWindow);
                 _rightWinRectPadded = Utils.GetRect(_rightWindow, PADDING);
@@ -586,14 +589,20 @@ namespace Multi.Cursor
             {
                 if (_timestamps.ContainsKey(Str.START_RELEASE)) // Phase 2: Aiming for Target (missing because Target is not pressed)
                 {
-                    _timestamps.Add(Str.TRIAL_END, _stopWatch.ElapsedMilliseconds);
                     EndTrial(RESULT.MISS);
                 }
                 else // Phase 1: Aiming for Start (missing because here is Window!)
                 {
-                    _timestamps.Add(Str.TRIAL_END, _stopWatch.ElapsedMilliseconds);
                     EndTrial(RESULT.NO_START);
                 }
+            }
+        }
+
+        private void SideWindow_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Released outside target
+            {
+                EndTrial(RESULT.MISS);
             }
         }
 
@@ -627,7 +636,6 @@ namespace Multi.Cursor
             {
                 if (_timestamps.ContainsKey(Str.TARGET_RELEASE)) // Phase 3: Window press => Outside Start
                 {
-                    _timestamps.Add(Str.TRIAL_END, _stopWatch.ElapsedMilliseconds);
                     EndTrial(RESULT.MISS);
                 }
                 else if (_timestamps.ContainsKey(Str.START_RELEASE)) // Phase 2: Aiming for Target
@@ -639,13 +647,11 @@ namespace Multi.Cursor
                         }
                         else // Pressed outside target => MISS
                         {
-                            _timestamps.Add(Str.TRIAL_END, _stopWatch.ElapsedMilliseconds);
                             EndTrial(RESULT.MISS);
                         }
                 }
                 else // Phase 1: Aiming for Start (missing because here is Window!)
                 {
-                    _timestamps.Add(Str.TRIAL_END, _stopWatch.ElapsedMilliseconds);
                     EndTrial(RESULT.NO_START);
                 }
 
@@ -818,7 +824,7 @@ namespace Multi.Cursor
         }
 
         public bool FindPositionsForAllBlocks()
-        {
+        { 
             // Go through all blocks
             foreach (Block block in _experiment.Blocks)
             {
@@ -884,12 +890,8 @@ namespace Multi.Cursor
 
                             (startPositionInMainWin, targetPositionInSideWin) = LeftTargetPositionElements(
                                 startW, targetW, dist, startCenterBounds, targetCenterBounds, jumpPositions);
-                            // Check target position
-                            //if (!_leftWinRect.Contains(targetPositionInSideWin)) // Target not properly positioned
-                            //{
-                            //    continue;
-                            //}
 
+                            
                             break;
 
                         case Location.Right:
@@ -945,7 +947,9 @@ namespace Multi.Cursor
                             break;
                     }
 
-                    Outlog<MainWindow>().Information("Valid positions found! ----------------------");
+                    if (startPositionInMainWin.X == 0) return false; // Failed to find a valid position
+
+                    Outlog<MainWindow>().Information("----------- Valid positions found! ------------");
                     trial.StartPosition = startPositionInMainWin;
                     trial.TargetPosition = targetPositionInSideWin;
                     validPosFound = true;
@@ -1063,7 +1067,7 @@ namespace Multi.Cursor
 
                 int stPosX = _random.Next(stXMin, stXMax + 1); // Add +1 because Next() is exclusive of the upper bound
 
-                Outlog<MainWindow>().Information($"Found Start: {stPosX}, {stPosY}");
+                Outlog<MainWindow>().Debug($"Found Start: {stPosX}, {stPosY}");
 
                 // Choose a random Y for target
                 int tgRandY = _random.Next((int)targetCenterBounds.Top, (int)targetCenterBounds.Bottom);
@@ -1074,7 +1078,7 @@ namespace Multi.Cursor
 
                 //Outlog<MainWindow>().Information($"Possible Target 1: {tgPossibleX1}, {tgRandY}");
                 //Outlog<MainWindow>().Information($"Possible Target 2: {tgPossibleX2}, {tgRandY}");
-                Outlog<MainWindow>().Information($"Target Center Bounds: {targetCenterBounds.GetCorners()}");
+                Outlog<MainWindow>().Debug($"Target Center Bounds: {targetCenterBounds.GetCorners()}");
 
                 // Check which possible X positions are within the target bounds and doesn't lie inside jump positions
                 Rect possibleTarget1 = new Rect(
@@ -1085,8 +1089,8 @@ namespace Multi.Cursor
                     tgPossibleX2 - targetHalfW,
                     tgRandY - targetHalfW,
                     targetW, targetW);
-                Outlog<MainWindow>().Information($"Possible Tgt1: {possibleTarget1.GetCorners()}");
-                Outlog<MainWindow>().Information($"Possible Tgt2: {possibleTarget2.GetCorners()}");
+                Outlog<MainWindow>().Debug($"Possible Tgt1: {possibleTarget1.GetCorners()}");
+                Outlog<MainWindow>().Debug($"Possible Tgt2: {possibleTarget2.GetCorners()}");
                 //Outlog<MainWindow>().Information($"Target Window Bounds: {_leftWindow.GetCorners(padding)}");
                 bool isPos1Valid = 
                     _lefWinRectPadded.Contains(possibleTarget1)
@@ -1095,8 +1099,8 @@ namespace Multi.Cursor
                     _lefWinRectPadded.Contains(possibleTarget2)
                     && Utils.ContainsNot(possibleTarget2, jumpPositions);
 
-                Outlog<MainWindow>().Information($"Position 1 valid: {isPos1Valid}");
-                Outlog<MainWindow>().Information($"Position 2 valid: {isPos2Valid}");
+                Outlog<MainWindow>().Debug($"Position 1 valid: {isPos1Valid}");
+                Outlog<MainWindow>().Debug($"Position 2 valid: {isPos2Valid}");
 
                 if (isPos1Valid && !isPos2Valid) // Only position 1 is valid
                 {
@@ -1113,7 +1117,7 @@ namespace Multi.Cursor
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
                         -_leftWinRect.Left,
                         -_leftWinRect.Top);
-                    Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
+                    Outlog<MainWindow>().Debug($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
 
                 }
@@ -1132,7 +1136,7 @@ namespace Multi.Cursor
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
                         -_leftWinRect.Left,
                         -_leftWinRect.Top);
-                    Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
+                    Outlog<MainWindow>().Debug($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
                 }
                 else if (isPos1Valid && isPos2Valid) // Both positions are valid => choose one by random
@@ -1150,12 +1154,12 @@ namespace Multi.Cursor
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
                         -_leftWinRect.Left,
                         -_leftWinRect.Top);
-                    Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
+                    Outlog<MainWindow>().Debug($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
                 }
             }
 
-            Seril.Information("Failed to find a valid placement within the retry limit.");
+            Outlog<MainWindow>().Information("Failed to find a valid placement within the retry limit.");
             return (new Point(), new Point()); // Indicate failure
         }
 
@@ -1188,7 +1192,7 @@ namespace Multi.Cursor
                 int stXMax = (int)Max(stXMaxPossible, startCenterBounds.Right);
                 int stPosX = _random.Next(stXMin, stXMax);
 
-                Outlog<MainWindow>().Information($"Found Start: {stPosX}, {stPosY}");
+                Outlog<MainWindow>().Debug($"Found Start: {stPosX}, {stPosY}");
 
                 // Choose a random Y for target
                 int tgRandY = _random.Next((int)targetCenterBounds.Top, (int)targetCenterBounds.Bottom);
@@ -1199,7 +1203,7 @@ namespace Multi.Cursor
 
                 //Outlog<MainWindow>().Information($"Possible Target 1: {tgPossibleX1}, {tgRandY}");
                 //Outlog<MainWindow>().Information($"Possible Target 2: {tgPossibleX2}, {tgRandY}");
-                Outlog<MainWindow>().Information($"Target Center Bounds: {targetCenterBounds.GetCorners()}");
+                Outlog<MainWindow>().Debug($"Target Center Bounds: {targetCenterBounds.GetCorners()}");
 
                 // Check which possible X positions are within the target bounds and doesn't lie inside jump positions
                 Rect possibleTarget1 = new Rect(
@@ -1210,8 +1214,8 @@ namespace Multi.Cursor
                     tgPossibleX2 - targetHalfW,
                     tgRandY - targetHalfW,
                     targetW, targetW);
-                Outlog<MainWindow>().Information($"Possible Tgt1: {possibleTarget1.GetCorners()}");
-                Outlog<MainWindow>().Information($"Possible Tgt2: {possibleTarget2.GetCorners()}");
+                Outlog<MainWindow>().Debug($"Possible Tgt1: {possibleTarget1.GetCorners()}");
+                Outlog<MainWindow>().Debug($"Possible Tgt2: {possibleTarget2.GetCorners()}");
                 //Outlog<MainWindow>().Information($"Target Window Bounds: {_rightWindow.GetCorners(padding)}");
 
                 bool isPos1Valid =
@@ -1221,8 +1225,8 @@ namespace Multi.Cursor
                     _rightWinRectPadded.Contains(possibleTarget2)
                     && Utils.ContainsNot(possibleTarget2, jumpPositions);
 
-                Outlog<MainWindow>().Information($"Position 1 valid: {isPos1Valid}");
-                Outlog<MainWindow>().Information($"Position 2 valid: {isPos2Valid}");
+                Outlog<MainWindow>().Debug($"Position 1 valid: {isPos1Valid}");
+                Outlog<MainWindow>().Debug($"Position 2 valid: {isPos2Valid}");
 
                 if (isPos1Valid && !isPos2Valid) // Only position 1 is valid
                 {
@@ -1239,7 +1243,7 @@ namespace Multi.Cursor
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
                         -_rightWinRect.Left,
                         -_rightWinRect.Top);
-                    Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
+                    Outlog<MainWindow>().Debug($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
 
                 }
@@ -1258,7 +1262,7 @@ namespace Multi.Cursor
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
                         -_rightWinRect.Left,
                         -_rightWinRect.Top);
-                    Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
+                    Outlog<MainWindow>().Debug($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
                 }
                 else if (isPos1Valid && isPos2Valid) // Both positions are valid => choose one by random
@@ -1276,12 +1280,12 @@ namespace Multi.Cursor
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
                         -_rightWinRect.Left,
                         -_rightWinRect.Top);
-                    Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
+                    Outlog<MainWindow>().Debug($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
                 }
             }
 
-            Seril.Information("Failed to find a valid placement within the retry limit.");
+            Outlog<MainWindow>().Debug("Failed to find a valid placement within the retry limit.");
             return (new Point(), new Point()); // Indicate failure
 
         }
@@ -1309,7 +1313,7 @@ namespace Multi.Cursor
                 int stPosY = _random.Next(stYMin, stYMax);
                 int stPosX = _random.Next((int)startCetnerBounds.Left, (int)startCetnerBounds.Right);
 
-                Outlog<MainWindow>().Information($"Found Start: {stPosX}, {stPosY}");
+                Outlog<MainWindow>().Debug($"Found Start: {stPosX}, {stPosY}");
 
                 // Choose a random Y for target
                 int tgRandY = _random.Next((int)targetCenterBounds.Top, (int)targetCenterBounds.Bottom);
@@ -1320,7 +1324,7 @@ namespace Multi.Cursor
 
                 //Outlog<MainWindow>().Information($"Possible Target 1: {tgPossibleX1}, {tgRandY}");
                 //Outlog<MainWindow>().Information($"Possible Target 2: {tgPossibleX2}, {tgRandY}");
-                Outlog<MainWindow>().Information($"Target Center Bounds: {targetCenterBounds.GetCorners()}");
+                Outlog<MainWindow>().Debug($"Target Center Bounds: {targetCenterBounds.GetCorners()}");
 
                 // Check which possible X positions are within the target bounds and doesn't lie inside jump positions
                 Rect possibleTarget1 = new Rect(
@@ -1331,8 +1335,8 @@ namespace Multi.Cursor
                     tgPossibleX2 - targetHalfW,
                     tgRandY - targetHalfW,
                     targetW, targetW);
-                Outlog<MainWindow>().Information($"Possible Tgt1: {possibleTarget1.GetCorners()}");
-                Outlog<MainWindow>().Information($"Possible Tgt2: {possibleTarget2.GetCorners()}");
+                Outlog<MainWindow>().Debug($"Possible Tgt1: {possibleTarget1.GetCorners()}");
+                Outlog<MainWindow>().Debug($"Possible Tgt2: {possibleTarget2.GetCorners()}");
                 //Outlog<MainWindow>().Information($"Target Window Bounds: {_topWindow.GetCorners(padding)}");
                 bool isPos1Valid =
                     _topWinRectPadded.Contains(possibleTarget1)
@@ -1341,8 +1345,8 @@ namespace Multi.Cursor
                     _topWinRectPadded.Contains(possibleTarget2)
                     && Utils.ContainsNot(possibleTarget2, jumpPositions);
 
-                Outlog<MainWindow>().Information($"Position 1 valid: {isPos1Valid}");
-                Outlog<MainWindow>().Information($"Position 2 valid: {isPos2Valid}");
+                Outlog<MainWindow>().Debug($"Position 1 valid: {isPos1Valid}");
+                Outlog<MainWindow>().Debug($"Position 2 valid: {isPos2Valid}");
 
                 if (isPos1Valid && !isPos2Valid) // Only position 1 is valid
                 {
@@ -1360,7 +1364,7 @@ namespace Multi.Cursor
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
                         -_topWinRect.Left,
                         -_topWinRect.Top);
-                    Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
+                    Outlog<MainWindow>().Debug($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
 
                 }
@@ -1379,7 +1383,7 @@ namespace Multi.Cursor
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
                         -_topWinRect.Left,
                         -_topWinRect.Top);
-                    Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
+                    Outlog<MainWindow>().Debug($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
                 }
                 else if (isPos1Valid && isPos2Valid) // Both positions are valid => choose one by random
@@ -1397,12 +1401,12 @@ namespace Multi.Cursor
                     Point targetPositionInSideWin = Utils.Offset(targetPosition,
                         -_topWinRect.Left,
                         -_topWinRect.Top);
-                    Outlog<MainWindow>().Information($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
+                    Outlog<MainWindow>().Debug($"Found -> Start: {startPositionInMainWin} - Target: {targetPositionInSideWin}");
                     return (startPositionInMainWin, targetPositionInSideWin);
                 }
             }
 
-            Seril.Information("Failed to find a valid placement within the retry limit.");
+            Outlog<MainWindow>().Debug("Failed to find a valid placement within the retry limit.");
             return (new Point(), new Point()); // Indicate failure
         }
 
@@ -1421,8 +1425,10 @@ namespace Multi.Cursor
 
         private void EndTrial(RESULT result)
         {
+            _timestamps.Add(Str.TRIAL_END, _stopWatch.ElapsedMilliseconds);
             Outlog<MainWindow>().Information($"Trial#{_activeTrialNum} finished: {result}");
-            if (result != RESULT.NO_START)
+            bool trialFinished = (result != RESULT.NO_START);
+            if (trialFinished)
             {
                 double trialTime = (_timestamps[Str.TRIAL_END] - _timestamps[Str.START_RELEASE]) / 1000.00;
                 Outlog<MainWindow>().Information($"Trial Time = {trialTime:F2}");
@@ -1475,7 +1481,6 @@ namespace Multi.Cursor
             Outlog<MainWindow>().Information($"{_timestamps.Stringify()}");
             if (_timestamps.ContainsKey(Str.TARGET_RELEASE)) // Phase 3 (Target hit, Start click again => End trial)
             {
-                _timestamps.Add(Str.TRIAL_END, _trialtWatch.ElapsedMilliseconds);
                 EndTrial(RESULT.HIT);
                 return;
             }
@@ -1487,7 +1492,6 @@ namespace Multi.Cursor
                 }
                 else // Pressed outside target => MISS
                 {
-                    _timestamps.Add(Str.TRIAL_END, _trialtWatch.ElapsedMilliseconds);
                     EndTrial(RESULT.MISS);
                 }
             }

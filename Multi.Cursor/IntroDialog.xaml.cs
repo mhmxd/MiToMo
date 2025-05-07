@@ -63,18 +63,18 @@ namespace Multi.Cursor
                 {
 
                     BigButton.Content = "Initializing...";
-                    BigButton.IsEnabled = false;
+                    //BigButton.IsEnabled = false;
 
                     _isPositionsFound = await Task.Run(() => ownerWindow.FindPositionsForAllBlocks());
 
                     if (_isPositionsFound)
                     {
                         BigButton.Content = "Begin";
-                        BigButton.IsEnabled = true;
+                        //BigButton.IsEnabled = true;
                     }
                     else
                     {
-                        BigButton.Content = "Error";
+                        BigButton.Content = "Retry";
                     }
 
 
