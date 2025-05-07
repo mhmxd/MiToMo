@@ -245,7 +245,7 @@ namespace Multi.Cursor
             _target.Fill = color;
         }
 
-        public bool IsAuxCursorInsideTarget()
+        public bool IsAuxursorInsideTarget()
         {
             // Get circle's center
             double centerX = Canvas.GetLeft(_target) + targetHalfW;
@@ -438,7 +438,7 @@ namespace Multi.Cursor
             lastSimCursorPos.Y = _cursorTransform.Y;
 
             // Check if entered the target
-            if (IsAuxCursorInsideTarget())
+            if (IsAuxursorInsideTarget())
             {
                 // To-do: call target enter methods
             }

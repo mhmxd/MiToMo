@@ -418,9 +418,9 @@ namespace Multi.Cursor
         {
              
             //-- Check if the simucursor is inside target
-            if (_targetSideWindow.IsAuxCursorInsideTarget())
+            if (_targetSideWindow.IsAuxursorInsideTarget())
             { // Simucursor inside target
-                TargetButtonDown();
+                TargetMouseDown();
             }
         }
 
@@ -633,9 +633,9 @@ namespace Multi.Cursor
                 else if (_timestamps.ContainsKey(Str.START_RELEASE)) // Phase 2: Aiming for Target
                 {
 
-                        if (_targetSideWindow.IsAuxCursorInsideTarget()) // Auxursor in target
+                        if (_targetSideWindow.IsAuxursorInsideTarget()) // Auxursor in target
                         {
-                            TargetButtonDown();
+                            TargetMouseDown();
                         }
                         else // Pressed outside target => MISS
                         {
@@ -661,7 +661,7 @@ namespace Multi.Cursor
                 // Trial result
                 if (_targetSideWindow.IsPointInsideTarget(crossSideWinPos)) // Cross in target
                 {
-                    TargetButtonDown();
+                    TargetMouseDown();
                 }
                 else
                 {
@@ -1015,7 +1015,7 @@ namespace Multi.Cursor
             }
 
             _targetSideWindow.ShowTarget(_trial.TargetPosition, targetW, Brushes.Blue,
-                Target_MouseEnter, Target_MouseLeave, Target_ButtonDown, Target_ButtonUp);
+                Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
         }
 
         private (Point, Point) LeftTargetPositionElements(
@@ -1481,9 +1481,9 @@ namespace Multi.Cursor
             }
             else if (_timestamps.ContainsKey(Str.START_RELEASE)) // Phase 2: Start already clicked, it's actually Aux click
             {
-                if (_targetSideWindow.IsAuxCursorInsideTarget()) // Inside target => Target hit
+                if (_targetSideWindow.IsAuxursorInsideTarget()) // Inside target => Target hit
                 {
-                    TargetButtonDown();
+                    TargetMouseDown();
                 }
                 else // Pressed outside target => MISS
                 {
@@ -1532,6 +1532,18 @@ namespace Multi.Cursor
         private void Start_MouseUp(object sender, MouseButtonEventArgs e)
         {
             Outlog<MainWindow>().Information($"{_timestamps.Stringify()}");
+            if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Already pressed with Auxursor => Check if release is also inside
+            {
+                if (_targetSideWindow.IsAuxursorInsideTarget())
+                {
+                    TargetMouseUp();
+                } 
+                else // Released outside Target => MISS
+                {
+                    EndTrial(RESULT.MISS);
+                }
+            }
+
             if (_timestamps.ContainsKey(Str.START_PRESS)) // First time
             {
                 _timestamps[Str.START_RELEASE] = _trialtWatch.ElapsedMilliseconds;
@@ -1557,15 +1569,25 @@ namespace Multi.Cursor
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Target_ButtonDown(object sender, MouseButtonEventArgs e)
+        private void Target_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            TargetButtonDown();
+            TargetMouseDown();
+
+            e.Handled = true; // Prevents the event from bubbling up to the parent element (Window)
         }
 
-        private void TargetButtonDown()
+        private void TargetMouseDown()
         {
             // Set the time
             _timestamps[Str.TARGET_PRESS] = _trialtWatch.ElapsedMilliseconds;
+
+        }
+
+        private void TargetMouseUp()
+        {
+            // Set the time and state
+            _timestamps[Str.TARGET_RELEASE] = _trialtWatch.ElapsedMilliseconds;
+            //_trialState = Str.TARGET_RELEASE;
 
             //--- Change the colors
             _targetSideWindow.ColorTarget(Brushes.Red);
@@ -1583,17 +1605,14 @@ namespace Multi.Cursor
             {
                 _activeSideWindow.DeactivateCursor();
             }
-
-            //_activeSideWindow = null;
-
         }
 
-        private void Target_ButtonUp(object sender, MouseButtonEventArgs e)
+        private void Target_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            // Set the time and state
-            _timestamps[Str.TARGET_RELEASE] = _trialtWatch.ElapsedMilliseconds;
-            //_trialState = Str.TARGET_RELEASE;
+            TargetMouseUp();
+            e.Handled = true; // Prevents the event from bubbling up to the parent element (Window)
         }
+
 
         /// <summary>
         /// Show the start circle
