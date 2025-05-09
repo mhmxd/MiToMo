@@ -39,11 +39,6 @@ namespace Multi.Cursor
             ExperimentComboBox.SelectedValue = Str.PRACTICE;  
         }
 
-        private async void IntroDialog_Loaded(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
         private async void BeginButton_ClickAsync(object sender, RoutedEventArgs e)
         {
             if (_isPositionsFound)

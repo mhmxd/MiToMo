@@ -28,10 +28,11 @@ namespace Multi.Cursor
         void ThumbSwipe(Direction loc);
         void ThumbTap(Location loc); // Not exactly direction, rather position (up/down)
         void ThumbMove(TouchPoint thumbPoint);
-        void ThumbUp(TouchPoint indPoint);
+        void ThumbUp();
 
         void MiddleTap();
         void RingTap();
+
         void LittleTap(Location loc);
     }
 }

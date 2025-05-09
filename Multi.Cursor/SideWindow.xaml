@@ -12,14 +12,14 @@
         <TranslateTransform x:Key="CursorTransform" />
     </Window.Resources>
     <Canvas x:Name="canvas">
-        <Image x:Name="cursor_active" Source="/Multi.Cursor;component/Resources/cursor_active.png" 
+        <Image x:Name="activeCursor" Source="/Multi.Cursor;component/Resources/cursor_active.png" 
                Width="10"
                Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Image.RenderTransform>
                 <StaticResource ResourceKey="CursorTransform"/>
             </Image.RenderTransform>
         </Image>
-        <Image x:Name="cursor_inactive" Source="/Multi.Cursor;component/Resources/cursor_inactive.png" 
+        <Image x:Name="inactiveCursor" Source="/Multi.Cursor;component/Resources/cursor_inactive.png" 
        Width="10"
        Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Image.RenderTransform>

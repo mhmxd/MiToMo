@@ -335,8 +335,8 @@ namespace Multi.Cursor
                     TapTrackThumb();
                     TapTrackIndex();
                     TapTrackMiddle();
-                    TapTechTrackRing();
-                    TapTechTrackLittle();
+                    TapTrackRing();
+                    TapTrackLittle();
                 }
 
                 if (_activeTechnique == Experiment.Technique.Auxursor_Swipe)
@@ -376,7 +376,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    Outlog<TouchSurface>().Information($"{finger.ToString()} Down: {currentFrame.Timestamp}");
+                    GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -391,7 +391,7 @@ namespace Multi.Cursor
                     Point lastPosition = _lastPositions[finger];
 
                     // Check Tap time and movement conditions
-                    Outlog<TouchSurface>().Information($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                    GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                         $" | dX = {Abs(lastPosition.X - downPosition.X):F2}" +
                         $" | dY = {Abs(lastPosition.Y - downPosition.Y):F2}");
                     if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
@@ -401,16 +401,19 @@ namespace Multi.Cursor
                         // Find the Tap position (Top or Bottom)
                         if (lastPosition.Y < THUMB_TOP_LOWEST_ROW) // Top
                         {
+                            GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
                             _gestureReceiver.ThumbTap(Location.Top);
-                            FILOG.Information($"{finger.ToString()} Tapped! Top.");
+                            
                         }
                         else // Bottom
                         {
+                            GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Bottom.");
                             _gestureReceiver.ThumbTap(Location.Bottom);
-                            FILOG.Information($"{finger.ToString()} Tapped! Bottom.");
+                            
                         }
                     }
 
+                    _gestureReceiver.ThumbUp();
                     _touchTimers[finger].Stop();
                 }
                 
@@ -438,7 +441,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    Outlog<TouchSurface>().Information($"{finger.ToString()} Down: {currentFrame.Timestamp}");
+                    GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -450,14 +453,14 @@ namespace Multi.Cursor
                 {
                     Point downPosition = _downPositions[finger];
                     Point lastPosition = _lastPositions[finger];
-                    Outlog<TouchSurface>().Information($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                    GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                         $" | dX = {Abs(lastPosition.X - downPosition.X):F2}" +
                         $" | dY = {Abs(lastPosition.Y - downPosition.Y):F2}");
                     if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
                         && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
                         && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
                     {
-                        Outlog<TouchSurface>().Information($"{finger} Tapped!");
+                        GestInfo<TouchSurface>($"{finger} Tapped!");
                         _gestureReceiver.IndexTap();
                     }
 
@@ -511,7 +514,7 @@ namespace Multi.Cursor
                             && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
                         {
                             _gestureReceiver.MiddleTap();
-                            FILOG.Debug($"{finger.ToString()} Tapped!");
+                            GestInfo<TouchSurface>($"{finger} Tapped!");
                         }
 
                         _touchTimers[finger].Stop();
@@ -573,7 +576,7 @@ namespace Multi.Cursor
         /// <summary>
         /// Tracking the ring finger
         /// </summary>
-        private void TapTechTrackRing()
+        private void TapTrackRing()
         {
 
             // Get the last frame
@@ -599,25 +602,24 @@ namespace Multi.Cursor
             }
             else // Finger NOT present in the current frame
             {
-                if (_lastPositions.ContainsKey(finger)) // Finger was present before
+                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                 {
                     Point downPosition = _downPositions[finger];
                     Point lastPosition = _lastPositions[finger];
-                    if (_touchTimers[finger].IsRunning) // Was active => Lifted up
-                    {
-                        FILOG.Debug($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
-                            $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
-                            $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
-                        if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                            && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
-                            && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
-                        {
-                            _gestureReceiver.RingTap();
-                            FILOG.Debug($"{finger.ToString()} Tapped!");
-                        }
 
-                        _touchTimers[finger].Stop();
+                    GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                        $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
+                        $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
+                    if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
+                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
+                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                    {
+                        GestInfo<TouchSurface>($"{finger} Tapped!");
+                        _gestureReceiver.RingTap();
+                        
                     }
+
+                    _touchTimers[finger].Stop();
                 }
                 
             }
@@ -663,7 +665,7 @@ namespace Multi.Cursor
         /// <summary>
         /// Tracking the pinky finger
         /// </summary>
-        private void TapTechTrackLittle()
+        private void TapTrackLittle()
         {
 
             // Get the last frame
@@ -691,36 +693,35 @@ namespace Multi.Cursor
             }
             else // Finger NOT present in the current frame
             {
-                if (_lastPositions.ContainsKey(finger))
+                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                 {
                     Point downPosition = _downPositions[finger];
                     Point lastPosition = _lastPositions[finger];
-                    if (_touchTimers[finger].IsRunning) // Was active => Lifted up
-                    {
-                        FILOG.Debug($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
-                            $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
-                            $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
-                        if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                            && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
-                            && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
-                        {
-                            // Find the Tap position (Top or Bottom)
-                            if (lastPosition.Y < LITTLE_TOP_LOWEST_ROW) // Top
-                            {
-                                _gestureReceiver.LittleTap(Location.Top);
-                                FILOG.Debug($"{finger.ToString()} Tapped! Top.");
-                            }
-                            else // Bottom
-                            {
-                                _gestureReceiver.LittleTap(Location.Bottom);
-                                FILOG.Debug($"{finger.ToString()} Tapped! Bottom.");
-                            }
-                        }
 
-                        _touchTimers[finger].Stop();
+                    // Check Tap time and movement conditions
+                    GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                        $" | dX = {Abs(lastPosition.X - downPosition.X):F2}" +
+                        $" | dY = {Abs(lastPosition.Y - downPosition.Y):F2}");
+                    if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
+                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
+                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                    {
+                        // Find the Tap position (Top or Bottom)
+                        if (lastPosition.Y < LITTLE_TOP_LOWEST_ROW) // Top
+                        {
+                            GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
+                            _gestureReceiver.LittleTap(Location.Top);
+                        }
+                        else // Bottom
+                        {
+                            GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Bottom.");
+                            _gestureReceiver.LittleTap(Location.Bottom);
+                        }
                     }
+
+                    _touchTimers[finger].Stop();
                 }
-                
+
             }
 
         }

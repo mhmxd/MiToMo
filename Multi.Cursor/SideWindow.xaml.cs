@@ -39,8 +39,8 @@ namespace Multi.Cursor
         private int windowWidth, windowHeight;
         private int _canvasWidth, _canvasHeight;
 
-        private bool isCursorVisible;
-        private Point lastSimCursorPos = new Point(0, 0);
+        private bool _isCursorVisible;
+        private Point _lastCursorPos = new Point(0, 0);
 
         private InputSimulator inputSimulator = new InputSimulator();
 
@@ -63,8 +63,6 @@ namespace Multi.Cursor
             WindowTitle = title;
             this.DataContext = this; // Set DataContext for data binding
 
-            //this.MouseMove += this.Window_MouseMove;
-
             EnableMouseInPointer(true);
             SetForegroundWindow(new WindowInteropHelper(this).Handle);
 
@@ -75,18 +73,6 @@ namespace Multi.Cursor
             _cursorTransform = (TranslateTransform)FindResource("CursorTransform");
         }
 
-        //private void OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
-        //{
-        //    if (_svg == null)
-        //        return;
-
-        //    var canvas = e.Surface.Canvas;
-        //    canvas.Clear(SKColors.Black);
-
-        //    // Draw SVG
-        //    canvas.DrawPicture(_svg.Picture);
-        //}
-
         /// <summary>
         /// Show the target
         /// </summary>
@@ -96,12 +82,6 @@ namespace Multi.Cursor
             MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
             MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
         {
-            
-            // Radius in pixels
-            //const double PPI = 109;
-            //const double MM_IN_INCH = 25.4;
-            //int targetWidth = Utils.MM2PX(widthMM);
-            
             // Get canvas dimensions
             _canvasWidth = (int)canvas.ActualWidth;
             _canvasHeight = (int)canvas.ActualHeight;
@@ -151,8 +131,8 @@ namespace Multi.Cursor
 
             // Set index
             Canvas.SetZIndex(_target, 0);
-            Canvas.SetZIndex(cursor_active, 1);
-            Canvas.SetZIndex(cursor_inactive, 1);
+            Canvas.SetZIndex(activeCursor, 1);
+            Canvas.SetZIndex(inactiveCursor, 1);
 
             return new Point(randomX, randomY);
         }
@@ -186,8 +166,8 @@ namespace Multi.Cursor
 
             // Set index
             Canvas.SetZIndex(_target, 0);
-            Canvas.SetZIndex(cursor_active, 1);
-            Canvas.SetZIndex(cursor_inactive, 1);
+            Canvas.SetZIndex(activeCursor, 1);
+            Canvas.SetZIndex(inactiveCursor, 1);
         }
 
         /// <summary>
@@ -236,8 +216,8 @@ namespace Multi.Cursor
 
             // Set index
             Canvas.SetZIndex(_target, 0);
-            Canvas.SetZIndex(cursor_active, 1);
-            Canvas.SetZIndex(cursor_inactive, 1);
+            Canvas.SetZIndex(activeCursor, 1);
+            Canvas.SetZIndex(inactiveCursor, 1);
         }
 
         public void ColorTarget(Brush color)
@@ -245,7 +225,7 @@ namespace Multi.Cursor
             _target.Fill = color;
         }
 
-        public bool IsAuxursorInsideTarget()
+        public bool IsCursorInsideTarget()
         {
             // Get circle's center
             double centerX = Canvas.GetLeft(_target) + targetHalfW;
@@ -287,95 +267,81 @@ namespace Multi.Cursor
             return targetRect.Contains(p); 
         }
 
-        public void ShowAuxCursor(int x, int y)
+        public void ShowCursor(int x, int y)
         {
-            //Mouse.OverrideCursor = null;
-            //isCursorVisible = true;
-
-            // Still not sure where to show the cursor
-            //PositionCursor(x, y);
 
             // Show the simulated cursor
-            cursor_inactive.Visibility = Visibility.Hidden;
-            cursor_active.Visibility = Visibility.Visible;
+            inactiveCursor.Visibility = Visibility.Hidden;
+            activeCursor.Visibility = Visibility.Visible;
             _cursorTransform.X = x;
             _cursorTransform.Y = y;
-
-            // Get window's actual width and height including borders
-            //windowWidth = (int)this.ActualWidth;
-            //windowHeight = (int)this.ActualHeight;
         }
 
-        public void ActivateCursor(Location dir)
+        public void ShowCursor(Point p)
+        {
+            ShowCursor((int)p.X, (int)p.Y);
+        }
+
+        public void ShowCursor(Location location)
         {
             Point position = new Point();
 
-            switch (dir)
+            switch (location)
             {
                 case Location.Left:
-                    position.X = canvas.ActualWidth / 4; // Middle of the left
-                    position.Y = canvas.ActualHeight / 2; // Middle of height
+                    position.X = canvas.ActualWidth / 4.0; // Middle of the left
+                    position.Y = canvas.ActualHeight / 2.0; // Middle of height
                     break;
                 case Location.Top:
-                    position.X = canvas.ActualWidth / 2; // Middle of width
-                    position.Y = canvas.ActualHeight / 4; // Middle of the top
+                    position.X = canvas.ActualWidth / 2.0; // Middle of width
+                    position.Y = canvas.ActualHeight / 4.0; // Middle of the top
                     break;
                 case Location.Bottom:
-                    position.X = canvas.ActualWidth / 2; // Middle of width
-                    position.Y = canvas.ActualHeight * 3/4; // Middle of the top
+                    position.X = canvas.ActualWidth / 2.0; // Middle of width
+                    position.Y = canvas.ActualHeight * 3 / 4.0; // Middle of the top
                     break;
                 case Location.Right:
-                    position.X = canvas.ActualWidth * 3 / 4; // Middle of the right
-                    position.Y = canvas.ActualHeight / 2; // Middle of height
+                    position.X = canvas.ActualWidth * 3 / 4.0; // Middle of the right
+                    position.Y = canvas.ActualHeight / 2.0; // Middle of height
                     break;
                 case Location.Center:
-                    position.X = canvas.ActualWidth / 2; // Middle of width
-                    position.Y = canvas.ActualHeight / 2; // Middle of height
-                break;
+                    position.X = canvas.ActualWidth / 2.0; // Middle of width
+                    position.Y = canvas.ActualHeight / 2.0; // Middle of height
+                    break;
             }
-
-            cursor_inactive.Visibility = Visibility.Hidden;
-            cursor_active.Visibility = Visibility.Visible;
+            Outlog<SideWindow>().Information($"Init pos: {position}");
+            inactiveCursor.Visibility = Visibility.Visible;
             _cursorTransform.X = position.X;
             _cursorTransform.Y = position.Y;
+            //_cursorTransform.X = position.X;
+            //_cursorTransform.Y = 10;
+        }
+
+
+        public void ActivateCursor()
+        {
+            Outlog<SideWindow>().Information($"Transform pos: {_cursorTransform.X}");
+            inactiveCursor.Visibility = Visibility.Hidden;
+            activeCursor.Visibility = Visibility.Visible;
             _auxursor.Activate();
         }
 
         public void DeactivateCursor()
         {
-            cursor_inactive.Visibility = Visibility.Visible;
-            cursor_active.Visibility = Visibility.Hidden;
+            activeCursor.Visibility = Visibility.Hidden;
+            inactiveCursor.Visibility = Visibility.Visible;
             _auxursor.Deactivate();
         }
 
-        public void ShowAuxCursor(Point p)
-        {
-            ShowAuxCursor((int)p.X, (int)p.Y);
-        }
-
-        public void UpdateAuxursor(TouchPoint tp)
+        public void UpdateCursor(TouchPoint tp)
         {
             (double dX, double dY) = _auxursor.Update(tp);
-            MoveAuxCursor(dX, dY);
+            MoveCursor(dX, dY);
         }
 
-        public void StopAuxursor()
+        public void StopCursor()
         {
             _auxursor.Stop();
-        }
-
-        public void ShowSimCursorInMiddle()
-        {
-            // Get window's actual width and height including borders
-            windowWidth = (int)this.ActualWidth;
-            windowHeight = (int)this.ActualHeight;
-
-            // Show the inactive cursor (default)
-            cursor_inactive.Visibility = Visibility.Visible;
-            cursor_active.Visibility = Visibility.Hidden;
-            _cursorTransform.X = windowWidth / 2;
-            _cursorTransform.Y = windowHeight / 2;
-            Seril.Debug($"Show the cursor at {_cursorTransform.ToString()}");
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
@@ -403,19 +369,22 @@ namespace Multi.Cursor
             SetCursorPos((int)(windowPosition.X + x), (int)(windowPosition.Y + y));
         }
 
-        public void MoveAuxCursor(double dX, double dY)
+        public void MoveCursor(double dX, double dY)
         {
             // Potential new position
+            PositionInfo<SideWindow>($"Position before moving: {_cursorTransform.X:F2}, {_cursorTransform.Y:F2}");
+            PositionInfo<SideWindow>($"Movement: {dX:F2}, {dY:F2}");
+
             double potentialX = _cursorTransform.X + dX;
-            double potentialY = _cursorTransform.Y + dY; 
-            //Console.WriteLine($"Current Cursor Pos: {cursorTransform.X} {cursorTransform.Y}");
-            //Console.WriteLine("Window WxH = {0}x{1}", windowWidth, windowHeight);
+            double potentialY = _cursorTransform.Y + dY;
+            PositionInfo<SideWindow>($"Potential Pos: {potentialX:F2}, {potentialY:F2}");
+
             // X: Within boundaries
             if (potentialX < 0)
             {
                 dX = -_cursorTransform.X + 3;
             }
-            else if (potentialX > windowWidth)
+            else if (potentialX > ActualWidth) 
             {
                 dX = windowWidth - 10 - _cursorTransform.X;
             }
@@ -425,7 +394,7 @@ namespace Multi.Cursor
             {
                 dY = -_cursorTransform.Y + 3;
             }
-            else if (potentialY > windowHeight)
+            else if (potentialY > ActualHeight)
             {
                 dY = windowHeight - 10 - _cursorTransform.Y;
             }
@@ -433,12 +402,12 @@ namespace Multi.Cursor
             // Move the cursor
             _cursorTransform.X += dX;
             _cursorTransform.Y += dY;
-            Seril.Debug($"Sim cursor moved ({dX:F3}, {dY:F3})");
-            lastSimCursorPos.X = _cursorTransform.X;
-            lastSimCursorPos.Y = _cursorTransform.Y;
+
+            _lastCursorPos.X = _cursorTransform.X;
+            _lastCursorPos.Y = _cursorTransform.Y;
 
             // Check if entered the target
-            if (IsAuxursorInsideTarget())
+            if (IsCursorInsideTarget())
             {
                 // To-do: call target enter methods
             }
@@ -452,8 +421,6 @@ namespace Multi.Cursor
             Point relativeCursorPos = Mouse.GetPosition(this);
             int currentX = (int)relativeCursorPos.X;
             int currentY = (int)relativeCursorPos.Y;
-
-            Seril.Debug($"Pos: ({currentX}, {currentY}); Delta: ({dX}, {dY})");
 
             // Potential new position
             int potentialX = currentX + dX;
@@ -483,10 +450,7 @@ namespace Multi.Cursor
 
                 // Move the cursor
                 inputSimulator.Mouse.MoveMouseBy(dX, dY);
-                Seril.Debug($"Moved by: ({dX}, {dY})");
             }
-
-            Seril.Debug("--------------------------------------------");
         }
 
         public void HideSimCursor()
@@ -498,7 +462,7 @@ namespace Multi.Cursor
 
         public bool HasCursor()
         {
-            return isCursorVisible;
+            return _isCursorVisible;
         }
 
         public void ClearCanvas()

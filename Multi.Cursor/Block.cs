@@ -36,7 +36,7 @@ namespace Multi.Cursor
                 {
                     foreach (double distMM in distsMM)
                     {
-                        for (int locInd = 0; locInd < 2; locInd++)
+                        for (int locInd = 0; locInd < 3; locInd++)
                         {
                             Location sideWindow = (Location)locInd;
                             Trial trial = new Trial(_id * 100 + trialNum, targetWidthMM, distMM, sideWindow);

@@ -94,7 +94,23 @@ namespace Multi.Cursor
             return NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName);
         }
 
+        public static void GestInfo<T>(string mssg, [CallerMemberName] string memberName = "")
+        {
+            var className = typeof(T).Name;
+            //WITHTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+        }
 
+        public static void PositionInfo<T>(string mssg, [CallerMemberName] string memberName = "")
+        {
+            var className = typeof(T).Name;
+            NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+        }
+
+        public static void TrialInfo<T>(string mssg, [CallerMemberName] string memberName = "")
+        {
+            var className = typeof(T).Name;
+            NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+        }
 
         public static void Print(string output)
         {
