@@ -657,8 +657,7 @@ namespace Multi.Cursor
                     // Deactive Target and auxursor
                     _activeSideWindow.ColorTarget(Brushes.Red);
                     _activeSideWindow.DeactivateCursor();
-                    _activeSideWindow = null;
-
+                    
                     // Activate Start again
                     _startRectangle.Fill = Brushes.Green;
                 } else // Released outside Target => MISS

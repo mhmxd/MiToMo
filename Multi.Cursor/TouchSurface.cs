@@ -299,7 +299,7 @@ namespace Multi.Cursor
             if (debugWatch.IsRunning)
             {
                 debugWatch.Stop();
-                FILOG.Debug($"Track time = {debugWatch.ElapsedMilliseconds} ms");
+                //GestInfo<TouchSurface>($"Track time = {debugWatch.ElapsedMilliseconds} ms");
             }
             else
             {
@@ -454,8 +454,8 @@ namespace Multi.Cursor
                     Point downPosition = _downPositions[finger];
                     Point lastPosition = _lastPositions[finger];
                     GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
-                        $" | dX = {Abs(lastPosition.X - downPosition.X):F2}" +
-                        $" | dY = {Abs(lastPosition.Y - downPosition.Y):F2}");
+                        $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
+                        $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                     if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
                         && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
                         && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
@@ -492,7 +492,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Debug($"{finger.ToString()} Down.");
+                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -506,7 +506,7 @@ namespace Multi.Cursor
                     Point lastPosition = _lastPositions[finger];
                     if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                     {
-                        FILOG.Information($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                        GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                             $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
                             $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                         if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
@@ -594,7 +594,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Debug($"{finger.ToString()} Down.");
+                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -685,7 +685,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Debug($"{finger.ToString()} Down.");
+                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -753,7 +753,7 @@ namespace Multi.Cursor
                         TouchPoint firstTouchPoint = _thumbGestureStart.GetPointer(finger);
                         double dX = center.X - firstTouchPoint.GetX();
                         double dY = center.Y - firstTouchPoint.GetY();
-                        FILOG.Debug($"dT = {gestureDT:F2} | dX = {dX:F2}, dY = {dY:F2}");
+                        GestInfo<TouchSurface>($"dT = {gestureDT:F2} | dX = {dX:F2}, dY = {dY:F2}");
                         if (Abs(dX) > Config.SWIPE_MOVE_THRESHOLD) // Good amount of movement along X
                         {
                             if (Abs(dY) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
@@ -762,7 +762,7 @@ namespace Multi.Cursor
                                 _gestureReceiver.ThumbSwipe(dX > 0 ? Direction.Right : Direction.Left);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
-                                FILOG.Debug($"{finger.ToString()} Swiped!");
+                                GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
                             }
                         }
                         else if (Abs(dY) > Config.SWIPE_MOVE_THRESHOLD) // Good amount of movement along Y
@@ -773,7 +773,7 @@ namespace Multi.Cursor
                                 _gestureReceiver.ThumbSwipe(dY > 0 ? Direction.Down : Direction.Up);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
-                                FILOG.Debug($"{finger.ToString()} Swiped!");
+                                GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
                             }
                         }
 
@@ -823,7 +823,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Debug($"{finger.ToString()} Down.");
+                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = touchPoint.GetCenter();
                     _lastPositions[finger] = touchPoint.GetCenter();
                     _touchTimers[finger].Restart(); // Start the timer
@@ -856,7 +856,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Debug($"{finger.ToString()} Down.");
+                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -889,7 +889,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Debug($"{finger.ToString()} Down.");
+                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -922,7 +922,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    FILOG.Debug($"{finger.ToString()} Down.");
+                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer

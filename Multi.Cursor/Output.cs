@@ -80,9 +80,9 @@ namespace Multi.Cursor
                 .CreateLogger();
 
             FILOG = new LoggerConfiguration()
-                .WriteTo.File(LOG_PATH, outputTemplate: "[{Level:u3}] [{Timestamp:HH:mm:ss.fff}]" +
-                " {Message:lj}{NewLine}")
-                .MinimumLevel.Information() // Ignore Debug and Verbose
+                .WriteTo.Async(a => a.File(LOG_PATH,
+                outputTemplate: "[{Level:u3}] [{Timestamp:HH:mm:ss.fff}] {Message:lj}{NewLine}"))
+                .MinimumLevel.Information()
                 .CreateLogger();
 
 
@@ -97,19 +97,20 @@ namespace Multi.Cursor
         public static void GestInfo<T>(string mssg, [CallerMemberName] string memberName = "")
         {
             var className = typeof(T).Name;
-            //WITHTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+            WITHTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+            FILOG.Information(mssg);
         }
 
         public static void PositionInfo<T>(string mssg, [CallerMemberName] string memberName = "")
         {
             var className = typeof(T).Name;
-            NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+            //NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
         }
 
         public static void TrialInfo<T>(string mssg, [CallerMemberName] string memberName = "")
         {
             var className = typeof(T).Name;
-            NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+            //NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
         }
 
         public static void Print(string output)

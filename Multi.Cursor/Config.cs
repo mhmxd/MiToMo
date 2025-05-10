@@ -20,7 +20,7 @@ namespace Multi.Cursor
         public static double MIN_CURSOR_MOVE_MM = 5; // Minimum cursor movement to be considered as mouse moved 
 
         // -------------- Touch -----------------
-        public static readonly int MIN_PRESSURE = 30; // Minimum value to consider touching the surface
+        public static readonly int MIN_PRESSURE = 50; // Minimum value to consider touching the surface // Was 30 (seemed too sensitive)
         // --------------------------------------
 
         // -------------- Vel. Kalman Filter ----
