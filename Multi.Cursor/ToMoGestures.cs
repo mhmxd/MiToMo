@@ -33,6 +33,6 @@ namespace Multi.Cursor
         void MiddleTap();
         void RingTap();
 
-        void LittleTap(Location loc);
+        void PinkyTap(Location loc);
     }
 }

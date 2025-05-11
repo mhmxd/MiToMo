@@ -1029,6 +1029,9 @@ namespace Multi.Cursor
             TrialInfo<MainWindow>($"Start position: {_trial.StartPosition}");
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             int targetW = Utils.MM2PX(_trial.TargetWidthMM);
+            // Start logging
+            ToMoLogger.StartTrialGesturesLog(_trial.Id, _trial.TargetWidthMM, _trial.DistanceMM);
+            // Show Start
             ShowStart(_trial.StartPosition, startW, Brushes.Green,
                 Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
 
@@ -1816,9 +1819,9 @@ namespace Multi.Cursor
         private void ShowAxursors()
         {
             // Show all Auxursors (deactivated) in the middle of the side windows
-            _leftWindow.ShowCursor(Location.Center);
-            _topWindow.ShowCursor(Location.Center);
-            _rightWindow.ShowCursor(Location.Center);
+            _leftWindow.ShowCursor(Location.Middle);
+            _topWindow.ShowCursor(Location.Middle);
+            _rightWindow.ShowCursor(Location.Middle);
         }
 
 
@@ -1909,13 +1912,13 @@ namespace Multi.Cursor
                 switch (dir)
                 {
                     case Direction.Left:
-                        ActivateSideWin(Location.Left, Location.Center);
+                        ActivateSideWin(Location.Left, Location.Middle);
                         break;
                     case Direction.Right:
-                        ActivateSideWin(Location.Right, Location.Center);
+                        ActivateSideWin(Location.Right, Location.Middle);
                         break;
                     case Direction.Up:
-                        ActivateSideWin(Location.Top, Location.Center);
+                        ActivateSideWin(Location.Top, Location.Middle);
                         break;
                 }
             }
@@ -1954,7 +1957,7 @@ namespace Multi.Cursor
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                ActivateSideWin(Location.Top, Location.Center);
+                ActivateSideWin(Location.Top, Location.Middle);
             }
         }
 
@@ -1967,7 +1970,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void LittleTap(Location tapLoc)
+        public void PinkyTap(Location tapLoc)
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {

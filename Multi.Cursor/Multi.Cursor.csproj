@@ -290,6 +290,8 @@
     <Compile Include="Experiment.cs" />
     <Compile Include="Finger.cs" />
     <Compile Include="FingerTracker.cs" />
+    <Compile Include="GestureTimesLogRow.cs" />
+    <Compile Include="ToMoLogger.cs" />
     <Compile Include="TouchFinger.cs" />
     <Compile Include="Filog.cs" />
     <Compile Include="GestureDetector.cs" />

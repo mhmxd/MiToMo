@@ -304,12 +304,12 @@ namespace Multi.Cursor
                     position.X = canvas.ActualWidth * 3 / 4.0; // Middle of the right
                     position.Y = canvas.ActualHeight / 2.0; // Middle of height
                     break;
-                case Location.Center:
+                case Location.Middle:
                     position.X = canvas.ActualWidth / 2.0; // Middle of width
                     position.Y = canvas.ActualHeight / 2.0; // Middle of height
                     break;
             }
-            Outlog<SideWindow>().Information($"Init pos: {position}");
+            
             inactiveCursor.Visibility = Visibility.Visible;
             _cursorTransform.X = position.X;
             _cursorTransform.Y = position.Y;
@@ -320,7 +320,6 @@ namespace Multi.Cursor
 
         public void ActivateCursor()
         {
-            Outlog<SideWindow>().Information($"Transform pos: {_cursorTransform.X}");
             inactiveCursor.Visibility = Visibility.Hidden;
             activeCursor.Visibility = Visibility.Visible;
             _auxursor.Activate();
@@ -352,7 +351,7 @@ namespace Multi.Cursor
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
             var cursorPoint = e.GetPosition(this);
-            Seril.Debug($"Cursor Position: {cursorPoint.ToString()}");
+            
             _cursorTransform.X = cursorPoint.X;
             _cursorTransform.Y = cursorPoint.Y;
         }

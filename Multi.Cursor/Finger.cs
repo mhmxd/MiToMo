@@ -9,6 +9,16 @@ namespace Multi.Cursor
 {
     internal class Finger
     {
+        // Finger enum
+        public enum FingerName
+        {
+            Thumb,
+            Index,
+            Middle,
+            Ring,
+            Pinky
+        }
+
         // Basic properties
         public int Id { get; private set; }
         public Point Position { get; private set; }
