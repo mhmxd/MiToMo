@@ -58,8 +58,7 @@ namespace Multi.Cursor
         // --------------------------------------
 
         // --------------- Times ----------------
-        public static double SWIPE_TIME_MIN = 0.3; // sec
-        public static double SWIPE_TIME_MAX = 0.5; // sec (was 0.6)
+        public static double SWIPE_TIME_MAX = 500; // ms (was 600)
         public static double TAP_TIME_MS = 300; // Time to be down for Tap (200ms was too short)
         // --------------------------------------
 
@@ -74,10 +73,7 @@ namespace Multi.Cursor
         public static readonly (float DX, float DY) TAP_RING_THRESHOLD = (0.5f, 0.5f);
         public static readonly (float DX, float DY) TAP_PINKY_THRESHOLD = (0.5f, 0.5f);
 
-        public static double MOVE_LIMIT = 0.5; // pts
-        public static double SWIPE_MOVE_THRESHOLD = 1.0; // pts
-        public static double HIGHT_MOVE_THRESHOLD = 2.5; // pts
-        public static double MIN_POINTER_MOVE = 0.1; // pts
+        public static readonly float SWIPE_MOVE_THRESHOLD = 0.8f; // pts
         // --------------------------------------
 
         // --------------- Colors ---------------

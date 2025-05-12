@@ -327,9 +327,9 @@ namespace Multi.Cursor
                 {
                     SwipeTechTrackThumb();
                     SwipeTechTrackIndex();
-                    SwipeTechTrackMiddle();
-                    SwipeTechTrackRing();
-                    SwipeTechTrackLittle();
+                    //SwipeTechTrackMiddle();
+                    //SwipeTechTrackRing();
+                    //SwipeTechTrackLittle();
                 }
 
 
@@ -666,8 +666,8 @@ namespace Multi.Cursor
                     _lastPositions[finger] = center;
 
                     // Check if Swipe happened
-                    float gestureDT = (currentFrame.Timestamp - _thumbGestureStart.Timestamp)
-                        / (float)Stopwatch.Frequency;
+                    long deltaTicks = currentFrame.Timestamp - _thumbGestureStart.Timestamp;
+                    int gestureDT = (int)((deltaTicks / (float)Stopwatch.Frequency) * 1000); //in ms
 
                     // Duration is good => Check movement
                     if (gestureDT < Config.SWIPE_TIME_MAX)
@@ -675,7 +675,9 @@ namespace Multi.Cursor
                         TouchPoint firstTouchPoint = _thumbGestureStart.GetPointer(finger);
                         double dX = center.X - firstTouchPoint.GetX();
                         double dY = center.Y - firstTouchPoint.GetY();
-                        GestInfo<TouchSurface>($"dT = {gestureDT:F2} | dX = {dX:F2}, dY = {dY:F2}");
+                        //GestInfo<TouchSurface>($"dT = {gestureDT:F2} | dX = {dX:F2}, dY = {dY:F2}");
+                        //LogMove(finger.ToString(), gestureDT, dX, dY); // LOG
+                        //-- Check for swipe left-right
                         if (Abs(dX) > Config.SWIPE_MOVE_THRESHOLD) // Good amount of movement along X
                         {
                             if (Abs(dY) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
@@ -684,9 +686,11 @@ namespace Multi.Cursor
                                 _gestureReceiver.ThumbSwipe(dX > 0 ? Direction.Right : Direction.Left);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
-                                GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
+                                //GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
+                                LogSwipe(finger.ToString(), gestureDT, dX, dY); // LOG
                             }
                         }
+                        // -- Check for swipe up-down (either this or left-right)
                         else if (Abs(dY) > Config.SWIPE_MOVE_THRESHOLD) // Good amount of movement along Y
                         {
                             if (Abs(dX) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
@@ -695,7 +699,8 @@ namespace Multi.Cursor
                                 _gestureReceiver.ThumbSwipe(dY > 0 ? Direction.Down : Direction.Up);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
-                                GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
+                                //GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
+                                LogSwipe(finger.ToString(), gestureDT, dX, dY); // LOG
                             }
                         }
 
@@ -736,18 +741,20 @@ namespace Multi.Cursor
             if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
                 TouchPoint touchPoint = currentFrame.GetPointer(finger);
+                Point tpCenter = touchPoint.GetCenter();
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
-                    _lastPositions[finger] = touchPoint.GetCenter();
+                    _lastPositions[finger] = tpCenter;
+                    LogMove(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds, tpCenter.X, tpCenter.Y); // LOG
 
-                    // Index moving
-                    _gestureReceiver.IndexMove(currentFrame.GetPointer(finger));
+                    _gestureReceiver.IndexMove(touchPoint); // Index moving
                 }
                 else // First touch
                 {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
-                    _downPositions[finger] = touchPoint.GetCenter();
-                    _lastPositions[finger] = touchPoint.GetCenter();
+                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
+                    LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
+                    _downPositions[finger] = tpCenter;
+                    _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
@@ -755,8 +762,18 @@ namespace Multi.Cursor
             {
                 if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                 {
+                    Point downPosition = _downPositions[finger];
+                    Point lastPosition = _lastPositions[finger];
+                    //GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                    //    $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
+                    //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
+                    LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
+                        Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
+
+                    _gestureReceiver.IndexUp();
                     _touchTimers[finger].Stop();
                 }
+
             }
         }
 
@@ -907,14 +924,22 @@ namespace Multi.Cursor
 
         private void LogUp(string fingerName, long duration, double dX, double dY)
         {
-            ToMoLogger.LogGestureEvent($"{fingerName} Up! Duration: {duration}" +
-                        $" | dX: {dX:F3}" +
-                        $" | dY: {dY:F3}");
+            ToMoLogger.LogGestureEvent($"{fingerName} Up! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
         }
 
         private void LogTap(string fingerName, Location loc, long timestamp)
         {
             ToMoLogger.LogGestureEvent($"{fingerName} Tapped! Location: {loc} | Timestamp: {timestamp}");
+        }
+
+        private void LogMove(string fingerName, long duration, double dX, double dY)
+        {
+            ToMoLogger.LogGestureEvent($"{fingerName} Moved! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
+        }
+
+        private void LogSwipe(string fingerName, int duration, double dX, double dY)
+        {
+            ToMoLogger.LogGestureEvent($"{fingerName} Swiped! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
         }
 
     }

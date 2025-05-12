@@ -97,7 +97,7 @@ namespace Multi.Cursor
         public static void GestInfo<T>(string mssg, [CallerMemberName] string memberName = "")
         {
             var className = typeof(T).Name;
-            WITHTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+            //WITHTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
             FILOG.Information(mssg);
         }
 
@@ -272,9 +272,9 @@ namespace Multi.Cursor
         }
 
 
-        public static void Info(Line l)
+        public static string Print(this Point point)
         {
-            Seril.Information($"Line: ({l.X1:F3}, {l.Y1:F3}) -> ({l.X2:F3}, {l.Y2:F3})");
+            return $"({point.X:F2}, {point.Y:F2})";
         }
     }
 }
