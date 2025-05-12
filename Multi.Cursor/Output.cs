@@ -110,7 +110,7 @@ namespace Multi.Cursor
         public static void TrialInfo<T>(string mssg, [CallerMemberName] string memberName = "")
         {
             var className = typeof(T).Name;
-            //NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+            NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
         }
 
         public static void Print(string output)

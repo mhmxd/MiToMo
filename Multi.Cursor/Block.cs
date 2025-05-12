@@ -69,11 +69,46 @@ namespace Multi.Cursor
             return _trials.Count();
         }
 
-        internal Trial GetNextTrial(int trialNum)
+        public void ShuffleBackTrial(int trialNum)
         {
-            int index = trialNum - 1;
-            if (index < _trials.Count() - 1) return _trials[index + 1];
-            else return null; // It was the last trial
+            if (trialNum >= 1 && trialNum <= _trials.Count && _trials.Count > 1)
+            {
+                Trial trialToCopy = _trials[trialNum - 1];
+                Random random = new Random();
+                int insertIndex;
+
+                // Ensure at least one trial in between
+                if (_trials.Count == 1)
+                {
+                    insertIndex = 0; // Only option if there's only one trial
+                }
+                else if (trialNum == 1) // If the trial to copy is the first one
+                {
+                    insertIndex = random.Next(1, _trials.Count + 1); // Cannot insert at index 0
+                }
+                else if (trialNum == _trials.Count) // If the trial to copy is the last one
+                {
+                    insertIndex = random.Next(0, _trials.Count); // Cannot insert at the last index
+                }
+                else
+                {
+                    // General case: cannot insert immediately before or after the original
+                    do
+                    {
+                        insertIndex = random.Next(_trials.Count + 1);
+                    } while (insertIndex == trialNum - 1 || insertIndex == trialNum);
+                }
+
+                _trials.Insert(insertIndex, trialToCopy);
+            }
+            else if (_trials.Count <= 1)
+            {
+                Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
+            }
+            else
+            {
+                Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
+            }
         }
     }
 }

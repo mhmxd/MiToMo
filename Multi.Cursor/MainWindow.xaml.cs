@@ -1471,7 +1471,7 @@ namespace Multi.Cursor
             }
 
             _timestamps[Str.TRIAL_END] =_stopWatch.ElapsedMilliseconds;
-            PositionInfo<MainWindow>($"Trial#{_activeTrialNum} finished: {result}");
+            TrialInfo<MainWindow>($"Ended: {result}");
             bool trialStarted = (result != RESULT.NO_START);
             
             if (trialStarted) // Start was clicked
@@ -1480,46 +1480,61 @@ namespace Multi.Cursor
                 //Outlog<MainWindow>().Debug($"Trial Time = {trialTime:F2}");
                 //FILOG.Information($"Trial-{_trial.Id} time = {trialTime}");
 
-                if (_activeTrialNum == _block.GetNumTrials()) // Was last trial
+                if (result == RESULT.HIT)
                 {
-                    PositionInfo<MainWindow>($"Block#{_activeBlockNum} finished!");
-                    if (_activeBlockNum == _experiment.GetNumBlocks()) // Was last block
+                    if (_activeTrialNum == _block.GetNumTrials()) // Was last trial
                     {
-                        PositionInfo<MainWindow>("Technique finished!");
-                        MessageBoxResult dialogResult = SysWin.MessageBox.Show(
-                            "Technique finished!",
-                            "End",
-                            MessageBoxButton.OK,
-                            MessageBoxImage.Information
-                        );
-
-                        if (dialogResult == MessageBoxResult.OK)
+                        PositionInfo<MainWindow>($"Block#{_activeBlockNum} finished!");
+                        if (_activeBlockNum == _experiment.GetNumBlocks()) // Was last block
                         {
-                            if (System.Diagnostics.Debugger.IsAttached)
+                            PositionInfo<MainWindow>("Technique finished!");
+                            MessageBoxResult dialogResult = SysWin.MessageBox.Show(
+                                "Technique finished!",
+                                "End",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information
+                            );
+
+                            if (dialogResult == MessageBoxResult.OK)
                             {
-                                Environment.Exit(0); // Prevents hanging during debugging
-                            }
-                            else
-                            {
-                                SysWin.Application.Current.Shutdown();
+                                if (System.Diagnostics.Debugger.IsAttached)
+                                {
+                                    Environment.Exit(0); // Prevents hanging during debugging
+                                }
+                                else
+                                {
+                                    SysWin.Application.Current.Shutdown();
+                                }
                             }
                         }
+                        else
+                        {
+                            _activeBlockNum++;
+                            _block = _experiment.GetBlock(_activeBlockNum);
+                            _activeTrialNum = 1;
+                            _trial = _block.GetTrial(_activeTrialNum);
+                            ShowTrial();
+                        }
                     }
-                    else
+                    else // More trials to come
                     {
-                        _activeBlockNum++;
-                        _block = _experiment.GetBlock(_activeBlockNum);
-                        _activeTrialNum = 1;
+                        _activeTrialNum++;
                         _trial = _block.GetTrial(_activeTrialNum);
                         ShowTrial();
                     }
                 }
-                else
+                else // MISS
                 {
+                    // Shuffle trial back to the end of the block
+                    _block.ShuffleBackTrial(_activeTrialNum); 
+
+                    // Next trial
                     _activeTrialNum++;
                     _trial = _block.GetTrial(_activeTrialNum);
                     ShowTrial();
                 }
+
+
             }
             else // Start wasn't clicked
             {
