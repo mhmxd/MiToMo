@@ -618,12 +618,12 @@ namespace Multi.Cursor
 
         private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            
-            bool notMovedYet = !_timestamps.ContainsKey(Str.FIRST_MOVE);
-            if (notMovedYet)
-            {
-                _timestamps[Str.FIRST_MOVE] = _stopWatch.ElapsedMilliseconds;
-            }
+            _timestamps.TryAdd(Str.FIRST_MOVE, _stopWatch.ElapsedMilliseconds);
+            //bool notMovedYet = !_timestamps.ContainsKey(Str.FIRST_MOVE);
+            //if (notMovedYet)
+            //{
+            //    _timestamps[Str.FIRST_MOVE] = _stopWatch.ElapsedMilliseconds;
+            //}
 
             // Freeze other cursors when the mouse moves (outside a threshold)
             Point currentPos = System.Windows.Input.Mouse.GetPosition(null);
