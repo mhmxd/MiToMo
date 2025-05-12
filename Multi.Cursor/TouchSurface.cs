@@ -383,8 +383,8 @@ namespace Multi.Cursor
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
 
                     if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_THUMB_THRESHOLD.DX
+                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_THUMB_THRESHOLD.DY)
                     {
                         // Find the Tap position (Top or Bottom)
                         if (lastPosition.Y < THUMB_TOP_LOWEST_ROW) // Top
@@ -450,8 +450,8 @@ namespace Multi.Cursor
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
                     if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_INDEX_THRESHOLD.DX
+                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_INDEX_THRESHOLD.DY)
                     {
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
                         LogTap(finger.ToString(), Location.Left, currentFrame.Timestamp); // LOG
@@ -507,8 +507,8 @@ namespace Multi.Cursor
                         LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                             Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
                         if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                            && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
-                            && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                            && Abs(lastPosition.X - downPosition.X) < Config.TAP_MIDDLE_THRESHOLD.DX
+                            && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_MIDDLE_THRESHOLD.DY)
                         {
                             LogTap(finger.ToString(), Location.Middle, currentFrame.Timestamp); // LOG
                             _gestureReceiver.MiddleTap();
@@ -563,8 +563,8 @@ namespace Multi.Cursor
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
                     if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_RING_THRESHOLD.DX
+                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_RING_THRESHOLD.DY)
                     {
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
                         LogTap(finger.ToString(), Location.Right, currentFrame.Timestamp); // LOG
@@ -623,8 +623,8 @@ namespace Multi.Cursor
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
                     if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_X_MOVE_LIMIT
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_Y_MOVE_LIMIT)
+                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_PINKY_THRESHOLD.DX
+                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_PINKY_THRESHOLD.DY)
                     {
                         // Find the Tap position (Top or Bottom)
                         if (lastPosition.Y < LITTLE_TOP_LOWEST_ROW) // Top
