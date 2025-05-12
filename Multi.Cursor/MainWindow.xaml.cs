@@ -523,7 +523,7 @@ namespace Multi.Cursor
         {
             if (_timestamps.ContainsKey(Str.FIRST_MOVE)) // Trial is officially started (to prevent accidental click at the beginning)
             {
-                if (_timestamps.ContainsKey(Str.START_RELEASE)) // Phase 2: Aiming for Target (missing because Target is not pressed)
+                if (_timestamps.ContainsKey(Str.START1_RELEASE)) // Phase 2: Aiming for Target (missing because Target is not pressed)
                 {
                     EndTrial(RESULT.MISS);
                 }
@@ -574,7 +574,7 @@ namespace Multi.Cursor
                 {
                     EndTrial(RESULT.MISS);
                 }
-                else if (_timestamps.ContainsKey(Str.START_RELEASE)) // Phase 2: Aiming for Target
+                else if (_timestamps.ContainsKey(Str.START1_RELEASE)) // Phase 2: Aiming for Target
                 {
 
                     if (_targetSideWindow.IsCursorInsideTarget()) // Auxursor in target
@@ -589,8 +589,7 @@ namespace Multi.Cursor
                 else // Phase 1: Aiming for Start (missing because here is Window!)
                 {
                     //EndTrial(RESULT.NO_START);
-                    // TEMP (for debugging)
-                    EndTrial(RESULT.MISS);
+                    EndTrial(RESULT.NO_START);
                 }
 
             }
@@ -619,12 +618,12 @@ namespace Multi.Cursor
 
         private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
+            
             bool notMovedYet = !_timestamps.ContainsKey(Str.FIRST_MOVE);
             if (notMovedYet)
             {
-                _timestamps.Add(Str.FIRST_MOVE, _stopWatch.ElapsedMilliseconds);
+                _timestamps[Str.FIRST_MOVE] = _stopWatch.ElapsedMilliseconds;
             }
-
 
             // Freeze other cursors when the mouse moves (outside a threshold)
             Point currentPos = System.Windows.Input.Mouse.GetPosition(null);
@@ -666,7 +665,7 @@ namespace Multi.Cursor
                 }
 
             } 
-            else if (_timestamps.ContainsKey(Str.START_PRESS)) // Released outside Start => MISS
+            else if (_timestamps.ContainsKey(Str.START1_PRESS)) // Pressed inside, but released outside Start => MISS
             {
                 EndTrial(RESULT.MISS);
             }
@@ -1023,7 +1022,7 @@ namespace Multi.Cursor
             _trialtWatch.Restart();
 
             // Add trial show timestamp
-            _timestamps.Add(Str.TRIAL_SHOW, _trialtWatch.ElapsedMilliseconds);
+            _timestamps[Str.TRIAL_SHOW] = _trialtWatch.ElapsedMilliseconds;
 
             // Show Start and Target
             TrialInfo<MainWindow>($"Start position: {_trial.StartPosition}");
@@ -1457,7 +1456,21 @@ namespace Multi.Cursor
 
         private void EndTrial(RESULT result)
         {
-            _timestamps.Add(Str.TRIAL_END, _stopWatch.ElapsedMilliseconds);
+            // Play sounds
+            switch (result)
+            {
+                case RESULT.NO_START:
+                    Sounder.PlayStartMiss();
+                    break;
+                case RESULT.MISS:
+                    Sounder.PlayTargetMiss();
+                    break;
+                case RESULT.HIT:
+                    Sounder.PlayHit();
+                    break;
+            }
+
+            _timestamps[Str.TRIAL_END] =_stopWatch.ElapsedMilliseconds;
             PositionInfo<MainWindow>($"Trial#{_activeTrialNum} finished: {result}");
             bool trialStarted = (result != RESULT.NO_START);
             
@@ -1521,10 +1534,10 @@ namespace Multi.Cursor
             //--- Set the time and state
             if (_timestamps.ContainsKey(Str.TARGET_RELEASE))
             { // Return from target
-                _timestamps[Str.START_LAST_RE_ENTRY] = _trialtWatch.ElapsedMilliseconds;
+                _timestamps[Str.START2_LAST_ENTRY] = _trialtWatch.ElapsedMilliseconds;
             } else
             { // First time
-                _timestamps[Str.START_LAST_ENTRY] = _trialtWatch.ElapsedMilliseconds;
+                _timestamps[Str.START1_LAST_ENTRY] = _trialtWatch.ElapsedMilliseconds;
             }
             
         }
@@ -1542,7 +1555,7 @@ namespace Multi.Cursor
                 EndTrial(RESULT.HIT);
                 return;
             }
-            else if (_timestamps.ContainsKey(Str.START_RELEASE)) // Phase 2: Start already clicked, it's actually Aux click
+            else if (_timestamps.ContainsKey(Str.START1_RELEASE)) // Phase 2: Start already clicked, it's actually Aux click
             {
                 if (_targetSideWindow.IsCursorInsideTarget()) // Inside target => Target hit
                 {
@@ -1555,7 +1568,7 @@ namespace Multi.Cursor
             }
             else // Phae 1: First Start press
             {
-                _timestamps.Add(Str.START_PRESS, _trialtWatch.ElapsedMilliseconds);
+                _timestamps[Str.START1_PRESS] = _trialtWatch.ElapsedMilliseconds;
                 
             }
 
@@ -1602,9 +1615,9 @@ namespace Multi.Cursor
                     EndTrial(RESULT.MISS);
                 }
 
-            } else if (_timestamps.ContainsKey(Str.START_PRESS)) // First time
+            } else if (_timestamps.ContainsKey(Str.START1_PRESS)) // First time
             {
-                _timestamps[Str.START_RELEASE] = _trialtWatch.ElapsedMilliseconds;
+                _timestamps[Str.START1_RELEASE] = _trialtWatch.ElapsedMilliseconds;
                 _targetSideWindow.ColorTarget(Brushes.Green);
                 _startRectangle.Fill = Brushes.Red;
             }

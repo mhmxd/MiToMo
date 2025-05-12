@@ -291,6 +291,7 @@
     <Compile Include="Finger.cs" />
     <Compile Include="FingerTracker.cs" />
     <Compile Include="GestureTimesLogRow.cs" />
+    <Compile Include="Sounder.cs" />
     <Compile Include="ToMoLogger.cs" />
     <Compile Include="TouchFinger.cs" />
     <Compile Include="Filog.cs" />
@@ -391,6 +392,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\cursor_inactive.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\start_miss.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\target_miss.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\hit.wav" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
