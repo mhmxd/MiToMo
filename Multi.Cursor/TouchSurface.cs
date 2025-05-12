@@ -258,7 +258,7 @@ namespace Multi.Cursor
                     }
                 }
 
-                // If total pressure was above 2 X MIN_PRESSURE => finger actie
+                // If total pressure was above 2 X MIN_PRESSURE => finger active
                 if (touchPoint.GetTotalPressure() > 2 * Config.MIN_PRESSURE)
                 {
                     //FILOG.Debug($"Pressure #{f + 1} = {touchPoint.GetTotalPressure()}");
@@ -268,7 +268,7 @@ namespace Multi.Cursor
             }
 
             //FILOG.Debug(Output.GetKeys(activeFrame.Pointers));
-            //GESTURE_LOG.Information(Output.GetKeys(activeFrame.Pointers));
+            //GestInfo<TouchSurface>(Output.GetKeys(activeFrame.Pointers));
 
             return activeFrame;
         }
