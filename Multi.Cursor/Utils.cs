@@ -30,7 +30,6 @@ namespace Multi.Cursor
 
         public static readonly Random Random = new Random();
 
-        private const double PPI = 89;
         private const double MM_IN_INCH = 25.4;
 
         public static Boolean AbsIn(double value, double min, double max)
@@ -89,12 +88,12 @@ namespace Multi.Cursor
 
         public static int MM2PX(double mm)
         {
-            return (int)(mm / MM_IN_INCH * PPI);
+            return (int)(mm / MM_IN_INCH * Config.PPI);
         }
 
         public static double PX2MM(double px)
         {
-            return px * MM_IN_INCH / PPI;
+            return px * MM_IN_INCH / Config.PPI;
         }
 
         public static Point Relative(Point p, Point origin)
@@ -135,7 +134,7 @@ namespace Multi.Cursor
 
         public static int ThicknessInPX(double dips)
         {
-            return (int)(dips * PPI / 96.0);
+            return (int)(dips * Config.PPI / 96.0);
         }
         public static string ListToString<T>(List<T> list)
         {

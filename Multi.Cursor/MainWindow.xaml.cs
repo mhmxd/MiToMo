@@ -410,8 +410,13 @@ namespace Multi.Cursor
                 _backgroundWindow.Show();
                 _backgroundWindow.WindowState = WindowState.Maximized;
 
+                Outlog<MainWindow>().Information($"Monitor WorkingArea H = {Config.ACTIVE_SCREEN.WorkingArea.Height}");
+                Outlog<MainWindow>().Information($"BackgroundWindow Actual H (after maximize) = {_backgroundWindow.ActualHeight}");
+
                 // Set the height as mm
-                _monitorHeightMM = Utils.PX2MM(Config.ACTIVE_SCREEN.WorkingArea.Height);
+                //_monitorHeightMM = Utils.PX2MM(Config.ACTIVE_SCREEN.WorkingArea.Height);
+                _monitorHeightMM = 335;
+                Outlog<MainWindow>().Information($"Monitor H = {Config.ACTIVE_SCREEN.WorkingArea.Height}");
 
                 //---
 
@@ -1474,7 +1479,7 @@ namespace Multi.Cursor
             TrialInfo<MainWindow>($"Ended: {result}");
             bool trialStarted = (result != RESULT.NO_START);
             
-            if (trialStarted) // Start was clicked
+                                                                          if (trialStarted) // Start was clicked 
             {
                 //double trialTime = (_timestamps[Str.TRIAL_END] - _timestamps[Str.START_RELEASE]) / 1000.00;
                 //Outlog<MainWindow>().Debug($"Trial Time = {trialTime:F2}");

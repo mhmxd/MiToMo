@@ -40,10 +40,10 @@ namespace Multi.Cursor
 
         // -------------- Cursors
         public static double MAPPING_GAIN = 1; // Was 50 // Let's not use it (KvF will take care of it)
-        // --------------------------------------
+                                               // --------------------------------------
 
         // --------------- Sizes and Margins
-        public static Size SCREEN_SIZE_MM = new Size(545, 302);
+        public const double PPI = 109; // BenQ = 89, Apple Display = 109
         public static int SIDE_WINDOW_SIZE_MM = 50;
         public static double WINDOW_PADDING_MM = 2;
         // --------------------------------------
