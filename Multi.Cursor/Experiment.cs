@@ -12,7 +12,8 @@ namespace Multi.Cursor
     internal class Experiment
     {
         //-- Variables
-        private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 };
+        //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
+        private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
         private static List<double> _distances = new List<double>(); // Generated in constructor
         private static int N_BLOCKS = 1; // Number of blocks in the experiment
         private static int N_REPS_IN_BLOCK = 1;
@@ -31,7 +32,7 @@ namespace Multi.Cursor
         public enum Technique { Auxursor_Swipe, Auxursor_Tap, Radiusor, Mouse }
 
         //-- Constants
-        public static double START_WIDTH_MM = 6; // Same as our click experiment
+        public static double START_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
 
         //-- Current state
         
