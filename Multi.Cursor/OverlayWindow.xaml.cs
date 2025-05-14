@@ -274,8 +274,9 @@ namespace Multi.Cursor
 
                 // Compute speed and apply dynamic gain
                 double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
-                double gain = Config.AUX_BASE_GAIN +
-                    Config.AUX_SCALE_FACTOR * Tanh(speed * Config.AUX_SENSITIVITY);
+                double gain = 
+                    Config.BASE_GAIN +
+                    Config.SCALE_FACTOR * Tanh(speed * Config.SENSITIVITY);
 
                 double kdX = filteredV.fvX * dT * (gain / 2);
                 double kdY = filteredV.fvY * dT * (gain / 2);
@@ -421,8 +422,9 @@ namespace Multi.Cursor
 
                 // Compute speed and apply dynamic gain
                 double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
-                double gain = Config.AUX_BASE_GAIN +
-                    Config.AUX_SCALE_FACTOR * Tanh(speed * Config.AUX_SENSITIVITY);
+                double gain = 
+                    Config.BASE_GAIN +
+                    Config.SCALE_FACTOR * Tanh(speed * Config.SENSITIVITY);
 
                 double kdX = filteredV.fvX * dT * gain * 500;
                 double kdY = filteredV.fvY * dT * gain * 500;

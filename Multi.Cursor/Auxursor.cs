@@ -39,7 +39,8 @@ namespace Multi.Cursor
             _touchFrames = new List<TouchPoint>();
 
             //_kf = new KalmanFilter(dT);
-            _kvf = new KalmanVeloFilter(Config.AUX_VKF_PROCESS_NOISE, Config.AUX_VKF_MEASURE_NOISE);
+            _kvf = new KalmanVeloFilter(Config.VKF_PROCESS_NOISE, Config.VKF_MEASURE_NOISE);
+            
         }
 
         public void Activate()
@@ -99,8 +100,9 @@ namespace Multi.Cursor
                     FILOG.Debug($"KvF V: {filteredV.fvX:F2}, {filteredV.fvY:F2}");
                     // Compute speed and apply dynamic gain
                     double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
-                    double gain = Config.AUX_BASE_GAIN +
-                        Config.AUX_SCALE_FACTOR * Tanh(speed * Config.AUX_SENSITIVITY);
+                    double gain = 
+                        Config.BASE_GAIN +
+                        Config.SCALE_FACTOR * Tanh(speed * Config.SENSITIVITY);
 
                     double dX = filteredV.fvX * dT * gain;
                     double dY = filteredV.fvY * dT * gain;

@@ -233,6 +233,7 @@ namespace Multi.Cursor
         //private Ellipse _startCircle;
         private Rectangle _startRectangle;
         private SideWindow _targetSideWindow;
+        private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)
         //private Enums _targetSideWindowDir;
 
         public MainWindow()
@@ -289,6 +290,9 @@ namespace Multi.Cursor
             // Set the info from the dialog
             if (result == true)
             {
+                // Set the technique mode in Config
+
+
                 _experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
                 BeginTechnique();
             }

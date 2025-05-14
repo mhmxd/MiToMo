@@ -26,16 +26,34 @@ namespace Multi.Cursor
         // -------------- Vel. Kalman Filter ----
         public static int FRAME_DUR_MS = 20; // Duration of each frame to pass to Kalman
 
-        public static double AUX_VKF_PROCESS_NOISE = 50;
-        public static double AUX_VKF_MEASURE_NOISE = 10;
-        public static double AUX_BASE_GAIN = 10;       // Minimum movement amplification (adjust for small target selection)
-        public static double AUX_SCALE_FACTOR = 10;    // Maximum gain at high speed (adjust for fast movement)
-        public static double AUX_SENSITIVITY = 5;    // Controls how quickly gain increases (adjust for balance)
+        // Tap
+        public static double NORMAL_VKF_PROCESS_NOISE = 50;
+        public static double NORMAL_VKF_MEASURE_NOISE = 10;
+        public static double NORMAL_BASE_GAIN = 10;       // Minimum movement amplification (adjust for small target selection)
+        public static double NORMAL_SCALE_FACTOR = 10;    // Maximum gain at high speed (adjust for fast movement)
+        public static double NORMAL_SENSITIVITY = 5;    // Controls how quickly gain increases (adjust for balance)
 
+        // Swipe (needs to be faster, as cursor starts from the middle)
+        public static double FAST_VKF_PROCESS_NOISE = 100;
+        public static double FAST_VKF_MEASURE_NOISE = 2;
+        public static double FAST_BASE_GAIN = 10;       // Minimum movement amplification (adjust for small target selection)
+        public static double FAST_SCALE_FACTOR = 10;    // Maximum gain at high speed (adjust for fast movement)
+        public static double FAST_SENSITIVITY = 5;    // Controls how quickly gain increases (adjust for balance)
+
+        // Active
+        public static double VKF_PROCESS_NOISE = NORMAL_VKF_PROCESS_NOISE;
+        public static double VKF_MEASURE_NOISE = NORMAL_VKF_MEASURE_NOISE;
+        public static double BASE_GAIN = NORMAL_BASE_GAIN;
+        public static double SCALE_FACTOR = NORMAL_SCALE_FACTOR;
+        public static double SENSITIVITY = NORMAL_SENSITIVITY;
+
+        // Radiusor
         public static double RAD_BEAM_VKF_PROCESS_NOISE_STD = 1.2;
         public static double RAD_BEAM_VKF_MEASURE_NOISE_STD = 15.0;
         public static double RAD_PLUS_VKF_PROCESS_NOISE_STD = 0.4;
         public static double RAD_PLUS_VKF_MEASURE_NOISE_STD = 40.0;
+
+         
         // --------------------------------------
 
         // -------------- Cursors
@@ -44,7 +62,8 @@ namespace Multi.Cursor
 
         // --------------- Sizes and Margins
         public const double PPI = 109; // BenQ = 89, Apple Display = 109
-        public static int SIDE_WINDOW_SIZE_MM = 50;
+        public static int SIDE_WINDOW_SIZE_MM = 47
+            ;
         public static double WINDOW_PADDING_MM = 2;
         // --------------------------------------
 
@@ -83,5 +102,25 @@ namespace Multi.Cursor
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F3F3F3"));
         // --------------------------------------
 
+        public static void SetMode(int speed)
+        {
+            if (speed == 0)
+            {
+                VKF_PROCESS_NOISE = NORMAL_VKF_PROCESS_NOISE;
+                VKF_MEASURE_NOISE = NORMAL_VKF_MEASURE_NOISE;
+                BASE_GAIN = NORMAL_BASE_GAIN;
+                SCALE_FACTOR = NORMAL_SCALE_FACTOR;
+                SENSITIVITY = NORMAL_SENSITIVITY;
+            }
+
+            if (speed == 1)
+            {
+                VKF_PROCESS_NOISE = FAST_VKF_PROCESS_NOISE;
+                VKF_MEASURE_NOISE = FAST_VKF_MEASURE_NOISE;
+                BASE_GAIN = FAST_BASE_GAIN;
+                SCALE_FACTOR = FAST_SCALE_FACTOR;
+                SENSITIVITY = FAST_SENSITIVITY;
+            }
+        }
     }
 }

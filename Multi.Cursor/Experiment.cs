@@ -96,9 +96,20 @@ namespace Multi.Cursor
         public void Init(int ptc, string tech)
         {
             Participant_Number = ptc;
-            if (tech == Str.TOUCH_MOUSE_TAP) Active_Technique = Technique.Auxursor_Tap;
-            else if (tech == Str.TOUCH_MOUSE_SWIPE) Active_Technique = Technique.Auxursor_Swipe;
-            else if (tech == Str.MOUSE) Active_Technique = Technique.Mouse;
+            if (tech == Str.TOUCH_MOUSE_TAP)
+            {
+                Active_Technique = Technique.Auxursor_Tap;
+                Config.SetMode(0);
+            }
+            else if (tech == Str.TOUCH_MOUSE_SWIPE)
+            {
+                Active_Technique = Technique.Auxursor_Swipe;
+                Config.SetMode(1);
+            }
+            else if (tech == Str.MOUSE)
+            {
+                Active_Technique = Technique.Mouse;
+            }
 
             //-- Create blocks of trials
             for (int i = 0; i < N_BLOCKS; i++)
