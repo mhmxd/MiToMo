@@ -50,7 +50,8 @@ using Seril = Serilog.Log;
 using Serilog;
 using MessageBox = System.Windows.Forms.MessageBox;
 using System.Numerics;
-using System.Threading.Tasks; // Alias Serilog's Log class
+using System.Threading.Tasks;
+using System.Runtime.CompilerServices; // Alias Serilog's Log class
 
 namespace Multi.Cursor
 {
@@ -204,6 +205,7 @@ namespace Multi.Cursor
 
         private bool _touchMouseActive = false; // Is ToMo active?
         private bool _cursorFreezed = false;
+        private bool _auxursorFreezed = true;
 
         private Rect _mainWinRect, _leftWinRect, _topWinRect, _rightWinRect;
         private Rect _lefWinRectPadded, _topWinRectPadded, _rightWinRectPadded;
@@ -576,7 +578,7 @@ namespace Multi.Cursor
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            PositionInfo<MainWindow>($"{_timestamps.Stringify()}");
+            TrialInfo<MainWindow>($"{_timestamps.Stringify()}");
             if (_timestamps.ContainsKey(Str.FIRST_MOVE)) // Trial is officially started (to prevent accidental click at the beginning)
             {
                 if (_timestamps.ContainsKey(Str.TARGET_RELEASE)) // Phase 3: Window press => Outside Start
@@ -657,11 +659,14 @@ namespace Multi.Cursor
 
         private void Window_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            Outlog<MainWindow>().Information($"{_timestamps.Stringify()}");
+            TrialInfo<MainWindow>($"{_timestamps.Stringify()}");
             if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Target is pressed => Was release outside or inside?
             {
                 if (_activeSideWindow.IsCursorInsideTarget()) // Released inside Target => Next phase
                 {
+                    // Add timestamp
+                    _timestamps.TryAdd(Str.TARGET_RELEASE, _trialtWatch.ElapsedMilliseconds);
+
                     // Deactive Target and auxursor
                     _activeSideWindow.ColorTarget(Brushes.Red);
                     _activeSideWindow.DeactivateCursor();
@@ -1051,7 +1056,7 @@ namespace Multi.Cursor
                 case Location.Top: _targetSideWindow = _topWindow; break;
             }
 
-            _targetSideWindow.ShowTarget(_trial.TargetPosition, targetW, Brushes.Blue,
+            _targetSideWindow.ShowTarget(_trial.TargetPosition, targetW, Config.GRAY_A0A0A0,
                 Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
         }
 
@@ -1481,9 +1486,13 @@ namespace Multi.Cursor
 
             _timestamps[Str.TRIAL_END] =_stopWatch.ElapsedMilliseconds;
             TrialInfo<MainWindow>($"Ended: {result}");
+
+            // Freeze auxursor until Start is clicked in the next trial
+            _auxursorFreezed = true;
+
             bool trialStarted = (result != RESULT.NO_START);
             
-                                                                          if (trialStarted) // Start was clicked 
+            if (trialStarted) // Start was clicked 
             {
                 //double trialTime = (_timestamps[Str.TRIAL_END] - _timestamps[Str.START_RELEASE]) / 1000.00;
                 //Outlog<MainWindow>().Debug($"Trial Time = {trialTime:F2}");
@@ -1573,11 +1582,10 @@ namespace Multi.Cursor
 
         private void Start_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            PositionInfo<MainWindow>($"{_timestamps.Stringify()}");
+            TrialInfo<MainWindow>($"{_timestamps.Stringify()}");
             if (_timestamps.ContainsKey(Str.TARGET_RELEASE)) // Phase 3 (Target hit, Start click again => End trial)
             {
                 EndTrial(RESULT.HIT);
-                return;
             }
             else if (_timestamps.ContainsKey(Str.START1_RELEASE)) // Phase 2: Start already clicked, it's actually Aux click
             {
@@ -1587,6 +1595,7 @@ namespace Multi.Cursor
                 }
                 else // Pressed outside target => MISS
                 {
+                    TrialInfo<MainWindow>($"Pressed outside Target!");
                     EndTrial(RESULT.MISS);
                 }
             }
@@ -1627,7 +1636,7 @@ namespace Multi.Cursor
 
         private void Start_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            PositionInfo<MainWindow>($"{_timestamps.Stringify()}");
+            TrialInfo<MainWindow>($"{_timestamps.Stringify()}");
             if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Already pressed with Auxursor => Check if release is also inside
             {
                 if (_targetSideWindow.IsCursorInsideTarget())
@@ -1636,14 +1645,19 @@ namespace Multi.Cursor
                 } 
                 else // Released outside Target => MISS
                 {
+                    TrialInfo<MainWindow>($"Released outside target");
                     EndTrial(RESULT.MISS);
                 }
 
-            } else if (_timestamps.ContainsKey(Str.START1_PRESS)) // First time
+            } 
+            else if (_timestamps.ContainsKey(Str.START1_PRESS)) // First time
             {
                 _timestamps[Str.START1_RELEASE] = _trialtWatch.ElapsedMilliseconds;
                 _targetSideWindow.ColorTarget(Brushes.Green);
                 _startRectangle.Fill = Brushes.Red;
+
+                // Enable Auxursor activation
+                _auxursorFreezed = false;
             }
             else // Started from inside, but released outside Start => End on No_Start
             {
@@ -1679,7 +1693,6 @@ namespace Multi.Cursor
         {
             // Set the time
             _timestamps[Str.TARGET_PRESS] = _trialtWatch.ElapsedMilliseconds;
-
         }
 
         private void TargetMouseUp()
@@ -1904,7 +1917,10 @@ namespace Multi.Cursor
 
         public void IndexTap()
         {
-            ActivateSideWin(Location.Top, Location.Left);
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap && !_auxursorFreezed)
+            {
+                ActivateSideWin(Location.Top, Location.Left);
+            }
         }
 
         public void IndexMove(TouchPoint indPoint)
@@ -1983,7 +1999,7 @@ namespace Multi.Cursor
 
         public void ThumbTap(Location tapLoc)
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap && !_auxursorFreezed)
             {
                 ActivateSideWin(Location.Left, tapLoc);
             }
@@ -1992,7 +2008,7 @@ namespace Multi.Cursor
 
         public void MiddleTap()
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap && !_auxursorFreezed)
             {
                 ActivateSideWin(Location.Top, Location.Middle);
             }
@@ -2000,7 +2016,7 @@ namespace Multi.Cursor
 
         public void RingTap()
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap && !_auxursorFreezed)
             {
                 ActivateSideWin(Location.Top, Location.Right); // Right side of the top window
                 //ActivateSide(Direction.Up, tapDir);
@@ -2009,7 +2025,7 @@ namespace Multi.Cursor
 
         public void PinkyTap(Location tapLoc)
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap && !_auxursorFreezed)
             {
                 ActivateSideWin(Location.Right, tapLoc);
             }

@@ -268,7 +268,7 @@ namespace Multi.Cursor
             }
 
             //FILOG.Debug(Output.GetKeys(activeFrame.Pointers));
-            //GestInfo<TouchSurface>(Output.GetKeys(activeFrame.Pointers));
+            GestInfo<TouchSurface>(Output.GetKeys(activeFrame.Pointers));
 
             return activeFrame;
         }

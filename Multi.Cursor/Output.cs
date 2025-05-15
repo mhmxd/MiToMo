@@ -33,8 +33,8 @@ namespace Multi.Cursor
         //public static ILogger Seril;
 
         public static ILogger FILOG;
-        public static ILogger WITHTIME;
-        public static ILogger NOTIME;
+        public static ILogger CONSOUT_WITHTIME;
+        public static ILogger CONSOUT_NOTIME;
 
         static Output()
         {
@@ -64,7 +64,7 @@ namespace Multi.Cursor
 
         public static void Init()
         {
-            WITHTIME = new LoggerConfiguration()
+            CONSOUT_WITHTIME = new LoggerConfiguration()
                 .Enrich.WithCaller()
                 .WriteTo.Console(outputTemplate: "[{Level:u3}] {MethodName} - " +
                 "{Timestamp:HH:mm:ss.fff} " +
@@ -72,7 +72,7 @@ namespace Multi.Cursor
                 .MinimumLevel.Information() // Ignore Debug and Verbose
                 .CreateLogger();
 
-            NOTIME = new LoggerConfiguration()
+            CONSOUT_NOTIME = new LoggerConfiguration()
                 .Enrich.WithCaller()
                 .WriteTo.Console(outputTemplate: "[{Level:u3}] {ClassName}.{MethodName} - " +
                 "{Message:lj}{NewLine}")
@@ -91,14 +91,14 @@ namespace Multi.Cursor
         public static ILogger Outlog<T>([CallerMemberName] string memberName = "")
         {
             var className = typeof(T).Name;
-            return NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName);
+            return CONSOUT_NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName);
         }
 
         public static void GestInfo<T>(string mssg, [CallerMemberName] string memberName = "")
         {
             var className = typeof(T).Name;
-            //WITHTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
-            FILOG.Information(mssg);
+            //CONSOUT_WITHTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+            //FILOG.Information(mssg);
         }
 
         public static void PositionInfo<T>(string mssg, [CallerMemberName] string memberName = "")
@@ -110,7 +110,7 @@ namespace Multi.Cursor
         public static void TrialInfo<T>(string mssg, [CallerMemberName] string memberName = "")
         {
             var className = typeof(T).Name;
-            NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+            CONSOUT_NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
         }
 
         public static void Print(string output)

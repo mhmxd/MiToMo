@@ -61,9 +61,8 @@ namespace Multi.Cursor
                                                // --------------------------------------
 
         // --------------- Sizes and Margins
-        public const double PPI = 109; // BenQ = 89, Apple Display = 109
-        public static int SIDE_WINDOW_SIZE_MM = 47
-            ;
+        public const double PPI = 89; // BenQ = 89, Apple Display = 109
+        public static int SIDE_WINDOW_SIZE_MM = 47;
         public static double WINDOW_PADDING_MM = 2;
         // --------------------------------------
 
@@ -100,6 +99,8 @@ namespace Multi.Cursor
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E6E6E6"));
         public static readonly Brush GRAY_F3F3F3 =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F3F3F3"));
+        public static readonly Brush GRAY_A0A0A0 =
+            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A0A0A0"));
         // --------------------------------------
 
         public static void SetMode(int speed)
