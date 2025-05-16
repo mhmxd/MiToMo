@@ -36,8 +36,8 @@ namespace Multi.Cursor
             new TouchFinger(0, 2), // Thumb
             new TouchFinger(3, 6), // Index
             new TouchFinger(7, 10), // Middle
-            new TouchFinger(11, 13), // Ring
-            new TouchFinger(14, 14) // Little
+            new TouchFinger(11, 12), // Ring
+            new TouchFinger(13, 14) // Little
         };
 
         private Dictionary<Finger, Stopwatch> _touchTimers = new Dictionary<Finger, Stopwatch>();
@@ -134,17 +134,6 @@ namespace Multi.Cursor
                 return Pointers.ContainsKey((int)finger);
             }
 
-            //public TouchPoint GetPointer(int rMin, int rMax, int cMin, int cMax)
-            //{
-            //    foreach (var kv in Pointers)
-            //    {
-            //        if (Utils.InInc(kv.Key, cMin, cMax)
-            //            && Utils.InInc(kv.Value.GetRow(), rMin, rMax)) return kv.Value;
-            //    }
-
-            //    return null;
-            //}
-
             public void Clear()
             {
                 Pointers.Clear();
@@ -152,11 +141,6 @@ namespace Multi.Cursor
         }
 
         private FixedBuffer<TouchFrame> _frames = new FixedBuffer<TouchFrame>(50);
-
-        //private Dictionary<int, Stopwatch> _timers = new Dictionary<int, Stopwatch>();
-
-        //private Action<int> _pointerDown;
-        //private Action<int> _pointerUp;
 
         private int _touchId = 0;
 
@@ -201,31 +185,183 @@ namespace Multi.Cursor
             _downPositions.Add(Finger.Pinky, new Point(-1, -1));
 
             _activeTechnique = activeTechnique;
-
-            //_touchPoints = new List<TouchPoint>();
-            //_pointerDown = PointerDown;
-            //_pointerUp = PointerUp;
-            //_state = State.Idle;
-
-            // Init watches for all possible fingers (from left to right)
-            //for (int finger = 1; finger <= 5; finger++)
-            //{
-            //    _timers.Add(finger, new Stopwatch());
-            //}
         }
 
-        //private void TrackFingers(Span2D<Byte> touchFrame)
-        //{
-        //    FILOG.Debug(Output.GetString(touchFrame));
-        //    Finger[] fingers = tracker.ProcessFrame(touchFrame);
+        private TouchFrame FillActiveBlobs(Span2D<Byte> shotSpan)
+        {
+            //GestInfo<TouchSurface>(shotSpan.ToStr());
+            TouchFrame activeFrame = new TouchFrame();
+            List<List<(int, int)>> blobs = new List<List<(int, int)>>();
+            bool[,] visited = new bool[shotSpan.Height, shotSpan.Width];
 
-        //    foreach (Finger finger in fingers)
-        //    {
-        //        FILOG.Debug(finger.ToString());
-        //    }
+            // 1. Identify Potential Touch Blobs
+            for (int y = 0; y < shotSpan.Height; y++)
+            {
+                for (int x = 0; x < shotSpan.Width; x++)
+                {
+                    if (shotSpan[y, x] > Config.MIN_PRESSURE && !visited[y, x])
+                    {
+                        List<(int, int)> blob = new List<(int, int)>();
+                        Queue<(int, int)> toVisit = new Queue<(int, int)>();
+                        toVisit.Enqueue((x, y));
+                        visited[y, x] = true;
+                        blob.Add((x, y));
 
-        //    FILOG.Debug("------------------------------");
-        //}
+                        while (toVisit.Count > 0)
+                        {
+                            (int currentX, int currentY) = toVisit.Dequeue();
+                            int[] dx = { 0, 0, 1, -1 };
+                            int[] dy = { 1, -1, 0, 0 };
+                            for (int i = 0; i < 4; i++)
+                            {
+                                int nx = currentX + dx[i];
+                                int ny = currentY + dy[i];
+                                if (nx >= 0 && nx < shotSpan.Width && ny >= 0 && ny < shotSpan.Height &&
+                                    shotSpan[ny, nx] > Config.MIN_PRESSURE && !visited[ny, nx])
+                                {
+                                    visited[ny, nx] = true;
+                                    toVisit.Enqueue((nx, ny));
+                                    blob.Add((nx, ny));
+                                }
+                            }
+                        }
+                        blobs.Add(blob);
+                    }
+                }
+            }
+
+            Dictionary<int, TouchPoint> potentialFingers = new Dictionary<int, TouchPoint>();
+
+            foreach (var blob in blobs)
+            {
+                int minBlobX = shotSpan.Width;
+                int maxBlobX = -1;
+                int minBlobY = shotSpan.Height;
+                int maxBlobY = -1;
+                foreach (var pixel in blob)
+                {
+                    minBlobX = Math.Min(minBlobX, pixel.Item1);
+                    maxBlobX = Math.Max(maxBlobX, pixel.Item1);
+                    minBlobY = Math.Min(minBlobY, pixel.Item2);
+                    maxBlobY = Math.Max(maxBlobY, pixel.Item2);
+                }
+
+                Dictionary<int, List<(int, int, byte)>> fingerSegments = new Dictionary<int, List<(int, int, byte)>>();
+                bool separated = false;
+
+                // 2 & 3. Analyze for Local Minima
+                for (int y = minBlobY; y <= maxBlobY; y++)
+                {
+                    for (int f = 0; f < _fingers.Length - 1; f++)
+                    {
+                        int boundary = _fingers[f].MaxCol;
+                        if (boundary >= minBlobX && boundary < maxBlobX)
+                        {
+                            int minimaX = -1;
+                            byte minPressure = 255; // Initialize with max possible pressure
+                            bool foundMinima = false;
+
+                            for (int x = Math.Max(minBlobX + 1, boundary); x <= Math.Min(maxBlobX - 1, boundary + 1); x++)
+                            {
+                                if (blob.Contains((x, y)))
+                                {
+                                    byte currentPressure = shotSpan[y, x];
+                                    byte leftPressure = (blob.Contains((x - 1, y))) ? shotSpan[y, x - 1] : (byte)0;
+                                    byte rightPressure = (blob.Contains((x + 1, y))) ? shotSpan[y, x + 1] : (byte)0;
+
+                                    if (currentPressure < leftPressure - Config.LOCAL_MINIMA_DROP_THRESHOLD &&
+                                        currentPressure < rightPressure - Config.LOCAL_MINIMA_DROP_THRESHOLD)
+                                    {
+                                        if (currentPressure < minPressure)
+                                        {
+                                            minPressure = currentPressure;
+                                            minimaX = x;
+                                            foundMinima = true;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (foundMinima && minimaX > boundary && minimaX < _fingers[f + 1].MinCol)
+                            {
+                                separated = true;
+                                foreach (var pixel in blob)
+                                {
+                                    int pixelFingerId = -1;
+                                    if (pixel.Item1 >= _fingers[f].MinCol && pixel.Item1 <= boundary)
+                                        pixelFingerId = f + 1;
+                                    else if (pixel.Item1 >= _fingers[f + 1].MinCol && pixel.Item1 <= _fingers[f + 1].MaxCol)
+                                        pixelFingerId = f + 2;
+
+                                    if (pixelFingerId != -1)
+                                    {
+                                        if (!fingerSegments.ContainsKey(pixelFingerId))
+                                            fingerSegments[pixelFingerId] = new List<(int, int, byte)>();
+                                        fingerSegments[pixelFingerId].Add((pixel.Item1, pixel.Item2, shotSpan[pixel.Item2, pixel.Item1]));
+                                    }
+                                }
+                                goto MinimaDetected; // Break out after segmenting
+                            }
+                        }
+                    }
+                }
+
+            MinimaDetected:
+                if (separated)
+                {
+                    // 6. Calculate Center of Mass and Total Pressure for Each Finger Segment
+                    foreach (var kvp in fingerSegments)
+                    {
+                        int fingerId = kvp.Key;
+                        List<(int, int, byte)> segmentPixels = kvp.Value;
+                        if (!potentialFingers.ContainsKey(fingerId))
+                            potentialFingers[fingerId] = new TouchPoint { Id = fingerId };
+
+                        double weightedSumX = 0;
+                        double weightedSumY = 0;
+                        int totalPressure = 0;
+
+                        foreach (var pixelData in segmentPixels)
+                        {
+                            weightedSumX += pixelData.Item1 * pixelData.Item3;
+                            weightedSumY += pixelData.Item2 * pixelData.Item3;
+                            totalPressure += pixelData.Item3;
+                            potentialFingers[fingerId].AddTouchData(pixelData.Item1, pixelData.Item2, pixelData.Item3);
+                        }
+                    }
+                }
+                else
+                {
+                    // 7. Fallback to Column Thresholds (process the entire blob)
+                    foreach (var finger in _fingers)
+                    {
+                        int fingerId = Array.IndexOf(_fingers, finger) + 1;
+                        if (!potentialFingers.ContainsKey(fingerId))
+                            potentialFingers[fingerId] = new TouchPoint { Id = fingerId };
+
+                        foreach (var pixel in blob)
+                        {
+                            if (pixel.Item1 >= finger.MinCol && pixel.Item1 <= finger.MaxCol)
+                            {
+                                potentialFingers[fingerId].AddTouchData(pixel.Item1, pixel.Item2, shotSpan[pixel.Item2, pixel.Item1]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 8. Final Activation Check
+            foreach (var kvp in potentialFingers)
+            {
+                if (kvp.Value.GetTotalPressure() > Config.MIN_TOTAL_PRESSURE) // Your min pressure
+                {
+                    activeFrame.AddPointer(kvp.Key, kvp.Value);
+                }
+            }
+
+            return activeFrame;
+        }
+
 
         /// <summary>
         /// Fill active touches
@@ -259,7 +395,8 @@ namespace Multi.Cursor
                 }
 
                 // If total pressure was above 2 X MIN_PRESSURE => finger active
-                if (touchPoint.GetTotalPressure() > 2 * Config.MIN_PRESSURE)
+                GestInfo<TouchSurface>($"Finger {f + 1} Pressure = {touchPoint.GetTotalPressure()}");
+                if (touchPoint.GetTotalPressure() > Config.MIN_TOTAL_PRESSURE)
                 {
                     //FILOG.Debug($"Pressure #{f + 1} = {touchPoint.GetTotalPressure()}");
                     touchPoint.Id = f + 1;
@@ -268,7 +405,7 @@ namespace Multi.Cursor
             }
 
             //FILOG.Debug(Output.GetKeys(activeFrame.Pointers));
-            GestInfo<TouchSurface>(Output.GetKeys(activeFrame.Pointers));
+            //GestInfo<TouchSurface>(Output.GetKeys(activeFrame.Pointers));
 
             return activeFrame;
         }
@@ -291,7 +428,8 @@ namespace Multi.Cursor
             }
             //TrackFingers(shotSpan);
             // First, get the current frame
-            TouchFrame activeFrame = FillActiveTouches(shotSpan);
+            //TouchFrame activeFrame = FillActiveTouches(shotSpan);
+            TouchFrame activeFrame = FillActiveBlobs(shotSpan);
 
             _frames.Add(activeFrame);
             
@@ -353,17 +491,18 @@ namespace Multi.Cursor
 
             if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
-                Point center = currentFrame.GetPointer(finger).GetCenter();
+                Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
+                GestInfo<TouchSurface>($"Thumb Pos: {tpCenter.ToStr()}");
                 if (_touchTimers[finger].IsRunning) // Already active => update position
                 {
-                    _lastPositions[finger] = center; // Update position
+                    _lastPositions[finger] = tpCenter; // Update position
                 }
                 else // First touch
                 {
                     //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
-                    _downPositions[finger] = center;
-                    _lastPositions[finger] = center;
+                    _downPositions[finger] = tpCenter;
+                    _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
                     _thumbGestureStart = currentFrame;
                 }
@@ -382,9 +521,9 @@ namespace Multi.Cursor
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
 
-                    if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_THUMB_THRESHOLD.DX
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_THUMB_THRESHOLD.DY)
+                    if (HasTapped(_touchTimers[finger].ElapsedMilliseconds,
+                        Abs(lastPosition.X - downPosition.X),
+                        Abs(lastPosition.Y - downPosition.Y)))
                     {
                         // Find the Tap position (Top or Bottom)
                         if (lastPosition.Y < THUMB_TOP_LOWEST_ROW) // Top
@@ -422,6 +561,7 @@ namespace Multi.Cursor
             {
                 TouchPoint touchPoint = currentFrame.GetPointer(finger);
                 Point tpCenter = touchPoint.GetCenter();
+                GestInfo<TouchSurface>($"Index Pos: {tpCenter.ToStr()}");
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
                     _lastPositions[finger] = tpCenter;
@@ -449,9 +589,9 @@ namespace Multi.Cursor
                     //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
-                    if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_INDEX_THRESHOLD.DX
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_INDEX_THRESHOLD.DY)
+                    if (HasTapped(_touchTimers[finger].ElapsedMilliseconds,
+                        Abs(lastPosition.X - downPosition.X),
+                        Abs(lastPosition.Y - downPosition.Y)))
                     {
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
                         LogTap(finger.ToString(), Location.Left, currentFrame.Timestamp); // LOG
@@ -478,18 +618,19 @@ namespace Multi.Cursor
 
             if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
-                Point center = currentFrame.GetPointer(finger).GetCenter();
+                Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
+                GestInfo<TouchSurface>($"Middle Pos: {tpCenter.ToStr()}");
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
-                    _lastPositions[finger] = center;
+                    _lastPositions[finger] = tpCenter;
 
                 }
                 else // First touch
                 {
                     //GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
-                    _downPositions[finger] = center;
-                    _lastPositions[finger] = center;
+                    _downPositions[finger] = tpCenter;
+                    _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
@@ -506,9 +647,9 @@ namespace Multi.Cursor
                         //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                         LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                             Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
-                        if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                            && Abs(lastPosition.X - downPosition.X) < Config.TAP_MIDDLE_THRESHOLD.DX
-                            && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_MIDDLE_THRESHOLD.DY)
+                        if (HasTapped(_touchTimers[finger].ElapsedMilliseconds,
+                            Abs(lastPosition.X - downPosition.X),
+                            Abs(lastPosition.Y - downPosition.Y)))
                         {
                             LogTap(finger.ToString(), Location.Middle, currentFrame.Timestamp); // LOG
                             _gestureReceiver.MiddleTap();
@@ -536,17 +677,18 @@ namespace Multi.Cursor
 
             if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
-                Point center = currentFrame.GetPointer(finger).GetCenter();
+                Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
+                GestInfo<TouchSurface>($"Ring Pos: {tpCenter.ToStr()}");
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
-                    _lastPositions[finger] = center;
+                    _lastPositions[finger] = tpCenter;
                 }
                 else // First touch
                 {
                     //GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
-                    _downPositions[finger] = center;
-                    _lastPositions[finger] = center;
+                    _downPositions[finger] = tpCenter;
+                    _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
@@ -562,9 +704,9 @@ namespace Multi.Cursor
                     //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
-                    if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_RING_THRESHOLD.DX
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_RING_THRESHOLD.DY)
+                    if (HasTapped(_touchTimers[finger].ElapsedMilliseconds,
+                        Abs(lastPosition.X - downPosition.X),
+                        Abs(lastPosition.Y - downPosition.Y)))
                     {
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
                         LogTap(finger.ToString(), Location.Right, currentFrame.Timestamp); // LOG
@@ -594,18 +736,19 @@ namespace Multi.Cursor
 
             if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
-                Point center = currentFrame.GetPointer(finger).GetCenter();
+                Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
+                GestInfo<TouchSurface>($"Pinky Pos: {tpCenter.ToStr()}");
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
-                    _lastPositions[finger] = center;
+                    _lastPositions[finger] = tpCenter;
                     // Mange the Swipe (later)
                 }
                 else // First touch
                 {
                     //GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
-                    _downPositions[finger] = center;
-                    _lastPositions[finger] = center;
+                    _downPositions[finger] = tpCenter;
+                    _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
@@ -622,9 +765,9 @@ namespace Multi.Cursor
                     //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F2}");
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
-                    if (_touchTimers[finger].ElapsedMilliseconds < Config.TAP_TIME_MS
-                        && Abs(lastPosition.X - downPosition.X) < Config.TAP_PINKY_THRESHOLD.DX
-                        && Abs(lastPosition.Y - downPosition.Y) < Config.TAP_PINKY_THRESHOLD.DY)
+                    if (HasTapped(_touchTimers[finger].ElapsedMilliseconds, 
+                        Abs(lastPosition.X - downPosition.X), 
+                        Abs(lastPosition.Y - downPosition.Y)))
                     {
                         // Find the Tap position (Top or Bottom)
                         if (lastPosition.Y < LITTLE_TOP_LOWEST_ROW) // Top
@@ -646,6 +789,14 @@ namespace Multi.Cursor
 
             }
 
+        }
+
+        private bool HasTapped(long dT, double dX, double dY)
+        {
+            return Utils.In(dT, Config.TAP_TIME_MIN, Config.TAP_TIME_MAX)
+                        && dX < Config.TAP_GENERAL_THRESHOLD.DX
+                        && dY < Config.TAP_GENERAL_THRESHOLD.DY
+                        && _touchTimers[Finger.Index].IsRunning;
         }
 
         //========= Swipe tech tracking ==========================

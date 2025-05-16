@@ -98,7 +98,7 @@ namespace Multi.Cursor
         {
             var className = typeof(T).Name;
             //CONSOUT_WITHTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
-            //FILOG.Information(mssg);
+            FILOG.Information(mssg);
         }
 
         public static void PositionInfo<T>(string mssg, [CallerMemberName] string memberName = "")
@@ -142,7 +142,7 @@ namespace Multi.Cursor
             
         }
 
-        public static string GetString(Span2D<Byte> span)
+        public static string ToStr(this Span2D<Byte> span)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("---------------------------------");
@@ -158,7 +158,7 @@ namespace Multi.Cursor
             return sb.ToString();
         }
 
-        public static string GetString(Dictionary<int, TouchPoint> touchPoints)
+        public static string ToStr(this Dictionary<int, TouchPoint> touchPoints)
         {
             if (touchPoints == null)
             {
@@ -272,7 +272,7 @@ namespace Multi.Cursor
         }
 
 
-        public static string Print(this Point point)
+        public static string ToStr(this Point point)
         {
             return $"({point.X:F2}, {point.Y:F2})";
         }

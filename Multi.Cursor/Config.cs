@@ -21,6 +21,8 @@ namespace Multi.Cursor
 
         // -------------- Touch -----------------
         public static readonly int MIN_PRESSURE = 50; // Minimum value to consider touching the surface // Was 30 (seemed too sensitive)
+        public static readonly int MIN_TOTAL_PRESSURE = 500; // Min value to consider a finger // Was 2 * MIN_PRESSURE
+        public static byte LOCAL_MINIMA_DROP_THRESHOLD = 70;
         // --------------------------------------
 
         // -------------- Vel. Kalman Filter ----
@@ -77,16 +79,18 @@ namespace Multi.Cursor
 
         // --------------- Times ----------------
         public static double SWIPE_TIME_MAX = 500; // ms (was 600)
-        public static double TAP_TIME_MS = 300; // Time to be down for Tap (200ms was too short)
+        public static double TAP_TIME_MAX = 300; // Time to be down for Tap (200ms was too short)
+        public static double TAP_TIME_MIN = 100; // Minimum time to be down for Tap
         // --------------------------------------
 
         // --------------- Movement Thresholds --
         //public static double TAP_MOVE_LIMIT = 0.2; // Amount of allowed movement for Tap
         //public static float TAP_X_MOVE_LIMIT = 0.5f; // Amount of allowed X movement for Tap
         //public static float TAP_Y_MOVE_LIMIT = 0.5f; // Amount of allowed Y movement for Tap
+        public static readonly (float DX, float DY) TAP_GENERAL_THRESHOLD = (0.2f, 0.2f);
 
         public static readonly (float DX, float DY) TAP_THUMB_THRESHOLD = (0.5f, 0.5f);
-        public static readonly (float DX, float DY) TAP_INDEX_THRESHOLD = (0.5f, 0.5f);
+        public static readonly (float DX, float DY) TAP_INDEX_THRESHOLD = (0.2f, 0.2f);
         public static readonly (float DX, float DY) TAP_MIDDLE_THRESHOLD = (0.7f, 0.7f); // For better recognition of Taps
         public static readonly (float DX, float DY) TAP_RING_THRESHOLD = (0.5f, 0.5f);
         public static readonly (float DX, float DY) TAP_PINKY_THRESHOLD = (0.5f, 0.5f);
@@ -101,6 +105,7 @@ namespace Multi.Cursor
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F3F3F3"));
         public static readonly Brush GRAY_A0A0A0 =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A0A0A0"));
+
         // --------------------------------------
 
         public static void SetMode(int speed)

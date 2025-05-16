@@ -35,7 +35,7 @@ namespace Multi.Cursor
                     .CreateLogger();
             
             // Enter trial info
-            _fileLog.Information($"TgtW: {targetWidthMM}, Dist: {distanceMM}, StPos: {startPos.Print()}, TgPos: {targetPos.Print()}");
+            _fileLog.Information($"TgtW: {targetWidthMM}, Dist: {distanceMM}, StPos: {startPos.ToStr()}, TgPos: {targetPos.ToStr()}");
         }
 
         public static void LogGestureEvent(string message)
