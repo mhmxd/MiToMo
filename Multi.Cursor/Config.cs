@@ -105,7 +105,6 @@ namespace Multi.Cursor
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F3F3F3"));
         public static readonly Brush GRAY_A0A0A0 =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A0A0A0"));
-
         // --------------------------------------
 
         public static void SetMode(int speed)

@@ -15,7 +15,7 @@ namespace Multi.Cursor
         //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
         private static List<double> _distances = new List<double>(); // Generated in constructor
-        private static int N_BLOCKS = 1; // Number of blocks in the experiment
+        private static int N_BLOCKS = 2; // Number of blocks in the experiment
         private static int N_REPS_IN_BLOCK = 1;
         private double _distPaddingMM; // Padding to each side of the dist thresholds
         

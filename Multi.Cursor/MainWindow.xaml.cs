@@ -1016,6 +1016,23 @@ namespace Multi.Cursor
             return true; // All trials have valid positions
         }
 
+        private void GoToNextBlock()
+        {
+            _activeBlockNum++;
+            _block = _experiment.GetBlock(_activeBlockNum);
+            _activeTrialNum = 1;
+            _trial = _block.GetTrial(_activeTrialNum);
+            ShowTrial();
+        }
+
+        private void GoToNextTrial()
+        {
+            TrialInfo<MainWindow>($"Block#{_activeBlockNum}: {_block.ToString()}");
+            _activeTrialNum++;
+            _trial = _block.GetTrial(_activeTrialNum);
+            ShowTrial();
+        }
+
         private void ShowTrial()
         {
             // Clear everything
@@ -1485,73 +1502,56 @@ namespace Multi.Cursor
             }
 
             _timestamps[Str.TRIAL_END] =_stopWatch.ElapsedMilliseconds;
-            TrialInfo<MainWindow>($"Ended: {result}");
+            TrialInfo<MainWindow>($"Trial#{_activeTrialNum} ended: {result}");
 
             // Freeze auxursor until Start is clicked in the next trial
             _auxursorFreezed = true;
 
-            bool trialStarted = (result != RESULT.NO_START);
+            bool startClicked = (result != RESULT.NO_START);
             
-            if (trialStarted) // Start was clicked 
+            if (startClicked) // Start was clicked 
             {
                 //double trialTime = (_timestamps[Str.TRIAL_END] - _timestamps[Str.START_RELEASE]) / 1000.00;
                 //Outlog<MainWindow>().Debug($"Trial Time = {trialTime:F2}");
                 //FILOG.Information($"Trial-{_trial.Id} time = {trialTime}");
 
-                if (result == RESULT.HIT)
+                if (_activeTrialNum < _block.GetNumTrials()) // More trials to show
                 {
-                    if (_activeTrialNum == _block.GetNumTrials()) // Block finished
+                    GoToNextTrial();
+                }
+                else // Block finished
+                {
+                    if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
                     {
-                        PositionInfo<MainWindow>($"Block#{_activeBlockNum} finished!");
-                        if (_activeBlockNum == _experiment.GetNumBlocks()) // Was last block
-                        {
-                            PositionInfo<MainWindow>("Technique finished!");
-                            MessageBoxResult dialogResult = SysWin.MessageBox.Show(
-                                "Technique finished!",
-                                "End",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Information
-                            );
+                        // Show end of block window
+                        BlockEndWindow blockEndWindow = new BlockEndWindow(_activeBlockNum, GoToNextBlock);
+                        blockEndWindow.Owner = this;
+                        blockEndWindow.ShowDialog();
+                    }
+                    else // All blocks finished
+                    {
+                        PositionInfo<MainWindow>("Technique finished!");
+                        MessageBoxResult dialogResult = SysWin.MessageBox.Show(
+                            "Technique finished!",
+                            "End",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information
+                        );
 
-                            if (dialogResult == MessageBoxResult.OK)
+                        if (dialogResult == MessageBoxResult.OK)
+                        {
+                            if (Debugger.IsAttached)
                             {
-                                if (System.Diagnostics.Debugger.IsAttached)
-                                {
-                                    Environment.Exit(0); // Prevents hanging during debugging
-                                }
-                                else
-                                {
-                                    SysWin.Application.Current.Shutdown();
-                                }
+                                Environment.Exit(0); // Prevents hanging during debugging
+                            }
+                            else
+                            {
+                                SysWin.Application.Current.Shutdown();
                             }
                         }
-                        else
-                        {
-                            _activeBlockNum++;
-                            _block = _experiment.GetBlock(_activeBlockNum);
-                            _activeTrialNum = 1;
-                            _trial = _block.GetTrial(_activeTrialNum);
-                            ShowTrial();
-                        }
                     }
-                    else // More trials to come
-                    {
-                        _activeTrialNum++;
-                        _trial = _block.GetTrial(_activeTrialNum);
-                        ShowTrial();
-                    }
-                }
-                else // MISS
-                {
-                    // Shuffle trial back to the end of the block
-                    _block.ShuffleBackTrial(_activeTrialNum); 
 
-                    // Next trial
-                    _activeTrialNum++;
-                    _trial = _block.GetTrial(_activeTrialNum);
-                    ShowTrial();
                 }
-
 
             }
             else // Start wasn't clicked

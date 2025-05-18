@@ -306,6 +306,9 @@
       <DependentUpon>BackgroundWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Block.cs" />
+    <Compile Include="BlockEndWindow.xaml.cs">
+      <DependentUpon>BlockEndWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Enums.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="CursorControl.xaml.cs">
@@ -384,6 +387,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="BackgroundWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BlockEndWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

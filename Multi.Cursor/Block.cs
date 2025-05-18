@@ -88,5 +88,16 @@ namespace Multi.Cursor
                 Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
             }
         }
+
+        public string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Block: [Id = {_id}]");
+            foreach (Trial trial in _trials)
+            {
+                sb.AppendLine(trial.ToString());
+            }
+            return sb.ToString();
+        }
     }
 }
