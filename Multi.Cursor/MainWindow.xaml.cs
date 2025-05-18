@@ -293,8 +293,6 @@ namespace Multi.Cursor
             if (result == true)
             {
                 // Set the technique mode in Config
-
-
                 _experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
                 BeginTechnique();
             }
@@ -863,6 +861,9 @@ namespace Multi.Cursor
                 bool positionsFound = FindPosForTrials(block); // Try to find valid positions for all trials in block
                 if (!positionsFound) return false; // No valid positions found for this block
             }
+
+            // Check
+            TrialInfo<MainWindow>($"Block#2: {_experiment.GetBlock(2).GetTrial(1).StartPosition.ToStr()}");
 
             return true; // All blocks have valid positions
         }
@@ -1507,59 +1508,61 @@ namespace Multi.Cursor
             // Freeze auxursor until Start is clicked in the next trial
             _auxursorFreezed = true;
 
-            bool startClicked = (result != RESULT.NO_START);
-            
-            if (startClicked) // Start was clicked 
+            // Decide on result
+            if (result == RESULT.HIT) { EndTrialHit(); }
+            else if (result == RESULT.MISS) { EndTrialMiss(); }
+            else // Start no clicked 
+            { 
+                // Repeat the trial
+            }
+
+        }
+
+        private void EndTrialHit()
+        {
+            if (_activeTrialNum < _block.GetNumTrials()) // More trials to show
             {
-                //double trialTime = (_timestamps[Str.TRIAL_END] - _timestamps[Str.START_RELEASE]) / 1000.00;
-                //Outlog<MainWindow>().Debug($"Trial Time = {trialTime:F2}");
-                //FILOG.Information($"Trial-{_trial.Id} time = {trialTime}");
-
-                if (_activeTrialNum < _block.GetNumTrials()) // More trials to show
+                GoToNextTrial();
+            }
+            else // Block finished
+            {
+                if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
                 {
-                    GoToNextTrial();
+                    // Show end of block window
+                    BlockEndWindow blockEndWindow = new BlockEndWindow(_activeBlockNum, GoToNextBlock);
+                    blockEndWindow.Owner = this;
+                    blockEndWindow.ShowDialog();
                 }
-                else // Block finished
+                else // All blocks finished
                 {
-                    if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
-                    {
-                        // Show end of block window
-                        BlockEndWindow blockEndWindow = new BlockEndWindow(_activeBlockNum, GoToNextBlock);
-                        blockEndWindow.Owner = this;
-                        blockEndWindow.ShowDialog();
-                    }
-                    else // All blocks finished
-                    {
-                        PositionInfo<MainWindow>("Technique finished!");
-                        MessageBoxResult dialogResult = SysWin.MessageBox.Show(
-                            "Technique finished!",
-                            "End",
-                            MessageBoxButton.OK,
-                            MessageBoxImage.Information
-                        );
+                    PositionInfo<MainWindow>("Technique finished!");
+                    MessageBoxResult dialogResult = SysWin.MessageBox.Show(
+                        "Technique finished!",
+                        "End",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information
+                    );
 
-                        if (dialogResult == MessageBoxResult.OK)
+                    if (dialogResult == MessageBoxResult.OK)
+                    {
+                        if (Debugger.IsAttached)
                         {
-                            if (Debugger.IsAttached)
-                            {
-                                Environment.Exit(0); // Prevents hanging during debugging
-                            }
-                            else
-                            {
-                                SysWin.Application.Current.Shutdown();
-                            }
+                            Environment.Exit(0); // Prevents hanging during debugging
+                        }
+                        else
+                        {
+                            SysWin.Application.Current.Shutdown();
                         }
                     }
-
                 }
 
             }
-            else // Start wasn't clicked
-            {
-                // Repeat the trial
-                // Log the current times and reset 
-            }
+        }
 
+        private void EndTrialMiss()
+        {
+            _block.ShuffleBackTrial(_activeTrialNum);
+            GoToNextTrial();
         }
 
         private void Start_MouseEnter(object sender, SysIput.MouseEventArgs e)
@@ -1691,32 +1694,44 @@ namespace Multi.Cursor
 
         private void TargetMouseDown()
         {
-            // Set the time
-            _timestamps[Str.TARGET_PRESS] = _trialtWatch.ElapsedMilliseconds;
+            if (_timestamps.ContainsKey(Str.START1_RELEASE)) // Correct sequence
+            {
+                // Set the time
+                _timestamps[Str.TARGET_PRESS] = _trialtWatch.ElapsedMilliseconds;
+            }
+            else // Clicked Target before Start => NO_START
+            {
+                EndTrial(RESULT.NO_START);
+            }
+            
         }
 
         private void TargetMouseUp()
         {
-            // Set the time and state
-            _timestamps[Str.TARGET_RELEASE] = _trialtWatch.ElapsedMilliseconds;
-            //_trialState = Str.TARGET_RELEASE;
-
-            //--- Change the colors
-            _targetSideWindow.ColorTarget(Brushes.Red);
-            //_startCircle.Fill = Brushes.Green; // Change Start back to green
-            _startRectangle.Fill = Brushes.Green; // Change Start back to green
-
-            // No need for the cursor anymore
-            if (_experiment.IsTechRadiusor())
+            if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Only act on release when the press was recorded
             {
-                _overlayWindow.HideBeam();
-                _radiusorActive = false;
-            }
+                // Set the time and state
+                _timestamps[Str.TARGET_RELEASE] = _trialtWatch.ElapsedMilliseconds;
+                //_trialState = Str.TARGET_RELEASE;
 
-            if (_experiment.IsTechAuxCursor())
-            {
-                _activeSideWindow.DeactivateCursor();
+                //--- Change the colors
+                _targetSideWindow.ColorTarget(Brushes.Red);
+                //_startCircle.Fill = Brushes.Green; // Change Start back to green
+                _startRectangle.Fill = Brushes.Green; // Change Start back to green
+
+                // No need for the cursor anymore
+                if (_experiment.IsTechRadiusor())
+                {
+                    _overlayWindow.HideBeam();
+                    _radiusorActive = false;
+                }
+
+                if (_experiment.IsTechAuxCursor())
+                {
+                    _activeSideWindow.DeactivateCursor();
+                }
             }
+            
         }
 
         private void Target_MouseUp(object sender, MouseButtonEventArgs e)

@@ -76,7 +76,7 @@ namespace Multi.Cursor
             _distances.Add(longDist);
 
             //-- Create blocks of trials
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < N_BLOCKS; i++)
             {
                 int blockId = Participant_Number * 100 + i;
                 Block block = new Block(blockId, TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
