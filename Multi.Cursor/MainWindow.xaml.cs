@@ -1500,7 +1500,7 @@ namespace Multi.Cursor
 
                 if (result == RESULT.HIT)
                 {
-                    if (_activeTrialNum == _block.GetNumTrials()) // Was last trial
+                    if (_activeTrialNum == _block.GetNumTrials()) // Block finished
                     {
                         PositionInfo<MainWindow>($"Block#{_activeBlockNum} finished!");
                         if (_activeBlockNum == _experiment.GetNumBlocks()) // Was last block

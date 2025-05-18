@@ -75,29 +75,7 @@ namespace Multi.Cursor
             {
                 Trial trialToCopy = _trials[trialNum - 1];
                 Random random = new Random();
-                int insertIndex;
-
-                // Ensure at least one trial in between
-                if (_trials.Count == 1)
-                {
-                    insertIndex = 0; // Only option if there's only one trial
-                }
-                else if (trialNum == 1) // If the trial to copy is the first one
-                {
-                    insertIndex = random.Next(1, _trials.Count + 1); // Cannot insert at index 0
-                }
-                else if (trialNum == _trials.Count) // If the trial to copy is the last one
-                {
-                    insertIndex = random.Next(0, _trials.Count); // Cannot insert at the last index
-                }
-                else
-                {
-                    // General case: cannot insert immediately before or after the original
-                    do
-                    {
-                        insertIndex = random.Next(_trials.Count + 1);
-                    } while (insertIndex == trialNum - 1 || insertIndex == trialNum);
-                }
+                int insertIndex = random.Next(trialNum + 1, _trials.Count + 1);
 
                 _trials.Insert(insertIndex, trialToCopy);
             }
