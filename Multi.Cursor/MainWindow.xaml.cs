@@ -803,7 +803,7 @@ namespace Multi.Cursor
             if (_experiment.IsTechAuxCursor()) // Touch-mouse techniques
             {
                 _touchMouseActive = true;
-                ShowAxursors();
+                //ShowAxursors();
             }
             else // Mouse
             {
@@ -1037,12 +1037,13 @@ namespace Multi.Cursor
         private void ShowTrial()
         {
             // Clear everything
-            ClearCanvas();
-            ClearSideWindowCanvases();
+            ClearStart();
+            ClearTargets();
+            HideAuxursors();
             _timestamps.Clear();
 
             // If Auxursor => Deactivate all
-            if (_experiment.IsTechAuxCursor()) DeactivateAuxursors();
+            //if (_experiment.IsTechAuxCursor()) DeactivateAuxursors();
 
             // Show the info
             TrialInfo<MainWindow>("---------------------------------------------------------------------");
@@ -1834,16 +1835,23 @@ namespace Multi.Cursor
             return true;
         }
 
-        private void ClearCanvas()
+        private void ClearStart()
         {
             canvas.Children.Clear();
         }
 
-        private void ClearSideWindowCanvases()
+        private void ClearTargets()
         {
-            _leftWindow.ClearCanvas();
-            _topWindow.ClearCanvas();
-            _rightWindow.ClearCanvas();
+            _leftWindow.ClearTarget();
+            _topWindow.ClearTarget();
+            _rightWindow.ClearTarget();
+        }
+
+        private void HideAuxursors()
+        {
+            _leftWindow.HideCursor();
+            _topWindow.HideCursor();
+            _rightWindow.HideCursor();
         }
 
         private void DeactivateAuxursors()
@@ -1859,24 +1867,27 @@ namespace Multi.Cursor
             {
                 case Location.Left:
                     _activeSideWindow = _leftWindow;
+                    HideAuxursors();
                     _leftWindow.ShowCursor(tapLoc);
                     _leftWindow.ActivateCursor();
-                    _topWindow.DeactivateCursor();
-                    _rightWindow.DeactivateCursor();
+                    //_topWindow.DeactivateCursor();
+                    //_rightWindow.DeactivateCursor();
                     break;
                 case Location.Top:
                     _activeSideWindow = _topWindow;
+                    HideAuxursors();
                     _topWindow.ShowCursor(tapLoc);
                     _topWindow.ActivateCursor();
-                    _leftWindow.DeactivateCursor();
-                    _rightWindow.DeactivateCursor();
+                    //_leftWindow.DeactivateCursor();
+                    //_rightWindow.DeactivateCursor();
                     break;
                 case Location.Right:
                     _activeSideWindow = _rightWindow;
+                    HideAuxursors();
                     _rightWindow.ShowCursor(tapLoc);
                     _rightWindow.ActivateCursor();
-                    _leftWindow.DeactivateCursor();
-                    _topWindow.DeactivateCursor();
+                    //_leftWindow.DeactivateCursor();
+                    //_topWindow.DeactivateCursor();
                     break;
             }
         }

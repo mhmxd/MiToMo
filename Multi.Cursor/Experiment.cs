@@ -41,10 +41,6 @@ namespace Multi.Cursor
         //-- Information
         public Technique Active_Technique = Technique.Auxursor_Tap; // Set in the info dialog
         public int Participant_Number { get; set; } // Set in the info dialog
-        private int _activeBlockNum;
-        private int _activeBlockInd;
-        private int _activeTrialNum;
-        private int _activeTrialInd;
         
         private List<Block> _blocks = new List<Block>();
         public List<Block> Blocks { get { return _blocks; } }
@@ -84,10 +80,10 @@ namespace Multi.Cursor
             }
 
             //-- Init
-            _activeBlockNum = 1;
-            _activeBlockInd = 0;
-            _activeTrialNum = 1;
-            _activeTrialInd = 0;
+            //_activeBlockNum = 1;
+            //_activeBlockInd = 0;
+            //_activeTrialNum = 1;
+            //_activeTrialInd = 0;
             //_activeBlock = _blocks[0];
 
             Outlog<Experiment>().Information(ListToString(_distances));
@@ -120,10 +116,10 @@ namespace Multi.Cursor
             }
 
             //-- Init
-            _activeBlockNum = 1;
-            _activeBlockInd = 0;
-            _activeTrialNum = 1;
-            _activeTrialInd = 0;
+            //_activeBlockNum = 1;
+            //_activeBlockInd = 0;
+            //_activeTrialNum = 1;
+            //_activeTrialInd = 0;
             //_activeBlock = _blocks[0];
         }
 

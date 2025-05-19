@@ -335,7 +335,13 @@ namespace Multi.Cursor
         public void UpdateCursor(TouchPoint tp)
         {
             (double dX, double dY) = _auxursor.Update(tp);
-            MoveCursor(dX, dY);
+            // Only move if above the threshold
+            double moveMagnitude = Math.Sqrt(dX * dX + dY * dY);
+            if (moveMagnitude >= Config.MIN_MOVEMENT_THRESHOLD)
+            {
+                MoveCursor(dX, dY);
+            }
+            
         }
 
         public void StopCursor()
@@ -452,11 +458,12 @@ namespace Multi.Cursor
             }
         }
 
-        public void HideSimCursor()
+        public void HideCursor()
         {
-            //cursor.Visibility = Visibility.Hidden;
+            inactiveCursor.Visibility = Visibility.Hidden;
+            activeCursor.Visibility = Visibility.Hidden;
+            _auxursor.Deactivate();
             //Mouse.OverrideCursor = Cursors.None;
-            //isCursorVisible = false;
         }
 
         public bool HasCursor()
@@ -464,7 +471,7 @@ namespace Multi.Cursor
             return _isCursorVisible;
         }
 
-        public void ClearCanvas()
+        public void ClearTarget()
         {
             canvas.Children.Remove(_target);
         }

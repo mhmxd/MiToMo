@@ -9,6 +9,8 @@ namespace Multi.Cursor
 {
     internal class Config
     {
+        public const double PPI = 89; // BenQ = 89, Apple Display = 109
+
         public static int LAST_TOUCH_COL = 14; // Total number of touch columns
 
         public static int LAST_LEFT_TOUCH_COL = 2; // Width of the left touch area (in columns)
@@ -29,10 +31,10 @@ namespace Multi.Cursor
         public static int FRAME_DUR_MS = 20; // Duration of each frame to pass to Kalman
 
         // Tap
-        public static double NORMAL_VKF_PROCESS_NOISE = 50;
-        public static double NORMAL_VKF_MEASURE_NOISE = 10;
-        public static double NORMAL_BASE_GAIN = 10;       // Minimum movement amplification (adjust for small target selection)
-        public static double NORMAL_SCALE_FACTOR = 10;    // Maximum gain at high speed (adjust for fast movement)
+        public static double NORMAL_VKF_PROCESS_NOISE = 100; // Was 50
+        public static double NORMAL_VKF_MEASURE_NOISE = 10; // Was 10
+        public static double NORMAL_BASE_GAIN = 20;       // Minimum movement amplification (adjust for small target selection) // Was 10
+        public static double NORMAL_SCALE_FACTOR = 12;    // Maximum gain at high speed (adjust for fast movement)
         public static double NORMAL_SENSITIVITY = 5;    // Controls how quickly gain increases (adjust for balance)
 
         // Swipe (needs to be faster, as cursor starts from the middle)
@@ -42,12 +44,15 @@ namespace Multi.Cursor
         public static double FAST_SCALE_FACTOR = 10;    // Maximum gain at high speed (adjust for fast movement)
         public static double FAST_SENSITIVITY = 5;    // Controls how quickly gain increases (adjust for balance)
 
-        // Active
+        //--- Active
         public static double VKF_PROCESS_NOISE = NORMAL_VKF_PROCESS_NOISE;
         public static double VKF_MEASURE_NOISE = NORMAL_VKF_MEASURE_NOISE;
         public static double BASE_GAIN = NORMAL_BASE_GAIN;
         public static double SCALE_FACTOR = NORMAL_SCALE_FACTOR;
         public static double SENSITIVITY = NORMAL_SENSITIVITY;
+
+        public static double MIN_MOVEMENT_THRESHOLD = 0.5; // Minimum movement to be considered a movement (in px)
+
 
         // Radiusor
         public static double RAD_BEAM_VKF_PROCESS_NOISE_STD = 1.2;
@@ -60,10 +65,9 @@ namespace Multi.Cursor
 
         // -------------- Cursors
         public static double MAPPING_GAIN = 1; // Was 50 // Let's not use it (KvF will take care of it)
-                                               // --------------------------------------
+        // --------------------------------------
 
         // --------------- Sizes and Margins
-        public const double PPI = 89; // BenQ = 89, Apple Display = 109
         public static int SIDE_WINDOW_SIZE_MM = 47;
         public static double WINDOW_PADDING_MM = 2;
         // --------------------------------------
