@@ -83,8 +83,8 @@ namespace Multi.Cursor
 
         // --------------- Times ----------------
         public static double SWIPE_TIME_MAX = 500; // ms (was 600)
-        public static double TAP_TIME_MAX = 300; // Time to be down for Tap (200ms was too short)
-        public static double TAP_TIME_MIN = 100; // Minimum time to be down for Tap
+        public static double TAP_TIME_MAX = 200; // Time to be down for Tap (200ms was too short)
+        public static double TAP_TIME_MIN = 70; // Minimum time to be down for Tap
         // --------------------------------------
 
         // --------------- Movement Thresholds --

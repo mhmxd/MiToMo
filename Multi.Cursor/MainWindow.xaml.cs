@@ -183,10 +183,6 @@ namespace Multi.Cursor
 
         private Stopwatch framesWatch;
 
-        private List<TouchPoint> leftPointerFrames = new List<TouchPoint>();
-        private List<TouchPoint> rightPointerFrames = new List<TouchPoint>();
-        private List<TouchPoint> topPointerFrames = new List<TouchPoint>();
-
         private int leftSkipTPs = 0;
 
         private TouchSimulator simulator;
@@ -204,8 +200,7 @@ namespace Multi.Cursor
         private Random _random;
 
         private bool _touchMouseActive = false; // Is ToMo active?
-        private bool _cursorFreezed = false;
-        private bool _auxursorFreezed = true;
+        //private bool _cursorFreezed = false;
 
         private Rect _mainWinRect, _leftWinRect, _topWinRect, _rightWinRect;
         private Rect _lefWinRectPadded, _topWinRectPadded, _rightWinRectPadded;
@@ -220,7 +215,7 @@ namespace Multi.Cursor
         private int _lastNumMiddleFingers = 0;
         private bool _radiusorActive = false;
 
-        //--- Jump Appear
+        //--- Classes
         private GestureDetector _gestureDetector;
         private TouchSurface _touchSurface;
 
@@ -623,7 +618,7 @@ namespace Multi.Cursor
                 }
 
                 // Release the cursor
-                _cursorFreezed = !UnfreezeCursor();
+                //_cursorFreezed = !UnfreezeCursor();
             }
         }
 
@@ -1500,10 +1495,6 @@ namespace Multi.Cursor
             _timestamps[Str.TRIAL_END] =_stopWatch.ElapsedMilliseconds;
             
             TrialInfo<MainWindow>($"Trial#{_activeTrialNum} ended: {result}");
-            
-
-            // Freeze auxursor until Start is clicked in the next trial
-            _auxursorFreezed = true;
 
             // Decide on result
             if (result == RESULT.HIT) { EndTrialHit(); }
@@ -1657,11 +1648,9 @@ namespace Multi.Cursor
             else if (_timestamps.ContainsKey(Str.START1_PRESS)) // First time
             {
                 _timestamps[Str.START1_RELEASE] = _trialtWatch.ElapsedMilliseconds;
+
                 _targetSideWindow.ColorTarget(Brushes.Green);
                 _startRectangle.Fill = Brushes.Red;
-
-                // Enable Auxursor activation
-                _auxursorFreezed = false;
             }
             else // Started from inside, but released outside Start => End on No_Start
             {
@@ -1931,19 +1920,15 @@ namespace Multi.Cursor
 
         public void IndexDown(TouchPoint indPoint)
         {
-            //if (Technique == 1)
-            //{
-            //    if (_activeSideWindow != null)
-            //    {
-
-            //        _activeSideWindow.MoveAuxPointer(indPoint);
-            //    }
-            //}
+            
         }
 
         public void IndexTap()
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap && !_auxursorFreezed)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap 
+                && _timestamps.ContainsKey(Str.START1_PRESS) 
+                && _touchSurface.IsFingerActive(TouchSurface.Finger.Middle)
+                && _touchSurface.IsFingerActive(TouchSurface.Finger.Ring))
             {
                 ActivateSideWin(Location.Top, Location.Left);
             }
@@ -1979,6 +1964,7 @@ namespace Multi.Cursor
             {
                 _activeSideWindow.StopCursor();
             }
+
             //_lastPlusPointerPos.X = -1;
             _lastRotPointerPos.X = -1;
 
@@ -1986,7 +1972,8 @@ namespace Multi.Cursor
 
         public void ThumbSwipe(Direction dir)
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Swipe)
+            if (_experiment.Active_Technique == Technique.Auxursor_Swipe
+                && _timestamps.ContainsKey(Str.START1_PRESS))
             {
                 switch (dir)
                 {
@@ -2011,8 +1998,8 @@ namespace Multi.Cursor
                 // Move the plus
                 bool plusMoved = _overlayWindow.MovePlus(thumbPoint);
 
-                if (plusMoved) _cursorFreezed = FreezeCursor();
-                else _cursorFreezed = !UnfreezeCursor();
+                //if (plusMoved) _cursorFreezed = FreezeCursor();
+                //else _cursorFreezed = !UnfreezeCursor();
 
             }
         }
@@ -2025,7 +2012,9 @@ namespace Multi.Cursor
 
         public void ThumbTap(Location tapLoc)
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap && !_auxursorFreezed)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap 
+                && _timestamps.ContainsKey(Str.START1_PRESS) 
+                && _touchSurface.IsFingerActive(TouchSurface.Finger.Index))
             {
                 ActivateSideWin(Location.Left, tapLoc);
             }
@@ -2034,7 +2023,10 @@ namespace Multi.Cursor
 
         public void MiddleTap()
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap && !_auxursorFreezed)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap 
+                && _timestamps.ContainsKey(Str.START1_PRESS) 
+                && _touchSurface.IsFingerActive(TouchSurface.Finger.Index)
+                && _touchSurface.IsFingerActive(TouchSurface.Finger.Ring))
             {
                 ActivateSideWin(Location.Top, Location.Middle);
             }
@@ -2042,7 +2034,11 @@ namespace Multi.Cursor
 
         public void RingTap()
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap && !_auxursorFreezed)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap
+                && _timestamps.ContainsKey(Str.START1_PRESS) 
+                && _touchSurface.IsFingerActive(TouchSurface.Finger.Index)
+                && _touchSurface.IsFingerActive(TouchSurface.Finger.Middle)
+                && _touchSurface.IsFingerInactive(TouchSurface.Finger.Pinky))
             {
                 ActivateSideWin(Location.Top, Location.Right); // Right side of the top window
                 //ActivateSide(Direction.Up, tapDir);
@@ -2051,7 +2047,10 @@ namespace Multi.Cursor
 
         public void PinkyTap(Location tapLoc)
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap && !_auxursorFreezed)
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap
+                && _timestamps.ContainsKey(Str.START1_PRESS) 
+                && _touchSurface.IsFingerActive(TouchSurface.Finger.Index)
+                && _touchSurface.IsFingerActive(TouchSurface.Finger.Ring))
             {
                 ActivateSideWin(Location.Right, tapLoc);
             }

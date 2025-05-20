@@ -48,7 +48,7 @@ namespace Multi.Cursor
 
         private Stopwatch debugWatch = new Stopwatch();
 
-        private enum Finger
+        public enum Finger
         {
             Thumb = 1,
             Index = 2,
@@ -521,7 +521,7 @@ namespace Multi.Cursor
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
 
-                    if (HasTapped(_touchTimers[finger].ElapsedMilliseconds,
+                    if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X),
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
@@ -589,7 +589,7 @@ namespace Multi.Cursor
                     //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
-                    if (HasTapped(_touchTimers[finger].ElapsedMilliseconds,
+                    if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X),
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
@@ -647,7 +647,7 @@ namespace Multi.Cursor
                         //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                         LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                             Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
-                        if (HasTapped(_touchTimers[finger].ElapsedMilliseconds,
+                        if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds,
                             Abs(lastPosition.X - downPosition.X),
                             Abs(lastPosition.Y - downPosition.Y)))
                         {
@@ -704,7 +704,7 @@ namespace Multi.Cursor
                     //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
-                    if (HasTapped(_touchTimers[finger].ElapsedMilliseconds,
+                    if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X),
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
@@ -765,7 +765,7 @@ namespace Multi.Cursor
                     //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F2}");
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
-                    if (HasTapped(_touchTimers[finger].ElapsedMilliseconds, 
+                    if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds, 
                         Abs(lastPosition.X - downPosition.X), 
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
@@ -791,12 +791,11 @@ namespace Multi.Cursor
 
         }
 
-        private bool HasTapped(long dT, double dX, double dY)
+        private bool PassTapConditions(long dT, double dX, double dY)
         {
             return Utils.In(dT, Config.TAP_TIME_MIN, Config.TAP_TIME_MAX)
                         && dX < Config.TAP_GENERAL_THRESHOLD.DX
-                        && dY < Config.TAP_GENERAL_THRESHOLD.DY
-                        && _touchTimers[Finger.Index].IsRunning;
+                        && dY < Config.TAP_GENERAL_THRESHOLD.DY;
         }
 
         //========= Swipe tech tracking ==========================
@@ -1048,6 +1047,30 @@ namespace Multi.Cursor
             return sb.ToString();
         }
 
+        public bool IsFingerInactive(Finger finger)
+        {
+            return !_touchTimers[finger].IsRunning;
+        }
+
+        public bool IsFingerActive(Finger finger)
+        {
+            return _touchTimers[finger].IsRunning;
+        }
+
+        public bool AreAllFingersInactiveExcept(Finger finger)
+        {
+            foreach (Finger f in Enum.GetValues(typeof(Finger)))
+            {
+                if (f != finger && _touchTimers[f].IsRunning)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+
+        }
+
         private string ShowHistory()
         {
             int nHistory = _frames.Count;
@@ -1066,6 +1089,7 @@ namespace Multi.Cursor
         {
             return $"{d:F2}";
         }
+
 
         //=========================== Logging =========================
         private void LogDown(string fingerName, long timestamp)
