@@ -84,8 +84,6 @@ namespace Multi.Cursor
                 outputTemplate: "[{Level:u3}] [{Timestamp:HH:mm:ss.fff}] {Message:lj}{NewLine}"))
                 .MinimumLevel.Information()
                 .CreateLogger();
-
-
         }
 
         public static ILogger Outlog<T>([CallerMemberName] string memberName = "")

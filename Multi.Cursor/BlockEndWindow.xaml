@@ -15,7 +15,7 @@
                        Text="Block 1 is finished."
                        Foreground="#353535"
                        Margin="0,0,0,20"/>
-            <TextBlock FontSize="48"
+            <TextBlock FontSize="42"
                        FontWeight="ExtraBold"
                        Foreground="#353535"
                        TextAlignment="Center">

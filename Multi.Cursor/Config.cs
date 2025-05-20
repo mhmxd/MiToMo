@@ -9,7 +9,7 @@ namespace Multi.Cursor
 {
     internal class Config
     {
-        public const double PPI = 89; // BenQ = 89, Apple Display = 109
+        public const double PPI = 109; // BenQ = 89, Apple Display = 109
 
         public static int LAST_TOUCH_COL = 14; // Total number of touch columns
 
@@ -68,7 +68,7 @@ namespace Multi.Cursor
         // --------------------------------------
 
         // --------------- Sizes and Margins
-        public static int SIDE_WINDOW_SIZE_MM = 47;
+        public static int SIDE_WINDOW_SIZE_MM = 50;
         public static double WINDOW_PADDING_MM = 2;
         // --------------------------------------
 
@@ -113,23 +113,23 @@ namespace Multi.Cursor
 
         public static void SetMode(int speed)
         {
-            if (speed == 0)
-            {
-                VKF_PROCESS_NOISE = NORMAL_VKF_PROCESS_NOISE;
-                VKF_MEASURE_NOISE = NORMAL_VKF_MEASURE_NOISE;
-                BASE_GAIN = NORMAL_BASE_GAIN;
-                SCALE_FACTOR = NORMAL_SCALE_FACTOR;
-                SENSITIVITY = NORMAL_SENSITIVITY;
-            }
+            //if (speed == 0)
+            //{
+            //    VKF_PROCESS_NOISE = NORMAL_VKF_PROCESS_NOISE;
+            //    VKF_MEASURE_NOISE = NORMAL_VKF_MEASURE_NOISE;
+            //    BASE_GAIN = NORMAL_BASE_GAIN;
+            //    SCALE_FACTOR = NORMAL_SCALE_FACTOR;
+            //    SENSITIVITY = NORMAL_SENSITIVITY;
+            //}
 
-            if (speed == 1)
-            {
-                VKF_PROCESS_NOISE = FAST_VKF_PROCESS_NOISE;
-                VKF_MEASURE_NOISE = FAST_VKF_MEASURE_NOISE;
-                BASE_GAIN = FAST_BASE_GAIN;
-                SCALE_FACTOR = FAST_SCALE_FACTOR;
-                SENSITIVITY = FAST_SENSITIVITY;
-            }
+            //if (speed == 1)
+            //{
+            //    VKF_PROCESS_NOISE = FAST_VKF_PROCESS_NOISE;
+            //    VKF_MEASURE_NOISE = FAST_VKF_MEASURE_NOISE;
+            //    BASE_GAIN = FAST_BASE_GAIN;
+            //    SCALE_FACTOR = FAST_SCALE_FACTOR;
+            //    SENSITIVITY = FAST_SENSITIVITY;
+            //}
         }
     }
 }

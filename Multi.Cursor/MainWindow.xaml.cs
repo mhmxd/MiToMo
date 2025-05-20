@@ -294,6 +294,8 @@ namespace Multi.Cursor
             {
                 // Set the technique mode in Config
                 _experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
+                ToMoLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique);
+
                 BeginTechnique();
             }
 
@@ -833,24 +835,7 @@ namespace Multi.Cursor
             //------------------------------------------------
             // Begin
             _activeBlockNum = 1;
-            _block = _experiment.GetBlock(_activeBlockNum);
-            if (_block != null) // Got the block
-            {
-                _activeTrialNum = 1;
-                _trial = _block.GetTrial(_activeTrialNum);
-                if (_trial != null) ShowTrial();
-            }
-            else // Block was null for some reason
-            {
-                if (System.Diagnostics.Debugger.IsAttached)
-                {
-                    Environment.Exit(0); // Prevents hanging during debugging
-                }
-                else
-                {
-                    System.Windows.Application.Current.Shutdown();
-                }
-            }
+            BeginBlock();
         }
 
         public bool FindPositionsForAllBlocks()
@@ -1020,6 +1005,15 @@ namespace Multi.Cursor
         private void GoToNextBlock()
         {
             _activeBlockNum++;
+            BeginBlock();
+        }
+
+        private void BeginBlock()
+        {
+            // Start logging
+            ToMoLogger.StartBlockLog(_activeBlockNum);
+
+            // Get the block and begin
             _block = _experiment.GetBlock(_activeBlockNum);
             _activeTrialNum = 1;
             _trial = _block.GetTrial(_activeTrialNum);
@@ -1062,7 +1056,7 @@ namespace Multi.Cursor
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             int targetW = Utils.MM2PX(_trial.TargetWidthMM);
             // Start logging
-            ToMoLogger.StartTrialGesturesLog(_trial.Id, _trial.TargetWidthMM, _trial.DistanceMM, _trial.StartPosition, _trial.TargetPosition);
+            ToMoLogger.StartTrialLogs(_trial.Id, _trial.TargetWidthMM, _trial.DistanceMM, _trial.StartPosition, _trial.TargetPosition);
             // Show Start
             ShowStart(_trial.StartPosition, startW, Brushes.Green,
                 Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);
@@ -1504,7 +1498,9 @@ namespace Multi.Cursor
             }
 
             _timestamps[Str.TRIAL_END] =_stopWatch.ElapsedMilliseconds;
+            
             TrialInfo<MainWindow>($"Trial#{_activeTrialNum} ended: {result}");
+            
 
             // Freeze auxursor until Start is clicked in the next trial
             _auxursorFreezed = true;
@@ -1521,6 +1517,10 @@ namespace Multi.Cursor
 
         private void EndTrialHit()
         {
+            // Log the time
+            double duration = (_timestamps[Str.TRIAL_END] - _timestamps[Str.START1_RELEASE]) / 1000.0;
+            ToMoLogger.LogTrialEvent($"Trial#{_trial.Id}: {duration:F2}");
+
             if (_activeTrialNum < _block.GetNumTrials()) // More trials to show
             {
                 GoToNextTrial();
