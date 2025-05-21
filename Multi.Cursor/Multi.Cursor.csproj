@@ -419,9 +419,6 @@
     <None Include="Resources\sound_victory.wav" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\cursor_active.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\cursor_inactive.png" />
   </ItemGroup>
   <ItemGroup>
@@ -432,6 +429,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\hit.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\cursor_active.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

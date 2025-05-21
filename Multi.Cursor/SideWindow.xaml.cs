@@ -310,9 +310,12 @@ namespace Multi.Cursor
                     break;
             }
             
-            inactiveCursor.Visibility = Visibility.Visible;
+            //inactiveCursor.Visibility = Visibility.Visible;
+            activeCursor.Visibility = Visibility.Visible;
+
             _cursorTransform.X = position.X;
             _cursorTransform.Y = position.Y;
+
             //_cursorTransform.X = position.X;
             //_cursorTransform.Y = 10;
         }
