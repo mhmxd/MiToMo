@@ -1094,7 +1094,7 @@ namespace Multi.Cursor
         //=========================== Logging =========================
         private void LogDown(string fingerName, long timestamp)
         {
-            ToMoLogger.LogGestureEvent($"{fingerName} Down! Timestamp: {timestamp}");
+            ToMoLogger.LogGestureEvent($"{fingerName} Down!");
         }
 
         private void LogUp(string fingerName, long duration, double dX, double dY)
@@ -1104,7 +1104,7 @@ namespace Multi.Cursor
 
         private void LogTap(string fingerName, Location loc, long timestamp)
         {
-            ToMoLogger.LogGestureEvent($"{fingerName} Tapped! Location: {loc} | Timestamp: {timestamp}");
+            ToMoLogger.LogGestureEvent($"{fingerName} Tapped! Location: {loc}");
         }
 
         private void LogMove(string fingerName, long duration, double dX, double dY)

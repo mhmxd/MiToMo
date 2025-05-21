@@ -1051,7 +1051,7 @@ namespace Multi.Cursor
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             int targetW = Utils.MM2PX(_trial.TargetWidthMM);
             // Start logging
-            ToMoLogger.StartTrialLogs(_trial.Id, _trial.TargetWidthMM, _trial.DistanceMM, _trial.StartPosition, _trial.TargetPosition);
+            ToMoLogger.StartTrialLogs(_activeTrialNum, _trial.Id, _trial.TargetWidthMM, _trial.DistanceMM, _trial.StartPosition, _trial.TargetPosition);
             // Show Start
             ShowStart(_trial.StartPosition, startW, Brushes.Green,
                 Start_MouseEnter, Start_MouseLeave, Start_MouseDown, Start_MouseUp);

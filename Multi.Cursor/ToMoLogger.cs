@@ -44,9 +44,9 @@ namespace Multi.Cursor
                 .CreateLogger();
         }
 
-        public static void StartTrialLogs(int trialId, double targetWidthMM, double distanceMM, Point startPos, Point targetPos)
+        public static void StartTrialLogs(int trialNum, int trialId, double targetWidthMM, double distanceMM, Point startPos, Point targetPos)
         {
-            String gestureFileName = $"trial-{trialId}-gestures-.txt";
+            String gestureFileName = $"trial-{trialNum}-#{trialId}-gestures-.txt";
             
 
             string gesturesFilePath = System.IO.Path.Combine(
