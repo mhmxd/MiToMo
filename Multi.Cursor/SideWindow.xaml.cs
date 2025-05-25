@@ -2,6 +2,7 @@
 using SkiaSharp.Views.WPF;
 using Svg.Skia;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -24,6 +25,7 @@ namespace Multi.Cursor
     public partial class SideWindow : Window
     {
         public string WindowTitle { get; set; }
+        private Random _random = new Random();
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -56,6 +58,8 @@ namespace Multi.Cursor
         private Auxursor _auxursor;
 
         private TranslateTransform _cursorTransform;
+
+        private Dictionary<string, Rectangle> _gridElements = new Dictionary<string, Rectangle>();
 
         public SideWindow(string title, Point relPos)
         {
@@ -94,9 +98,8 @@ namespace Multi.Cursor
             int maxY = _canvasHeight - marginPX - targetWidth;
 
             // Generate random position
-            Random random = new Random();
-            double randomX = random.Next(minX, maxX);
-            double randomY = random.Next(minY, maxY);
+            double randomX = _random.Next(minX, maxX);
+            double randomY = _random.Next(minY, maxY);
 
             // Create the target
             targetHalfW = targetWidth / 2;
@@ -478,5 +481,440 @@ namespace Multi.Cursor
         {
             canvas.Children.Remove(_target);
         }
+
+        public void KnollHorizontal(int minNumCols, int maxNumCols)
+        {
+            // Choose a random number of columns with random widths
+            //int maxNumCols = 10; // Max W = 10*45mm + 9*1mm = 459mm
+            //int minNumCols = 5; // Min W = 5*3mm + 4*1mm = 19mm
+            int numCols = _random.Next(minNumCols, maxNumCols + 1);
+            List<double> colWidths = new List<double>();
+            for (int i = 0; i < numCols; i++)
+            {
+                double colWidth = Utils.RandDouble(Config.GRID_MIN_ELEMENT_WIDTH_MM, Config.GRID_MAX_ELEMENT_WIDTH_MM);
+                colWidths.Add(colWidth);
+            }
+
+            // For each column, randomly choose a height formation (1 to 4)
+            List<int> colFormations = new List<int>();
+            for (int i = 0; i < numCols; i++)
+            {
+                int formation = _random.Next(1, 5); // 1 to 4
+                colFormations.Add(formation);
+            }
+
+            // Create the grid
+            Brush defaultElementColor = Config.GRAY_A0A0A0;
+            int gutter = Utils.MM2PX(Config.GRID_GUTTER_MM);
+            int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Assuming this is the top/bottom window padding
+            int colX = padding; // Start from the left (increased inside the loop)
+
+            // This represents the total height available for the *grid content* within the window padding.
+            // This is the height we want all columns to span from top-most content edge to bottom-most content edge.
+            int totalGridContentHeight = (int)ActualHeight - 2 * padding;
+
+            for (int i = 0; i < numCols; i++)
+            {
+                // Create elements based on the formation
+                int colW = Utils.MM2PX(colWidths[i]);
+                Conlog<SideWindow>($"Column {i}: W = {colW}, Form = {colFormations[i]}");
+
+                // All elements in all columns start at the same Canvas.Top position (after the top window padding)
+                int currentY = padding;
+
+                switch (colFormations[i])
+                {
+                    case 1: // Single element (1/1 H)
+                            // This column has 1 element. Its total height should be totalGridContentHeight.
+                            // The single element takes up all of this space.
+                        Rectangle topElement_case1 = new Rectangle
+                        {
+                            Width = colW,
+                            Height = totalGridContentHeight,
+                            Fill = defaultElementColor
+                        };
+
+                        Canvas.SetLeft(topElement_case1, colX);
+                        Canvas.SetTop(topElement_case1, currentY); // Position relative to the Canvas's top edge
+                        canvas.Children.Add(topElement_case1);
+                        _gridElements.Add($"C{i}-R0", topElement_case1);
+                        break;
+
+                    case 2: // 2/3H top, 1/3H bottom
+                            // This column has 2 elements and 1 internal gutter.
+                            // The available space for elements + internal gutter is totalGridContentHeight.
+                            // We want fixed element sizes, so we calculate the 2/3 and 1/3 heights first.
+                            // totalGridContentHeight = (height2_3) + (gutter) + (height1_3)
+                            // So, (height2_3 + height1_3) = totalGridContentHeight - gutter
+
+                        double effectiveHeightForElements_case2 = (double)totalGridContentHeight - gutter; // Remaining height after 1 internal gutter
+
+                        // Calculate target element heights
+                        int targetHeight2_3 = (int)Math.Round(2.0 * effectiveHeightForElements_case2 / 3.0);
+                        int targetHeight1_3 = (int)Math.Round(effectiveHeightForElements_case2 / 3.0);
+
+                        // Calculate the actual sum of these rounded heights
+                        int sumOfTargetHeights_case2 = targetHeight2_3 + targetHeight1_3;
+                        // The difference between the desired total element height and the actual sum is distributed to the gutter
+                        int extraHeightForGutter_case2 = (int)effectiveHeightForElements_case2 - sumOfTargetHeights_case2;
+
+                        Rectangle topElement_case2 = new Rectangle
+                        {
+                            Width = colW,
+                            Height = targetHeight2_3,
+                            Fill = defaultElementColor
+                        };
+                        Canvas.SetLeft(topElement_case2, colX);
+                        Canvas.SetTop(topElement_case2, currentY);
+                        canvas.Children.Add(topElement_case2);
+                        _gridElements.Add($"C{i}-R0", topElement_case2);
+
+                        // Adjust the gutter to absorb the rounding difference
+                        currentY += (int)topElement_case2.Height + gutter + extraHeightForGutter_case2;
+
+                        Rectangle bottomElement_case2 = new Rectangle
+                        {
+                            Width = colW,
+                            Height = targetHeight1_3,
+                            Fill = defaultElementColor
+                        };
+                        Canvas.SetLeft(bottomElement_case2, colX);
+                        Canvas.SetTop(bottomElement_case2, currentY);
+                        canvas.Children.Add(bottomElement_case2);
+                        _gridElements.Add($"C{i}-R1", bottomElement_case2);
+                        break;
+
+                    case 3: // 1/3H top, 1/3H middle, 1/3H bottom
+                            // This column has 3 elements and 2 internal gutters.
+                            // (height1_3 + height1_3 + height1_3) = totalGridContentHeight - (2 * gutter)
+                        double effectiveHeightForElements_case3 = (double)totalGridContentHeight - (2 * gutter);
+
+                        int targetHeight1_3_seg = (int)Math.Round(effectiveHeightForElements_case3 / 3.0);
+
+                        // Calculate the actual sum of these rounded heights
+                        int sumOfTargetHeights_case3 = 3 * targetHeight1_3_seg;
+                        // The difference between the desired total element height and the actual sum is distributed to the gutter
+                        int extraHeightForGutter_case3 = (int)effectiveHeightForElements_case3 - sumOfTargetHeights_case3;
+
+                        Rectangle topElement_case3 = new Rectangle
+                        {
+                            Width = colW,
+                            Height = targetHeight1_3_seg,
+                            Fill = defaultElementColor
+                        };
+                        Canvas.SetLeft(topElement_case3, colX);
+                        Canvas.SetTop(topElement_case3, currentY);
+                        canvas.Children.Add(topElement_case3);
+                        _gridElements.Add($"C{i}-R0", topElement_case3);
+
+                        // Distribute the extra height from rounding
+                        int gutter1_height = gutter + (extraHeightForGutter_case3 / 2); // Split extra height if two gutters
+                        int gutter2_height = gutter + (extraHeightForGutter_case3 - (extraHeightForGutter_case3 / 2));
+
+                        currentY += (int)topElement_case3.Height + gutter1_height;
+
+                        Rectangle middleElement_case3 = new Rectangle
+                        {
+                            Width = colW,
+                            Height = targetHeight1_3_seg,
+                            Fill = defaultElementColor
+                        };
+                        Canvas.SetLeft(middleElement_case3, colX);
+                        Canvas.SetTop(middleElement_case3, currentY);
+                        canvas.Children.Add(middleElement_case3);
+                        _gridElements.Add($"C{i}-R1", middleElement_case3);
+
+                        currentY += (int)middleElement_case3.Height + gutter2_height;
+
+                        Rectangle bottomElement_case3 = new Rectangle
+                        {
+                            Width = colW,
+                            Height = targetHeight1_3_seg,
+                            Fill = defaultElementColor
+                        };
+                        Canvas.SetLeft(bottomElement_case3, colX);
+                        Canvas.SetTop(bottomElement_case3, currentY);
+                        canvas.Children.Add(bottomElement_case3);
+                        _gridElements.Add($"C{i}-R2", bottomElement_case3);
+                        break;
+
+                    case 4: // 1/3H top, 2/3H bottom
+                            // This column has 2 elements and 1 internal gutter.
+                            // (height1_3 + height2_3) = totalGridContentHeight - gutter
+                        double effectiveHeightForElements_case4 = (double)totalGridContentHeight - gutter;
+
+                        // Calculate target element heights
+                        targetHeight1_3 = (int)Math.Round(effectiveHeightForElements_case4 / 3.0);
+                        targetHeight2_3 = (int)Math.Round(2.0 * effectiveHeightForElements_case4 / 3.0);
+
+                        // Calculate the actual sum of these rounded heights
+                        int sumOfTargetHeights_case4 = targetHeight1_3 + targetHeight2_3;
+                        // The difference is distributed to the gutter
+                        int extraHeightForGutter_case4 = (int)effectiveHeightForElements_case4 - sumOfTargetHeights_case4;
+
+                        Rectangle topElement_case4 = new Rectangle
+                        {
+                            Width = colW,
+                            Height = targetHeight1_3,
+                            Fill = defaultElementColor
+                        };
+                        Canvas.SetLeft(topElement_case4, colX);
+                        Canvas.SetTop(topElement_case4, currentY);
+                        canvas.Children.Add(topElement_case4);
+                        _gridElements.Add($"C{i}-R0", topElement_case4);
+
+                        // Adjust the gutter to absorb the rounding difference
+                        currentY += (int)topElement_case4.Height + gutter + extraHeightForGutter_case4;
+
+                        Rectangle bottomElement_case4 = new Rectangle
+                        {
+                            Width = colW,
+                            Height = targetHeight2_3,
+                            Fill = defaultElementColor
+                        };
+                        Canvas.SetLeft(bottomElement_case4, colX);
+                        Canvas.SetTop(bottomElement_case4, currentY);
+                        canvas.Children.Add(bottomElement_case4);
+                        _gridElements.Add($"C{i}-R1", bottomElement_case4);
+                        break;
+                }
+
+                // Move forward
+                colX += colW + gutter;
+            }
+
+        }
+
+        public void KnollVertical(int minNumRows, int maxNumRows)
+        {
+            // Choose a random number of rows with random heights
+            int numRows = _random.Next(minNumRows, maxNumRows + 1);
+            List<double> rowHeights = new List<double>();
+            for (int i = 0; i < numRows; i++)
+            {
+                double rowHeight = Utils.RandDouble(Config.GRID_MIN_ELEMENT_WIDTH_MM, Config.GRID_MAX_ELEMENT_WIDTH_MM); // Reusing width config for height
+                rowHeights.Add(rowHeight);
+            }
+
+            // For each row, randomly choose a horizontal formation (1 to 4)
+            // Cases will now represent horizontal divisions:
+            // Case 1: 1/1 W (full width)
+            // Case 2: 2/3 W left, 1/3 W right
+            // Case 3: 1/3 W left, 1/3 W middle, 1/3 W right
+            // Case 4: 1/3 W left, 2/3 W right
+            List<int> rowFormations = new List<int>();
+            for (int i = 0; i < numRows; i++)
+            {
+                int formation = _random.Next(1, 5); // 1 to 4
+                rowFormations.Add(formation);
+            }
+
+            // Create the grid
+            int gutter = Utils.MM2PX(Config.GRID_GUTTER_MM);
+            int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Assuming this is the left/right window padding
+            int rowY = padding; // Start from the top (increased inside the loop)
+
+            // This represents the total width available for the *grid content* within the window padding.
+            // This is the width we want all rows to span from left-most content edge to right-most content edge.
+            int totalGridContentWidth = (int)ActualWidth - 2 * padding; // Changed to ActualWidth
+
+            for (int i = 0; i < numRows; i++)
+            {
+                // Create elements based on the formation
+                int rowH = Utils.MM2PX(rowHeights[i]); // This is the height of the current row
+                Conlog<SideWindow>($"Row {i}: H = {rowH}, Form = {rowFormations[i]}");
+
+                // All elements in all rows start at the same Canvas.Left position (after the left window padding)
+                int currentX = padding; // Changed from currentY to currentX
+
+                switch (rowFormations[i])
+                {
+                    case 1: // Single element (1/1 W)
+                            // This row has 1 element. Its total width should be totalGridContentWidth.
+                            // The single element takes up all of this space.
+                        Rectangle leftElement = new Rectangle // Renamed topElement to leftElement
+                        {
+                            Width = totalGridContentWidth, // Changed from Height to Width
+                            Height = rowH,
+                            Fill = Brushes.Blue
+                        };
+
+                        Canvas.SetLeft(leftElement, currentX); // Position relative to the Canvas's left edge
+                        Canvas.SetTop(leftElement, rowY);
+                        canvas.Children.Add(leftElement);
+                        Conlog<SideWindow>($"Case 1: Element Width = {leftElement.Width}, Left = {Canvas.GetLeft(leftElement)}");
+                        break;
+
+                    case 2: // 2/3 W left, 1/3 W right
+                            // This row has 2 elements and 1 internal gutter.
+                            // The available space for elements + internal gutter is totalGridContentWidth.
+                            // We want fixed element sizes, so we calculate the 2/3 and 1/3 widths first.
+                            // totalGridContentWidth = (width2_3) + (gutter) + (width1_3)
+                            // So, (width2_3 + width1_3) = totalGridContentWidth - gutter
+
+                        double effectiveWidthForElements_case2 = (double)totalGridContentWidth - gutter; // Remaining width after 1 internal gutter
+
+                        // Calculate target element widths
+                        int targetWidth2_3 = (int)Math.Round(2.0 * effectiveWidthForElements_case2 / 3.0);
+                        int targetWidth1_3 = (int)Math.Round(effectiveWidthForElements_case2 / 3.0);
+
+                        // Calculate the actual sum of these rounded widths
+                        int sumOfTargetWidths_case2 = targetWidth2_3 + targetWidth1_3;
+                        // The difference between the desired total element width and the actual sum is distributed to the gutter
+                        int extraWidthForGutter_case2 = (int)effectiveWidthForElements_case2 - sumOfTargetWidths_case2;
+
+                        leftElement = new Rectangle // Renamed topElement to leftElement
+                        {
+                            Width = targetWidth2_3, // Changed from Height to Width
+                            Height = rowH,
+                            Fill = Brushes.Blue
+                        };
+                        Canvas.SetLeft(leftElement, currentX);
+                        Canvas.SetTop(leftElement, rowY);
+                        canvas.Children.Add(leftElement);
+                        Conlog<SideWindow>($"Case 2: Left Element Width = {leftElement.Width}, Left = {Canvas.GetLeft(leftElement)}");
+
+                        // Adjust the gutter to absorb the rounding difference
+                        currentX += (int)leftElement.Width + gutter + extraWidthForGutter_case2; // Changed from currentY to currentX
+
+                        Rectangle rightElement_case2 = new Rectangle // Renamed bottomElement to rightElement
+                        {
+                            Width = targetWidth1_3, // Changed from Height to Width
+                            Height = rowH,
+                            Fill = Brushes.Blue
+                        };
+                        Canvas.SetLeft(rightElement_case2, currentX);
+                        Canvas.SetTop(rightElement_case2, rowY);
+                        canvas.Children.Add(rightElement_case2);
+                        Conlog<SideWindow>($"Case 2: Right Element Width = {rightElement_case2.Width}, Left = {Canvas.GetLeft(rightElement_case2)}");
+                        break;
+
+                    case 3: // 1/3 W left, 1/3 W middle, 1/3 W right
+                            // This row has 3 elements and 2 internal gutters.
+                            // (width1_3 + width1_3 + width1_3) = totalGridContentWidth - (2 * gutter)
+                        double effectiveWidthForElements_case3 = (double)totalGridContentWidth - (2 * gutter);
+
+                        int targetWidth1_3_seg = (int)Math.Round(effectiveWidthForElements_case3 / 3.0);
+
+                        // Calculate the actual sum of these rounded widths
+                        int sumOfTargetWidths_case3 = 3 * targetWidth1_3_seg;
+                        // The difference between the desired total element width and the actual sum is distributed to the gutter
+                        int extraWidthForGutter_case3 = (int)effectiveWidthForElements_case3 - sumOfTargetWidths_case3;
+
+                        leftElement = new Rectangle // Renamed topElement to leftElement
+                        {
+                            Width = targetWidth1_3_seg, // Changed from Height to Width
+                            Height = rowH,
+                            Fill = Brushes.Blue
+                        };
+                        Canvas.SetLeft(leftElement, currentX);
+                        Canvas.SetTop(leftElement, rowY);
+                        canvas.Children.Add(leftElement);
+                        Conlog<SideWindow>($"Case 3: Left Element Width = {leftElement.Width}, Left = {Canvas.GetLeft(leftElement)}");
+
+                        // Distribute the extra width from rounding
+                        int gutter1_width = gutter + (extraWidthForGutter_case3 / 2); // Split extra width if two gutters
+                        int gutter2_width = gutter + (extraWidthForGutter_case3 - (extraWidthForGutter_case3 / 2));
+
+                        currentX += (int)leftElement.Width + gutter1_width; // Changed from currentY to currentX
+
+                        Rectangle middleElement_case3 = new Rectangle
+                        {
+                            Width = targetWidth1_3_seg, // Changed from Height to Width
+                            Height = rowH,
+                            Fill = Brushes.Blue
+                        };
+                        Canvas.SetLeft(middleElement_case3, currentX);
+                        Canvas.SetTop(middleElement_case3, rowY);
+                        canvas.Children.Add(middleElement_case3);
+                        Conlog<SideWindow>($"Case 3: Middle Element Width = {middleElement_case3.Width}, Left = {Canvas.GetLeft(middleElement_case3)}");
+
+                        currentX += (int)middleElement_case3.Width + gutter2_width; // Changed from currentY to currentX
+
+                        Rectangle rightElement_case3 = new Rectangle // Renamed bottomElement to rightElement
+                        {
+                            Width = targetWidth1_3_seg, // Changed from Height to Width
+                            Height = rowH,
+                            Fill = Brushes.Blue
+                        };
+                        Canvas.SetLeft(rightElement_case3, currentX);
+                        Canvas.SetTop(rightElement_case3, rowY);
+                        canvas.Children.Add(rightElement_case3);
+                        Conlog<SideWindow>($"Case 3: Right Element Width = {rightElement_case3.Width}, Left = {Canvas.GetLeft(rightElement_case3)}");
+                        break;
+
+                    case 4: // 1/3 W left, 2/3 W right
+                            // This row has 2 elements and 1 internal gutter.
+                            // (width1_3 + width2_3) = totalGridContentWidth - gutter
+                        double effectiveWidthForElements_case4 = (double)totalGridContentWidth - gutter;
+
+                        // Calculate target element widths
+                        targetWidth1_3 = (int)Math.Round(effectiveWidthForElements_case4 / 3.0);
+                        targetWidth2_3 = (int)Math.Round(2.0 * effectiveWidthForElements_case4 / 3.0);
+
+                        // Calculate the actual sum of these rounded widths
+                        int sumOfTargetWidths_case4 = targetWidth1_3 + targetWidth2_3;
+                        // The difference is distributed to the gutter
+                        int extraWidthForGutter_case4 = (int)effectiveWidthForElements_case4 - sumOfTargetWidths_case4;
+
+                        leftElement = new Rectangle // Renamed topElement to leftElement
+                        {
+                            Width = targetWidth1_3, // Changed from Height to Width
+                            Height = rowH,
+                            Fill = Brushes.Blue
+                        };
+                        Canvas.SetLeft(leftElement, currentX);
+                        Canvas.SetTop(leftElement, rowY);
+                        canvas.Children.Add(leftElement);
+                        Conlog<SideWindow>($"Case 4: Left Element Width = {leftElement.Width}, Left = {Canvas.GetLeft(leftElement)}");
+
+                        // Adjust the gutter to absorb the rounding difference
+                        currentX += (int)leftElement.Width + gutter + extraWidthForGutter_case4; // Changed from currentY to currentX
+
+                        Rectangle rightElement_case4 = new Rectangle // Renamed bottomElement to rightElement
+                        {
+                            Width = targetWidth2_3, // Changed from Height to Width
+                            Height = rowH,
+                            Fill = Brushes.Blue
+                        };
+                        Canvas.SetLeft(rightElement_case4, currentX);
+                        Canvas.SetTop(rightElement_case4, rowY);
+                        canvas.Children.Add(rightElement_case4);
+                        Conlog<SideWindow>($"Case 4: Right Element Width = {rightElement_case4.Width}, Left = {Canvas.GetLeft(rightElement_case4)}");
+                        break;
+                }
+
+                // Move forward for the next row
+                rowY += rowH + gutter; // Changed from colX to rowY, colW to rowH
+            }
+        }
+
+        public void HighlightElement(string elementKey)
+        {
+            if (_gridElements.ContainsKey(elementKey))
+            {
+                Rectangle element = _gridElements[elementKey];
+                element.Stroke = Config.GRID_HIGHLIGHT_COLOR;
+                element.StrokeThickness = Config.GRID_HIGHLIGHT_STROKE_THICKNESS;
+            }
+            else
+            {
+                Console.WriteLine($"Element {elementKey} not found.");
+            }
+        }
+
+        public void TargetElement(string elementKey)
+        {
+            if (_gridElements.ContainsKey(elementKey))
+            {
+                Rectangle element = _gridElements[elementKey];
+                element.Fill = Config.GRID_TARGET_COLOR;
+            }
+            else
+            {
+                Console.WriteLine($"Element {elementKey} not found.");
+            }
+        }
+
     }
 }

@@ -246,6 +246,12 @@ namespace Multi.Cursor
             TouchMouseSensorEventManager.Handler += TouchMouseSensorHandler;
 
             InitializeWindows();
+            _topWindow.KnollHorizontal(5, 10);
+            _leftWindow.KnollVertical(5, 10);
+            _rightWindow.KnollVertical(5, 10);
+
+            // TEMP test coloring
+            _topWindow.TargetElement("C2-R0");
 
             UpdateLabel();
 
@@ -492,19 +498,19 @@ namespace Multi.Cursor
                 _absBottom = _absTop + (int)Height;
 
                 //--- Overlay window
-                var bounds = screens[1].Bounds;
-                _overlayWindow = new OverlayWindow
-                {
-                    WindowStartupLocation = WindowStartupLocation.Manual,
-                    Left = bounds.Left,
-                    Top = bounds.Top,
-                    Width = bounds.Width,
-                    Height = bounds.Height,
+                //var bounds = screens[1].Bounds;
+                //_overlayWindow = new OverlayWindow
+                //{
+                //    WindowStartupLocation = WindowStartupLocation.Manual,
+                //    Left = bounds.Left,
+                //    Top = bounds.Top,
+                //    Width = bounds.Width,
+                //    Height = bounds.Height,
                     
-                    WindowState = WindowState.Normal, // Start as normal to set position
-                };
-                WindowHelper.SetAlwaysOnTop( _overlayWindow );
-                _overlayWindow.Show();
+                //    WindowState = WindowState.Normal, // Start as normal to set position
+                //};
+                //WindowHelper.SetAlwaysOnTop( _overlayWindow );
+                //_overlayWindow.Show();
             }
 
 
@@ -524,6 +530,8 @@ namespace Multi.Cursor
 
             //AdjustWindowPositions();
         }
+
+        
 
         private void SideWindow_MouseDown(object sender, MouseButtonEventArgs e)
         {

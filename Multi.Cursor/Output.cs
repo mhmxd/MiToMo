@@ -86,6 +86,15 @@ namespace Multi.Cursor
                 .CreateLogger();
         }
 
+        public static void Conlog<T>(string mssg, [CallerMemberName] string memberName = "")
+        {
+            var className = typeof(T).Name;
+            CONSOUT_NOTIME.ForContext("ClassName", className)
+                .ForContext("MethodName", memberName)
+                .Information(mssg);
+
+        }
+
         public static ILogger Outlog<T>([CallerMemberName] string memberName = "")
         {
             var className = typeof(T).Name;

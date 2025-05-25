@@ -9,7 +9,7 @@ namespace Multi.Cursor
 {
     internal class Config
     {
-        public const double PPI = 109; // BenQ = 89, Apple Display = 109
+        public const double PPI = 89; // BenQ = 89, Apple Display = 109
 
         public static int LAST_TOUCH_COL = 14; // Total number of touch columns
 
@@ -34,8 +34,8 @@ namespace Multi.Cursor
         public static double NORMAL_VKF_PROCESS_NOISE = 100; // Was 50
         public static double NORMAL_VKF_MEASURE_NOISE = 10; // Was 10
         public static double NORMAL_BASE_GAIN = 20;       // Minimum movement amplification (adjust for small target selection) // Was 10
-        public static double NORMAL_SCALE_FACTOR = 12;    // Maximum gain at high speed (adjust for fast movement)
-        public static double NORMAL_SENSITIVITY = 5;    // Controls how quickly gain increases (adjust for balance)
+        public static double NORMAL_SCALE_FACTOR = 40;    // Maximum gain at high speed (adjust for fast movement) // was 12 
+        public static double NORMAL_SENSITIVITY = 20;    // Controls how quickly gain increases (adjust for balance)
 
         // Swipe (needs to be faster, as cursor starts from the middle)
         public static double FAST_VKF_PROCESS_NOISE = 100;
@@ -70,6 +70,8 @@ namespace Multi.Cursor
         // --------------- Sizes and Margins
         public static int SIDE_WINDOW_SIZE_MM = 50;
         public static double WINDOW_PADDING_MM = 2;
+        
+        
         // --------------------------------------
 
         // --------------- Screen
@@ -110,6 +112,15 @@ namespace Multi.Cursor
         public static readonly Brush GRAY_A0A0A0 =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A0A0A0"));
         // --------------------------------------
+
+        // --------------- Grid --------------------
+        public static double GRID_GUTTER_MM = 2; // Space in-between the grid elements
+        public static double GRID_MAX_ELEMENT_WIDTH_MM = 45; // Width of the widest element in the grid
+        public static double GRID_MIN_ELEMENT_WIDTH_MM = 3; // Width of the narrowest element in the grid
+        public static readonly int GRID_HIGHLIGHT_STROKE_THICKNESS = 3;
+        public static readonly Brush GRID_HIGHLIGHT_COLOR = Brushes.DarkGreen;
+        public static readonly Brush GRID_TARGET_COLOR = Brushes.LightGreen;
+        // -----------------------------------------
 
         public static void SetMode(int speed)
         {
