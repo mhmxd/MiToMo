@@ -56,21 +56,22 @@ namespace Multi.Cursor
             {
                 if (Owner is MainWindow ownerWindow)
                 {
+                    _isPositionsFound = true;
 
-                    BigButton.Content = "Initializing...";
-                    //BigButton.IsEnabled = false;
+                    //BigButton.Content = "Initializing...";
+                    ////BigButton.IsEnabled = false;
 
-                    _isPositionsFound = await Task.Run(() => ownerWindow.FindPositionsForAllBlocks());
+                    //_isPositionsFound = await Task.Run(() => ownerWindow.FindPositionsForAllBlocks());
 
-                    if (_isPositionsFound)
-                    {
-                        BigButton.Content = "Begin";
-                        //BigButton.IsEnabled = true;
-                    }
-                    else
-                    {
-                        BigButton.Content = "Retry";
-                    }
+                    //if (_isPositionsFound)
+                    //{
+                    //    BigButton.Content = "Begin";
+                    //    //BigButton.IsEnabled = true;
+                    //}
+                    //else
+                    //{
+                    //    BigButton.Content = "Retry";
+                    //}
 
 
                     // Now you have the result, and you are still on a background thread.

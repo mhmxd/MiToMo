@@ -209,11 +209,6 @@ namespace Multi.Cursor
             return sb.ToString();
         }
 
-        public static string GetString(Point p)
-        {
-            return $"(X = {p.X:F2}, Y = {p.Y:F2})";
-        }
-
         public static string GetString(List<double> numbers)
         {
             if (numbers == null || !numbers.Any())
@@ -277,7 +272,6 @@ namespace Multi.Cursor
                     $"BR: ({windowRect.BottomRight.X:F0} | {windowRect.BottomRight.Y:F0}) | " +
                     $"BL: ({windowRect.BottomLeft.X:F0} | {windowRect.BottomLeft.Y:F0})";
         }
-
 
         public static string ToStr(this Point point)
         {

@@ -48,20 +48,12 @@ namespace Multi.Cursor
             set => _targetLocation = value;
         }
 
-        //private int _sideWindowInd; // 0 (left), 1 (right), 2 (top) -> side window to show target in
-        //public int SideWindowInd
-        //{
-        //    get => _sideWindowInd;
-        //    set => _sideWindowInd = value;
-        //}
-
-        //private int _angle;
-        //private bool _straightPath; // True (stright), false (diagonal)
-        //public bool StrightPath
-        //{
-        //    get => _straightPath;
-        //    set => _straightPath = value;
-        //}
+        private string _targetKey; // To address the grid elements
+        public string TargetKey
+        {
+            get => _targetKey;
+            set => _targetKey = value;
+        }
 
         //=========================================================================
 

@@ -498,8 +498,8 @@ namespace Multi.Cursor
 
             if (innerPoint != null && outerPoint != null)
             {
-                Seril.Debug($"Inner: {Output.GetString((Point)innerPoint)}");
-                Seril.Debug($"Outer: {Output.GetString((Point)outerPoint)}");
+                Seril.Debug($"Inner: {((Point)innerPoint).ToStr()}");
+                Seril.Debug($"Outer: {((Point)outerPoint).ToStr()}");
 
                 _innerPoint = (Point)innerPoint;
                 _outerPoint = (Point)outerPoint;

@@ -5,8 +5,11 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using MathNet.Numerics.Integration;
+using Tensorflow.Operations;
 using static System.Math;
 using static System.Windows.Rect;
+using static Multi.Cursor.Output;
 
 namespace Multi.Cursor
 {
@@ -109,6 +112,11 @@ namespace Multi.Cursor
         public static Point Offset(Point p, double offsetX, double offsetY)
         {
             return new Point((int)(p.X + offsetX), (int)(p.Y + offsetY));
+        }
+
+        public static Point OffsetPosition(this Point p, double offsetX, double offsetY)
+        {
+            return new Point(p.X + offsetX, p.Y + offsetY);
         }
 
         public static bool IsBetween(double v, double v1, double v2)
@@ -326,6 +334,44 @@ namespace Multi.Cursor
             }
 
             return false;
+        }
+
+        public static Point FindRandPointWithDist(Rect rect, Point src, int dist, int minDeg, int maxDeg)
+        {
+            // Define a maximum number of attempts to prevent infinite loops
+            // Adjust this value based on expected density of valid points
+            const int maxAttempts = 100;
+
+            // Convert the degree range to radians for trigonometric functions
+            double minRad = DegToRad(minDeg);
+            double maxRad = DegToRad(maxDeg);
+
+            for (int i = 0; i < maxAttempts; i++)
+            {
+                // 1. Generate a random angle within the specified range [minRad, maxRad]
+                // Note: Rng.NextDouble() returns a value between 0.0 and 1.0 (exclusive of 1.0)
+                double randomRad = minRad + (_random.NextDouble() * (maxRad - minRad));
+
+                // 2. Calculate candidate point (startCenter) coordinates
+                // s_x = t_x + d * cos(theta)
+                // s_y = t_y + d * sin(theta)
+                double s_x = src.X + dist * Math.Cos(randomRad);
+                double s_y = src.Y + dist * Math.Sin(randomRad);
+
+                // Convert to integer Point coordinates (rounding is typical for screen coordinates)
+                Point startCenter = new Point((int)Math.Round(s_x), (int)Math.Round(s_y));
+                TrialInfo<MainWindow>(startCenter.ToStr());
+                // 3. Check if candidate is inside the Rect
+                // The Contains method checks if the point is within or on the edge of the rectangle.
+                if (rect.Contains(startCenter))
+                {
+                    return startCenter; // Found a valid point!
+                }
+            }
+
+            // If after maxAttempts, no suitable point is found, return a default/empty Point
+            // You might want to throw an exception or return a nullable Point in a real application
+            return new Point(-1, -1);
         }
 
     }

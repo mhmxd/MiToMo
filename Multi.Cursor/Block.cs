@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 using Seril = Serilog.Log;
 
 namespace Multi.Cursor
@@ -23,7 +24,61 @@ namespace Multi.Cursor
             set => _id = value;
         }
 
-        public Block(int id, List<double> targetWidthsMM, List<double> distsMM, int rep) 
+        private Experiment.BLOCK_TYPE _blockType = Experiment.BLOCK_TYPE.REPEATED_SIDE;
+        public Experiment.BLOCK_TYPE BlockType
+        {
+            get => _blockType;
+            set => _blockType = value;
+        }
+
+        public Block(Experiment.BLOCK_TYPE type, int id, List<double> targetWidthsMM, List<double> distsMM, int rep, Location loc = Location.Top)
+        {
+            _id = id;
+            _blockType = type;
+
+            if (type == Experiment.BLOCK_TYPE.REPEATED_SIDE) // One side is repeated (w/ different Targets and dists)
+            {
+                int trialNum = 1;
+                for (int r = 0; r < rep; r++)
+                {
+                    foreach (double targetWidthMM in targetWidthsMM)
+                    {
+                        foreach (double distMM in distsMM)
+                        {
+                            Trial trial = new Trial(_id * 100 + trialNum, targetWidthMM, distMM, loc);
+                            _trials.Add(trial);
+                            trialNum++;
+                        }
+                    }
+                }
+            }
+
+            else if (type == Experiment.BLOCK_TYPE.ALTERNATING_SIDE) // Alternating sides
+            {
+                int trialNum = 1;
+                for (int r = 0; r < rep; r++)
+                {
+                    foreach (double targetWidthMM in targetWidthsMM)
+                    {
+                        foreach (double distMM in distsMM)
+                        {
+                            for (int locInd = 0; locInd < 3; locInd++)
+                            {
+                                Location sideWindow = (Location)locInd;
+                                Trial trial = new Trial(_id * 100 + trialNum, targetWidthMM, distMM, sideWindow);
+                                _trials.Add(trial);
+                                trialNum++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Shuffle the trials
+            _trials.Shuffle();
+        }
+
+        public Block(int id, List<double> targetWidthsMM, List<double> distsMM, int rep)
         {
             _id = id;
 
@@ -43,7 +98,7 @@ namespace Multi.Cursor
                             _trials.Add(trial);
                             trialNum++;
                         }
-                        
+
                     }
                 }
             }

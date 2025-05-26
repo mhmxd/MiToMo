@@ -12,16 +12,23 @@ namespace Multi.Cursor
     internal class Experiment
     {
         //-- Variables
-        //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
-        private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
+        private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
+        //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
+        private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30}; // BenQ
+
         private static List<double> _distances = new List<double>(); // Generated in constructor
         private static int N_BLOCKS = 3; // Number of blocks in the experiment
         private static int N_REPS_IN_BLOCK = 1;
         private double _distPaddingMM; // Padding to each side of the dist thresholds
-        
 
         public static double Min_Target_Width_MM = TARGET_WIDTHS_MM.Min();
         public static double Max_Target_Width_MM = TARGET_WIDTHS_MM.Max();
+
+        public enum BLOCK_TYPE
+        {
+            REPEATED_SIDE = 0,
+            ALTERNATING_SIDE = 1
+        }
 
         //-- Calculated
         public double Longest_Dist_MM;
@@ -75,7 +82,8 @@ namespace Multi.Cursor
             for (int i = 0; i < N_BLOCKS; i++)
             {
                 int blockId = Participant_Number * 100 + i;
-                Block block = new Block(blockId, TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
+                //Block block = new Block(blockId, TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
+                Block block = new Block(BLOCK_TYPE.REPEATED_SIDE, blockId, GRID_TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
                 _blocks.Add(block);
             }
 
@@ -154,6 +162,21 @@ namespace Multi.Cursor
         private string ListToString<T>(List<T> list)
         {
             return "{" + string.Join(", ", list) + "}";
+        }
+
+        public static int GetNumGridTargetWidths()
+        {
+            return GRID_TARGET_WIDTHS_MM.Count;
+        }
+
+        public static List<double> GetGridTargetWidthsMM()
+        {
+            return GRID_TARGET_WIDTHS_MM;
+        }
+
+        public static double GetGridMinTargetWidthMM()
+        {
+            return GRID_TARGET_WIDTHS_MM.Min();
         }
     }
 }

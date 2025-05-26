@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -59,7 +60,8 @@ namespace Multi.Cursor
 
         private TranslateTransform _cursorTransform;
 
-        private Dictionary<string, Rectangle> _gridElements = new Dictionary<string, Rectangle>();
+        private Dictionary<string, Rectangle> _gridElements = new Dictionary<string, Rectangle>(); // Key: "C{col}-R{row}", Value: Rectangle element
+        private Dictionary<int, string> _elementWidths = new Dictionary<int, string>(); // Key: Width (px), Value: Element Key
 
         public SideWindow(string title, Point relPos)
         {
@@ -82,96 +84,96 @@ namespace Multi.Cursor
         /// </summary>
         /// <param name="targetWidth"> Width (diameter) of the target circle </param>
         /// <returns> Position of the target top-left (rel. to this window) </returns>
-        public Point ShowTarget(int targetWidth, Brush fill, 
-            MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
-            MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
-        {
-            // Get canvas dimensions
-            _canvasWidth = (int)canvas.ActualWidth;
-            _canvasHeight = (int)canvas.ActualHeight;
+        //public Point ShowTarget(int targetWidth, Brush fill, 
+        //    MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
+        //    MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
+        //{
+        //    // Get canvas dimensions
+        //    _canvasWidth = (int)canvas.ActualWidth;
+        //    _canvasHeight = (int)canvas.ActualHeight;
 
-            // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            int minX = marginPX;
-            int maxX = _canvasWidth - marginPX - targetWidth;
-            int minY = marginPX;
-            int maxY = _canvasHeight - marginPX - targetWidth;
+        //    // Ensure the Target stays fully within bounds (min/max for top-left)
+        //    int marginPX = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+        //    int minX = marginPX;
+        //    int maxX = _canvasWidth - marginPX - targetWidth;
+        //    int minY = marginPX;
+        //    int maxY = _canvasHeight - marginPX - targetWidth;
 
-            // Generate random position
-            double randomX = _random.Next(minX, maxX);
-            double randomY = _random.Next(minY, maxY);
+        //    // Generate random position
+        //    double randomX = _random.Next(minX, maxX);
+        //    double randomY = _random.Next(minY, maxY);
 
-            // Create the target
-            targetHalfW = targetWidth / 2;
-            _target = new Rectangle
-            {
-                Width = targetWidth,
-                Height = targetWidth,
-                Fill = fill,
-            };
+        //    // Create the target
+        //    targetHalfW = targetWidth / 2;
+        //    _target = new Rectangle
+        //    {
+        //        Width = targetWidth,
+        //        Height = targetWidth,
+        //        Fill = fill,
+        //    };
 
-            // Position the target on the Canvas
-            Canvas.SetLeft(_target, randomX);
-            Canvas.SetTop(_target, randomY);
+        //    // Position the target on the Canvas
+        //    Canvas.SetLeft(_target, randomX);
+        //    Canvas.SetTop(_target, randomY);
 
-            //--- TEMP (for measurement)
-            // Longest dist
-            //Canvas.SetLeft(_target, minX);
-            //Canvas.SetTop(_target, minY);
-            // Shortest dist
-            //Canvas.SetLeft(_target, maxX - targetWidth);
-            //Canvas.SetTop(_target, minY);
+        //    //--- TEMP (for measurement)
+        //    // Longest dist
+        //    //Canvas.SetLeft(_target, minX);
+        //    //Canvas.SetTop(_target, minY);
+        //    // Shortest dist
+        //    //Canvas.SetLeft(_target, maxX - targetWidth);
+        //    //Canvas.SetTop(_target, minY);
 
 
-            // Add events
-            _target.MouseEnter += mouseEnterHandler;
-            _target.MouseLeave += mouseLeaveHandler;
-            _target.MouseLeftButtonDown += buttonDownHandler;
-            _target.MouseLeftButtonUp += buttonUpHandler;
+        //    // Add events
+        //    _target.MouseEnter += mouseEnterHandler;
+        //    _target.MouseLeave += mouseLeaveHandler;
+        //    _target.MouseLeftButtonDown += buttonDownHandler;
+        //    _target.MouseLeftButtonUp += buttonUpHandler;
 
-            // Add the circle to the Canvas
-            canvas.Children.Add(_target);
+        //    // Add the circle to the Canvas
+        //    canvas.Children.Add(_target);
 
-            // Set index
-            Canvas.SetZIndex(_target, 0);
-            Canvas.SetZIndex(activeCursor, 1);
-            Canvas.SetZIndex(inactiveCursor, 1);
+        //    // Set index
+        //    Canvas.SetZIndex(_target, 0);
+        //    Canvas.SetZIndex(activeCursor, 1);
+        //    Canvas.SetZIndex(inactiveCursor, 1);
 
-            return new Point(randomX, randomY);
-        }
+        //    return new Point(randomX, randomY);
+        //}
 
-        public void ShowTarget(Point position, int targetW, Brush fill,
-            MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
-            MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
-        {
+        //public void ShowTarget(Point position, int targetW, Brush fill,
+        //    MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
+        //    MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
+        //{
 
-            // Create the target
-            targetHalfW = targetW / 2;
-            _target = new Rectangle
-            {
-                Width = targetW,
-                Height = targetW,
-                Fill = fill,
-            };
+        //    // Create the target
+        //    targetHalfW = targetW / 2;
+        //    _target = new Rectangle
+        //    {
+        //        Width = targetW,
+        //        Height = targetW,
+        //        Fill = fill,
+        //    };
 
-            // Position the target on the Canvas
-            Canvas.SetLeft(_target, position.X);
-            Canvas.SetTop(_target, position.Y);
+        //    // Position the target on the Canvas
+        //    Canvas.SetLeft(_target, position.X);
+        //    Canvas.SetTop(_target, position.Y);
             
-            // Add events
-            _target.MouseEnter += mouseEnterHandler;
-            _target.MouseLeave += mouseLeaveHandler;
-            _target.MouseLeftButtonDown += buttonDownHandler;
-            _target.MouseLeftButtonUp += buttonUpHandler;
+        //    // Add events
+        //    _target.MouseEnter += mouseEnterHandler;
+        //    _target.MouseLeave += mouseLeaveHandler;
+        //    _target.MouseLeftButtonDown += buttonDownHandler;
+        //    _target.MouseLeftButtonUp += buttonUpHandler;
 
-            // Add the circle to the Canvas
-            canvas.Children.Add(_target);
+        //    // Add the circle to the Canvas
+        //    canvas.Children.Add(_target);
 
-            // Set index
-            Canvas.SetZIndex(_target, 0);
-            Canvas.SetZIndex(activeCursor, 1);
-            Canvas.SetZIndex(inactiveCursor, 1);
-        }
+        //    // Set index
+        //    Canvas.SetZIndex(_target, 0);
+        //    Canvas.SetZIndex(activeCursor, 1);
+        //    Canvas.SetZIndex(inactiveCursor, 1);
+        //}
 
         /// <summary>
         /// Show the target for measurement purposes
@@ -482,29 +484,58 @@ namespace Multi.Cursor
             canvas.Children.Remove(_target);
         }
 
-        public void KnollHorizontal(int minNumCols, int maxNumCols)
+        public void KnollHorizontal(int minNumCols, int maxNumCols, 
+            MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
+            MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
         {
-            // Choose a random number of columns with random widths
+            // Choose a random number of columns with set widths
             //int maxNumCols = 10; // Max W = 10*45mm + 9*1mm = 459mm
             //int minNumCols = 5; // Min W = 5*3mm + 4*1mm = 19mm
-            int numCols = _random.Next(minNumCols, maxNumCols + 1);
-            List<double> colWidths = new List<double>();
-            for (int i = 0; i < numCols; i++)
+            //int numCols = _random.Next(minNumCols, maxNumCols + 1);
+            //List<double> colWidths = new List<double>();
+            //for (int i = 0; i < numCols; i++)
+            //{
+            //    //double colWidth = Utils.RandDouble(Config.GRID_MIN_ELEMENT_WIDTH_MM, Config.GRID_MAX_ELEMENT_WIDTH_MM);
+            //    colWidths.Add(colWidth);
+            //}
+
+            // Choose a random number of columns (multiples of widths) within the specified range
+            List<int> possibleCols = new List<int>();
+            for (int i = minNumCols; i <= maxNumCols; i += Experiment.GetNumGridTargetWidths())
             {
-                double colWidth = Utils.RandDouble(Config.GRID_MIN_ELEMENT_WIDTH_MM, Config.GRID_MAX_ELEMENT_WIDTH_MM);
-                colWidths.Add(colWidth);
+                possibleCols.Add(i);
+            }
+            int numCols = possibleCols[_random.Next(possibleCols.Count)];
+
+            // Calculate how many times each width should appear
+            int nRepetitionsPerWidth = numCols / 3;
+
+            // Create the Base List with equal repetitions
+            List<double> colWidths = new List<double>();
+            foreach (double width in Experiment.GetGridTargetWidthsMM())
+            {
+                for (int i = 0; i < nRepetitionsPerWidth; i++)
+                {
+                    colWidths.Add(width);
+                }
             }
 
+            // Shuffle the widths to randomize their order
+            colWidths.Shuffle();
+
             // For each column, randomly choose a height formation (1 to 4)
+            double minW = Experiment.GetGridMinTargetWidthMM();
             List<int> colFormations = new List<int>();
             for (int i = 0; i < numCols; i++)
             {
                 int formation = _random.Next(1, 5); // 1 to 4
+                if (colWidths[i] == minW) formation = 3; // Don't go full H with small targets
+
                 colFormations.Add(formation);
             }
 
             // Create the grid
-            Brush defaultElementColor = Config.GRAY_A0A0A0;
+            Brush defaultElementColor = Config.ELEMENT_DEFAULT_COLOR;
             int gutter = Utils.MM2PX(Config.GRID_GUTTER_MM);
             int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Assuming this is the top/bottom window padding
             int colX = padding; // Start from the left (increased inside the loop)
@@ -512,6 +543,9 @@ namespace Multi.Cursor
             // This represents the total height available for the *grid content* within the window padding.
             // This is the height we want all columns to span from top-most content edge to bottom-most content edge.
             int totalGridContentHeight = (int)ActualHeight - 2 * padding;
+
+            // Fractions of height
+
 
             for (int i = 0; i < numCols; i++)
             {
@@ -527,17 +561,17 @@ namespace Multi.Cursor
                     case 1: // Single element (1/1 H)
                             // This column has 1 element. Its total height should be totalGridContentHeight.
                             // The single element takes up all of this space.
-                        Rectangle topElement_case1 = new Rectangle
-                        {
-                            Width = colW,
-                            Height = totalGridContentHeight,
-                            Fill = defaultElementColor
-                        };
 
-                        Canvas.SetLeft(topElement_case1, colX);
-                        Canvas.SetTop(topElement_case1, currentY); // Position relative to the Canvas's top edge
-                        canvas.Children.Add(topElement_case1);
-                        _gridElements.Add($"C{i}-R0", topElement_case1);
+                        Rectangle topElement_case1 = CreateElement(
+                            colW, totalGridContentHeight,
+                            mouseEnterHandler, mouseLeaveHandler, buttonDownHandler, buttonUpHandler);
+
+                        AddElementToCanvas(topElement_case1, colX, currentY);
+
+                        string elementId = $"C{i}-R0"; // Column i, Row 0
+                        _gridElements.Add(elementId, topElement_case1);
+                        _elementWidths[colW] = elementId; // Store the width and element key
+
                         break;
 
                     case 2: // 2/3H top, 1/3H bottom
@@ -558,30 +592,28 @@ namespace Multi.Cursor
                         // The difference between the desired total element height and the actual sum is distributed to the gutter
                         int extraHeightForGutter_case2 = (int)effectiveHeightForElements_case2 - sumOfTargetHeights_case2;
 
-                        Rectangle topElement_case2 = new Rectangle
-                        {
-                            Width = colW,
-                            Height = targetHeight2_3,
-                            Fill = defaultElementColor
-                        };
-                        Canvas.SetLeft(topElement_case2, colX);
-                        Canvas.SetTop(topElement_case2, currentY);
-                        canvas.Children.Add(topElement_case2);
-                        _gridElements.Add($"C{i}-R0", topElement_case2);
+                        Rectangle topElement_case2 = CreateElement(
+                            colW, targetHeight2_3,
+                            mouseEnterHandler, mouseLeaveHandler, buttonDownHandler, buttonUpHandler);
+
+                        AddElementToCanvas(topElement_case2, colX, currentY);
+
+                        elementId = $"C{i}-R0"; // Column i, Row 0
+                        _gridElements.Add(elementId, topElement_case2);
+                        _elementWidths[colW] = elementId; // Store the width and element key
 
                         // Adjust the gutter to absorb the rounding difference
                         currentY += (int)topElement_case2.Height + gutter + extraHeightForGutter_case2;
 
-                        Rectangle bottomElement_case2 = new Rectangle
-                        {
-                            Width = colW,
-                            Height = targetHeight1_3,
-                            Fill = defaultElementColor
-                        };
-                        Canvas.SetLeft(bottomElement_case2, colX);
-                        Canvas.SetTop(bottomElement_case2, currentY);
-                        canvas.Children.Add(bottomElement_case2);
-                        _gridElements.Add($"C{i}-R1", bottomElement_case2);
+                        Rectangle bottomElement_case2 = CreateElement(
+                            colW, targetHeight1_3,
+                            mouseEnterHandler, mouseLeaveHandler, buttonDownHandler, buttonUpHandler);
+
+                        AddElementToCanvas(bottomElement_case2, colX, currentY);
+
+                        elementId = $"C{i}-R1"; // Column i, Row 1
+                        _gridElements.Add(elementId, bottomElement_case2);
+                        _elementWidths[colW] = elementId; // Store the width and element key
                         break;
 
                     case 3: // 1/3H top, 1/3H middle, 1/3H bottom
@@ -596,16 +628,15 @@ namespace Multi.Cursor
                         // The difference between the desired total element height and the actual sum is distributed to the gutter
                         int extraHeightForGutter_case3 = (int)effectiveHeightForElements_case3 - sumOfTargetHeights_case3;
 
-                        Rectangle topElement_case3 = new Rectangle
-                        {
-                            Width = colW,
-                            Height = targetHeight1_3_seg,
-                            Fill = defaultElementColor
-                        };
-                        Canvas.SetLeft(topElement_case3, colX);
-                        Canvas.SetTop(topElement_case3, currentY);
-                        canvas.Children.Add(topElement_case3);
-                        _gridElements.Add($"C{i}-R0", topElement_case3);
+                        Rectangle topElement_case3 = CreateElement(
+                            colW, targetHeight1_3_seg,
+                            mouseEnterHandler, mouseLeaveHandler, buttonDownHandler, buttonUpHandler);
+
+                        AddElementToCanvas(topElement_case3, colX, currentY);
+
+                        elementId = $"C{i}-R0"; // Column i, Row 0
+                        _gridElements.Add(elementId, topElement_case3);
+                        _elementWidths[colW] = elementId; // Store the width and element key
 
                         // Distribute the extra height from rounding
                         int gutter1_height = gutter + (extraHeightForGutter_case3 / 2); // Split extra height if two gutters
@@ -613,29 +644,27 @@ namespace Multi.Cursor
 
                         currentY += (int)topElement_case3.Height + gutter1_height;
 
-                        Rectangle middleElement_case3 = new Rectangle
-                        {
-                            Width = colW,
-                            Height = targetHeight1_3_seg,
-                            Fill = defaultElementColor
-                        };
-                        Canvas.SetLeft(middleElement_case3, colX);
-                        Canvas.SetTop(middleElement_case3, currentY);
-                        canvas.Children.Add(middleElement_case3);
-                        _gridElements.Add($"C{i}-R1", middleElement_case3);
+                        Rectangle middleElement_case3 = CreateElement(
+                            colW, targetHeight1_3_seg,
+                            mouseEnterHandler, mouseLeaveHandler, buttonDownHandler, buttonUpHandler);
+
+                        AddElementToCanvas(middleElement_case3, colX, currentY);
+
+                        elementId = $"C{i}-R1"; // Column i, Row 1
+                        _gridElements.Add(elementId, middleElement_case3);
+                        _elementWidths[colW] = elementId; // Store the width and element key
 
                         currentY += (int)middleElement_case3.Height + gutter2_height;
 
-                        Rectangle bottomElement_case3 = new Rectangle
-                        {
-                            Width = colW,
-                            Height = targetHeight1_3_seg,
-                            Fill = defaultElementColor
-                        };
-                        Canvas.SetLeft(bottomElement_case3, colX);
-                        Canvas.SetTop(bottomElement_case3, currentY);
-                        canvas.Children.Add(bottomElement_case3);
-                        _gridElements.Add($"C{i}-R2", bottomElement_case3);
+                        Rectangle bottomElement_case3 = CreateElement(
+                            colW, targetHeight1_3_seg,
+                            mouseEnterHandler, mouseLeaveHandler, buttonDownHandler, buttonUpHandler);
+
+                        AddElementToCanvas(bottomElement_case3, colX, currentY);
+
+                        elementId = $"C{i}-R2"; // Column i, Row 2
+                        _gridElements.Add(elementId, bottomElement_case3);
+                        _elementWidths[colW] = elementId; // Store the width and element key
                         break;
 
                     case 4: // 1/3H top, 2/3H bottom
@@ -652,30 +681,28 @@ namespace Multi.Cursor
                         // The difference is distributed to the gutter
                         int extraHeightForGutter_case4 = (int)effectiveHeightForElements_case4 - sumOfTargetHeights_case4;
 
-                        Rectangle topElement_case4 = new Rectangle
-                        {
-                            Width = colW,
-                            Height = targetHeight1_3,
-                            Fill = defaultElementColor
-                        };
-                        Canvas.SetLeft(topElement_case4, colX);
-                        Canvas.SetTop(topElement_case4, currentY);
-                        canvas.Children.Add(topElement_case4);
-                        _gridElements.Add($"C{i}-R0", topElement_case4);
+                        Rectangle topElement_case4 = CreateElement(
+                            colW, targetHeight1_3,
+                            mouseEnterHandler, mouseLeaveHandler, buttonDownHandler, buttonUpHandler);
+
+                        AddElementToCanvas(topElement_case4, colX, currentY);
+
+                        elementId = $"C{i}-R0";
+                        _gridElements.Add(elementId, topElement_case4);
+                        _elementWidths[colW] = elementId; // Store the width and element key
 
                         // Adjust the gutter to absorb the rounding difference
                         currentY += (int)topElement_case4.Height + gutter + extraHeightForGutter_case4;
 
-                        Rectangle bottomElement_case4 = new Rectangle
-                        {
-                            Width = colW,
-                            Height = targetHeight2_3,
-                            Fill = defaultElementColor
-                        };
-                        Canvas.SetLeft(bottomElement_case4, colX);
-                        Canvas.SetTop(bottomElement_case4, currentY);
-                        canvas.Children.Add(bottomElement_case4);
-                        _gridElements.Add($"C{i}-R1", bottomElement_case4);
+                        Rectangle bottomElement_case4 = CreateElement(
+                            colW, targetHeight2_3,
+                            mouseEnterHandler, mouseLeaveHandler, buttonDownHandler, buttonUpHandler);
+
+                        AddElementToCanvas(bottomElement_case4, colX, currentY);
+
+                        elementId = $"C{i}-R1"; // Column i, Row 1
+                        _gridElements.Add(elementId, bottomElement_case4);
+                        _elementWidths[colW] = elementId; // Store the width and element key
                         break;
                 }
 
@@ -738,7 +765,6 @@ namespace Multi.Cursor
                             Height = rowH,
                             Fill = Brushes.Blue
                         };
-
                         Canvas.SetLeft(leftElement, currentX); // Position relative to the Canvas's left edge
                         Canvas.SetTop(leftElement, rowY);
                         canvas.Children.Add(leftElement);
@@ -889,6 +915,33 @@ namespace Multi.Cursor
             }
         }
 
+        private Rectangle CreateElement(double w, double h,
+            MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
+            MouseButtonEventHandler mouseDownHandler, MouseButtonEventHandler mouseUpHandler
+            )
+        {
+            Rectangle rectangle = new Rectangle // Renamed topElement to leftElement
+            {
+                Width = w,
+                Height = h,
+                Fill = Config.ELEMENT_DEFAULT_COLOR
+            };
+
+            rectangle.MouseEnter += mouseEnterHandler;
+            rectangle.MouseLeave += mouseLeaveHandler;
+            rectangle.MouseDown += mouseDownHandler;
+            rectangle.MouseUp += mouseUpHandler;
+
+            return rectangle;
+        }
+
+        private void AddElementToCanvas(UIElement element, double left, double top)
+        {
+            Canvas.SetLeft(element, left);
+            Canvas.SetTop(element, top);
+            canvas.Children.Add(element);
+        }
+
         public void HighlightElement(string elementKey)
         {
             if (_gridElements.ContainsKey(elementKey))
@@ -914,6 +967,39 @@ namespace Multi.Cursor
             {
                 Console.WriteLine($"Element {elementKey} not found.");
             }
+        }
+
+        public void ResetElements()
+        {
+            foreach (Rectangle element in _gridElements.Values)
+            {
+                element.Fill = Config.GRAY_A0A0A0; // Reset to default color
+            }
+        }
+
+        public Point TargetRandomElementWithWidth(double widthMM)
+        {
+            int widthPX = Utils.MM2PX(widthMM);
+            List<Rectangle> candidates = new List<Rectangle>();
+            foreach (Rectangle element in _gridElements.Values)
+            {
+                if (element.Width == widthPX)
+                {
+                    candidates.Add(element);
+                }
+            }
+
+            Rectangle randomElement = candidates[_random.Next(candidates.Count)];
+            TrialInfo<SideWindow>($"Key = ");
+
+            // Color the target element
+            randomElement.Fill = Config.GRID_TARGET_COLOR;
+
+            return new Point
+            {
+                X = Canvas.GetLeft(randomElement) + randomElement.Width / 2,
+                Y = Canvas.GetTop(randomElement) + randomElement.Height / 2
+            };
         }
 
     }
