@@ -109,6 +109,17 @@ namespace Multi.Cursor
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F3F3F3"));
         public static readonly Brush GRAY_A0A0A0 =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A0A0A0"));
+        public static readonly Brush DARK_ORANGE =
+            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EE6E36"));
+
+        public static readonly Brush START_AVAILABLE_COLOR = Brushes.Green;
+        public static readonly Brush START_UNAVAILABLE_COLOR = DARK_ORANGE;
+        public static readonly Brush TARGET_AVAILABLE_COLOR = Brushes.Green;
+        public static readonly Brush TARGET_UNAVAILABLE_COLOR = DARK_ORANGE;
+
+        public static readonly Brush GRID_HIGHLIGHT_COLOR = Brushes.Green;
+        public static readonly Brush GRID_TARGET_COLOR = Brushes.LightGreen;
+        public static readonly Brush ELEMENT_DEFAULT_COLOR = Brushes.LightGray;
         // --------------------------------------
 
         // --------------- Grid --------------------
@@ -116,9 +127,6 @@ namespace Multi.Cursor
         public static double GRID_MAX_ELEMENT_WIDTH_MM = 45; // Width of the widest element in the grid
         public static double GRID_MIN_ELEMENT_WIDTH_MM = 3; // Width of the narrowest element in the grid
         public static readonly int GRID_HIGHLIGHT_STROKE_THICKNESS = 3;
-        public static readonly Brush GRID_HIGHLIGHT_COLOR = Brushes.Green;
-        public static readonly Brush GRID_TARGET_COLOR = Brushes.LightGreen;
-        public static readonly Brush ELEMENT_DEFAULT_COLOR = Brushes.LightGray;
         // -----------------------------------------
 
         public static void SetMode(int speed)

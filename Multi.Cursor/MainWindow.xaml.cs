@@ -231,7 +231,6 @@ namespace Multi.Cursor
         private Rectangle _startRectangle;
         private SideWindow _targetWindow;
         private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)
-        private string _activeTargetKey = ""; // Key for the active target
 
         public MainWindow()
         {
@@ -1061,11 +1060,14 @@ namespace Multi.Cursor
                     _targetWindow = _topWindow;
 
                     // Choose a Target (using the width)
-                    (_activeTargetKey, Point targetCenterInSideWin) =
+                    (_trial.TargetKey, Point targetCenterInSideWin) =
                         _targetWindow.GetRandomElementByWidth(_trial.TargetWidthMM);
                     Point targetCenterAbsolute = targetCenterInSideWin
                         .OffsetPosition(_targetWindow.Left, _targetWindow.Top);
                     TrialInfo<MainWindow>($"Target W: {_trial.TargetWidthMM}, Position: {targetCenterAbsolute.ToString()}");
+
+                    // Color the Target
+                    _targetWindow.ColorElement(_trial.TargetKey, Config.TARGET_UNAVAILABLE_COLOR);
                     
                     // Find a position for the Start
                     Rect startConstraints = new Rect(
@@ -1727,9 +1729,10 @@ namespace Multi.Cursor
             {
                 _timestamps[Str.START1_RELEASE] = _trialtWatch.ElapsedMilliseconds;
 
-                _targetWindow.HighlightElement(_activeTargetKey);
+                _targetWindow.ColorElement(_trial.TargetKey, Config.TARGET_AVAILABLE_COLOR);
+                _startRectangle.Fill = Config.START_UNAVAILABLE_COLOR;
                 //_targetWindow.ColorTarget(Brushes.Green);
-                _startRectangle.Fill = Brushes.Red;
+
             }
             else // Started from inside, but released outside Start => End on No_Start
             {
@@ -1784,9 +1787,11 @@ namespace Multi.Cursor
                 //_trialState = Str.TARGET_RELEASE;
 
                 //--- Change the colors
-                _targetWindow.ColorTarget(Brushes.Red);
+                _targetWindow.ColorElement(_trial.TargetKey, Config.TARGET_UNAVAILABLE_COLOR);
+                _startRectangle.Fill = Config.START_AVAILABLE_COLOR; // Change Start to green
+                //_targetWindow.ColorTarget(Brushes.Red);
                 //_startCircle.Fill = Brushes.Green; // Change Start back to green
-                _startRectangle.Fill = Brushes.Green; // Change Start back to green
+
 
                 // No need for the cursor anymore
                 if (_experiment.IsTechRadiusor())
@@ -1858,7 +1863,7 @@ namespace Multi.Cursor
             {
                 Width = startW,
                 Height = startW,
-                Fill = Brushes.Green
+                Fill = Config.START_AVAILABLE_COLOR
             };
 
             // Position the Start on the Canvas

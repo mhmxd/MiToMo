@@ -953,13 +953,13 @@ namespace Multi.Cursor
             }
         }
 
-        public void HighlightElement(string elementId)
+        public void ColorElement(string elementId, Brush color)
         {
             TrialInfo<SideWindow>($"Element Key: {elementId}");
             if (_gridElements.ContainsKey(elementId))
             {
                 Element element = _gridElements[elementId];
-                element.ElementFill = Config.GRID_TARGET_COLOR;
+                element.ElementFill = color;
             }
             else
             {
