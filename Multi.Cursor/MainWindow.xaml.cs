@@ -231,7 +231,7 @@ namespace Multi.Cursor
         private Rectangle _startRectangle;
         private SideWindow _targetWindow;
         private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)
-        //private Enums _targetSideWindowDir;
+        private string _activeTargetKey = ""; // Key for the active target
 
         public MainWindow()
         {
@@ -1061,8 +1061,10 @@ namespace Multi.Cursor
                     _targetWindow = _topWindow;
 
                     // Choose a Target (using the width)
-                    Point targetCenterInSideWin = _targetWindow.TargetRandomElementWithWidth(_trial.TargetWidthMM);
-                    Point targetCenterAbsolute = targetCenterInSideWin.OffsetPosition(_targetWindow.Left, _targetWindow.Top);
+                    (_activeTargetKey, Point targetCenterInSideWin) =
+                        _targetWindow.GetRandomElementByWidth(_trial.TargetWidthMM);
+                    Point targetCenterAbsolute = targetCenterInSideWin
+                        .OffsetPosition(_targetWindow.Left, _targetWindow.Top);
                     TrialInfo<MainWindow>($"Target W: {_trial.TargetWidthMM}, Position: {targetCenterAbsolute.ToString()}");
                     
                     // Find a position for the Start
@@ -1725,7 +1727,8 @@ namespace Multi.Cursor
             {
                 _timestamps[Str.START1_RELEASE] = _trialtWatch.ElapsedMilliseconds;
 
-                _targetWindow.ColorTarget(Brushes.Green);
+                _targetWindow.HighlightElement(_activeTargetKey);
+                //_targetWindow.ColorTarget(Brushes.Green);
                 _startRectangle.Fill = Brushes.Red;
             }
             else // Started from inside, but released outside Start => End on No_Start

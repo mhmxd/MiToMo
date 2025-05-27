@@ -309,6 +309,7 @@
     <Compile Include="BlockEndWindow.xaml.cs">
       <DependentUpon>BlockEndWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Element.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="CursorControl.xaml.cs">

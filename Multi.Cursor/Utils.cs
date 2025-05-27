@@ -340,7 +340,7 @@ namespace Multi.Cursor
         {
             // Define a maximum number of attempts to prevent infinite loops
             // Adjust this value based on expected density of valid points
-            const int maxAttempts = 100;
+            const int maxAttempts = 1000;
 
             // Convert the degree range to radians for trigonometric functions
             double minRad = DegToRad(minDeg);
