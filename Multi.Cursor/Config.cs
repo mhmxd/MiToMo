@@ -68,8 +68,9 @@ namespace Multi.Cursor
         // --------------------------------------
 
         // --------------- Sizes and Margins
-        public static int SIDE_WINDOW_SIZE_MM = 30;
+        public static int SIDE_WINDOW_SIZE_MM = 28;
         public static double WINDOW_PADDING_MM = 4;
+        
         // --------------------------------------
 
         // --------------- Screen
@@ -117,16 +118,17 @@ namespace Multi.Cursor
         public static readonly Brush TARGET_AVAILABLE_COLOR = Brushes.Green;
         public static readonly Brush TARGET_UNAVAILABLE_COLOR = DARK_ORANGE;
 
-        public static readonly Brush GRID_HIGHLIGHT_COLOR = Brushes.Green;
+        public static readonly Brush ELEMENT_HIGHLIGHT_COLOR = Brushes.Black;
         public static readonly Brush GRID_TARGET_COLOR = Brushes.LightGreen;
-        public static readonly Brush ELEMENT_DEFAULT_COLOR = Brushes.LightGray;
+        public static readonly Brush ELEMENT_DEFAULT_FILL_COLOR = Brushes.White;
+        public static readonly Brush ELEMENT_DEFAULT_BORDER_COLOR = Brushes.Gray;
         // --------------------------------------
 
         // --------------- Grid --------------------
-        public static double GRID_GUTTER_MM = 2; // Space in-between the grid elements
+        public static double GRID_GUTTER_MM = 1; // Space in-between the grid elements
         public static double GRID_MAX_ELEMENT_WIDTH_MM = 45; // Width of the widest element in the grid
         public static double GRID_MIN_ELEMENT_WIDTH_MM = 3; // Width of the narrowest element in the grid
-        public static readonly int GRID_HIGHLIGHT_STROKE_THICKNESS = 3;
+        public static int ELEMENT_BORDER_THICKNESS = 2; // Thickness of the border around the grid elements
         // -----------------------------------------
 
         public static void SetMode(int speed)

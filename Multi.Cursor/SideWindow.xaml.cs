@@ -536,7 +536,7 @@ namespace Multi.Cursor
             }
 
             // Create the grid
-            Brush defaultElementColor = Config.ELEMENT_DEFAULT_COLOR;
+            Brush defaultElementColor = Config.ELEMENT_DEFAULT_FILL_COLOR;
             int gutter = Utils.MM2PX(Config.GRID_GUTTER_MM);
             int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
             int colX = padding;
@@ -944,8 +944,8 @@ namespace Multi.Cursor
             if (_gridElements.ContainsKey(elementKey))
             {
                 Element element = _gridElements[elementKey];
-                element.ElementStroke = Config.GRID_HIGHLIGHT_COLOR;
-                element.ElementStrokeThickness = Config.GRID_HIGHLIGHT_STROKE_THICKNESS;
+                element.ElementStroke = Config.ELEMENT_HIGHLIGHT_COLOR;
+                element.ElementStrokeThickness = Config.ELEMENT_BORDER_THICKNESS;
             }
             else
             {
@@ -971,7 +971,7 @@ namespace Multi.Cursor
         {
             foreach (Element element in _gridElements.Values)
             {
-                element.ElementFill = Config.ELEMENT_DEFAULT_COLOR; // Reset to default color
+                element.ElementFill = Config.ELEMENT_DEFAULT_FILL_COLOR; // Reset to default color
             }
         }
 

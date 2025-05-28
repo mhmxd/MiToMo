@@ -9,10 +9,12 @@ namespace Multi.Cursor
 {
     public class Element : UserControl // No 'partial' if code-only
     {
-        private Rectangle _visualRectangle; // Internal Rectangle instance
+        // Change from Rectangle to Border
+        private Border _visualBorder;
 
-        // --- Dependency Properties (remain mostly the same) ---
-        // (Ensuring IdProperty's default is string.Empty as discussed)
+        // --- Dependency Properties ---
+        // (Id, ElementWidth, ElementHeight remain the same, as they define the *total* size)
+
         public static readonly DependencyProperty IdProperty =
             DependencyProperty.Register("Id", typeof(string), typeof(Element), new PropertyMetadata(string.Empty));
 
@@ -23,7 +25,7 @@ namespace Multi.Cursor
         }
 
         public static readonly DependencyProperty ElementWidthProperty =
-            DependencyProperty.Register("ElementWidth", typeof(double), typeof(Element), new PropertyMetadata(100.0, OnElementSizeChanged)); // Default value 100.0
+            DependencyProperty.Register("ElementWidth", typeof(double), typeof(Element), new PropertyMetadata(100.0, OnElementSizeChanged));
 
         public double ElementWidth
         {
@@ -32,7 +34,7 @@ namespace Multi.Cursor
         }
 
         public static readonly DependencyProperty ElementHeightProperty =
-            DependencyProperty.Register("ElementHeight", typeof(double), typeof(Element), new PropertyMetadata(100.0, OnElementSizeChanged)); // Default value 100.0
+            DependencyProperty.Register("ElementHeight", typeof(double), typeof(Element), new PropertyMetadata(100.0, OnElementSizeChanged));
 
         public double ElementHeight
         {
@@ -40,8 +42,9 @@ namespace Multi.Cursor
             set { SetValue(ElementHeightProperty, value); }
         }
 
+        // ElementFill now maps to Border.Background
         public static readonly DependencyProperty ElementFillProperty =
-            DependencyProperty.Register("ElementFill", typeof(Brush), typeof(Element), new PropertyMetadata(Config.ELEMENT_DEFAULT_COLOR, OnElementAppearanceChanged));
+            DependencyProperty.Register("ElementFill", typeof(Brush), typeof(Element), new PropertyMetadata(Config.ELEMENT_DEFAULT_FILL_COLOR, OnElementAppearanceChanged));
 
         public Brush ElementFill
         {
@@ -49,8 +52,9 @@ namespace Multi.Cursor
             set { SetValue(ElementFillProperty, value); }
         }
 
+        // ElementStroke now maps to Border.BorderBrush
         public static readonly DependencyProperty ElementStrokeProperty =
-            DependencyProperty.Register("ElementStroke", typeof(Brush), typeof(Element), new PropertyMetadata(Brushes.Black, OnElementAppearanceChanged));
+            DependencyProperty.Register("ElementStroke", typeof(Brush), typeof(Element), new PropertyMetadata(Config.ELEMENT_DEFAULT_BORDER_COLOR, OnElementAppearanceChanged));
 
         public Brush ElementStroke
         {
@@ -58,94 +62,107 @@ namespace Multi.Cursor
             set { SetValue(ElementStrokeProperty, value); }
         }
 
+        // ElementStrokeThickness now maps to Border.BorderThickness
         public static readonly DependencyProperty ElementStrokeThicknessProperty =
-            DependencyProperty.Register("ElementStrokeThickness", typeof(double), typeof(Element), new PropertyMetadata(0.0, OnElementAppearanceChanged)); // Default value 0.0
+            DependencyProperty.Register("ElementStrokeThickness", typeof(int), typeof(Element), new PropertyMetadata(Config.ELEMENT_BORDER_THICKNESS, OnElementAppearanceChanged));
 
-        public double ElementStrokeThickness
+        public int ElementStrokeThickness
         {
-            get { return (double)GetValue(ElementStrokeThicknessProperty); }
+            get { return (int)GetValue(ElementStrokeThicknessProperty); }
             set { SetValue(ElementStrokeThicknessProperty, value); }
         }
 
         // --- Callbacks for Dependency Property Changes ---
-        // These are crucial and should always update the internal Rectangle
         private static void OnElementSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             Element element = (Element)d;
-            if (element._visualRectangle != null)
+            if (element._visualBorder != null)
             {
-                element._visualRectangle.Width = element.ElementWidth;
-                element._visualRectangle.Height = element.ElementHeight;
+                // Set the Border's Width and Height directly to the Element's desired total size
+                element._visualBorder.Width = element.ElementWidth;
+                element._visualBorder.Height = element.ElementHeight;
             }
         }
 
         private static void OnElementAppearanceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             Element element = (Element)d;
-            if (element._visualRectangle != null)
+            if (element._visualBorder != null)
             {
-                element._visualRectangle.Fill = element.ElementFill;
-                element._visualRectangle.Stroke = element.ElementStroke;
-                element._visualRectangle.StrokeThickness = element.ElementStrokeThickness;
+                element._visualBorder.Background = element.ElementFill;    // Fill maps to Background
+                element._visualBorder.BorderBrush = element.ElementStroke; // Stroke maps to BorderBrush
+                // StrokeThickness maps to BorderThickness (uniform thickness)
+                element._visualBorder.BorderThickness = new Thickness(element.ElementStrokeThickness);
             }
         }
 
         // --- Constructor ---
         public Element()
         {
-            _visualRectangle = new Rectangle();
-            this.Content = _visualRectangle;
-            this.Background = Brushes.Transparent; // For reliable mouse events over transparent areas
+            // 1. Create the internal Border
+            _visualBorder = new Border();
 
-            _visualRectangle.Width = ElementWidth; // Will be 100.0 (default)
-            _visualRectangle.Height = ElementHeight; // Will be 100.0 (default)
-            _visualRectangle.Fill = ElementFill;     // Will be Brushes.Gray (default)
-            _visualRectangle.Stroke = ElementStroke; // Will be Brushes.Black (default)
-            _visualRectangle.StrokeThickness = ElementStrokeThickness; // Will be 0.0 (default)
+            // 2. Set the Content of the UserControl to the Border
+            this.Content = _visualBorder;
 
-            // Attach internal mouse event handlers to the _visualRectangle
-            _visualRectangle.MouseEnter += VisualRectangle_MouseEnter;
-            _visualRectangle.MouseLeave += VisualRectangle_MouseLeave;
-            _visualRectangle.MouseLeftButtonDown += VisualRectangle_MouseLeftButtonDown;
-            _visualRectangle.MouseLeftButtonUp += VisualRectangle_MouseLeftButtonUp;
+            // 3. Set the initial properties of the _visualBorder based on Dependency Property defaults
+            // These will be picked up by the callbacks, but setting them here ensures immediate visual state
+            _visualBorder.Width = ElementWidth;
+            _visualBorder.Height = ElementHeight;
+            _visualBorder.Background = ElementFill;
+            _visualBorder.BorderBrush = ElementStroke;
+            _visualBorder.BorderThickness = new Thickness(ElementStrokeThickness); // Must use Thickness struct
+
+            // 4. Set the background of the UserControl itself for reliable mouse events
+            this.Background = Brushes.Transparent;
+
+            // 5. Attach internal mouse event handlers to the _visualBorder (or this UserControl)
+            // It's often better to attach mouse events directly to the UserControl itself
+            // if you want the *entire area* of your custom control to be clickable/hoverable,
+            // including its transparent background.
+            this.MouseEnter += Element_MouseEnter;
+            this.MouseLeave += Element_MouseLeave;
+            this.MouseLeftButtonDown += Element_MouseLeftButtonDown;
+            this.MouseLeftButtonUp += Element_MouseLeftButtonUp;
+
+            // If you attached to _visualRectangle before, change to _visualBorder, or preferably to 'this'
+            // For mouse feedback (fill color changes), you'll still modify _visualBorder.Background
         }
 
         // --- Internal Mouse Event Handlers for Visual Feedback ---
-        // (These remain the same, ensure they reference _visualRectangle)
+        // Change from VisualRectangle_... to Element_... if attaching to 'this'
         private Brush _originalFillBrush;
 
-        private void VisualRectangle_MouseEnter(object sender, MouseEventArgs e)
+        private void Element_MouseEnter(object sender, MouseEventArgs e)
         {
-            _originalFillBrush = _visualRectangle.Fill;
-            //_visualRectangle.Fill = Brushes.Gray;
+            //_originalFillBrush = _visualBorder.Background; // Store original background
+            //_visualBorder.Background = Brushes.LightGreen;
             Console.WriteLine($"Element {Id} (X: {Canvas.GetLeft(this)}, Y: {Canvas.GetTop(this)}) - Mouse Enter");
             OnElementMouseEnter();
         }
 
-        private void VisualRectangle_MouseLeave(object sender, MouseEventArgs e)
+        private void Element_MouseLeave(object sender, MouseEventArgs e)
         {
-            //_visualRectangle.Fill = _originalFillBrush;
+            //_visualBorder.Background = _originalFillBrush; // Restore original background
             Console.WriteLine($"Element {Id} (X: {Canvas.GetLeft(this)}, Y: {Canvas.GetTop(this)}) - Mouse Leave");
             OnElementMouseLeave();
         }
 
-        private void VisualRectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void Element_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            //_visualRectangle.Fill = Brushes.DarkGreen;
+            //_visualBorder.Background = Brushes.DarkGreen; // Change background on click
             Console.WriteLine($"Element {Id} (X: {Canvas.GetLeft(this)}, Y: {Canvas.GetTop(this)}) - Mouse Down");
             OnElementMouseDown();
         }
 
-        private void VisualRectangle_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void Element_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            //_visualRectangle.Fill = _originalFillBrush;
-            _visualRectangle.Fill = Brushes.Red;
+            //_visualBorder.Background = _originalFillBrush; // Restore original background
             Console.WriteLine($"Element {Id} (X: {Canvas.GetLeft(this)}, Y: {Canvas.GetTop(this)}) - Mouse Up");
             OnElementMouseUp();
         }
 
-        // --- Exposing Custom Routed Events for External Consumption ---
-        // (These remain the same)
+        // --- Exposing Custom Routed Events (unchanged) ---
         public static readonly RoutedEvent ElementMouseEnterEvent =
             EventManager.RegisterRoutedEvent("ElementMouseEnter", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(Element));
 
