@@ -360,7 +360,7 @@ namespace Multi.Cursor
 
                 // Convert to integer Point coordinates (rounding is typical for screen coordinates)
                 Point startCenter = new Point((int)Math.Round(s_x), (int)Math.Round(s_y));
-                TrialInfo<MainWindow>(startCenter.ToStr());
+                
                 // 3. Check if candidate is inside the Rect
                 // The Contains method checks if the point is within or on the edge of the rectangle.
                 if (rect.Contains(startCenter))

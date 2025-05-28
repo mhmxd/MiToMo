@@ -14,11 +14,11 @@ namespace Multi.Cursor
         public static string START1_LAST_ENTRY = "start_last_entry";
         public static string START2_LAST_ENTRY = "start2_last_entry";
         
-        public static string START1_PRESS = "start1_press";
-        public static string START1_RELEASE = "start1_release";
+        public static string START_PRESS_ONE = "start1_press";
+        public static string START_RELEASE_ONE = "start1_release";
 
-        public static string START2_PRESS = "start2_press";
-        public static string START2_RELEASE = "start2_release";
+        public static string START_PRESS_TWO = "start2_press";
+        public static string START_RELEASE_TWO = "start2_release";
 
         public static string TARGET_LAST_ENTRY = "target_last_entry";
         public static string TARGET_PRESS = "target_press";

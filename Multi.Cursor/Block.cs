@@ -130,7 +130,7 @@ namespace Multi.Cursor
             {
                 Trial trialToCopy = _trials[trialNum - 1];
                 Random random = new Random();
-                int insertIndex = random.Next(trialNum + 1, _trials.Count + 1);
+                int insertIndex = random.Next(trialNum + 1, _trials.Count);
 
                 _trials.Insert(insertIndex, trialToCopy);
             }

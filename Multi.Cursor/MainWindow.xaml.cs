@@ -539,7 +539,7 @@ namespace Multi.Cursor
         {
             if (_timestamps.ContainsKey(Str.FIRST_MOVE)) // Trial is officially started (to prevent accidental click at the beginning)
             {
-                if (_timestamps.ContainsKey(Str.START1_RELEASE)) // Phase 2: Aiming for Target (missing because Target is not pressed)
+                if (_timestamps.ContainsKey(Str.START_RELEASE_ONE)) // Phase 2: Aiming for Target (missing because Target is not pressed)
                 {
                     EndTrial(RESULT.MISS);
                 }
@@ -590,7 +590,7 @@ namespace Multi.Cursor
                 {
                     EndTrial(RESULT.MISS);
                 }
-                else if (_timestamps.ContainsKey(Str.START1_RELEASE)) // Phase 2: Aiming for Target
+                else if (_timestamps.ContainsKey(Str.START_RELEASE_ONE)) // Phase 2: Aiming for Target
                 {
 
                     if (_targetWindow.IsCursorInsideTarget()) // Auxursor in target
@@ -684,7 +684,7 @@ namespace Multi.Cursor
                 }
 
             } 
-            else if (_timestamps.ContainsKey(Str.START1_PRESS)) // Pressed inside, but released outside Start => MISS
+            else if (_timestamps.ContainsKey(Str.START_PRESS_ONE)) // Pressed inside, but released outside Start => MISS
             {
                 EndTrial(RESULT.MISS);
             }
@@ -1082,7 +1082,7 @@ namespace Multi.Cursor
                         _trial.DistancePX,
                         0, 180);
 
-                    TrialInfo<MainWindow>($"Start Rect: {startConstraints.ToString()}; Target Pos: {targetCenterAbsolute}; Dist: {_trial.DistancePX}");
+                    Conlog<MainWindow>($"Start Rect: {startConstraints.ToString()}; Target Pos: {targetCenterAbsolute}; Dist: {_trial.DistancePX}");
 
                     if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position
                     {
@@ -1090,7 +1090,7 @@ namespace Multi.Cursor
                     }
                     else // Valid position found
                     {
-                        TrialInfo<MainWindow>($"Start Position: {startCenter.ToString()}");
+                        Conlog<MainWindow>($"Start Position: {startCenter.ToString()}");
                         _trial.StartPosition = startCenter.OffsetPosition(-this.Left, -this.Top);
                         _trial.TargetPosition = targetCenterInSideWin;
 
@@ -1558,6 +1558,8 @@ namespace Multi.Cursor
 
         private void EndTrial(RESULT result)
         {
+            TrialInfo<MainWindow>($"Trial#{_activeTrialNum} ended: {result}");
+
             // Play sounds
             switch (result)
             {
@@ -1574,8 +1576,6 @@ namespace Multi.Cursor
 
             _timestamps[Str.TRIAL_END] =_stopWatch.ElapsedMilliseconds;
             
-            TrialInfo<MainWindow>($"Trial#{_activeTrialNum} ended: {result}");
-
             // Decide on result
             if (result == RESULT.HIT) { EndTrialHit(); }
             else if (result == RESULT.MISS) { EndTrialMiss(); }
@@ -1589,7 +1589,7 @@ namespace Multi.Cursor
         private void EndTrialHit()
         {
             // Log the time
-            double duration = (_timestamps[Str.TRIAL_END] - _timestamps[Str.START1_RELEASE]) / 1000.0;
+            double duration = (_timestamps[Str.TRIAL_END] - _timestamps[Str.START_RELEASE_ONE]) / 1000.0;
             ToMoLogger.LogTrialEvent($"Trial#{_trial.Id}: {duration:F2}");
 
             if (_activeTrialNum < _block.GetNumTrials()) // More trials to show
@@ -1662,7 +1662,7 @@ namespace Multi.Cursor
             {
                 EndTrial(RESULT.HIT);
             }
-            else if (_timestamps.ContainsKey(Str.START1_RELEASE)) // Phase 2: Start already clicked, it's actually Aux click
+            else if (_timestamps.ContainsKey(Str.START_RELEASE_ONE)) // Phase 2: Start already clicked, it's actually Aux click
             {
                 if (_targetWindow.IsCursorInsideTarget()) // Inside target => Target hit
                 {
@@ -1676,8 +1676,7 @@ namespace Multi.Cursor
             }
             else // Phae 1: First Start press
             {
-                _timestamps[Str.START1_PRESS] = _trialtWatch.ElapsedMilliseconds;
-                
+                _timestamps[Str.START_PRESS_ONE] = _trialtWatch.ElapsedMilliseconds;
             }
 
             e.Handled = true; // Prevents the event from bubbling up to the parent element (Window)
@@ -1725,9 +1724,9 @@ namespace Multi.Cursor
                 }
 
             } 
-            else if (_timestamps.ContainsKey(Str.START1_PRESS)) // First time
+            else if (_timestamps.ContainsKey(Str.START_PRESS_ONE)) // First time
             {
-                _timestamps[Str.START1_RELEASE] = _trialtWatch.ElapsedMilliseconds;
+                _timestamps[Str.START_RELEASE_ONE] = _trialtWatch.ElapsedMilliseconds;
 
                 _targetWindow.ColorElement(_trial.TargetKey, Config.TARGET_AVAILABLE_COLOR);
                 _startRectangle.Fill = Config.START_UNAVAILABLE_COLOR;
@@ -1766,7 +1765,7 @@ namespace Multi.Cursor
 
         private void TargetMouseDown()
         {
-            if (_timestamps.ContainsKey(Str.START1_RELEASE)) // Correct sequence
+            if (_timestamps.ContainsKey(Str.START_RELEASE_ONE)) // Correct sequence
             {
                 // Set the time
                 _timestamps[Str.TARGET_PRESS] = _trialtWatch.ElapsedMilliseconds;
@@ -2037,7 +2036,7 @@ namespace Multi.Cursor
         public void IndexTap()
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap 
-                && _timestamps.ContainsKey(Str.START1_PRESS) 
+                && _timestamps.ContainsKey(Str.START_PRESS_ONE) 
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Middle)
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Ring))
             {
@@ -2084,7 +2083,7 @@ namespace Multi.Cursor
         public void ThumbSwipe(Direction dir)
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Swipe
-                && _timestamps.ContainsKey(Str.START1_PRESS))
+                && _timestamps.ContainsKey(Str.START_PRESS_ONE))
             {
                 switch (dir)
                 {
@@ -2124,7 +2123,7 @@ namespace Multi.Cursor
         public void ThumbTap(Location tapLoc)
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap 
-                && _timestamps.ContainsKey(Str.START1_PRESS) 
+                && _timestamps.ContainsKey(Str.START_PRESS_ONE) 
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Index))
             {
                 ActivateSideWin(Location.Left, tapLoc);
@@ -2135,7 +2134,7 @@ namespace Multi.Cursor
         public void MiddleTap()
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap 
-                && _timestamps.ContainsKey(Str.START1_PRESS) 
+                && _timestamps.ContainsKey(Str.START_PRESS_ONE) 
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Index)
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Ring))
             {
@@ -2146,7 +2145,7 @@ namespace Multi.Cursor
         public void RingTap()
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap
-                && _timestamps.ContainsKey(Str.START1_PRESS) 
+                && _timestamps.ContainsKey(Str.START_PRESS_ONE) 
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Index)
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Middle)
                 && _touchSurface.IsFingerInactive(TouchSurface.Finger.Pinky))
@@ -2159,7 +2158,7 @@ namespace Multi.Cursor
         public void PinkyTap(Location tapLoc)
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap
-                && _timestamps.ContainsKey(Str.START1_PRESS) 
+                && _timestamps.ContainsKey(Str.START_PRESS_ONE) 
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Index)
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Ring))
             {

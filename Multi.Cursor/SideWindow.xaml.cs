@@ -916,7 +916,7 @@ namespace Multi.Cursor
             int widthPX = Utils.MM2PX(widthMM);
             foreach (Element element in _gridElements.Values)
             {
-                TrialInfo<SideWindow>($"Element: {element.Id}, Width: {element.ElementWidth}");
+                Conlog<SideWindow>($"Element: {element.Id}, Width: {element.ElementWidth}");
             }
 
             // 1. Filter the list to get only elements with the target width
