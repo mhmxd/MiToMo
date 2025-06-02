@@ -319,6 +319,7 @@
     <Compile Include="Finger.cs" />
     <Compile Include="FingerTracker.cs" />
     <Compile Include="GestureTimesLogRow.cs" />
+    <Compile Include="GridNavigator.cs" />
     <Compile Include="Sounder.cs" />
     <Compile Include="ToMoLogger.cs" />
     <Compile Include="TouchFinger.cs" />

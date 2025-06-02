@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using System.Security.Cryptography;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -58,6 +59,8 @@ namespace Multi.Cursor
         }
 
         private Auxursor _auxursor;
+        private GridNavigator _gridNavigator;
+        private (int colInd, int rowInd) _selectedElement = (0, 0);
 
         private TranslateTransform _cursorTransform;
 
@@ -76,12 +79,13 @@ namespace Multi.Cursor
             _relPos = relPos;
 
             _auxursor = new Auxursor(Config.FRAME_DUR_MS / 1000.0);
+            _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
 
             _cursorTransform = (TranslateTransform)FindResource("CursorTransform");
         }
 
         /// <summary>
-        /// Show the target
+        /// Show the targetm
         /// </summary>
         /// <param name="targetWidth"> Width (diameter) of the target circle </param>
         /// <returns> Position of the target top-left (rel. to this window) </returns>
@@ -326,6 +330,10 @@ namespace Multi.Cursor
             //_cursorTransform.Y = 10;
         }
 
+        public void ActivateGridNavigator()
+        {
+            _gridNavigator.Activate();
+        }
 
         public void ActivateCursor()
         {
@@ -343,14 +351,28 @@ namespace Multi.Cursor
 
         public void UpdateCursor(TouchPoint tp)
         {
-            (double dX, double dY) = _auxursor.Update(tp);
-            // Only move if above the threshold
-            double moveMagnitude = Math.Sqrt(dX * dX + dY * dY);
-            if (moveMagnitude >= Config.MIN_MOVEMENT_THRESHOLD)
+            //(double dX, double dY) = _auxursor.Update(tp);
+            //// Only move if above the threshold
+            //double moveMagnitude = Math.Sqrt(dX * dX + dY * dY);
+            //if (moveMagnitude >= Config.MIN_MOVEMENT_THRESHOLD)
+            //{
+            //    MoveCursor(dX, dY);
+            //}
+
+            (int dGridX, int dGridY) = _gridNavigator.Update(tp);
+
+            // Apply the calculated movement to the grid's current position
+            if (dGridX != 0 || dGridY != 0)
             {
-                MoveCursor(dX, dY);
+                TrialInfo<SideWindow>($"Grid movement: dX = {dGridX}, dY = {dGridY}");
+                MoveSelection(dGridX, dGridY);
             }
-            
+
+        }
+
+        public void UpdateGridNavigator(TouchPoint tp)
+        {
+
         }
 
         public void StopCursor()
@@ -425,6 +447,9 @@ namespace Multi.Cursor
             {
                 // To-do: call target enter methods
             }
+
+            // Grid
+
         }
 
         public void MoveCursor(int dX, int dY)
@@ -939,8 +964,16 @@ namespace Multi.Cursor
             return (key, GetElementCenter(key));
         }
 
-        public void SelectElement(string elementKey)
+        public void SelectElement()
         {
+            // De-select all elements first
+            foreach (var element in _gridElements.Values)
+            {
+                element.ElementStroke = Config.ELEMENT_DEFAULT_BORDER_COLOR;
+                element.ElementStrokeThickness = Config.ELEMENT_BORDER_THICKNESS;
+            }
+
+            string elementKey = $"C{_selectedElement.colInd}-R{_selectedElement.rowInd}";
             if (_gridElements.ContainsKey(elementKey))
             {
                 Element element = _gridElements[elementKey];
@@ -951,6 +984,22 @@ namespace Multi.Cursor
             {
                 Console.WriteLine($"Element {elementKey} not found.");
             }
+        }
+
+        public void SelectElement(int rowId, int colId)
+        {
+            _selectedElement.rowInd = rowId;
+            _selectedElement.colInd = colId;
+            SelectElement();
+        }
+
+        public void MoveSelection(int dCol, int dRow)
+        {
+            _selectedElement.rowInd += dRow;
+            _selectedElement.colInd += dCol;
+            if (_selectedElement.rowInd < 0) _selectedElement.rowInd = 0;
+            if (_selectedElement.colInd < 0) _selectedElement.colInd = 0;
+            SelectElement();
         }
 
         public void ColorElement(string elementId, Brush color)

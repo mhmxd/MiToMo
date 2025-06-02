@@ -95,7 +95,7 @@ namespace Multi.Cursor
         public static readonly (float DX, float DY) TAP_GENERAL_THRESHOLD = (0.2f, 0.2f);
 
         public static readonly (float DX, float DY) TAP_THUMB_THRESHOLD = (0.5f, 0.5f);
-        public static readonly (float DX, float DY) TAP_INDEX_THRESHOLD = (0.2f, 0.2f);
+        public static readonly (float DX, float DY) TAP_INDEX_THRESHOLD = (0.5f, 0.5f); // Was 0.2f
         public static readonly (float DX, float DY) TAP_MIDDLE_THRESHOLD = (0.7f, 0.7f); // For better recognition of Taps
         public static readonly (float DX, float DY) TAP_RING_THRESHOLD = (0.5f, 0.5f);
         public static readonly (float DX, float DY) TAP_PINKY_THRESHOLD = (0.5f, 0.5f);
@@ -108,8 +108,8 @@ namespace Multi.Cursor
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E6E6E6"));
         public static readonly Brush GRAY_F3F3F3 =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F3F3F3"));
-        public static readonly Brush GRAY_A0A0A0 =
-            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A0A0A0"));
+        //public static readonly Brush GRAY_A0A0A0 =
+        //    new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A0A0A0"));
         public static readonly Brush DARK_ORANGE =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EE6E36"));
 
@@ -129,6 +129,9 @@ namespace Multi.Cursor
         public static double GRID_MAX_ELEMENT_WIDTH_MM = 45; // Width of the widest element in the grid
         public static double GRID_MIN_ELEMENT_WIDTH_MM = 3; // Width of the narrowest element in the grid
         public static int ELEMENT_BORDER_THICKNESS = 2; // Thickness of the border around the grid elements
+
+        public static int CELL_WIDTH_THRESHOLD = 50; // px
+        public static int CELL_HEIGHT_THRESHOLD = 50; // px
         // -----------------------------------------
 
         public static void SetMode(int speed)

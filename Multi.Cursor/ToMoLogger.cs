@@ -69,7 +69,7 @@ namespace Multi.Cursor
 
         public static void LogGestureEvent(string message)
         {
-            _gestureFileLog.Information(message);
+            //_gestureFileLog.Information(message);
         }
 
         public static void LogTrialEvent(string message)

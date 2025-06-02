@@ -492,7 +492,7 @@ namespace Multi.Cursor
             if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
                 Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
-                GestInfo<TouchSurface>($"Thumb Pos: {tpCenter.ToStr()}");
+                //GestInfo<TouchSurface>($"Thumb Pos: {tpCenter.ToStr()}");
                 if (_touchTimers[finger].IsRunning) // Already active => update position
                 {
                     _lastPositions[finger] = tpCenter; // Update position
@@ -561,7 +561,7 @@ namespace Multi.Cursor
             {
                 TouchPoint touchPoint = currentFrame.GetPointer(finger);
                 Point tpCenter = touchPoint.GetCenter();
-                GestInfo<TouchSurface>($"Index Pos: {tpCenter.ToStr()}");
+                //GestInfo<TouchSurface>($"Index Pos: {tpCenter.ToStr()}");
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
                     _lastPositions[finger] = tpCenter;
@@ -619,7 +619,7 @@ namespace Multi.Cursor
             if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
                 Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
-                GestInfo<TouchSurface>($"Middle Pos: {tpCenter.ToStr()}");
+                //GestInfo<TouchSurface>($"Middle Pos: {tpCenter.ToStr()}");
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
                     _lastPositions[finger] = tpCenter;
@@ -678,7 +678,7 @@ namespace Multi.Cursor
             if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
                 Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
-                GestInfo<TouchSurface>($"Ring Pos: {tpCenter.ToStr()}");
+                //GestInfo<TouchSurface>($"Ring Pos: {tpCenter.ToStr()}");
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
                     _lastPositions[finger] = tpCenter;
@@ -737,7 +737,7 @@ namespace Multi.Cursor
             if (currentFrame.HasTouchPoint(finger)) // Finger present
             {
                 Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
-                GestInfo<TouchSurface>($"Pinky Pos: {tpCenter.ToStr()}");
+                //GestInfo<TouchSurface>($"Pinky Pos: {tpCenter.ToStr()}");
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
                     _lastPositions[finger] = tpCenter;

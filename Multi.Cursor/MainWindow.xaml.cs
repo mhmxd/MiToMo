@@ -246,6 +246,7 @@ namespace Multi.Cursor
 
             InitializeWindows();
             _topWindow.KnollHorizontal(6, 12, Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
+            _topWindow.Activate();
 
             UpdateLabel();
 
@@ -1096,6 +1097,9 @@ namespace Multi.Cursor
 
                         ShowStart();
                     }
+
+                    // TEMP
+                    _targetWindow.SelectElement(0, 0);
 
 
                     break;
@@ -1975,8 +1979,8 @@ namespace Multi.Cursor
                 case Location.Top:
                     _activeSideWindow = _topWindow;
                     HideAuxursors();
-                    _topWindow.ShowCursor(tapLoc);
-                    _topWindow.ActivateCursor();
+                    //_topWindow.ShowCursor(tapLoc);
+                    _topWindow.ActivateGridNavigator();
                     //_leftWindow.DeactivateCursor();
                     //_rightWindow.DeactivateCursor();
                     break;
@@ -2035,18 +2039,24 @@ namespace Multi.Cursor
 
         public void IndexTap()
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap 
-                && _timestamps.ContainsKey(Str.START_PRESS_ONE) 
-                && _touchSurface.IsFingerActive(TouchSurface.Finger.Middle)
-                && _touchSurface.IsFingerActive(TouchSurface.Finger.Ring))
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
                 ActivateSideWin(Location.Top, Location.Left);
             }
+
+            TrialInfo<MainWindow>($"Active side: {_activeSideWindow}");
+
+            //if (_experiment.Active_Technique == Technique.Auxursor_Tap 
+            //    && _timestamps.ContainsKey(Str.START_PRESS_ONE) 
+            //    && _touchSurface.IsFingerActive(TouchSurface.Finger.Middle)
+            //    && _touchSurface.IsFingerActive(TouchSurface.Finger.Ring))
+            //{
+            //    ActivateSideWin(Location.Top, Location.Left);
+            //}
         }
 
         public void IndexMove(TouchPoint indPoint)
         {
-
             if (_experiment.IsTechAuxCursor())
             {
                 if (_activeSideWindow != null)

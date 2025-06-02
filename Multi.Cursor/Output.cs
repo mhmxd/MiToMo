@@ -104,8 +104,8 @@ namespace Multi.Cursor
         public static void GestInfo<T>(string mssg, [CallerMemberName] string memberName = "")
         {
             var className = typeof(T).Name;
-            //CONSOUT_WITHTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
-            FILOG.Information(mssg);
+            CONSOUT_WITHTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+            //FILOG.Information(mssg);
         }
 
         public static void PositionInfo<T>(string mssg, [CallerMemberName] string memberName = "")
