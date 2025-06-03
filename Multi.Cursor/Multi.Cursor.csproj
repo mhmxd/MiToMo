@@ -309,6 +309,7 @@
     <Compile Include="BlockEndWindow.xaml.cs">
       <DependentUpon>BlockEndWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dimensions.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Config.cs" />
@@ -319,6 +320,7 @@
     <Compile Include="Finger.cs" />
     <Compile Include="FingerTracker.cs" />
     <Compile Include="GestureTimesLogRow.cs" />
+    <Compile Include="ButtonGrid.cs" />
     <Compile Include="GridNavigator.cs" />
     <Compile Include="Sounder.cs" />
     <Compile Include="ToMoLogger.cs" />
