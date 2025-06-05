@@ -3,6 +3,7 @@ using SkiaSharp.Views.WPF;
 using Svg.Skia;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -28,7 +29,11 @@ namespace Multi.Cursor
     public partial class SideWindow : Window
     {
         public string WindowTitle { get; set; }
+
         private Random _random = new Random();
+
+        private double _padding = Utils.MmToDips(Config.WINDOW_PADDING_MM);
+        private double _gutter = Utils.MmToDips(Config.GRID_GUTTER_MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -67,6 +72,10 @@ namespace Multi.Cursor
         private Dictionary<string, Element> _gridElements = new Dictionary<string, Element>(); // Key: "C{col}-R{row}", Value: Rectangle element
         //private Dictionary<int, string> _elementWidths = new Dictionary<int, string>(); // Key: Width (px), Value: Element Key
 
+        //private Grid[] _gridColumns = new Grid[4]; // List of grid columns
+        private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
+        //private Grid _gridCol1, _gridCol2, _gridCol3; // Grid columns
+
         public SideWindow(string title, Point relPos)
         {
             InitializeComponent();
@@ -81,104 +90,15 @@ namespace Multi.Cursor
             _auxursor = new Auxursor(Config.FRAME_DUR_MS / 1000.0);
             _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
 
-            _cursorTransform = (TranslateTransform)FindResource("CursorTransform");
+            //_cursorTransform = (TranslateTransform)FindResource("CursorTransform");
+
+            this.Loaded += SideWindow_Loaded; // Add this line
         }
 
-        /// <summary>
-        /// Show the targetm
-        /// </summary>
-        /// <param name="targetWidth"> Width (diameter) of the target circle </param>
-        /// <returns> Position of the target top-left (rel. to this window) </returns>
-        //public Point ShowTarget(int targetWidth, Brush fill, 
-        //    MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
-        //    MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
-        //{
-        //    // Get canvas dimensions
-        //    _canvasWidth = (int)canvas.ActualWidth;
-        //    _canvasHeight = (int)canvas.ActualHeight;
-
-        //    // Ensure the Target stays fully within bounds (min/max for top-left)
-        //    int marginPX = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-        //    int minX = marginPX;
-        //    int maxX = _canvasWidth - marginPX - targetWidth;
-        //    int minY = marginPX;
-        //    int maxY = _canvasHeight - marginPX - targetWidth;
-
-        //    // Generate random position
-        //    double randomX = _random.Next(minX, maxX);
-        //    double randomY = _random.Next(minY, maxY);
-
-        //    // Create the target
-        //    targetHalfW = targetWidth / 2;
-        //    _target = new Rectangle
-        //    {
-        //        Width = targetWidth,
-        //        Height = targetWidth,
-        //        Fill = fill,
-        //    };
-
-        //    // Position the target on the Canvas
-        //    Canvas.SetLeft(_target, randomX);
-        //    Canvas.SetTop(_target, randomY);
-
-        //    //--- TEMP (for measurement)
-        //    // Longest dist
-        //    //Canvas.SetLeft(_target, minX);
-        //    //Canvas.SetTop(_target, minY);
-        //    // Shortest dist
-        //    //Canvas.SetLeft(_target, maxX - targetWidth);
-        //    //Canvas.SetTop(_target, minY);
-
-
-        //    // Add events
-        //    _target.MouseEnter += mouseEnterHandler;
-        //    _target.MouseLeave += mouseLeaveHandler;
-        //    _target.MouseLeftButtonDown += buttonDownHandler;
-        //    _target.MouseLeftButtonUp += buttonUpHandler;
-
-        //    // Add the circle to the Canvas
-        //    canvas.Children.Add(_target);
-
-        //    // Set index
-        //    Canvas.SetZIndex(_target, 0);
-        //    Canvas.SetZIndex(activeCursor, 1);
-        //    Canvas.SetZIndex(inactiveCursor, 1);
-
-        //    return new Point(randomX, randomY);
-        //}
-
-        //public void ShowTarget(Point position, int targetW, Brush fill,
-        //    MouseEventHandler mouseEnterHandler, MouseEventHandler mouseLeaveHandler,
-        //    MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
-        //{
-
-        //    // Create the target
-        //    targetHalfW = targetW / 2;
-        //    _target = new Rectangle
-        //    {
-        //        Width = targetW,
-        //        Height = targetW,
-        //        Fill = fill,
-        //    };
-
-        //    // Position the target on the Canvas
-        //    Canvas.SetLeft(_target, position.X);
-        //    Canvas.SetTop(_target, position.Y);
+        private void SideWindow_Loaded(object sender, RoutedEventArgs e)
+        {
             
-        //    // Add events
-        //    _target.MouseEnter += mouseEnterHandler;
-        //    _target.MouseLeave += mouseLeaveHandler;
-        //    _target.MouseLeftButtonDown += buttonDownHandler;
-        //    _target.MouseLeftButtonUp += buttonUpHandler;
-
-        //    // Add the circle to the Canvas
-        //    canvas.Children.Add(_target);
-
-        //    // Set index
-        //    Canvas.SetZIndex(_target, 0);
-        //    Canvas.SetZIndex(activeCursor, 1);
-        //    Canvas.SetZIndex(inactiveCursor, 1);
-        //}
+        }
 
         /// <summary>
         /// Show the target for measurement purposes
@@ -226,8 +146,8 @@ namespace Multi.Cursor
 
             // Set index
             Canvas.SetZIndex(_target, 0);
-            Canvas.SetZIndex(activeCursor, 1);
-            Canvas.SetZIndex(inactiveCursor, 1);
+            //Canvas.SetZIndex(activeCursor, 1);
+            //Canvas.SetZIndex(inactiveCursor, 1);
         }
 
         public void ColorTarget(Brush color)
@@ -238,16 +158,18 @@ namespace Multi.Cursor
         public bool IsCursorInsideTarget()
         {
             // Get circle's center
-            double centerX = Canvas.GetLeft(_target) + targetHalfW;
-            double centerY = Canvas.GetTop(_target) + targetHalfW;
+            //double centerX = Canvas.GetLeft(_target) + targetHalfW;
+            //double centerY = Canvas.GetTop(_target) + targetHalfW;
 
-            // Calculate distance from the point to the circle's center
-            double distance = Math.Sqrt(
-                Math.Pow(_cursorTransform.X - centerX, 2) + Math.Pow(_cursorTransform.Y - centerY, 2)
-                );
+            //// Calculate distance from the point to the circle's center
+            //double distance = Math.Sqrt(
+            //    Math.Pow(_cursorTransform.X - centerX, 2) + Math.Pow(_cursorTransform.Y - centerY, 2)
+            //    );
 
-            // Check if the distance is less than or equal to the radius
-            return distance <= targetHalfW;
+            //// Check if the distance is less than or equal to the radius
+            //return distance <= targetHalfW;
+
+            return false; // TEMP
         }
 
         /// <summary>
@@ -281,10 +203,10 @@ namespace Multi.Cursor
         {
 
             // Show the simulated cursor
-            inactiveCursor.Visibility = Visibility.Hidden;
-            activeCursor.Visibility = Visibility.Visible;
-            _cursorTransform.X = x;
-            _cursorTransform.Y = y;
+            //inactiveCursor.Visibility = Visibility.Hidden;
+            //activeCursor.Visibility = Visibility.Visible;
+            //_cursorTransform.X = x;
+            //_cursorTransform.Y = y;
         }
 
         public void ShowCursor(Point p)
@@ -321,7 +243,7 @@ namespace Multi.Cursor
             }
             
             //inactiveCursor.Visibility = Visibility.Visible;
-            activeCursor.Visibility = Visibility.Visible;
+            //activeCursor.Visibility = Visibility.Visible;
 
             _cursorTransform.X = position.X;
             _cursorTransform.Y = position.Y;
@@ -337,16 +259,16 @@ namespace Multi.Cursor
 
         public void ActivateCursor()
         {
-            inactiveCursor.Visibility = Visibility.Hidden;
-            activeCursor.Visibility = Visibility.Visible;
-            _auxursor.Activate();
+            //inactiveCursor.Visibility = Visibility.Hidden;
+            //activeCursor.Visibility = Visibility.Visible;
+            //_auxursor.Activate();
         }
 
         public void DeactivateCursor()
         {
-            activeCursor.Visibility = Visibility.Hidden;
-            inactiveCursor.Visibility = Visibility.Visible;
-            _auxursor.Deactivate();
+            //activeCursor.Visibility = Visibility.Hidden;
+            //inactiveCursor.Visibility = Visibility.Visible;
+            //_auxursor.Deactivate();
         }
 
         public void UpdateCursor(TouchPoint tp)
@@ -494,9 +416,9 @@ namespace Multi.Cursor
 
         public void HideCursor()
         {
-            inactiveCursor.Visibility = Visibility.Hidden;
-            activeCursor.Visibility = Visibility.Hidden;
-            _auxursor.Deactivate();
+            //inactiveCursor.Visibility = Visibility.Hidden;
+            //activeCursor.Visibility = Visibility.Hidden;
+            //_auxursor.Deactivate();
             //Mouse.OverrideCursor = Cursors.None;
         }
 
@@ -925,6 +847,82 @@ namespace Multi.Cursor
             element.MouseUp += mouseUpHandler;
 
             return element;
+        }
+
+        //public void GenerateGrid()
+        //{
+        //    canvas.Children.Clear();
+
+        //    // Column #1
+        //    _gridColumns[0] = SGrid.CreateColType1(1);
+        //    Canvas.SetLeft(_gridColumns[0], _padding);
+        //    Canvas.SetTop(_gridColumns[0], _padding);
+        //    canvas.Children.Add(_gridColumns[0]);
+
+        //    _gridColumns[0].Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        //    _gridColumns[0].Arrange(new Rect(_gridColumns[0].DesiredSize));
+
+        //    // Column #2
+        //    _gridColumns[1] = SGrid.CreateCol2();
+        //    double column2Left = Canvas.GetLeft(_gridColumns[0]) + _gridColumns[0].ActualWidth + _gutter;
+        //    Canvas.SetLeft(_gridColumns[1], column2Left);
+        //    Canvas.SetTop(_gridColumns[1], _padding);
+        //    canvas.Children.Add(_gridColumns[1]);
+
+        //    _gridColumns[1].Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        //    _gridColumns[1].Arrange(new Rect(_gridColumns[1].DesiredSize));
+
+        //    // Column #3
+        //    _gridColumns[2] = SGrid.CreateCol3();
+        //    double column3Left = Canvas.GetLeft(_gridColumns[1]) + _gridColumns[1].ActualWidth + _gutter;
+        //    Canvas.SetLeft(_gridColumns[2], column3Left); // Corrected calculation
+        //    Canvas.SetTop(_gridColumns[2], _padding);
+        //    canvas.Children.Add(_gridColumns[2]);
+
+        //    _gridColumns[2].Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        //    _gridColumns[2].Arrange(new Rect(_gridColumns[2].DesiredSize));
+
+        //    // Column #4
+        //    _gridColumns[3] = SGrid.CreateColType1(3);
+        //    double column4Left = Canvas.GetLeft(_gridColumns[2]) + _gridColumns[2].ActualWidth + _gutter;
+        //    Canvas.SetLeft(_gridColumns[3], column4Left);
+        //    Canvas.SetTop(_gridColumns[3], _padding);
+        //    canvas.Children.Add(_gridColumns[3]);
+
+        //}
+
+        public void GenerateGrid(params Func<Grid>[] columnCreators)
+        {
+            // Clear any existing columns from the canvas and the list before generating new ones
+            canvas.Children.Clear();
+            _gridColumns.Clear();
+
+            double currentLeftPosition = _padding; // Start with the initial padding
+
+            foreach (var createColumnFunc in columnCreators)
+            {
+                Grid newColumnGrid = createColumnFunc(); // Create the new column Grid
+
+                // Set its position on the Canvas
+                Canvas.SetLeft(newColumnGrid, currentLeftPosition);
+                Canvas.SetTop(newColumnGrid, _padding); // Assuming all columns start at the same top padding
+
+                // Add to the Canvas
+                canvas.Children.Add(newColumnGrid);
+
+                // Add to our internal list for tracking/future reference
+                _gridColumns.Add(newColumnGrid);
+
+                // Force a layout pass on the newly added column to get its ActualWidth
+                // This is crucial because the next column's position depends on this one's actual size.
+                newColumnGrid.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                newColumnGrid.Arrange(new Rect(newColumnGrid.DesiredSize));
+
+                // Update the currentLeftPosition for the next column, adding the current column's width and the gutter
+                currentLeftPosition += newColumnGrid.ActualWidth + _gutter;
+
+                Debug.WriteLine($"Added column. Current left: {currentLeftPosition} DIPs. Column width: {newColumnGrid.ActualWidth}");
+            }
         }
 
         private void AddElementToCanvas(Element element, int left, int top)

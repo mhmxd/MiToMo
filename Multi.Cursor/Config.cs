@@ -69,7 +69,7 @@ namespace Multi.Cursor
 
         // --------------- Sizes and Margins
         public static int SIDE_WINDOW_SIZE_MM = 28;
-        public static double WINDOW_PADDING_MM = 4;
+        public static double WINDOW_PADDING_MM = 3; // 12px
         
         // --------------------------------------
 
@@ -121,17 +121,17 @@ namespace Multi.Cursor
         public static readonly Brush ELEMENT_HIGHLIGHT_COLOR = Brushes.Black;
         public static readonly Brush GRID_TARGET_COLOR = Brushes.LightGreen;
         public static readonly Brush ELEMENT_DEFAULT_FILL_COLOR = Brushes.White;
-        public static readonly Brush ELEMENT_DEFAULT_BORDER_COLOR = Brushes.Gray;
+        public static readonly Brush ELEMENT_DEFAULT_BORDER_COLOR = Brushes.LightGray;
         // --------------------------------------
 
         // --------------- Grid --------------------
-        public static double GRID_GUTTER_MM = 1; // Space in-between the grid elements
+        public static double GRID_GUTTER_MM = 0.5; // Space in-between the grid elements
         public static double GRID_MAX_ELEMENT_WIDTH_MM = 45; // Width of the widest element in the grid
         public static double GRID_MIN_ELEMENT_WIDTH_MM = 3; // Width of the narrowest element in the grid
         public static int ELEMENT_BORDER_THICKNESS = 2; // Thickness of the border around the grid elements
 
         public static double GRID_UNIT_MM = 1; // Unit of measurement for the grid (1mm = 4px)
-        public static double GRID_ROW_HEIGHT_MM = 6 * GRID_UNIT_MM; // Height of the grid rows (24px)
+        //public static double GRID_ROW_HEIGHT_MM = 6 * GRID_UNIT_MM; // Height of the grid rows (= 24px)
 
         public static int CELL_WIDTH_THRESHOLD = 50; // px
         public static int CELL_HEIGHT_THRESHOLD = 50; // px

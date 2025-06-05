@@ -15,6 +15,9 @@ namespace Multi.Cursor
 {
     internal static class Utils
     {
+        private const double MM_IN_INCH = 25.4;
+        private const double DIPS_IN_INCH = 96.0;
+
         private static Random _random = new Random();
 
         public struct Range
@@ -30,10 +33,6 @@ namespace Multi.Cursor
 
             public override string ToString() => $"[{Min}, {Max}]";
         }
-
-        public static readonly Random Random = new Random();
-
-        private const double MM_IN_INCH = 25.4;
 
         public static Boolean AbsIn(double value, double min, double max)
         {
@@ -94,10 +93,17 @@ namespace Multi.Cursor
             return (int)(mm / MM_IN_INCH * Config.PPI);
         }
 
+        public static double MmToDips(double mm)
+        {
+            return (mm / MM_IN_INCH) * DIPS_IN_INCH;
+        }
+
         public static double PX2MM(double px)
         {
             return px * MM_IN_INCH / Config.PPI;
         }
+
+
 
         public static Point Relative(Point p, Point origin)
         {
@@ -137,7 +143,7 @@ namespace Multi.Cursor
 
         public static double RandDouble(double min, double max)
         {
-            return min + (max - min) * Random.NextDouble();
+            return min + (max - min) * _random.NextDouble();
         }
 
         public static int ThicknessInPX(double dips)

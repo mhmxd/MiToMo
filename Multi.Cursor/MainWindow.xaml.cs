@@ -245,8 +245,20 @@ namespace Multi.Cursor
             TouchMouseSensorEventManager.Handler += TouchMouseSensorHandler;
 
             InitializeWindows();
-            _topWindow.KnollHorizontal(6, 12, Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
-            _topWindow.Activate();
+            //_topWindow.KnollHorizontal(6, 12, Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
+            Func<Grid>[] colCreators = new Func<Grid>[]
+            {
+                () => SGrid.CreateColType1(combination: 1),
+                () => SGrid.CreateColType2(combination: 2),     
+                () => SGrid.CreateColType3(),     
+                () => SGrid.CreateColType1(combination: 3),
+                () => SGrid.CreateColType2(combination: 1),
+                () => SGrid.CreateColType3(),
+                () => SGrid.CreateColType2(combination : 1),
+            };
+
+            _topWindow.GenerateGrid(colCreators);
+            //_topWindow.Activate();
 
             UpdateLabel();
 
