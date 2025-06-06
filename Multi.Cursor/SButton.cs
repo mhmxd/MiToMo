@@ -9,6 +9,7 @@ namespace Multi.Cursor
 {
     internal class SButton : Button
     {
+        public int WidthMultiple = 0; // Width ID for the button, used to identify the width of the button in the grid
         public SButton()
         {
             this.BorderBrush = Config.ELEMENT_DEFAULT_BORDER_COLOR; // Set the border brush for the button

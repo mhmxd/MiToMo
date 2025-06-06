@@ -74,6 +74,7 @@ namespace Multi.Cursor
 
         //private Grid[] _gridColumns = new Grid[4]; // List of grid columns
         private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
+        private static Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
         //private Grid _gridCol1, _gridCol2, _gridCol3; // Grid columns
 
         public SideWindow(string title, Point relPos)
@@ -89,6 +90,11 @@ namespace Multi.Cursor
 
             _auxursor = new Auxursor(Config.FRAME_DUR_MS / 1000.0);
             _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
+
+            foreach (int wm in Experiment.BUTTON_WIDTHS_MULTIPLES)
+            {
+                _widthButtons.TryAdd(wm, new List<SButton>());
+            }
 
             //_cursorTransform = (TranslateTransform)FindResource("CursorTransform");
 
@@ -849,48 +855,6 @@ namespace Multi.Cursor
             return element;
         }
 
-        //public void GenerateGrid()
-        //{
-        //    canvas.Children.Clear();
-
-        //    // Column #1
-        //    _gridColumns[0] = SGrid.CreateColType1(1);
-        //    Canvas.SetLeft(_gridColumns[0], _padding);
-        //    Canvas.SetTop(_gridColumns[0], _padding);
-        //    canvas.Children.Add(_gridColumns[0]);
-
-        //    _gridColumns[0].Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        //    _gridColumns[0].Arrange(new Rect(_gridColumns[0].DesiredSize));
-
-        //    // Column #2
-        //    _gridColumns[1] = SGrid.CreateCol2();
-        //    double column2Left = Canvas.GetLeft(_gridColumns[0]) + _gridColumns[0].ActualWidth + _gutter;
-        //    Canvas.SetLeft(_gridColumns[1], column2Left);
-        //    Canvas.SetTop(_gridColumns[1], _padding);
-        //    canvas.Children.Add(_gridColumns[1]);
-
-        //    _gridColumns[1].Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        //    _gridColumns[1].Arrange(new Rect(_gridColumns[1].DesiredSize));
-
-        //    // Column #3
-        //    _gridColumns[2] = SGrid.CreateCol3();
-        //    double column3Left = Canvas.GetLeft(_gridColumns[1]) + _gridColumns[1].ActualWidth + _gutter;
-        //    Canvas.SetLeft(_gridColumns[2], column3Left); // Corrected calculation
-        //    Canvas.SetTop(_gridColumns[2], _padding);
-        //    canvas.Children.Add(_gridColumns[2]);
-
-        //    _gridColumns[2].Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-        //    _gridColumns[2].Arrange(new Rect(_gridColumns[2].DesiredSize));
-
-        //    // Column #4
-        //    _gridColumns[3] = SGrid.CreateColType1(3);
-        //    double column4Left = Canvas.GetLeft(_gridColumns[2]) + _gridColumns[2].ActualWidth + _gutter;
-        //    Canvas.SetLeft(_gridColumns[3], column4Left);
-        //    Canvas.SetTop(_gridColumns[3], _padding);
-        //    canvas.Children.Add(_gridColumns[3]);
-
-        //}
-
         public void GenerateGrid(params Func<Grid>[] columnCreators)
         {
             // Clear any existing columns from the canvas and the list before generating new ones
@@ -913,6 +877,9 @@ namespace Multi.Cursor
                 // Add to our internal list for tracking/future reference
                 _gridColumns.Add(newColumnGrid);
 
+                // Register buttons in this column
+                RegisterButtons(newColumnGrid);
+
                 // Force a layout pass on the newly added column to get its ActualWidth
                 // This is crucial because the next column's position depends on this one's actual size.
                 newColumnGrid.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
@@ -922,6 +889,42 @@ namespace Multi.Cursor
                 currentLeftPosition += newColumnGrid.ActualWidth + _gutter;
 
                 Debug.WriteLine($"Added column. Current left: {currentLeftPosition} DIPs. Column width: {newColumnGrid.ActualWidth}");
+            }
+        }
+
+        private void RegisterButtons(Grid column)
+        {
+            // Iterate through all direct children of the Grid column
+            foreach (UIElement childOfColumn in column.Children)
+            {
+                // We know our rows are StackPanels
+                if (childOfColumn is StackPanel rowStackPanel)
+                {
+                    // Iterate through all children of the StackPanel (which should be buttons or in-row gutters)
+                    foreach (UIElement childOfRow in rowStackPanel.Children)
+                    {
+                        // Check if the child is an SButton
+                        if (childOfRow is SButton button)
+                        {
+                            _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
+                        }
+                    }
+                }
+            }
+        }
+
+        public void SelectRandButtonByWidth(int wMult)
+        {
+            SButton selectedButton = _widthButtons[wMult].GetRandomElement(); // Get a random button from the list for that width
+            if (selectedButton != null)
+            {
+                // Highlight the selected button
+                selectedButton.Background = Config.GRID_TARGET_COLOR;
+                TrialInfo<SideWindow>($"Selected button with width multiple {wMult}: {selectedButton.Content}");
+            }
+            else
+            {
+                TrialInfo<SideWindow>($"No buttons found for width multiple {wMult}.");
             }
         }
 

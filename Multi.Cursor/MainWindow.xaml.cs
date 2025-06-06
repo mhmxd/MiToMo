@@ -245,6 +245,8 @@ namespace Multi.Cursor
             TouchMouseSensorEventManager.Handler += TouchMouseSensorHandler;
 
             InitializeWindows();
+
+            // Create grid
             //_topWindow.KnollHorizontal(6, 12, Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
             Func<Grid>[] colCreators = new Func<Grid>[]
             {
@@ -258,6 +260,7 @@ namespace Multi.Cursor
             };
 
             _topWindow.GenerateGrid(colCreators);
+            _topWindow.SelectRandButtonByWidth(Experiment.BUTTON_WIDTHS_MULTIPLES[1]);
             //_topWindow.Activate();
 
             UpdateLabel();

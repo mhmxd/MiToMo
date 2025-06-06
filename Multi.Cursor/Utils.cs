@@ -342,6 +342,22 @@ namespace Multi.Cursor
             return false;
         }
 
+        public static T GetRandomElement<T>(this IList<T> list) // Using IList<T> for broader compatibility
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException(nameof(list), "List cannot be null.");
+            }
+
+            if (list.Count == 0)
+            {
+                throw new ArgumentException("List cannot be empty.", nameof(list));
+            }
+
+            int randomIndex = _random.Next(list.Count);
+            return list[randomIndex];
+        }
+
         public static Point FindRandPointWithDist(Rect rect, Point src, int dist, int minDeg, int maxDeg)
         {
             // Define a maximum number of attempts to prevent infinite loops

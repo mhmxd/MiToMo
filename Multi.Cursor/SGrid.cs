@@ -20,6 +20,8 @@ namespace Multi.Cursor
         public static double UNIT = Utils.MmToDips(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         public static double ROW_HEIGHT = 6 * UNIT; // Height of each row in pixels
 
+        
+
         private class Column
         {
             public Point Position = new Point(0, 0); // Top-left position of the column
@@ -150,32 +152,62 @@ namespace Multi.Cursor
 
         private static SButton CreateBigButton()
         {
-            // Create a big button with specific dimensions
-            return new SButton { Width = 15 * UNIT, Height = 19 * UNIT };
+            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[5];
+            SButton sButton = new SButton
+            {
+                WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
+                Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[5] is defined in Experiment
+                Height = 19 * UNIT // 19 * UNIT is the height in pixels
+            };
+            return sButton;
         }
 
         private static SButton CreateSmallButton()
         {
-            // Create a small button with specific dimensions
-            return new SButton { Width = 6 * UNIT, Height = ROW_HEIGHT };
+            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[1];
+            SButton sButton = new SButton
+            {
+                WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
+                Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[1] is defined in Experiment
+                Height = ROW_HEIGHT // Height in pixels
+            };
+            return sButton;
         }
 
         private static SButton CreateDropdownButton()
         {
-            // Create a dropdown button with specific dimensions
-            return new SButton { Width = 3 * UNIT, Height = ROW_HEIGHT };
+            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[0]; // Assuming 0 is the index for dropdown button width
+            SButton sButton = new SButton
+            {
+                WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
+                Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[0] is defined in Experiment
+                Height = ROW_HEIGHT // Height in pixels
+            };
+            return sButton;
         }
 
         private static SButton CreateWideButton()
         {
-            // Create a wide button with specific dimensions
-            return new SButton { Width = 18 * UNIT, Height = ROW_HEIGHT };
-        }
+            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[3]; // Assuming 3 is the index for wide button width
+            SButton sButton = new SButton
+            {
+                WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
+                Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[3] is defined in Experiment
+                Height = ROW_HEIGHT // Height in pixels
+            };
+            return sButton;
+        }   
 
         private static SButton CreateWiderButton()
         {
-            // Create a wider button with specific dimensions
-            return new SButton { Width = 30 * UNIT, Height = ROW_HEIGHT };
+            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[4]; // Assuming 4 is the index for wider button width
+            SButton sButton = new SButton
+            {
+                WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
+                Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[4] is defined in Experiment
+                Height = ROW_HEIGHT // Height in pixels
+            };
+            return sButton;
         }
 
         public static StackPanel CreateRowType1()

@@ -15,6 +15,7 @@ namespace Multi.Cursor
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
         //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
         private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30}; // BenQ
+        public static List<int> BUTTON_WIDTHS_MULTIPLES = new List<int>() { 3, 6, 15, 18, 30 }; // Multiples of the UNIT (1mm = 4px) widths for grid
 
         private static List<double> _distances = new List<double>(); // Generated in constructor
         private static int N_BLOCKS = 3; // Number of blocks in the experiment
