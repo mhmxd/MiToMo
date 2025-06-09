@@ -119,7 +119,7 @@ namespace Multi.Cursor
             //Seril.Information(Output.GetString(_lineStart));
 
             // Find the four corners of the main region
-            _sideWinSize = Utils.MM2PX(Config.SIDE_WINDOW_SIZE_MM);
+            _sideWinSize = Utils.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
             _tlPoint = new Point(_sideWinSize, _sideWinSize);
             _trPoint = new Point(this.Width - _sideWinSize, _sideWinSize);
             _blPoint = new Point(_tlPoint.X, this.Height);

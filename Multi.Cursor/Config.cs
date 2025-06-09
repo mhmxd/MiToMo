@@ -68,9 +68,11 @@ namespace Multi.Cursor
         // --------------------------------------
 
         // --------------- Sizes and Margins
-        public static int SIDE_WINDOW_SIZE_MM = 28;
-        public static double WINDOW_PADDING_MM = 3; // 12px
-        
+        public static int TOP_WINDOW_HEIGTH_MM = 28; // ~100px
+        public static int SIDE_WINDOW_WIDTH_MM = 68; // ~240
+        public static double VERTICAL_PADDING_MM = 3; // 12px
+        public static double HORIZONTAL_PADDING_MM = 4; // 4px (for the side window)
+
         // --------------------------------------
 
         // --------------- Screen

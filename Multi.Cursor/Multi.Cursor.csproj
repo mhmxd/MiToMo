@@ -320,11 +320,15 @@
     <Compile Include="Finger.cs" />
     <Compile Include="FingerTracker.cs" />
     <Compile Include="GestureTimesLogRow.cs" />
-    <Compile Include="SGrid.cs" />
+    <Compile Include="ColumnFactory.cs" />
     <Compile Include="GridNavigator.cs" />
+    <Compile Include="RowFactory.cs" />
     <Compile Include="SButton.cs" />
     <Compile Include="Sounder.cs" />
     <Compile Include="ToMoLogger.cs" />
+    <Compile Include="TopWindow.xaml.cs">
+      <DependentUpon>TopWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TouchFinger.cs" />
     <Compile Include="Filog.cs" />
     <Compile Include="GestureDetector.cs" />
@@ -416,6 +420,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SideWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="TopWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

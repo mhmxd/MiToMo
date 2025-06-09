@@ -126,7 +126,10 @@ namespace Multi.Cursor
 
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
-        private int PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
+        private int PADDING = Utils.MM2PX(Config.VERTICAL_PADDING_MM); // Padding for the windows
+
+        private int TOP_WINDOW_HEIGHT = Utils.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
+        private int SIDE_WINDOW_WIDTH = Utils.MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
 
 
         // Dead zone
@@ -141,11 +144,10 @@ namespace Multi.Cursor
         //private (double min, double max) distThresh;
 
         private BackgroundWindow _backgroundWindow;
-        private SideWindow _topWindow;
+        private TopWindow _topWindow;
         private SideWindow _leftWindow; 
         private SideWindow _rightWindow;
-        private SideWindow _activeSideWindow;
-        private int _sideWindowSize = Utils.MM2PX(Config.SIDE_WINDOW_SIZE_MM);
+        private Window _activeAuxWindow;
         private OverlayWindow _overlayWindow;
 
         private double _monitorHeightMM;
@@ -229,7 +231,7 @@ namespace Multi.Cursor
         private Dictionary<string, long> _timestamps = new Dictionary<string, long>();
         //private Ellipse _startCircle;
         private Rectangle _startRectangle;
-        private SideWindow _targetWindow;
+        private Window _targetWindow;
         private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)
 
         public MainWindow()
@@ -248,20 +250,39 @@ namespace Multi.Cursor
 
             // Create grid
             //_topWindow.KnollHorizontal(6, 12, Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
-            Func<Grid>[] colCreators = new Func<Grid>[]
+            Func<Grid>[] topColCreators = new Func<Grid>[]
             {
-                () => SGrid.CreateColType1(combination: 1),
-                () => SGrid.CreateColType2(combination: 2),     
-                () => SGrid.CreateColType3(),     
-                () => SGrid.CreateColType1(combination: 3),
-                () => SGrid.CreateColType2(combination: 1),
-                () => SGrid.CreateColType3(),
-                () => SGrid.CreateColType2(combination : 1),
+                () => ColumnFactory.CreateColType1(combination: 1),
+                () => ColumnFactory.CreateColType2(combination: 2),     
+                () => ColumnFactory.CreateColType3(),     
+                () => ColumnFactory.CreateColType1(combination: 3),
+                () => ColumnFactory.CreateColType2(combination: 1),
+                () => ColumnFactory.CreateColType3(),
+                () => ColumnFactory.CreateColType2(combination : 1),
             };
 
-            _topWindow.GenerateGrid(colCreators);
+            _topWindow.GenerateGrid(topColCreators);
             _topWindow.SelectRandButtonByWidth(Experiment.BUTTON_WIDTHS_MULTIPLES[1]);
             //_topWindow.Activate();
+
+            // Create left grid
+            Func<Grid>[] leftGroupCreators = new Func<Grid>[]
+            {
+                () => RowFactory.CreateGroupType1(combination: 1),
+                () => RowFactory.CreateGroupType1(combination: 3),
+                () => RowFactory.CreateGroupType2(combination: 2),
+                () => RowFactory.CreateGroupType2(combination: 4),
+                () => RowFactory.CreateGroupType2(combination: 6),
+                () => RowFactory.CreateGroupType1(combination: 1),
+                () => RowFactory.CreateGroupType1(combination: 3),
+                () => RowFactory.CreateGroupType2(combination: 5),
+                () => RowFactory.CreateGroupType2(combination: 2),
+                () => RowFactory.CreateGroupType2(combination: 2),
+                () => RowFactory.CreateGroupType1(combination: 6),
+            };
+
+            _leftWindow.GenerateGrid(leftGroupCreators);
+
 
             UpdateLabel();
 
@@ -281,18 +302,18 @@ namespace Multi.Cursor
 
             //-- Create a default Experiment
             //double longestDistMM =
-            //    _monitorHeightMM - (2 * Config.WINDOW_PADDING_MM)
+            //    _monitorHeightMM - (2 * Config.VERTICAL_PADDING_MM)
             //    - (Experiment.START_WIDTH_MM / 2) - (Experiment.Max_Target_Width_MM / 2);
-            //double shortestDistMM = 2 * Config.WINDOW_PADDING_MM
+            //double shortestDistMM = 2 * Config.VERTICAL_PADDING_MM
             //    + (Experiment.START_WIDTH_MM / 2) + (Experiment.Max_Target_Width_MM / 2);
             double shortestDistMM = 
                 (Experiment.Max_Target_Width_MM/2.0) 
-                + (2*Config.WINDOW_PADDING_MM) 
+                + (2*Config.VERTICAL_PADDING_MM) 
                 + (Experiment.START_WIDTH_MM/2.0);
             double longestDistMM = 
                 (Experiment.Min_Target_Width_MM/2.0) 
-                + (2 * Config.WINDOW_PADDING_MM) 
-                + (Utils.PX2MM(this.Height - _infoLabelHeight) - Config.WINDOW_PADDING_MM);
+                + (2 * Config.VERTICAL_PADDING_MM) 
+                + (Utils.PX2MM(this.Height - _infoLabelHeight) - Config.VERTICAL_PADDING_MM);
             PositionInfo<MainWindow>($"Monitor H = {_monitorHeightMM} | Min D = {shortestDistMM} | Max D = {longestDistMM}");
             _experiment = new Experiment(shortestDistMM, longestDistMM);
             //--- Show the intro dialog (the choices affect the rest)
@@ -379,10 +400,10 @@ namespace Multi.Cursor
         {
              
             //-- Check if the simucursor is inside target
-            if (_targetWindow.IsCursorInsideTarget())
-            { // Simucursor inside target
-                TargetMouseDown();
-            }
+            //if (_targetWindow.IsCursorInsideTarget())
+            //{ // Simucursor inside target
+            //    TargetMouseDown();
+            //}
         }
 
 
@@ -399,8 +420,8 @@ namespace Multi.Cursor
 
                 // Set the window position to the second monitor's working area
                 this.WindowStartupLocation = WindowStartupLocation.Manual;
-                this.Left = Config.ACTIVE_SCREEN.WorkingArea.Left + _sideWindowSize;
-                this.Top = Config.ACTIVE_SCREEN.WorkingArea.Top + _sideWindowSize;
+                this.Left = Config.ACTIVE_SCREEN.WorkingArea.Left + SIDE_WINDOW_WIDTH;
+                this.Top = Config.ACTIVE_SCREEN.WorkingArea.Top + TOP_WINDOW_HEIGHT;
             }
         }
 
@@ -447,11 +468,11 @@ namespace Multi.Cursor
 
                 // Set the window position to the second monitor's working area
                 this.Background = Config.GRAY_E6E6E6;
-                this.Width = _backgroundWindow.Width - (2 * _sideWindowSize);
-                this.Height = _backgroundWindow.Height - _sideWindowSize;
+                this.Width = _backgroundWindow.Width - (2 * SIDE_WINDOW_WIDTH);
+                this.Height = _backgroundWindow.Height - TOP_WINDOW_HEIGHT;
                 this.WindowStartupLocation = WindowStartupLocation.Manual;
-                this.Left = Config.ACTIVE_SCREEN.WorkingArea.Left + _sideWindowSize;
-                this.Top = Config.ACTIVE_SCREEN.WorkingArea.Top + _sideWindowSize;
+                this.Left = Config.ACTIVE_SCREEN.WorkingArea.Left + SIDE_WINDOW_WIDTH;
+                this.Top = Config.ACTIVE_SCREEN.WorkingArea.Top + TOP_WINDOW_HEIGHT;
                 this.Owner = _backgroundWindow;
                 //this.Topmost = true;
                 this.Show();
@@ -459,9 +480,21 @@ namespace Multi.Cursor
                 _infoLabelHeight = (int)(this.ActualHeight * INFO_LABEL_BOTTOM_RATIO + infoLabel.ActualHeight);
 
                 // Create top window
-                _topWindow = new SideWindow("Top Window", new Point(_sideWindowSize, 0));
+                //_topWindow = new SideWindow("Top Window", new Point(_sideWindowSize, 0));
+                //_topWindow.Background = Config.GRAY_F3F3F3;
+                //_topWindow.Height = _sideWindowSize;
+                //_topWindow.Width = Config.ACTIVE_SCREEN.WorkingArea.Width;
+                //_topWindow.WindowStartupLocation = WindowStartupLocation.Manual;
+                //_topWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
+                //_topWindow.Top = Config.ACTIVE_SCREEN.WorkingArea.Top;
+                //_topWindow.MouseDown += SideWindow_MouseDown;
+                //_topWindow.MouseUp += SideWindow_MouseUp;
+                //_topWindow.Show();
+                //_topWinRect = Utils.GetRect(_topWindow);
+                //_topWinRectPadded = Utils.GetRect(_topWindow, HORIZONTAL_PADDING);
+                _topWindow = new TopWindow();
                 _topWindow.Background = Config.GRAY_F3F3F3;
-                _topWindow.Height = _sideWindowSize;
+                _topWindow.Height = TOP_WINDOW_HEIGHT;
                 _topWindow.Width = Config.ACTIVE_SCREEN.WorkingArea.Width;
                 _topWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _topWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
@@ -476,9 +509,9 @@ namespace Multi.Cursor
                 //topWinHeightRatio = topWindow.Height / TOMOPAD_SIDE_SIZE;
 
                 // Create left window
-                _leftWindow = new SideWindow("Left Window", new Point(0, _sideWindowSize));
+                _leftWindow = new SideWindow("Left Window", new Point(0, SIDE_WINDOW_WIDTH));
                 _leftWindow.Background = Config.GRAY_F3F3F3;
-                _leftWindow.Width = _sideWindowSize;
+                _leftWindow.Width = SIDE_WINDOW_WIDTH;
                 _leftWindow.Height = this.Height;
                 _leftWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _leftWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
@@ -493,9 +526,9 @@ namespace Multi.Cursor
                 //leftWinHeightRatio = leftWindow.Height / (TOMOPAD_LAST_ROW - TOMOPAD_SIDE_SIZE);
 
                 // Create right window
-                _rightWindow = new SideWindow("Right Window", new Point(_sideWindowSize + this.Width, _sideWindowSize));
+                _rightWindow = new SideWindow("Right Window", new Point(SIDE_WINDOW_WIDTH + this.Width, SIDE_WINDOW_WIDTH));
                 _rightWindow.Background = Config.GRAY_F3F3F3;
-                _rightWindow.Width = _sideWindowSize;
+                _rightWindow.Width = SIDE_WINDOW_WIDTH;
                 _rightWindow.Height = this.Height;
                 _rightWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _rightWindow.Left = this.Left + this.Width;
@@ -510,8 +543,8 @@ namespace Multi.Cursor
                 //rightWinHeightRatio = rightWindow.Height / (TOMOPAD_LAST_ROW - TOMOPAD_SIDE_SIZE);
 
                 // Get the absolute position of the window
-                _absLeft = _sideWindowSize;
-                _absTop = _sideWindowSize;
+                _absLeft = SIDE_WINDOW_WIDTH;
+                _absTop = TOP_WINDOW_HEIGHT;
                 _absRight = _absLeft + (int)this.Width;
                 _absBottom = _absTop + (int)Height;
 
@@ -609,14 +642,14 @@ namespace Multi.Cursor
                 else if (_timestamps.ContainsKey(Str.START_RELEASE_ONE)) // Phase 2: Aiming for Target
                 {
 
-                    if (_targetWindow.IsCursorInsideTarget()) // Auxursor in target
-                    {
-                        TargetMouseDown();
-                    }
-                    else // Pressed outside target => MISS
-                    {
-                        EndTrial(RESULT.MISS);
-                    }
+                    //if (_targetWindow.IsCursorInsideTarget()) // Auxursor in target
+                    //{
+                    //    TargetMouseDown();
+                    //}
+                    //else // Pressed outside target => MISS
+                    //{
+                    //    EndTrial(RESULT.MISS);
+                    //}
                 }
                 else // Phase 1: Aiming for Start (missing because here is Window!)
                 {
@@ -634,14 +667,14 @@ namespace Multi.Cursor
                 Point crossSideWinPos = _targetWindow.PointFromScreen(crossScreenPos);
 
                 // Trial result
-                if (_targetWindow.IsPointInsideTarget(crossSideWinPos)) // Cross in target
-                {
-                    TargetMouseDown();
-                }
-                else
-                {
-                    // Nothing for now
-                }
+                //if (_targetWindow.IsPointInsideTarget(crossSideWinPos)) // Cross in target
+                //{
+                //    TargetMouseDown();
+                //}
+                //else
+                //{
+                //    // Nothing for now
+                //}
 
                 // Release the cursor
                 //_cursorFreezed = !UnfreezeCursor();
@@ -683,21 +716,21 @@ namespace Multi.Cursor
             TrialInfo<MainWindow>($"{_timestamps.Stringify()}");
             if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Target is pressed => Was release outside or inside?
             {
-                if (_activeSideWindow.IsCursorInsideTarget()) // Released inside Target => Next phase
-                {
-                    // Add timestamp
-                    _timestamps.TryAdd(Str.TARGET_RELEASE, _trialtWatch.ElapsedMilliseconds);
+                //if (_activeAuxWindow.IsCursorInsideTarget()) // Released inside Target => Next phase
+                //{
+                //    // Add timestamp
+                //    _timestamps.TryAdd(Str.TARGET_RELEASE, _trialtWatch.ElapsedMilliseconds);
 
-                    // Deactive Target and auxursor
-                    _activeSideWindow.ColorTarget(Brushes.Red);
-                    _activeSideWindow.DeactivateCursor();
+                //    // Deactive Target and auxursor
+                //    _activeAuxWindow.ColorTarget(Brushes.Red);
+                //    _activeAuxWindow.DeactivateCursor();
                     
-                    // Activate Start again
-                    _startRectangle.Fill = Brushes.Green;
-                } else // Released outside Target => MISS
-                {
-                    EndTrial(RESULT.MISS);
-                }
+                //    // Activate Start again
+                //    _startRectangle.Fill = Brushes.Green;
+                //} else // Released outside Target => MISS
+                //{
+                //    EndTrial(RESULT.MISS);
+                //}
 
             } 
             else if (_timestamps.ContainsKey(Str.START_PRESS_ONE)) // Pressed inside, but released outside Start => MISS
@@ -882,7 +915,7 @@ namespace Multi.Cursor
         {
             
             // (Positions all relative to screen)
-            int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            int padding = Utils.MM2PX(Config.VERTICAL_PADDING_MM);
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             int startHalfW = startW / 2;
 
@@ -1054,7 +1087,7 @@ namespace Multi.Cursor
             _timestamps.Clear();
             if (_block.BlockType == BLOCK_TYPE.REPEATED_SIDE) // If repeating the side => reset the Target and show another
             {
-                _targetWindow.ResetElements();
+                //_targetWindow.ResetElements();
             }
 
             ShowGridTrial(); // Show the grid trial first
@@ -1063,7 +1096,7 @@ namespace Multi.Cursor
         private void ShowGridTrial()
         {
             // Useful values
-            int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            int padding = Utils.MM2PX(Config.VERTICAL_PADDING_MM);
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             int startHalfW = startW / 2;
 
@@ -1076,14 +1109,14 @@ namespace Multi.Cursor
                     _targetWindow = _topWindow;
 
                     // Choose a Target (using the width)
-                    (_trial.TargetKey, Point targetCenterInSideWin) =
-                        _targetWindow.GetRandomElementByWidth(_trial.TargetWidthMM);
-                    Point targetCenterAbsolute = targetCenterInSideWin
-                        .OffsetPosition(_targetWindow.Left, _targetWindow.Top);
-                    TrialInfo<MainWindow>($"Target W: {_trial.TargetWidthMM}, Position: {targetCenterAbsolute.ToString()}");
+                    //(_trial.TargetKey, Point targetCenterInSideWin) =
+                    //    _targetWindow.GetRandomElementByWidth(_trial.TargetWidthMM);
+                    //Point targetCenterAbsolute = targetCenterInSideWin
+                    //    .OffsetPosition(_targetWindow.Left, _targetWindow.Top);
+                    //TrialInfo<MainWindow>($"Target W: {_trial.TargetWidthMM}, Position: {targetCenterAbsolute.ToString()}");
 
                     // Color the Target
-                    _targetWindow.ColorElement(_trial.TargetKey, Config.TARGET_UNAVAILABLE_COLOR);
+                    //_targetWindow.ColorElement(_trial.TargetKey, Config.TARGET_UNAVAILABLE_COLOR);
                     
                     // Find a position for the Start
                     Rect startConstraints = new Rect(
@@ -1092,29 +1125,29 @@ namespace Multi.Cursor
                         _mainWinRect.Width - 2 * padding,
                         _mainWinRect.Height - 2 * padding - _infoLabelHeight);
 
-                    Point startCenter = Utils.FindRandPointWithDist(
-                        startConstraints,
-                        targetCenterAbsolute,
-                        _trial.DistancePX,
-                        0, 180);
+                    //Point startCenter = Utils.FindRandPointWithDist(
+                    //    startConstraints,
+                    //    targetCenterAbsolute,
+                    //    _trial.DistancePX,
+                    //    0, 180);
 
-                    Conlog<MainWindow>($"Start Rect: {startConstraints.ToString()}; Target Pos: {targetCenterAbsolute}; Dist: {_trial.DistancePX}");
+                    //Conlog<MainWindow>($"Start Rect: {startConstraints.ToString()}; Target Pos: {targetCenterAbsolute}; Dist: {_trial.DistancePX}");
 
-                    if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position
-                    {
-                        TrialInfo<MainWindow>($"No valid position found for Start!");
-                    }
-                    else // Valid position found
-                    {
-                        Conlog<MainWindow>($"Start Position: {startCenter.ToString()}");
-                        _trial.StartPosition = startCenter.OffsetPosition(-this.Left, -this.Top);
-                        _trial.TargetPosition = targetCenterInSideWin;
+                    //if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position
+                    //{
+                    //    TrialInfo<MainWindow>($"No valid position found for Start!");
+                    //}
+                    //else // Valid position found
+                    //{
+                    //    Conlog<MainWindow>($"Start Position: {startCenter.ToString()}");
+                    //    _trial.StartPosition = startCenter.OffsetPosition(-this.Left, -this.Top);
+                    //    _trial.TargetPosition = targetCenterInSideWin;
 
-                        ShowStart();
-                    }
+                    //    ShowStart();
+                    //}
 
-                    // TEMP
-                    _targetWindow.SelectElement(0, 0);
+                    //// TEMP
+                    //_targetWindow.SelectElement(0, 0);
 
 
                     break;
@@ -1683,15 +1716,15 @@ namespace Multi.Cursor
             }
             else if (_timestamps.ContainsKey(Str.START_RELEASE_ONE)) // Phase 2: Start already clicked, it's actually Aux click
             {
-                if (_targetWindow.IsCursorInsideTarget()) // Inside target => Target hit
-                {
-                    TargetMouseDown();
-                }
-                else // Pressed outside target => MISS
-                {
-                    TrialInfo<MainWindow>($"Pressed outside Target!");
-                    EndTrial(RESULT.MISS);
-                }
+                //if (_targetWindow.IsCursorInsideTarget()) // Inside target => Target hit
+                //{
+                //    TargetMouseDown();
+                //}
+                //else // Pressed outside target => MISS
+                //{
+                //    TrialInfo<MainWindow>($"Pressed outside Target!");
+                //    EndTrial(RESULT.MISS);
+                //}
             }
             else // Phae 1: First Start press
             {
@@ -1732,22 +1765,22 @@ namespace Multi.Cursor
             TrialInfo<MainWindow>($"{_timestamps.Stringify()}");
             if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Already pressed with Auxursor => Check if release is also inside
             {
-                if (_targetWindow.IsCursorInsideTarget())
-                {
-                    TargetMouseUp();
-                } 
-                else // Released outside Target => MISS
-                {
-                    TrialInfo<MainWindow>($"Released outside target");
-                    EndTrial(RESULT.MISS);
-                }
+                //if (_targetWindow.IsCursorInsideTarget())
+                //{
+                //    TargetMouseUp();
+                //} 
+                //else // Released outside Target => MISS
+                //{
+                //    TrialInfo<MainWindow>($"Released outside target");
+                //    EndTrial(RESULT.MISS);
+                //}
 
             } 
             else if (_timestamps.ContainsKey(Str.START_PRESS_ONE)) // First time
             {
                 _timestamps[Str.START_RELEASE_ONE] = _trialtWatch.ElapsedMilliseconds;
 
-                _targetWindow.ColorElement(_trial.TargetKey, Config.TARGET_AVAILABLE_COLOR);
+                //_targetWindow.ColorElement(_trial.TargetKey, Config.TARGET_AVAILABLE_COLOR);
                 _startRectangle.Fill = Config.START_UNAVAILABLE_COLOR;
                 //_targetWindow.ColorTarget(Brushes.Green);
 
@@ -1805,7 +1838,7 @@ namespace Multi.Cursor
                 //_trialState = Str.TARGET_RELEASE;
 
                 //--- Change the colors
-                _targetWindow.ColorElement(_trial.TargetKey, Config.TARGET_UNAVAILABLE_COLOR);
+                //_targetWindow.ColorElement(_trial.TargetKey, Config.TARGET_UNAVAILABLE_COLOR);
                 _startRectangle.Fill = Config.START_AVAILABLE_COLOR; // Change Start to green
                 //_targetWindow.ColorTarget(Brushes.Red);
                 //_startCircle.Fill = Brushes.Green; // Change Start back to green
@@ -1818,10 +1851,10 @@ namespace Multi.Cursor
                     _radiusorActive = false;
                 }
 
-                if (_experiment.IsTechAuxCursor())
-                {
-                    _activeSideWindow.DeactivateCursor();
-                }
+                //if (_experiment.IsTechAuxCursor())
+                //{
+                //    _activeAuxWindow.DeactivateCursor();
+                //}
             }
             
         }
@@ -1961,21 +1994,21 @@ namespace Multi.Cursor
         private void ClearTargets()
         {
             _leftWindow.ClearTarget();
-            _topWindow.ClearTarget();
+            //_topWindow.ClearTarget();
             _rightWindow.ClearTarget();
         }
 
         private void HideAuxursors()
         {
             _leftWindow.HideCursor();
-            _topWindow.HideCursor();
+            //_topWindow.HideCursor();
             _rightWindow.HideCursor();
         }
 
         private void DeactivateAuxursors()
         {
             _leftWindow.DeactivateCursor();
-            _topWindow.DeactivateCursor();
+            //_topWindow.DeactivateCursor();
             _rightWindow.DeactivateCursor();   
         }
 
@@ -1984,7 +2017,7 @@ namespace Multi.Cursor
             switch (window)
             {
                 case Location.Left:
-                    _activeSideWindow = _leftWindow;
+                    _activeAuxWindow = _leftWindow;
                     HideAuxursors();
                     _leftWindow.ShowCursor(tapLoc);
                     _leftWindow.ActivateCursor();
@@ -1992,7 +2025,7 @@ namespace Multi.Cursor
                     //_rightWindow.DeactivateCursor();
                     break;
                 case Location.Top:
-                    _activeSideWindow = _topWindow;
+                    _activeAuxWindow = _topWindow;
                     HideAuxursors();
                     //_topWindow.ShowCursor(tapLoc);
                     _topWindow.ActivateGridNavigator();
@@ -2000,7 +2033,7 @@ namespace Multi.Cursor
                     //_rightWindow.DeactivateCursor();
                     break;
                 case Location.Right:
-                    _activeSideWindow = _rightWindow;
+                    _activeAuxWindow = _rightWindow;
                     HideAuxursors();
                     _rightWindow.ShowCursor(tapLoc);
                     _rightWindow.ActivateCursor();
@@ -2014,7 +2047,7 @@ namespace Multi.Cursor
         {
             // Show all Auxursors (deactivated) in the middle of the side windows
             _leftWindow.ShowCursor(Location.Middle);
-            _topWindow.ShowCursor(Location.Middle);
+            //_topWindow.ShowCursor(Location.Middle);
             _rightWindow.ShowCursor(Location.Middle);
         }
 
@@ -2059,7 +2092,7 @@ namespace Multi.Cursor
                 ActivateSideWin(Location.Top, Location.Left);
             }
 
-            TrialInfo<MainWindow>($"Active side: {_activeSideWindow}");
+            TrialInfo<MainWindow>($"Active side: {_activeAuxWindow}");
 
             //if (_experiment.Active_Technique == Technique.Auxursor_Tap 
             //    && _timestamps.ContainsKey(Str.START_PRESS_ONE) 
@@ -2074,10 +2107,10 @@ namespace Multi.Cursor
         {
             if (_experiment.IsTechAuxCursor())
             {
-                if (_activeSideWindow != null)
-                {
-                    _activeSideWindow.UpdateCursor(indPoint);
-                }
+                //if (_activeAuxWindow != null)
+                //{
+                //    _activeAuxWindow.UpdateCursor(indPoint);
+                //}
             }
 
             //if (_radiusorActive)
@@ -2095,10 +2128,10 @@ namespace Multi.Cursor
 
         public void IndexUp()
         {
-            if (_experiment.IsTechAuxCursor() && _activeSideWindow != null)
-            {
-                _activeSideWindow.StopCursor();
-            }
+            //if (_experiment.IsTechAuxCursor() && _activeAuxWindow != null)
+            //{
+            //    _activeAuxWindow.StopCursor();
+            //}
 
             //_lastPlusPointerPos.X = -1;
             _lastRotPointerPos.X = -1;

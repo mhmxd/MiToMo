@@ -14,115 +14,114 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Multi.Cursor
 {
-    internal class SGrid : Grid  // Inherits from Grid to use WPF's Grid layout capabilities
+    internal class ColumnFactory : Grid  // Inherits from Grid to use WPF's Grid layout capabilities
     {
         public static double GUTTER = Utils.MmToDips(Config.GRID_GUTTER_MM); // Space in-between the grid elements
         public static double UNIT = Utils.MmToDips(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         public static double ROW_HEIGHT = 6 * UNIT; // Height of each row in pixels
 
         
+        //private class Column
+        //{
+        //    public Point Position = new Point(0, 0); // Top-left position of the column
+        //    public List<Row> Rows = new List<Row>(); // List of rows in this column
 
-        private class Column
-        {
-            public Point Position = new Point(0, 0); // Top-left position of the column
-            public List<Row> Rows = new List<Row>(); // List of rows in this column
+        //    public Point GetTopRowPosition()
+        //    {
+        //        return Position;
+        //    }
 
-            public Point GetTopRowPosition()
-            {
-                return Position;
-            }
+        //    public Point GetMiddleRowPosition()
+        //    {
+        //        return Position.OffsetPosition(0, Row.ROW_HEIGHT + GUTTER);
+        //    }
 
-            public Point GetMiddleRowPosition()
-            {
-                return Position.OffsetPosition(0, Row.ROW_HEIGHT + GUTTER);
-            }
+        //}
 
-        }
+        //private class Row
+        //{
+        //    public static int ROW_HEIGHT = ROW_HEIGHT; // Height of the row in pixels
+        //    public Point Position = new Point(0, 0); // Top-left position of the row
+        //    public List<Button> Buttons = new List<Button>(); // List of elements in this column
+        //}
 
-        private class Row
-        {
-            public static int ROW_HEIGHT = ROW_HEIGHT; // Height of the row in pixels
-            public Point Position = new Point(0, 0); // Top-left position of the row
-            public List<Button> Buttons = new List<Button>(); // List of elements in this column
-        }
+        //private class Button
+        //{
+        //    public Point Position
+        //    {
+        //        get { return new Point(_rect.Left, _rect.Top); }
+        //        set { _rect.Location = value; }
+        //    }
 
-        private class Button
-        {
-            public Point Position
-            {
-                get { return new Point(_rect.Left, _rect.Top); }
-                set { _rect.Location = value; }
-            }
+        //    public int Right
+        //    {
+        //        get { return (int)_rect.Right; }
+        //    }
 
-            public int Right
-            {
-                get { return (int)_rect.Right; }
-            }
+        //    public Point TopRight
+        //    {
+        //        get { return new Point(_rect.Right, _rect.Top); }
+        //    }
 
-            public Point TopRight
-            {
-                get { return new Point(_rect.Right, _rect.Top); }
-            }
+        //    public int Bottom
+        //    {
+        //        get { return (int)_rect.Bottom; }
+        //    }
 
-            public int Bottom
-            {
-                get { return (int)_rect.Bottom; }
-            }
+        //    private Rect _rect = new Rect();
 
-            private Rect _rect = new Rect();
+        //    public Button(int widthUnits, int heightUnits)
+        //    {
+        //        Position = new Point(0, 0); // Default position at (0, 0)
+        //        _rect.Width = Utils.MM2PX(Config.GRID_UNIT_MM * widthUnits);
+        //        _rect.Height = Utils.MM2PX(Config.GRID_UNIT_MM * heightUnits);
+        //    }
 
-            public Button(int widthUnits, int heightUnits)
-            {
-                Position = new Point(0, 0); // Default position at (0, 0)
-                _rect.Width = Utils.MM2PX(Config.GRID_UNIT_MM * widthUnits);
-                _rect.Height = Utils.MM2PX(Config.GRID_UNIT_MM * heightUnits);
-            }
+        //    public Button(Point position, int w, int h)
+        //    {
+        //        Position = position;
+        //        _rect.Width = w;
+        //        _rect.Height = h;
+        //    }
 
-            public Button(Point position, int w, int h)
-            {
-                Position = position;
-                _rect.Width = w;
-                _rect.Height = h;
-            }
+        //    public Button(Point position)
+        //    {
+        //        Position = position;
+        //    }
 
-            public Button(Point position)
-            {
-                Position = position;
-            }
+        //    public void SetSizeUnits(int widthUnits, int heightUnits)
+        //    {
+        //        _rect.Width = Utils.MM2PX(Config.GRID_UNIT_MM * widthUnits);
+        //        _rect.Height = Utils.MM2PX(Config.GRID_UNIT_MM * heightUnits);
+        //    }
 
-            public void SetSizeUnits(int widthUnits, int heightUnits)
-            {
-                _rect.Width = Utils.MM2PX(Config.GRID_UNIT_MM * widthUnits);
-                _rect.Height = Utils.MM2PX(Config.GRID_UNIT_MM * heightUnits);
-            }
+        //    public Button ShallowCopy()
+        //    {
+        //        // MemberwiseClone() returns a shallow copy of the current instance.
+        //        // It's a protected method of System.Object, so it must be called from within the class.
+        //        // The result needs to be cast back to your Button type.
+        //        return (Button)this.MemberwiseClone();
+        //    }
 
-            public Button ShallowCopy()
-            {
-                // MemberwiseClone() returns a shallow copy of the current instance.
-                // It's a protected method of System.Object, so it must be called from within the class.
-                // The result needs to be cast back to your Button type.
-                return (Button)this.MemberwiseClone();
-            }
+        //}
 
-        }
+        //private Point _position; // Top-left position of the grid
+        //private Column _column1 = new Column();
+        //private Column _column2 = new Column();
+        //private Column _column3 = new Column();
 
-        private Point _position; // Top-left position of the grid
-        private Column _column1 = new Column();
-        private Column _column2 = new Column();
-        private Column _column3 = new Column();
+        //public ColumnFactory(Point pos)
+        //{
+        //    _position = pos; // Set the position
 
-        public SGrid(Point pos)
-        {
-            _position = pos; // Set the position
+        //    // Create different types of buttons
+        //    Button bigButton = new Button(15, 19); // 60x76px
+        //    Button smallButton = new Button(6, 6); // 24x24px
+        //    Button dropdownButton = new Button(3, 6); // 12x24px
+        //    Button wideButton = new Button(12, 6); // 72x24px
+        //    Button widerButton = new Button(30, 6); // 120x24px
 
-            // Create different types of buttons
-            Button bigButton = new Button(15, 19); // 60x76px
-            Button smallButton = new Button(6, 6); // 24x24px
-            Button dropdownButton = new Button(3, 6); // 12x24px
-            Button wideButton = new Button(12, 6); // 72x24px
-            Button widerButton = new Button(30, 6); // 120x24px
-
-        }
+        //}
 
         private static Rectangle CreateInRowGutter()
         {
@@ -132,7 +131,7 @@ namespace Multi.Cursor
                 Height = ROW_HEIGHT,
                 //Fill = Brushes.Orange, // <-- Make it highly visible for debugging
                 //Stroke = Brushes.Black, // Add a stroke
-                StrokeThickness = 0.5,
+                //StrokeThickness = 0.5,
                 HorizontalAlignment = HorizontalAlignment.Left // Consistent alignment
             };
         }
@@ -145,7 +144,7 @@ namespace Multi.Cursor
                 Height = GUTTER,
                 //Fill = Brushes.Red, // <-- Make it highly visible for debugging
                 //Stroke = Brushes.Green,
-                StrokeThickness = 0.5,
+                //StrokeThickness = 0.5,
                 HorizontalAlignment = HorizontalAlignment.Stretch // This should be set in CreateCol1 too
             };
         }
@@ -428,155 +427,6 @@ namespace Multi.Cursor
             if (column.ColumnDefinitions.Count == 0) column.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             return column;
         }
-
-
-        //public static Grid CreateColType1(int combination)
-        //{
-        //    Grid column = new Grid { UseLayoutRounding = true };
-
-        //    // Define one column definition that stretches
-        //    column.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // Or GridLength.Star for stretching
-
-        //    // Define row definitions for your content rows and gutters
-        //    column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) }); // Row 1 Fixed Height
-        //    column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER) });    // Gutter 1
-        //    column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) }); // Row 2 Fixed Height
-        //    column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER) });    // Gutter 2
-        //    column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) }); // Row 3 Fixed Height
-
-        //    // Add rows based on the combination number
-        //    StackPanel rowType1;
-        //    StackPanel rowType2;
-        //    StackPanel rowType3;
-        //    Rectangle inColumnGutter;
-
-        //    switch (combination)
-        //    {
-        //        case 1:
-
-        //            int rowNum = 0; // Initialize row number
-
-        //            rowType1 = CreateRowType1();
-        //            Grid.SetRow(rowType1, rowNum);
-        //            column.Children.Add(rowType1);
-
-        //            rowNum++;
-        //            inColumnGutter = CreateInColumnGutter();
-        //            Grid.SetRow(inColumnGutter, rowNum);
-        //            column.Children.Add(inColumnGutter);
-
-        //            rowNum++;
-        //            rowType2 = CreateRowType2();
-        //            Grid.SetRow(rowType2, rowNum);
-        //            column.Children.Add(rowType2);
-
-        //            rowNum++;
-        //            inColumnGutter = CreateInColumnGutter();
-        //            Grid.SetRow(inColumnGutter, rowNum);
-        //            column.Children.Add(inColumnGutter);
-
-        //            rowNum++;
-        //            rowType3 = CreateRowType3();
-        //            Grid.SetRow(rowType3, rowNum);
-        //            column.Children.Add(rowType3);
-
-        //            break;
-
-        //        case 2:
-
-        //            rowNum = 0; // Reset row number
-        //            rowType1 = CreateRowType1();
-        //            Grid.SetRow(rowType1, rowNum);
-        //            column.Children.Add(rowType1);
-
-        //            rowNum++;
-        //            inColumnGutter = CreateInColumnGutter();
-        //            Grid.SetRow(inColumnGutter, rowNum);
-        //            column.Children.Add(inColumnGutter);
-
-        //            rowNum++;
-        //            rowType3 = CreateRowType3();
-        //            Grid.SetRow(rowType3, rowNum);
-        //            column.Children.Add(rowType3);
-
-        //            rowNum++;
-        //            inColumnGutter = CreateInColumnGutter();
-        //            Grid.SetRow(inColumnGutter, rowNum);
-        //            column.Children.Add(inColumnGutter);
-
-        //            rowNum++;
-        //            rowType2 = CreateRowType2();
-        //            Grid.SetRow(rowType2, rowNum);
-        //            column.Children.Add(rowType2);
-
-        //            break;
-
-        //        case 3:
-
-        //            rowNum = 0;
-        //            rowType2 = CreateRowType2();
-        //            Grid.SetRow(rowType2, rowNum);
-        //            column.Children.Add(rowType2);
-
-        //            rowNum++;
-        //            inColumnGutter = CreateInColumnGutter();
-        //            Grid.SetRow(inColumnGutter, rowNum);
-        //            column.Children.Add(inColumnGutter);
-
-        //            rowNum++;
-        //            rowType1 = CreateRowType1();
-        //            Grid.SetRow(rowType1, rowNum);
-        //            column.Children.Add(rowType1);
-
-        //            rowNum++;
-        //            inColumnGutter = CreateInColumnGutter();
-        //            Grid.SetRow(inColumnGutter, rowNum);
-        //            column.Children.Add(inColumnGutter);
-
-        //            rowNum++;
-        //            rowType3 = CreateRowType3();
-        //            Grid.SetRow(rowType3, rowNum);
-        //            column.Children.Add(rowType3);
-
-        //            break;
-
-        //        case 4:
-
-        //            rowNum = 0;
-        //            rowType3 = CreateRowType3();
-        //            Grid.SetRow(rowType3, rowNum);
-        //            column.Children.Add(rowType3);
-
-        //            rowNum++;
-        //            inColumnGutter = CreateInColumnGutter();
-        //            Grid.SetRow(inColumnGutter, rowNum);
-        //            column.Children.Add(inColumnGutter);
-
-        //            rowNum++;
-        //            rowType2 = CreateRowType2();    
-        //            Grid.SetRow(rowType2, rowNum);
-        //            column.Children.Add(rowType2);
-
-        //            rowNum++;
-        //            inColumnGutter = CreateInColumnGutter();
-        //            Grid.SetRow(inColumnGutter, rowNum);
-        //            column.Children.Add(inColumnGutter);
-
-        //            rowNum++;
-        //            rowType1 = CreateRowType1();
-        //            Grid.SetRow(rowType1, rowNum);
-        //            column.Children.Add(rowType1);
-
-        //            break;
-
-        //        default:
-        //            throw new ArgumentException("Invalid combination number");
-        //    }
-
-
-
-        //    return column;
-        //}
 
         public static Grid CreateCol2(int combination)
         {

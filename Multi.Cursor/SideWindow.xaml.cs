@@ -32,8 +32,9 @@ namespace Multi.Cursor
 
         private Random _random = new Random();
 
-        private double _padding = Utils.MmToDips(Config.WINDOW_PADDING_MM);
-        private double _gutter = Utils.MmToDips(Config.GRID_GUTTER_MM);
+        private double PADDING = Utils.MmToDips(Config.HORIZONTAL_PADDING_MM);
+        private double VERTICAL_PADDING = Utils.MmToDips(Config.VERTICAL_PADDING_MM); // Padding for the top and bottom of the grid
+        private double GUTTER = Utils.MmToDips(Config.GRID_GUTTER_MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -47,7 +48,6 @@ namespace Multi.Cursor
 
 
         private int windowWidth, windowHeight;
-        private int _canvasWidth, _canvasHeight;
 
         private bool _isCursorVisible;
         private Point _lastCursorPos = new Point(0, 0);
@@ -73,7 +73,8 @@ namespace Multi.Cursor
         //private Dictionary<int, string> _elementWidths = new Dictionary<int, string>(); // Key: Width (px), Value: Element Key
 
         //private Grid[] _gridColumns = new Grid[4]; // List of grid columns
-        private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
+        private List<Grid> _gridGroups = new List<Grid>(); // List of grid rows
+        //private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
         private static Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
         //private Grid _gridCol1, _gridCol2, _gridCol3; // Grid columns
 
@@ -125,7 +126,7 @@ namespace Multi.Cursor
             int canvasHeight = (int)canvas.ActualHeight;
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            int marginPX = Utils.MM2PX(Config.VERTICAL_PADDING_MM);
             int minX = marginPX;
             int maxX = canvasWidth - marginPX - targetWidth;
             int minY = marginPX;
@@ -491,7 +492,7 @@ namespace Multi.Cursor
             // Create the grid
             Brush defaultElementColor = Config.ELEMENT_DEFAULT_FILL_COLOR;
             int gutter = Utils.MM2PX(Config.GRID_GUTTER_MM);
-            int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            int padding = Utils.MM2PX(Config.VERTICAL_PADDING_MM);
             int colX = padding;
 
             int totalGridContentHeight = (int)ActualHeight - 2 * padding;
@@ -657,7 +658,7 @@ namespace Multi.Cursor
 
             // Create the grid
             int gutter = Utils.MM2PX(Config.GRID_GUTTER_MM);
-            int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Assuming this is the left/right window padding
+            int padding = Utils.MM2PX(Config.VERTICAL_PADDING_MM); // Assuming this is the left/right window padding
             int rowY = padding; // Start from the top (increased inside the loop)
 
             // This represents the total width available for the *grid content* within the window padding.
@@ -855,50 +856,50 @@ namespace Multi.Cursor
             return element;
         }
 
-        public void GenerateGrid(params Func<Grid>[] columnCreators)
+        public void GenerateGrid(params Func<Grid>[] groupCreators)
         {
             // Clear any existing columns from the canvas and the list before generating new ones
             canvas.Children.Clear();
-            _gridColumns.Clear();
+            _gridGroups.Clear();
 
-            double currentLeftPosition = _padding; // Start with the initial padding
+            double currentTopPosition = VERTICAL_PADDING; // Start with the initial padding
 
-            foreach (var createColumnFunc in columnCreators)
+            foreach (var createRowFunc in groupCreators)
             {
-                Grid newColumnGrid = createColumnFunc(); // Create the new column Grid
+                Grid newGroup = createRowFunc(); // Create the new column Grid
 
                 // Set its position on the Canvas
-                Canvas.SetLeft(newColumnGrid, currentLeftPosition);
-                Canvas.SetTop(newColumnGrid, _padding); // Assuming all columns start at the same top padding
+                Canvas.SetTop(newGroup, currentTopPosition);
+                Canvas.SetLeft(newGroup, PADDING); // Assuming all columns start at the same left padding
 
                 // Add to the Canvas
-                canvas.Children.Add(newColumnGrid);
+                canvas.Children.Add(newGroup);
 
                 // Add to our internal list for tracking/future reference
-                _gridColumns.Add(newColumnGrid);
+                _gridGroups.Add(newGroup);
 
-                // Register buttons in this column
-                RegisterButtons(newColumnGrid);
+                // Register buttons in this row
+                RegisterButtons(newGroup);
 
                 // Force a layout pass on the newly added column to get its ActualWidth
                 // This is crucial because the next column's position depends on this one's actual size.
-                newColumnGrid.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                newColumnGrid.Arrange(new Rect(newColumnGrid.DesiredSize));
+                newGroup.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                newGroup.Arrange(new Rect(newGroup.DesiredSize));
 
-                // Update the currentLeftPosition for the next column, adding the current column's width and the gutter
-                currentLeftPosition += newColumnGrid.ActualWidth + _gutter;
+                // Update the currentLeftPosition for the next column, adding the current column's width and the 2*gutter
+                currentTopPosition += newGroup.ActualHeight + VERTICAL_PADDING;
 
-                Debug.WriteLine($"Added column. Current left: {currentLeftPosition} DIPs. Column width: {newColumnGrid.ActualWidth}");
+                //Debug.WriteLine($"Added column. Current left: {currentLeftPosition} DIPs. Column width: {newColumnGrid.ActualWidth}");
             }
         }
 
-        private void RegisterButtons(Grid column)
+        private void RegisterButtons(Grid group)
         {
             // Iterate through all direct children of the Grid column
-            foreach (UIElement childOfColumn in column.Children)
+            foreach (UIElement childOfGroup in group.Children)
             {
                 // We know our rows are StackPanels
-                if (childOfColumn is StackPanel rowStackPanel)
+                if (childOfGroup is StackPanel rowStackPanel)
                 {
                     // Iterate through all children of the StackPanel (which should be buttons or in-row gutters)
                     foreach (UIElement childOfRow in rowStackPanel.Children)
