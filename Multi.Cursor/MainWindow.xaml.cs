@@ -252,13 +252,15 @@ namespace Multi.Cursor
             //_topWindow.KnollHorizontal(6, 12, Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
             Func<Grid>[] topColCreators = new Func<Grid>[]
             {
-                () => ColumnFactory.CreateColType1(combination: 1),
-                () => ColumnFactory.CreateColType2(combination: 2),     
-                () => ColumnFactory.CreateColType3(),     
-                () => ColumnFactory.CreateColType1(combination: 3),
-                () => ColumnFactory.CreateColType2(combination: 1),
-                () => ColumnFactory.CreateColType3(),
-                () => ColumnFactory.CreateColType2(combination : 1),
+                () => ColumnFactory.CreateGroupType1(combination: 1),
+                () => ColumnFactory.CreateGroupType2(combination: 2),     
+                () => ColumnFactory.CreateGroupType3(),     
+                () => ColumnFactory.CreateGroupType1(combination: 3),
+                () => ColumnFactory.CreateGroupType2(combination: 1),
+                () => ColumnFactory.CreateGroupType3(),
+                () => ColumnFactory.CreateGroupType2(combination: 1),
+                () => ColumnFactory.CreateGroupType1(combination: 5),
+                () => ColumnFactory.CreateGroupType2(combination: 3),
             };
 
             _topWindow.GenerateGrid(topColCreators);
@@ -282,6 +284,24 @@ namespace Multi.Cursor
             };
 
             _leftWindow.GenerateGrid(leftGroupCreators);
+
+            // Create right grid
+            Func<Grid>[] rightGroupCreators = new Func<Grid>[]
+            {
+                () => RowFactory.CreateGroupType1(combination: 1),
+                () => RowFactory.CreateGroupType1(combination: 3),
+                () => RowFactory.CreateGroupType2(combination: 2),
+                () => RowFactory.CreateGroupType1(combination: 4),
+                () => RowFactory.CreateGroupType2(combination: 6),
+                () => RowFactory.CreateGroupType1(combination: 1),
+                () => RowFactory.CreateGroupType2(combination: 3),
+                () => RowFactory.CreateGroupType2(combination: 5),
+                () => RowFactory.CreateGroupType1(combination: 2),
+                () => RowFactory.CreateGroupType2(combination: 2),
+                () => RowFactory.CreateGroupType2(combination: 6),
+            };
+
+            _rightWindow.GenerateGrid(rightGroupCreators);
 
 
             UpdateLabel();

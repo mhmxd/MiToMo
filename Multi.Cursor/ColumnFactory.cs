@@ -317,7 +317,7 @@ namespace Multi.Cursor
             }
         }
 
-        public static Grid CreateColType1(int combination) // Renamed from CreateCol1, assuming 'combination' is the parameter
+        public static Grid CreateGroupType1(int combination) // Renamed from CreateCol1, assuming 'combination' is the parameter
         {
             Grid column = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
 
@@ -352,11 +352,29 @@ namespace Multi.Cursor
                     break;
                 case 4:
                     AddRowsAndGuttersToColumn(column,
+                        WrapRowFunc(() => CreateRowType2()),
+                        CreateGutterFunc(),
+                        WrapRowFunc(() => CreateRowType3()),
+                        CreateGutterFunc(),
+                        WrapRowFunc(() => CreateRowType1())
+                    );
+                    break;
+                case 5:
+                    AddRowsAndGuttersToColumn(column,
                         WrapRowFunc(() => CreateRowType3()),
                         CreateGutterFunc(),
                         WrapRowFunc(() => CreateRowType2()),
                         CreateGutterFunc(),
                         WrapRowFunc(() => CreateRowType1())
+                    );
+                    break;
+                case 6:
+                    AddRowsAndGuttersToColumn(column,
+                        WrapRowFunc(() => CreateRowType3()),
+                        CreateGutterFunc(),
+                        WrapRowFunc(() => CreateRowType1()),
+                        CreateGutterFunc(),
+                        WrapRowFunc(() => CreateRowType2())
                     );
                     break;
                 default:
@@ -372,7 +390,7 @@ namespace Multi.Cursor
             return column;
         }
 
-        public static Grid CreateColType2(int combination)
+        public static Grid CreateGroupType2(int combination)
         {
             Grid column = new Grid { UseLayoutRounding = true };
 
@@ -414,7 +432,7 @@ namespace Multi.Cursor
             return column;
         }
 
-        public static Grid CreateColType3()
+        public static Grid CreateGroupType3()
         {
             Grid column = new Grid { UseLayoutRounding = true };
             AddRowsAndGuttersToColumn(column,
@@ -428,66 +446,5 @@ namespace Multi.Cursor
             return column;
         }
 
-        public static Grid CreateCol2(int combination)
-        {
-            Grid column = new Grid { UseLayoutRounding = true };
-
-            // Define one column definition that stretches
-            column.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // Or GridLength.Star for stretching
-
-            // Define row definitions for your content rows and gutters
-            column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) }); // Row 1 Fixed Height
-            column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER) });    // Gutter 1
-            column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) }); // Row 2 Fixed Height
-            column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER) });    // Gutter 2
-            column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) }); // Row 3 Fixed Height
-
-            // Add rows
-            StackPanel row1 = CreateRowType3();
-            Grid.SetRow(row1, 0);
-            row1.HorizontalAlignment = HorizontalAlignment.Stretch;
-            column.Children.Add(row1);
-
-            Rectangle inColumnGutter1 = CreateInColumnGutter(); // Use the new method
-            Grid.SetRow(inColumnGutter1, 1);
-            inColumnGutter1.HorizontalAlignment = HorizontalAlignment.Stretch; // Explicitly stretch
-            column.Children.Add(inColumnGutter1);
-
-            StackPanel row2 = CreateRowType4();
-            Grid.SetRow(row2, 2);
-            row2.HorizontalAlignment = HorizontalAlignment.Stretch;
-            column.Children.Add(row2);
-
-            Rectangle inColumnGutter2 = CreateInColumnGutter(); // Use the new method
-            Grid.SetRow(inColumnGutter2, 3);
-            inColumnGutter2.HorizontalAlignment = HorizontalAlignment.Stretch; // Explicitly stretch
-            column.Children.Add(inColumnGutter2);
-
-            StackPanel row3 = CreateRowType4();
-            Grid.SetRow(row3, 4);
-            row3.HorizontalAlignment = HorizontalAlignment.Stretch;
-            column.Children.Add(row3);
-
-            return column;
-        }
-
-        public static Grid CreateCol3()
-        {
-            Grid column = new Grid { UseLayoutRounding = true };
-
-            // Define one column definition that stretches
-            column.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // Or GridLength.Star for stretching
-
-            // Define row definitions for your content rows and gutters
-            column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(19 * UNIT) }); // Row 1 Fixed Height
-
-            // Add rows
-            StackPanel row1 = CreateRowType5();
-            Grid.SetRow(row1, 0);
-            row1.HorizontalAlignment = HorizontalAlignment.Stretch;
-            column.Children.Add(row1);
-
-            return column;
-        }
     }
 }
