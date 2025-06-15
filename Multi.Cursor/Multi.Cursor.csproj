@@ -302,6 +302,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AuxWindow.cs" />
     <Compile Include="BackgroundWindow.xaml.cs">
       <DependentUpon>BackgroundWindow.xaml</DependentUpon>
     </Compile>

@@ -11,7 +11,7 @@ namespace Multi.Cursor
         Up, Down, Left, Right
     }
 
-    public enum Location
+    public enum Side
     {
         Left, Top, Right, Bottom, Middle
     }

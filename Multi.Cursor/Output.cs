@@ -114,9 +114,10 @@ namespace Multi.Cursor
             //NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
         }
 
-        public static void TrialInfo<T>(string mssg, [CallerMemberName] string memberName = "")
+        public static void TrialInfo(this object source, string mssg, [CallerMemberName] string memberName = "")
         {
-            var className = typeof(T).Name;
+            // GetType() is called on the 'source' object at RUNTIME.
+            var className = source.GetType().Name;
             CONSOUT_NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
         }
 

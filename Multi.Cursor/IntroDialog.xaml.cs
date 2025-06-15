@@ -26,7 +26,7 @@ namespace Multi.Cursor
 
         private bool _isClosingFromButton = false; // Begin button was pressed to close, not x
 
-        private bool _isPositionsFound = false;
+        private bool _experimentSet = false;
 
         public IntroDialog()
         {
@@ -41,13 +41,9 @@ namespace Multi.Cursor
 
         private async void BeginButton_ClickAsync(object sender, RoutedEventArgs e)
         {
-            if (_isPositionsFound)
+            if (_experimentSet)
             {
                 _isClosingFromButton = true;
-
-                ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
-                Technique = TechniqueComboBox.SelectedItem as string;
-                SelectedExperiment = ExperimentComboBox.SelectedItem as string;
                 DialogResult = true;
 
                 Close();
@@ -56,26 +52,27 @@ namespace Multi.Cursor
             {
                 if (Owner is MainWindow ownerWindow)
                 {
-                    _isPositionsFound = true;
+                    ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
+                    Technique = TechniqueComboBox.SelectedItem as string;
+                    SelectedExperiment = ExperimentComboBox.SelectedItem as string;
 
-                    //BigButton.Content = "Initializing...";
-                    ////BigButton.IsEnabled = false;
+                    //_experimentSet = true;
 
-                    //_isPositionsFound = await Task.Run(() => ownerWindow.FindPositionsForAllBlocks());
+                    BigButton.Content = "Initializing...";
+                    //BigButton.IsEnabled = false;
 
-                    //if (_isPositionsFound)
-                    //{
-                    //    BigButton.Content = "Begin";
-                    //    //BigButton.IsEnabled = true;
-                    //}
-                    //else
-                    //{
-                    //    BigButton.Content = "Retry";
-                    //}
+                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(ParticipantNumber, Technique.ToString()));
 
+                    if (_experimentSet)
+                    {
+                        BigButton.Content = "Begin";
+                        //BigButton.IsEnabled = true;
+                    }
+                    else
+                    {
+                        BigButton.Content = "Retry";
+                    }
 
-                    // Now you have the result, and you are still on a background thread.
-                    // If you need to update the UI, you MUST use Dispatcher.Invoke or BeginInvoke.
                     //Dispatcher.Invoke(() =>
                     //{
                     //    // Safe to update UI elements here, e.g.,

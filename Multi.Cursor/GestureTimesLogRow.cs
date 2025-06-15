@@ -13,7 +13,7 @@ namespace Multi.Cursor
         public int TrialId { get; set; }
         public double TargetWidthMM { get; set; }
         public double DistanceMM { get; set; }
-        public Location TargetLocation { get; set; }
+        public Side TargetLocation { get; set; }
 
     }
 }

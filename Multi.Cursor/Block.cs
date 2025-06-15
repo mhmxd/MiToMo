@@ -24,52 +24,84 @@ namespace Multi.Cursor
             set => _id = value;
         }
 
-        private Experiment.BLOCK_TYPE _blockType = Experiment.BLOCK_TYPE.REPEATED_SIDE;
+        private Experiment.BLOCK_TYPE _blockType = Experiment.BLOCK_TYPE.REPEATING;
         public Experiment.BLOCK_TYPE BlockType
         {
             get => _blockType;
             set => _blockType = value;
         }
 
-        public Block(Experiment.BLOCK_TYPE type, int id, List<double> targetWidthsMM, List<double> distsMM, int rep, Location loc = Location.Top)
+        /// <summary>
+        /// One side (for repeating blocks)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="targetMultiples"></param>
+        /// <param name="distsMM"></param>
+        public Block(Side side, int id, List<int> targetMultiples, List<double> distsMM)
         {
             _id = id;
-            _blockType = type;
 
-            if (type == Experiment.BLOCK_TYPE.REPEATED_SIDE) // One side is repeated (w/ different Targets and dists)
+            //-- Create trials (dist x targetWidth x sideWindow)
+            int trialNum = 1;
+            foreach (int targetMultiple in targetMultiples)
             {
-                int trialNum = 1;
-                for (int r = 0; r < rep; r++)
+                foreach (double distMM in distsMM)
                 {
-                    foreach (double targetWidthMM in targetWidthsMM)
+                    Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, side);
+                    _trials.Add(trial);
+                    trialNum++;
+                }
+            }
+
+
+            // Shuffle the trials
+            _trials.Shuffle();
+        }
+
+
+        public Block(int id, List<int> topTargetMultiples, List<int> sideTargetMultiples, List<double> distsMM, int rep)
+        {
+            _id = id;
+
+            // Top trials
+            int trialNum = 1;
+            for (int r = 0; r < rep; r++)
+            {
+                foreach (int targetMultiple in topTargetMultiples)
+                {
+                    foreach (double distMM in distsMM)
                     {
-                        foreach (double distMM in distsMM)
-                        {
-                            Trial trial = new Trial(_id * 100 + trialNum, targetWidthMM, distMM, loc);
-                            _trials.Add(trial);
-                            trialNum++;
-                        }
+                        Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, Side.Top);
+                        _trials.Add(trial);
+                        trialNum++;
                     }
                 }
             }
 
-            else if (type == Experiment.BLOCK_TYPE.ALTERNATING_SIDE) // Alternating sides
+            // Left trials
+            for (int r = 0; r < rep; r++)
             {
-                int trialNum = 1;
-                for (int r = 0; r < rep; r++)
+                foreach (int targetMultiple in sideTargetMultiples)
                 {
-                    foreach (double targetWidthMM in targetWidthsMM)
+                    foreach (double distMM in distsMM)
                     {
-                        foreach (double distMM in distsMM)
-                        {
-                            for (int locInd = 0; locInd < 3; locInd++)
-                            {
-                                Location sideWindow = (Location)locInd;
-                                Trial trial = new Trial(_id * 100 + trialNum, targetWidthMM, distMM, sideWindow);
-                                _trials.Add(trial);
-                                trialNum++;
-                            }
-                        }
+                        Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, Side.Left);
+                        _trials.Add(trial);
+                        trialNum++;
+                    }
+                }
+            }
+
+            // Right trials
+            for (int r = 0; r < rep; r++)
+            {
+                foreach (int targetMultiple in sideTargetMultiples)
+                {
+                    foreach (double distMM in distsMM)
+                    {
+                        Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, Side.Right);
+                        _trials.Add(trial);
+                        trialNum++;
                     }
                 }
             }
@@ -78,7 +110,7 @@ namespace Multi.Cursor
             _trials.Shuffle();
         }
 
-        public Block(int id, List<double> targetWidthsMM, List<double> distsMM, int rep)
+        public Block(int id, List<int> targetMultiples, List<double> distsMM, int rep)
         {
             _id = id;
 
@@ -87,14 +119,14 @@ namespace Multi.Cursor
             int trialNum = 1;
             for (int r = 0; r < rep; r++)
             {
-                foreach (double targetWidthMM in targetWidthsMM)
+                foreach (int targetMultiple in targetMultiples)
                 {
                     foreach (double distMM in distsMM)
                     {
                         for (int locInd = 0; locInd < 3; locInd++)
                         {
-                            Location sideWindow = (Location)locInd;
-                            Trial trial = new Trial(_id * 100 + trialNum, targetWidthMM, distMM, sideWindow);
+                            Side sideWindow = (Side)locInd;
+                            Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, sideWindow);
                             _trials.Add(trial);
                             trialNum++;
                         }

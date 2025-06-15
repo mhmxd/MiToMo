@@ -18,8 +18,7 @@ namespace Multi.Cursor
     {
         public static double GUTTER = Utils.MmToDips(Config.GRID_GUTTER_MM); // Space in-between the grid elements
         public static double UNIT = Utils.MmToDips(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
-        public static double ROW_HEIGHT = 6 * UNIT; // Height of each row in pixels
-
+        public static double ROW_HEIGHT = Utils.MmToDips(Config.GRID_ROW_HEIGHT_MM); // Height of each row in pixels
         
         //private class Column
         //{
@@ -50,7 +49,7 @@ namespace Multi.Cursor
         //    public Point Position
         //    {
         //        get { return new Point(_rect.Left, _rect.Top); }
-        //        set { _rect.Location = value; }
+        //        set { _rect.Side = value; }
         //    }
 
         //    public int Right
@@ -151,7 +150,7 @@ namespace Multi.Cursor
 
         private static SButton CreateBigButton()
         {
-            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[5];
+            int wMultiple = Experiment.TOP_BUTTONS_WIDTH_MULTIPLES[2];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -163,7 +162,7 @@ namespace Multi.Cursor
 
         private static SButton CreateSmallButton()
         {
-            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[1];
+            int wMultiple = Experiment.TOP_BUTTONS_WIDTH_MULTIPLES[1];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -175,7 +174,7 @@ namespace Multi.Cursor
 
         private static SButton CreateDropdownButton()
         {
-            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[0]; // Assuming 0 is the index for dropdown button width
+            int wMultiple = Experiment.TOP_BUTTONS_WIDTH_MULTIPLES[0]; // Assuming 0 is the index for dropdown button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -187,7 +186,7 @@ namespace Multi.Cursor
 
         private static SButton CreateWideButton()
         {
-            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[3]; // Assuming 3 is the index for wide button width
+            int wMultiple = Experiment.TOP_BUTTONS_WIDTH_MULTIPLES[3]; // Assuming 3 is the index for wide button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -199,7 +198,7 @@ namespace Multi.Cursor
 
         private static SButton CreateWiderButton()
         {
-            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[4]; // Assuming 4 is the index for wider button width
+            int wMultiple = Experiment.TOP_BUTTONS_WIDTH_MULTIPLES[4]; // Assuming 4 is the index for wider button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -296,7 +295,7 @@ namespace Multi.Cursor
                 // Add RowDefinition based on the element's type
                 if (element is StackPanel)
                 {
-                    column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
+                    column.RowDefinitions.Add(new RowDefinition {  });
                 }
                 else if (element is Rectangle && ((Rectangle)element).Height == GUTTER)
                 {
@@ -317,7 +316,7 @@ namespace Multi.Cursor
             }
         }
 
-        public static Grid CreateGroupType1(int combination) // Renamed from CreateCol1, assuming 'combination' is the parameter
+        public static Grid CreateGroupType1(int combination)
         {
             Grid column = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
 
@@ -436,11 +435,7 @@ namespace Multi.Cursor
         {
             Grid column = new Grid { UseLayoutRounding = true };
             AddRowsAndGuttersToColumn(column,
-                WrapRowFunc(() => CreateRowType2()),
-                CreateGutterFunc(),
-                WrapRowFunc(() => CreateRowType3()),
-                CreateGutterFunc(),
-                WrapRowFunc(() => CreateRowType1())
+                WrapRowFunc(() => CreateRowType5())
             );
             if (column.ColumnDefinitions.Count == 0) column.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             return column;

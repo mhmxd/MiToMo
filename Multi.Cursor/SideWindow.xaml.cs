@@ -17,6 +17,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using WindowsInput;
 using static Multi.Cursor.Output;
 using Seril = Serilog.Log;
@@ -26,7 +27,7 @@ namespace Multi.Cursor
     /// <summary>
     /// Interaction logic for SideWindow.xaml
     /// </summary>
-    public partial class SideWindow : Window
+    public partial class SideWindow : AuxWindow
     {
         public string WindowTitle { get; set; }
 
@@ -75,7 +76,6 @@ namespace Multi.Cursor
         //private Grid[] _gridColumns = new Grid[4]; // List of grid columns
         private List<Grid> _gridGroups = new List<Grid>(); // List of grid rows
         //private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
-        private static Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
         //private Grid _gridCol1, _gridCol2, _gridCol3; // Grid columns
 
         public SideWindow(string title, Point relPos)
@@ -92,7 +92,7 @@ namespace Multi.Cursor
             _auxursor = new Auxursor(Config.FRAME_DUR_MS / 1000.0);
             _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
 
-            foreach (int wm in Experiment.BUTTON_WIDTHS_MULTIPLES)
+            foreach (int wm in Experiment.SIDE_BUTTONS_WIDTH_MULTIPLES)
             {
                 _widthButtons.TryAdd(wm, new List<SButton>());
             }
@@ -221,29 +221,29 @@ namespace Multi.Cursor
             ShowCursor((int)p.X, (int)p.Y);
         }
 
-        public void ShowCursor(Location location)
+        public void ShowCursor(Side location)
         {
             Point position = new Point();
 
             switch (location)
             {
-                case Location.Left:
+                case Side.Left:
                     position.X = canvas.ActualWidth / 4.0; // Middle of the left
                     position.Y = canvas.ActualHeight / 2.0; // Middle of height
                     break;
-                case Location.Top:
+                case Side.Top:
                     position.X = canvas.ActualWidth / 2.0; // Middle of width
                     position.Y = canvas.ActualHeight / 4.0; // Middle of the top
                     break;
-                case Location.Bottom:
+                case Side.Bottom:
                     position.X = canvas.ActualWidth / 2.0; // Middle of width
                     position.Y = canvas.ActualHeight * 3 / 4.0; // Middle of the top
                     break;
-                case Location.Right:
+                case Side.Right:
                     position.X = canvas.ActualWidth * 3 / 4.0; // Middle of the right
                     position.Y = canvas.ActualHeight / 2.0; // Middle of height
                     break;
-                case Location.Middle:
+                case Side.Middle:
                     position.X = canvas.ActualWidth / 2.0; // Middle of width
                     position.Y = canvas.ActualHeight / 2.0; // Middle of height
                     break;
@@ -293,7 +293,7 @@ namespace Multi.Cursor
             // Apply the calculated movement to the grid's current position
             if (dGridX != 0 || dGridY != 0)
             {
-                TrialInfo<SideWindow>($"Grid movement: dX = {dGridX}, dY = {dGridY}");
+                this.TrialInfo($"Grid movement: dX = {dGridX}, dY = {dGridY}");
                 MoveSelection(dGridX, dGridY);
             }
 
@@ -856,7 +856,7 @@ namespace Multi.Cursor
             return element;
         }
 
-        public void GenerateGrid(params Func<Grid>[] groupCreators)
+        public override void GenerateGrid(params Func<Grid>[] groupCreators)
         {
             // Clear any existing columns from the canvas and the list before generating new ones
             canvas.Children.Clear();
@@ -878,23 +878,34 @@ namespace Multi.Cursor
                 // Add to our internal list for tracking/future reference
                 _gridGroups.Add(newGroup);
 
-                // Register buttons in this row
-                RegisterButtons(newGroup);
-
                 // Force a layout pass on the newly added column to get its ActualWidth
                 // This is crucial because the next column's position depends on this one's actual size.
                 newGroup.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
                 newGroup.Arrange(new Rect(newGroup.DesiredSize));
+
+                // Register buttons in this row
+                //RegisterButtons(newGroup);
 
                 // Update the currentLeftPosition for the next column, adding the current column's width and the 2*gutter
                 currentTopPosition += newGroup.ActualHeight + VERTICAL_PADDING;
 
                 //Debug.WriteLine($"Added column. Current left: {currentLeftPosition} DIPs. Column width: {newColumnGrid.ActualWidth}");
             }
+
+            Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+            {
+                this.TrialInfo("Registering button positions after full render pass...");
+                foreach (Grid group in _gridGroups)
+                {
+                    RegisterButtons(group);
+                }
+            }));
         }
 
         private void RegisterButtons(Grid group)
         {
+            this.TrialInfo($"Registering buttons ----------------------------------------------------------");
+
             // Iterate through all direct children of the Grid column
             foreach (UIElement childOfGroup in group.Children)
             {
@@ -908,24 +919,23 @@ namespace Multi.Cursor
                         if (childOfRow is SButton button)
                         {
                             _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
+                            _allButtons.Add(button.Id, button); // Add to the list of all buttons
+                            foreach (int wm in _widthButtons.Keys)
+                            {
+                                string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
+                                this.TrialInfo($"WM {wm} -> {ids}");
+                            }
+                            // Add button position to the dictionary
+                            // Get the transform from the button to the Window (or the root visual)
+                            GeneralTransform transformToWindow = button.TransformToVisual(Window.GetWindow(button));
+                            // Get the point representing the top-left corner of the button relative to the Window
+                            Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
+                            _buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
+
+                            this.TrialInfo($"Registered button ID#{button.Id}, Wx{button.WidthMultiple} | Position: {positionInWindow}");
                         }
                     }
                 }
-            }
-        }
-
-        public void SelectRandButtonByWidth(int wMult)
-        {
-            SButton selectedButton = _widthButtons[wMult].GetRandomElement(); // Get a random button from the list for that width
-            if (selectedButton != null)
-            {
-                // Highlight the selected button
-                selectedButton.Background = Config.GRID_TARGET_COLOR;
-                TrialInfo<SideWindow>($"Selected button with width multiple {wMult}: {selectedButton.Content}");
-            }
-            else
-            {
-                TrialInfo<SideWindow>($"No buttons found for width multiple {wMult}.");
             }
         }
 
@@ -954,7 +964,7 @@ namespace Multi.Cursor
             // 2. Check if any matching elements were found
             if (matchingElements.Count == 0)
             {
-                TrialInfo<SideWindow>($"No elements found with width: {widthPX}");
+                this.TrialInfo($"No elements found with width: {widthPX}");
                 return ("", new Point());
             }
 
@@ -1006,7 +1016,7 @@ namespace Multi.Cursor
 
         public void ColorElement(string elementId, Brush color)
         {
-            TrialInfo<SideWindow>($"Element Key: {elementId}");
+            this.TrialInfo($"Element Key: {elementId}");
             if (_gridElements.ContainsKey(elementId))
             {
                 Element element = _gridElements[elementId];

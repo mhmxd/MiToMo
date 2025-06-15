@@ -133,7 +133,7 @@ namespace Multi.Cursor
         public static int ELEMENT_BORDER_THICKNESS = 2; // Thickness of the border around the grid elements
 
         public static double GRID_UNIT_MM = 1; // Unit of measurement for the grid (1mm = 4px)
-        //public static double GRID_ROW_HEIGHT_MM = 6 * GRID_UNIT_MM; // Height of the grid rows (= 24px)
+        public static double GRID_ROW_HEIGHT_MM = 6 * GRID_UNIT_MM; // Height of the grid rows (= 24px)
 
         public static int CELL_WIDTH_THRESHOLD = 50; // px
         public static int CELL_HEIGHT_THRESHOLD = 50; // px

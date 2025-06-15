@@ -15,7 +15,8 @@ namespace Multi.Cursor
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
         //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
         private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30}; // BenQ
-        public static List<int> BUTTON_WIDTHS_MULTIPLES = new List<int>() { 3, 6, 15, 18, 30, 52 }; // Multiples of the UNIT (1mm = 4px) widths for grid
+        public static List<int> SIDE_BUTTONS_WIDTH_MULTIPLES = new List<int>() { 3, 6, 18, 30, 52 }; // Multiples of the UNIT (1mm = 4px) widths for grid
+        public static List<int> TOP_BUTTONS_WIDTH_MULTIPLES = new List<int>() { 3, 6, 15, 18, 30 }; // Multiples of the UNIT (1mm = 4px) widths for top buttons
 
         private static List<double> _distances = new List<double>(); // Generated in constructor
         private static int N_BLOCKS = 3; // Number of blocks in the experiment
@@ -27,8 +28,8 @@ namespace Multi.Cursor
 
         public enum BLOCK_TYPE
         {
-            REPEATED_SIDE = 0,
-            ALTERNATING_SIDE = 1
+            REPEATING = 0,
+            ALTERNATING = 1
         }
 
         //-- Calculated
@@ -79,14 +80,13 @@ namespace Multi.Cursor
             _distances.Add(midDist);
             _distances.Add(longDist);
 
-            //-- Create blocks of trials
-            for (int i = 0; i < N_BLOCKS; i++)
-            {
-                int blockId = Participant_Number * 100 + i;
-                //Block block = new Block(blockId, TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
-                Block block = new Block(BLOCK_TYPE.REPEATED_SIDE, blockId, GRID_TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
-                _blocks.Add(block);
-            }
+            //for (int i = 0; i < N_BLOCKS; i++)
+            //{
+            //    int blockId = Participant_Number * 100 + i;
+            //    //Block block = new Block(blockId, TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
+            //    Block block = new Block(BLOCK_TYPE.ALTERNATING, blockId, _distances, N_REPS_IN_BLOCK);
+            //    _blocks.Add(block);
+            //}
 
             //-- Init
             //_activeBlockNum = 1;
@@ -100,6 +100,7 @@ namespace Multi.Cursor
 
         public void Init(int ptc, string tech)
         {
+            this.TrialInfo($"Participant: {ptc}, Technique: {tech}");
             Participant_Number = ptc;
             if (tech == Str.TOUCH_MOUSE_TAP)
             {
@@ -117,12 +118,23 @@ namespace Multi.Cursor
             }
 
             //-- Create blocks of trials
+            // 2 top blocks, 2 left blocks, 2 right blocks
+            int blockId = Participant_Number * 100 + 1;
             for (int i = 0; i < N_BLOCKS; i++)
             {
-                int blockId = Participant_Number * 100 + i;
-                Block block = new Block(blockId, TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
+                Block block = new Block(blockId, TOP_BUTTONS_WIDTH_MULTIPLES, SIDE_BUTTONS_WIDTH_MULTIPLES, _distances, N_REPS_IN_BLOCK);
                 _blocks.Add(block);
+                blockId++;
             }
+
+
+            //-- Create blocks of trials
+            //for (int i = 0; i < N_BLOCKS; i++)
+            //{
+            //    int blockId = Participant_Number * 100 + i;
+            //    Block block = new Block(blockId, BUTTON_WIDTHS_MULTIPLES, _distances, N_REPS_IN_BLOCK);
+            //    _blocks.Add(block);
+            //}
 
             //-- Init
             //_activeBlockNum = 1;

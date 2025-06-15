@@ -1,4 +1,4 @@
-﻿<Window
+﻿<local:AuxWindow
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Multi.Cursor" x:Class="Multi.Cursor.TopWindow"
@@ -10,4 +10,4 @@
     <Canvas x:Name="canvas">
     </Canvas>
 
-</Window>
+</local:AuxWindow>

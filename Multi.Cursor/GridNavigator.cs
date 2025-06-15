@@ -10,7 +10,7 @@ using static Multi.Cursor.Output;
 
 namespace Multi.Cursor
 {
-    internal class GridNavigator
+    public class GridNavigator
     {
         private bool _active;
         private bool _initMove;

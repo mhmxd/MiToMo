@@ -36,23 +36,23 @@ namespace Multi.Cursor
         }
         public int DistancePX => Utils.MM2PX(DistanceMM);
 
-        public Point StartPosition, TargetPosition; // Relative to the respective windows
+        //public Point StartPosition, TargetPosition; // Relative to the respective windows
 
         // Trial number (not needed for now)
         //private int _number { get; set; }
 
-        private Location _targetLocation; // Side window to show target in
-        public Location TargetLocation
+        private Side _targetSide; // Side window to show target in
+        public Side TargetSide
         {
-            get => _targetLocation;
-            set => _targetLocation = value;
+            get => _targetSide;
+            set => _targetSide = value;
         }
 
-        private string _targetKey; // To address the grid elements
-        public string TargetKey
+        private int _targetMultiple; // Multiples of the target width (ref. the Experiment.TARGET_WIDTHS_MM list)
+        public int TargetMultiple
         {
-            get => _targetKey;
-            set => _targetKey = value;
+            get => _targetMultiple;
+            set => _targetMultiple = value;
         }
 
         //=========================================================================
@@ -63,20 +63,21 @@ namespace Multi.Cursor
         /// </summary>
         /// <param name="targetWidthMM"> Target width in mm</param>
         /// <param name="distMM">Distance to target in mm</param>
-        public Trial(int id, double targetWidthMM, double distMM, Location sideWin)
+        public Trial(int id, int targetMultiple, double distMM, Side sideWin)
         {
             _id = id;
-            _targetWidthMM = targetWidthMM;
+            //_targetWidthMM = targetWidthMM;
+            _targetMultiple = targetMultiple;
             _distanceMM = distMM;
-            _targetLocation = sideWin;
-            //Location[] validDirections = { Location.Top, Location.Left, Location.Right };
+            _targetSide = sideWin;
+            //Side[] validDirections = { Side.Top, Side.Left, Side.Right };
             //_sideWindow = validDirections[Utils.Random.Next(validDirections.Length)];
             //_straightPath = true;
         }
 
         public override string ToString()
         {
-            return $"Trial: [Id = {_id}, W = {_targetWidthMM}mm, D = {_distanceMM:F2}mm, Loc = {_targetLocation}]";
+            return $"Trial: [Id = {_id}, W = {_targetMultiple} units, D = {_distanceMM:F2} mm, Loc = {_targetSide}]";
         }
     
         

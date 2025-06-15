@@ -50,21 +50,9 @@ namespace Multi.Cursor
             };
         }
 
-        private static SButton CreateSmallButton()
-        {
-            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[1];
-            SButton sButton = new SButton
-            {
-                WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[1] is defined in Experiment
-                Height = ROW_HEIGHT // Height in pixels
-            };
-            return sButton;
-        }
-
         private static SButton CreateDropdownButton()
         {
-            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[0]; // 3 x Unit
+            int wMultiple = Experiment.SIDE_BUTTONS_WIDTH_MULTIPLES[0]; // 3 x Unit
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -74,9 +62,21 @@ namespace Multi.Cursor
             return sButton;
         }
 
+        private static SButton CreateSmallButton()
+        {
+            int wMultiple = Experiment.SIDE_BUTTONS_WIDTH_MULTIPLES[1];
+            SButton sButton = new SButton
+            {
+                WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
+                Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[1] is defined in Experiment
+                Height = ROW_HEIGHT // Height in pixels
+            };
+            return sButton;
+        }
+
         private static SButton CreateWideButton()
         {
-            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[3]; // 15 x Unit
+            int wMultiple = Experiment.SIDE_BUTTONS_WIDTH_MULTIPLES[2];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -88,7 +88,7 @@ namespace Multi.Cursor
 
         private static SButton CreateWiderButton()
         {
-            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[4]; // 30 x Unit
+            int wMultiple = Experiment.SIDE_BUTTONS_WIDTH_MULTIPLES[3];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -100,7 +100,7 @@ namespace Multi.Cursor
 
         private static SButton CreateWidestButton()
         {
-            int wMultiple = Experiment.BUTTON_WIDTHS_MULTIPLES[5]; // 52 x Unit
+            int wMultiple = Experiment.SIDE_BUTTONS_WIDTH_MULTIPLES[4];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 

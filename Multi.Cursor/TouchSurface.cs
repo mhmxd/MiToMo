@@ -529,15 +529,15 @@ namespace Multi.Cursor
                         if (lastPosition.Y < THUMB_TOP_LOWEST_ROW) // Top
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
-                            LogTap(finger.ToString(), Location.Top, currentFrame.Timestamp); // LOG
-                            _gestureReceiver.ThumbTap(Location.Top);
+                            LogTap(finger.ToString(), Side.Top, currentFrame.Timestamp); // LOG
+                            _gestureReceiver.ThumbTap(Side.Top);
                             
                         }
                         else // Bottom
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Bottom.");
-                            LogTap(finger.ToString(), Location.Bottom, currentFrame.Timestamp); // LOG
-                            _gestureReceiver.ThumbTap(Location.Bottom);
+                            LogTap(finger.ToString(), Side.Bottom, currentFrame.Timestamp); // LOG
+                            _gestureReceiver.ThumbTap(Side.Bottom);
                             
                         }
                     }
@@ -594,7 +594,7 @@ namespace Multi.Cursor
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
-                        LogTap(finger.ToString(), Location.Left, currentFrame.Timestamp); // LOG
+                        LogTap(finger.ToString(), Side.Left, currentFrame.Timestamp); // LOG
                         _gestureReceiver.IndexTap();
                     }
 
@@ -651,7 +651,7 @@ namespace Multi.Cursor
                             Abs(lastPosition.X - downPosition.X),
                             Abs(lastPosition.Y - downPosition.Y)))
                         {
-                            LogTap(finger.ToString(), Location.Middle, currentFrame.Timestamp); // LOG
+                            LogTap(finger.ToString(), Side.Middle, currentFrame.Timestamp); // LOG
                             _gestureReceiver.MiddleTap();
                         }
 
@@ -709,7 +709,7 @@ namespace Multi.Cursor
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
-                        LogTap(finger.ToString(), Location.Right, currentFrame.Timestamp); // LOG
+                        LogTap(finger.ToString(), Side.Right, currentFrame.Timestamp); // LOG
                         _gestureReceiver.RingTap();
                         
                     }
@@ -773,14 +773,14 @@ namespace Multi.Cursor
                         if (lastPosition.Y < LITTLE_TOP_LOWEST_ROW) // Top
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
-                            LogTap(finger.ToString(), Location.Top, currentFrame.Timestamp); // LOG
-                            _gestureReceiver.PinkyTap(Location.Top);
+                            LogTap(finger.ToString(), Side.Top, currentFrame.Timestamp); // LOG
+                            _gestureReceiver.PinkyTap(Side.Top);
                         }
                         else // Bottom
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Bottom.");
-                            LogTap(finger.ToString(), Location.Bottom, currentFrame.Timestamp); // LOG
-                            _gestureReceiver.PinkyTap(Location.Bottom);
+                            LogTap(finger.ToString(), Side.Bottom, currentFrame.Timestamp); // LOG
+                            _gestureReceiver.PinkyTap(Side.Bottom);
                         }
                     }
 
@@ -1102,7 +1102,7 @@ namespace Multi.Cursor
             ToMoLogger.LogGestureEvent($"{fingerName} Up! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
         }
 
-        private void LogTap(string fingerName, Location loc, long timestamp)
+        private void LogTap(string fingerName, Side loc, long timestamp)
         {
             ToMoLogger.LogGestureEvent($"{fingerName} Tapped! Location: {loc}");
         }
