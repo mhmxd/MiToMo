@@ -57,6 +57,7 @@ namespace Multi.Cursor
 
         public Experiment(double shortDistMM, double longDistMM)
         {
+            this.TrialInfo($"Experiment dist range (px): {Utils.MmToDips(shortDistMM):F2} - {Utils.MmToDips(longDistMM):F2}");
             Participant_Number = 100; // Default
             Shortest_Dist_MM = shortDistMM;
             Longest_Dist_MM = longDistMM;
@@ -65,21 +66,17 @@ namespace Multi.Cursor
             double distDiff = Longest_Dist_MM - Shortest_Dist_MM;
             //_distPaddingMM = 0.1 * distDiff;
             _distPaddingMM = 2.5; // 2.5 mm padding
-            double oneThird = distDiff / 3;
-            double twoThird = distDiff * 2 / 3;
-            double midDist = Utils.RandDouble(
-                oneThird + _distPaddingMM,
-                twoThird - _distPaddingMM); // Middle distance
-            double shortDist = Utils.RandDouble(
-                Shortest_Dist_MM,
-                oneThird - _distPaddingMM); // Shortest distance
-            double longDist = Utils.RandDouble(
-                twoThird + _distPaddingMM,
-                Longest_Dist_MM); // Longest distance
+            double oneThird = Shortest_Dist_MM +  distDiff / 3;
+            double twoThird = Shortest_Dist_MM + distDiff * 2 / 3;
+
+            double midDist = Utils.RandDouble(oneThird + _distPaddingMM, twoThird - _distPaddingMM); // Middle distance
+            double shortDist = Utils.RandDouble(Shortest_Dist_MM, oneThird - _distPaddingMM); // Shortest distance
+            double longDist = Utils.RandDouble(twoThird + _distPaddingMM, Longest_Dist_MM); // Longest distance
+
             _distances.Add(shortDist);
             _distances.Add(midDist);
             _distances.Add(longDist);
-
+            this.TrialInfo($"Experiment distances (mm): {ListToString(_distances)}");
             //for (int i = 0; i < N_BLOCKS; i++)
             //{
             //    int blockId = Participant_Number * 100 + i;
@@ -95,7 +92,6 @@ namespace Multi.Cursor
             //_activeTrialInd = 0;
             //_activeBlock = _blocks[0];
 
-            Outlog<Experiment>().Information(ListToString(_distances));
         }
 
         public void Init(int ptc, string tech)

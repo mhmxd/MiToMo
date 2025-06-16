@@ -33,7 +33,7 @@ namespace Multi.Cursor
 
         private Random _random = new Random();
 
-        private double PADDING = Utils.MmToDips(Config.HORIZONTAL_PADDING_MM);
+        private double HORIZONTAL_PADDING = Utils.MmToDips(Config.HORIZONTAL_PADDING_MM);
         private double VERTICAL_PADDING = Utils.MmToDips(Config.VERTICAL_PADDING_MM); // Padding for the top and bottom of the grid
         private double GUTTER = Utils.MmToDips(Config.GRID_GUTTER_MM);
 
@@ -861,7 +861,7 @@ namespace Multi.Cursor
             // Clear any existing columns from the canvas and the list before generating new ones
             canvas.Children.Clear();
             _gridGroups.Clear();
-
+            this.TrialInfo($"Horizontal Padding = {HORIZONTAL_PADDING}");
             double currentTopPosition = VERTICAL_PADDING; // Start with the initial padding
 
             foreach (var createRowFunc in groupCreators)
@@ -870,7 +870,7 @@ namespace Multi.Cursor
 
                 // Set its position on the Canvas
                 Canvas.SetTop(newGroup, currentTopPosition);
-                Canvas.SetLeft(newGroup, PADDING); // Assuming all columns start at the same left padding
+                Canvas.SetLeft(newGroup, HORIZONTAL_PADDING); // Assuming all columns start at the same left padding
 
                 // Add to the Canvas
                 canvas.Children.Add(newGroup);
@@ -904,7 +904,7 @@ namespace Multi.Cursor
 
         private void RegisterButtons(Grid group)
         {
-            this.TrialInfo($"Registering buttons ----------------------------------------------------------");
+            //this.TrialInfo($"Registering buttons ----------------------------------------------------------");
 
             // Iterate through all direct children of the Grid column
             foreach (UIElement childOfGroup in group.Children)
@@ -920,11 +920,11 @@ namespace Multi.Cursor
                         {
                             _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
                             _allButtons.Add(button.Id, button); // Add to the list of all buttons
-                            foreach (int wm in _widthButtons.Keys)
-                            {
-                                string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-                                this.TrialInfo($"WM {wm} -> {ids}");
-                            }
+                            //foreach (int wm in _widthButtons.Keys)
+                            //{
+                            //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
+                            //    this.TrialInfo($"WM {wm} -> {ids}");
+                            //}
                             // Add button position to the dictionary
                             // Get the transform from the button to the Window (or the root visual)
                             GeneralTransform transformToWindow = button.TransformToVisual(Window.GetWindow(button));
@@ -932,7 +932,7 @@ namespace Multi.Cursor
                             Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
                             _buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
 
-                            this.TrialInfo($"Registered button ID#{button.Id}, Wx{button.WidthMultiple} | Position: {positionInWindow}");
+                            //this.TrialInfo($"Registered button ID#{button.Id}, Wx{button.WidthMultiple} | Position: {positionInWindow}");
                         }
                     }
                 }

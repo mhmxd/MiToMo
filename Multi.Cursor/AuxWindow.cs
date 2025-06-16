@@ -27,18 +27,18 @@ namespace Multi.Cursor
         public int SelectRandButtonByWidth(int widthMult)
         {
             this.TrialInfo($"Selecting button by multiple: {widthMult}");
-            this.TrialInfo($"All buttons: ");
-            foreach (int bid in _allButtons.Keys)
-            {
-                this.TrialInfo($"Button#{bid} -> {_allButtons[bid].Id}");
-            }
+            //this.TrialInfo($"All buttons: ");
+            //foreach (int bid in _allButtons.Keys)
+            //{
+            //    this.TrialInfo($"Button#{bid} -> {_allButtons[bid].Id}");
+            //}
 
-            this.TrialInfo($"Available buttons:");
-            foreach (int wm in _widthButtons.Keys)
-            {
-                string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-                this.TrialInfo($"WM {wm} -> {ids}");
-            }
+            //this.TrialInfo($"Available buttons:");
+            //foreach (int wm in _widthButtons.Keys)
+            //{
+            //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
+            //    this.TrialInfo($"WM {wm} -> {ids}");
+            //}
 
             SButton button = _widthButtons[widthMult].GetRandomElement(); // Get a random button from the list for that width
             if (button != null)
@@ -89,11 +89,11 @@ namespace Multi.Cursor
 
         public virtual Point GetGridButtonPosition(int buttonId)
         {
-            this.TrialInfo($"Button positions: {_buttonPositions.Stringify<int, Point>()}");
+            //this.TrialInfo($"Button positions: {_buttonPositions.Stringify<int, Point>()}");
             // Find the button with the specified ID
             if (_buttonPositions.TryGetValue(buttonId, out Point position))
             {
-                this.TrialInfo($"Button with ID {buttonId} position in window: {position}");
+                this.TrialInfo($"Button#{buttonId} position in window: {position}");
                 return position;
             }
             else

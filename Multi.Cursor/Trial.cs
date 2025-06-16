@@ -25,7 +25,7 @@ namespace Multi.Cursor
             get => _targetWidthMM;
             set => _targetWidthMM = value;
         }
-        public int TargetWidthPX => Utils.MM2PX(TargetWidthMM);
+        public double TargetWidthPX => Utils.MmToDips(TargetWidthMM);
 
         // Distance to the target center, from start's center
         private double _distanceMM;
@@ -34,7 +34,7 @@ namespace Multi.Cursor
             get => _distanceMM;
             set => _distanceMM = value;
         }
-        public int DistancePX => Utils.MM2PX(DistanceMM);
+        public double DistancePX => Utils.MmToDips(DistanceMM);
 
         //public Point StartPosition, TargetPosition; // Relative to the respective windows
 

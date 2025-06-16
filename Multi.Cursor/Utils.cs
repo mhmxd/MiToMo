@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -96,6 +97,11 @@ namespace Multi.Cursor
         public static double MmToDips(double mm)
         {
             return (mm / MM_IN_INCH) * DIPS_IN_INCH;
+        }
+
+        public static double DipsToMm(double dips)
+        {
+            return (dips / DIPS_IN_INCH) * MM_IN_INCH;
         }
 
         public static double PX2MM(double px)
@@ -393,56 +399,6 @@ namespace Multi.Cursor
 
             // If after maxAttempts, no suitable point is found, return a default/empty Point
             // You might want to throw an exception or return a nullable Point in a real application
-            return new Point(-1, -1);
-        }
-
-        public static Point FindRandPointWithDist(Rect rect, Point src, int dist, Side side)
-        {
-            const int maxAttempts = 10000;
-
-            // Define angle ranges for each direction in degrees
-            int minDeg, maxDeg;
-
-            switch (side)
-            {
-                case Side.Left:
-                    minDeg = 135;
-                    maxDeg = 225;
-                    break;
-                case Side.Right:
-                    minDeg = -45; // or 315
-                    maxDeg = 45;
-                    break;
-                case Side.Top:
-                    minDeg = 225;
-                    maxDeg = 315;
-                    break;
-                case Side.Bottom:
-                    minDeg = 45;
-                    maxDeg = 135;
-                    break;
-                case Side.Middle:
-                    return src; // Or return a small offset, or random jitter around src
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(side), "Unknown Side value");
-            }
-
-            double minRad = DegToRad(minDeg);
-            double maxRad = DegToRad(maxDeg);
-
-            for (int i = 0; i < maxAttempts; i++)
-            {
-                double randomRad = minRad + (_random.NextDouble() * (maxRad - minRad));
-                double s_x = src.X + dist * Math.Cos(randomRad);
-                double s_y = src.Y + dist * Math.Sin(randomRad);
-                Point candidate = new Point((int)Math.Round(s_x), (int)Math.Round(s_y));
-
-                if (rect.Contains(candidate))
-                {
-                    return candidate;
-                }
-            }
-
             return new Point(-1, -1);
         }
 

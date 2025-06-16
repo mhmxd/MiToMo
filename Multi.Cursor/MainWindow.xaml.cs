@@ -95,7 +95,8 @@ namespace Multi.Cursor
         /// <summary>
         /// Confines the cursor to a rectangular area on the screen.
         /// </summary>
-        /// <param name="lpRect">A pointer to the structure that contains the screen coordinates of the confining rectangle. If this parameter is NULL (IntPtr.Zero), the cursor is free to move anywhere on the screen.</param>
+        /// <param name="lpRect">A pointer to the structure that contains the screen coordinates of the confining rectangle. 
+        /// If this parameter is NULL (IntPtr.Zero), the cursor is free to move anywhere on the screen.</param>
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ClipCursor(ref RECT lpRect);
@@ -126,7 +127,8 @@ namespace Multi.Cursor
 
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
-        private int PADDING = Utils.MM2PX(Config.VERTICAL_PADDING_MM); // Padding for the windows
+        private int VERTICAL_PADDING = Utils.MM2PX(Config.VERTICAL_PADDING_MM); // Padding for the windows
+        private int HORIZONTAL_PADDING = Utils.MM2PX(Config.HORIZONTAL_PADDING_MM); // Padding for the windows
 
         private int TOP_WINDOW_HEIGHT = Utils.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
         private int SIDE_WINDOW_WIDTH = Utils.MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
@@ -153,6 +155,7 @@ namespace Multi.Cursor
         private double _monitorHeightMM;
 
         private int _absLeft, _absRight, _absTop, _absBottom;
+        private double thisLeft, thisTop, thisRight, thisBottom; // Absolute positions of the main window (set to not call this.)
 
         private TouchMouseCallback touchMouseCallback;
 
@@ -173,10 +176,6 @@ namespace Multi.Cursor
 
         private int lastX, lastY;
         private Point lastPos;
-
-        private double topWinWidthRatio, topWinHeightRatio;
-        private double leftWinWidthRatio, leftWinHeightRatio;
-        private double rightWinWidthRatio, rightWinHeightRatio;
 
         private Stopwatch _stopWatch = new Stopwatch();
         //private Stopwatch leftWatch = new Stopwatch();
@@ -231,7 +230,7 @@ namespace Multi.Cursor
         private Dictionary<string, long> _timestamps = new Dictionary<string, long>();
         private Dictionary<int, Point> _trialsTargetCenters = new Dictionary<int, Point>(); // Trial id to target center mapping
         private Dictionary<int, Point> _trialStartPosition = new Dictionary<int, Point>(); // Trial id to start center mapping
-        private Dictionary<int, int> _trialIdToTargetId = new Dictionary<int, int>(); // Trial id to target id (in target window)
+        private Dictionary<int, int> _trialTargetIds = new Dictionary<int, int>(); // Trial id to target id (in target window)
         //private Ellipse _startCircle;
         private Rectangle _startRectangle;
         private AuxWindow _targetWindow;
@@ -366,11 +365,27 @@ namespace Multi.Cursor
 
         private void CreateExperiment()
         {
-            double shortestDistMM = 
-                (Config.TOP_WINDOW_HEIGTH_MM - Config.VERTICAL_PADDING_MM - Config.GRID_ROW_HEIGHT_MM/2)
-                + Config.VERTICAL_PADDING_MM
-                + (Experiment.START_WIDTH_MM / 2);
+            // Shortest distance is diagonal from the top left corner of top window to top left corner of main
+            // Measured
+            double shortestDistMM = 150;
+            //double startHW = Utils.MmToDips(Experiment.START_WIDTH_MM) / 2.0;
+            //Point srcPoint = new Point(
+            //    _topWinRectPadded.Left + HORIZONTAL_PADDING, 
+            //    _topWinRectPadded.Top + VERTICAL_PADDING);
+            //Point destPoint = new Point(
+            //    _mainWinRect.Left + HORIZONTAL_PADDING + startHW, 
+            //    _mainWinRect.Top + VERTICAL_PADDING + startHW);
+            //double shortestDistMM = Utils.DipsToMm(Utils.Dist(srcPoint, destPoint));
 
+            //double shortestDistMM = 
+            //    Config.SIDE_WINDOW_WIDTH_MM 
+            //    + Experiment.START_WIDTH_MM / 2;
+            //double shortestDistMM = 
+            //    (Config.TOP_WINDOW_HEIGTH_MM - Config.VERTICAL_PADDING_MM - Config.GRID_ROW_HEIGHT_MM/2)
+            //    + Config.VERTICAL_PADDING_MM
+            //    + (Experiment.START_WIDTH_MM / 2);
+
+            // Longest distance is based on the height
             double longestDistMM =
                 Config.GRID_ROW_HEIGHT_MM / 2
                 + Config.VERTICAL_PADDING_MM
@@ -512,7 +527,9 @@ namespace Multi.Cursor
                 this.Height = _backgroundWindow.Height - TOP_WINDOW_HEIGHT;
                 this.WindowStartupLocation = WindowStartupLocation.Manual;
                 this.Left = Config.ACTIVE_SCREEN.WorkingArea.Left + SIDE_WINDOW_WIDTH;
+                thisLeft = this.Left; // Save the left position 
                 this.Top = Config.ACTIVE_SCREEN.WorkingArea.Top + TOP_WINDOW_HEIGHT;
+                thisTop = this.Top; // Save the top position
                 this.Owner = _backgroundWindow;
                 //this.Topmost = true;
                 this.Show();
@@ -543,7 +560,7 @@ namespace Multi.Cursor
                 _topWindow.MouseUp += SideWindow_MouseUp;
                 _topWindow.Show();
                 _topWinRect = Utils.GetRect(_topWindow);
-                _topWinRectPadded = Utils.GetRect(_topWindow, PADDING);
+                _topWinRectPadded = Utils.GetRect(_topWindow, VERTICAL_PADDING);
 
                 //topWinWidthRatio = topWindow.Width / ((TOMOPAD_LAST_COL - TOMOPAD_SIDE_SIZE) - TOMOPAD_SIDE_SIZE);
                 //topWinHeightRatio = topWindow.Height / TOMOPAD_SIDE_SIZE;
@@ -560,7 +577,7 @@ namespace Multi.Cursor
                 _leftWindow.MouseUp += SideWindow_MouseUp;
                 _leftWindow.Show();
                 _leftWinRect = Utils.GetRect(_leftWindow);
-                _lefWinRectPadded = Utils.GetRect(_leftWindow, PADDING);
+                _lefWinRectPadded = Utils.GetRect(_leftWindow, VERTICAL_PADDING);
 
                 //leftWinWidthRatio = leftWindow.Width / TOMOPAD_SIDE_SIZE;
                 //leftWinHeightRatio = leftWindow.Height / (TOMOPAD_LAST_ROW - TOMOPAD_SIDE_SIZE);
@@ -577,7 +594,7 @@ namespace Multi.Cursor
                 _rightWindow.MouseUp += SideWindow_MouseUp;
                 _rightWindow.Show();
                 _rightWinRect = Utils.GetRect(_rightWindow);
-                _rightWinRectPadded = Utils.GetRect(_rightWindow, PADDING);
+                _rightWinRectPadded = Utils.GetRect(_rightWindow, VERTICAL_PADDING);
 
                 //rightWinWidthRatio = rightWindow.Width / TOMOPAD_SIDE_SIZE;
                 //rightWinHeightRatio = rightWindow.Height / (TOMOPAD_LAST_ROW - TOMOPAD_SIDE_SIZE);
@@ -944,7 +961,7 @@ namespace Multi.Cursor
 
         public bool FindPositionsForAllBlocks()
         { 
-            _trialIdToTargetId.Clear();
+            _trialTargetIds.Clear();
             _trialStartPosition.Clear();
             this.TrialInfo($"Number of blocks = {_experiment.Blocks.Count}");
             // Go through all blocks
@@ -966,7 +983,8 @@ namespace Multi.Cursor
         {
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             int startHalfW = startW / 2;
-            this.TrialInfo($"Finding positions for Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, TargetMult = {trial.TargetMultiple}, D = {trial.DistanceMM:F2}]");
+            this.TrialInfo($"Finding positions for Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
+                $"TargetMult = {trial.TargetMultiple}, D (mm) = {trial.DistanceMM:F2}]");
             // Select a random element in the target window
             AuxWindow trialTargetWindow = null;
             Point trialTargetWindowPosition = new Point(0, 0);
@@ -989,8 +1007,8 @@ namespace Multi.Cursor
             }
 
             int targetId = trialTargetWindow.SelectRandButtonByWidth(trial.TargetMultiple);
-            _trialIdToTargetId.Add(trial.Id, targetId); // Map trial id to target id
-            this.TrialInfo(_trialIdToTargetId.Stringify<int, int>());
+            _trialTargetIds.Add(trial.Id, targetId); // Map trial id to target id
+            //this.TrialInfo(_trialTargetIds.Stringify<int, int>());
             // Get the absolute position of the target center
             Point targetCenterInTargetWindow = trialTargetWindow.GetGridButtonPosition(targetId);
             Point targetCenterAbsolute = targetCenterInTargetWindow
@@ -998,20 +1016,21 @@ namespace Multi.Cursor
 
             // Find a position for the Start
             Rect startConstraints = new Rect(
-                _mainWinRect.Left + PADDING + startHalfW,
-                _mainWinRect.Top + PADDING + startHalfW,
-                _mainWinRect.Width - 2 * PADDING,
-                _mainWinRect.Height - 2 * PADDING - _infoLabelHeight);
+                _mainWinRect.Left + VERTICAL_PADDING + startHalfW,
+                _mainWinRect.Top + VERTICAL_PADDING + startHalfW,
+                _mainWinRect.Width - 2 * VERTICAL_PADDING,
+                _mainWinRect.Height - 2 * VERTICAL_PADDING - _infoLabelHeight);
 
-            Point startCenter = Utils.FindRandPointWithDist(
+            Point startCenter = FindRandPointWithDist(
                 startConstraints,
                 targetCenterAbsolute,
                 trial.DistancePX,
                 trial.TargetSide.GetOppositeSide());
 
-            Point startPositionInMain = startCenter.OffsetPosition(-startHalfW, -startHalfW);
+            Point startPosition = startCenter.OffsetPosition(-startHalfW, -startHalfW);
+            Point startPositionInMain = startPosition.OffsetPosition(-thisLeft, -thisTop); // Position relative to the main window
 
-            this.TrialInfo($"Target: {targetCenterAbsolute}; Dist: {trial.DistancePX}; Start: {startCenter}");
+            this.TrialInfo($"Target: {targetCenterAbsolute}; Dist (px): {trial.DistancePX}; Start: {startCenter}");
 
             if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position
             {
@@ -1044,7 +1063,7 @@ namespace Multi.Cursor
                 PositionInfo<MainWindow>($"Finding positions for Trial#{trial.Id} [Target = {trial.TargetSide}, D = {trial.DistanceMM:F2}]");
                 int targetW = Utils.MM2PX(trial.TargetWidthMM);
                 int targetHalfW = targetW / 2;
-                int dist = trial.DistancePX;
+                double dist = trial.DistancePX;
 
                 // Set the active side window and find Start and Target positions
                 Point startPositionInMainWin = new Point();
@@ -1079,8 +1098,8 @@ namespace Multi.Cursor
                                 _leftWinRect.Left + _leftWinRect.Width / 2, 
                                 _leftWinRect.Top + _leftWinRect.Height * 3 / 4)); // Bottom
 
-                            (startPositionInMainWin, targetPositionInSideWin) = LeftTargetPositionElements(
-                                startW, targetW, dist, startCenterBounds, targetCenterBounds, jumpPositions);
+                            //(startPositionInMainWin, targetPositionInSideWin) = LeftTargetPositionElements(
+                            //    startW, targetW, dist, startCenterBounds, targetCenterBounds, jumpPositions);
 
                             break;
 
@@ -1098,8 +1117,8 @@ namespace Multi.Cursor
                                 _rightWinRect.Left + _rightWinRect.Width / 2,
                                 _rightWinRect.Top + _rightWinRect.Height * 3 / 4)); // Bottom
 
-                            (startPositionInMainWin, targetPositionInSideWin) = RightTargetPositionElements(
-                                startW, targetW, dist, startCenterBounds, targetCenterBounds, jumpPositions);
+                            //(startPositionInMainWin, targetPositionInSideWin) = RightTargetPositionElements(
+                            //    startW, targetW, dist, startCenterBounds, targetCenterBounds, jumpPositions);
                             // Check target position
                             //if (!_rightWinRect.Contains(targetPositionInSideWin)) // Target not properly positioned
                             //{
@@ -1125,8 +1144,8 @@ namespace Multi.Cursor
                                 _topWinRect.Left + _topWinRect.Width * 3 / 4,
                                 _topWinRect.Top + _topWinRect.Height / 2)); // Right
 
-                            (startPositionInMainWin, targetPositionInSideWin) = TopTargetPositionElements(
-                                startW, targetW, dist, startCenterBounds, targetCenterBounds, jumpPositions);
+                            //(startPositionInMainWin, targetPositionInSideWin) = TopTargetPositionElements(
+                            //    startW, targetW, dist, startCenterBounds, targetCenterBounds, jumpPositions);
                             // Check target position
                             //if (!_topWinRect.Contains(targetPositionInSideWin)) // Target not properly positioned
                             //{
@@ -1176,6 +1195,90 @@ namespace Multi.Cursor
             return true; // All trials have valid positions
         }
 
+        public Point FindRandPointWithDist(Rect rect, Point src, double dist, Side side)
+        {
+            this.TrialInfo($"Finding position: Rect: {rect.ToString()}; Src: {src}; Dist: {dist:F2}; Side: {side}");
+
+            const int maxAttempts = 1000;
+            const double angleSpreadDeg = 90.0; // Spread in degrees
+
+            // 1. Find the center of the target rect
+            Point center = new Point(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
+
+            // 2. Calculate the direction vector and base angle in radians
+            double dx = center.X - src.X;
+            double dy = center.Y - src.Y;
+            double angleToCenter = Math.Atan2(dy, dx); // This is in radians
+
+            // 3. Compute the spread around that angle
+            double spreadRad = DegToRad(angleSpreadDeg);
+            double minRad = angleToCenter - spreadRad / 2;
+            double maxRad = angleToCenter + spreadRad / 2;
+
+            for (int i = 0; i < maxAttempts; i++)
+            {
+                double randomRad = minRad + _random.NextDouble() * (maxRad - minRad);
+                double s_x = src.X + dist * Math.Cos(randomRad);
+                double s_y = src.Y + dist * Math.Sin(randomRad);
+                Point candidate = new Point((int)Math.Round(s_x), (int)Math.Round(s_y));
+
+                if (rect.Contains(candidate))
+                {
+                    return candidate;
+                }
+            }
+
+            // No valid point found
+            return new Point(-1, -1);
+
+            //const int maxAttempts = 10000;
+
+            //// Define angle ranges for each direction in degrees
+            //int minDeg, maxDeg;
+
+            //switch (side)
+            //{
+            //    case Side.Left:
+            //        minDeg = 135;
+            //        maxDeg = 225;
+            //        break;
+            //    case Side.Right:
+            //        minDeg = -45; // or 315
+            //        maxDeg = 45;
+            //        break;
+            //    case Side.Top:
+            //        minDeg = 225;
+            //        maxDeg = 315;
+            //        break;
+            //    case Side.Bottom:
+            //        minDeg = 45;
+            //        maxDeg = 135;
+            //        break;
+            //    case Side.Middle:
+            //        return src; // Or return a small offset, or random jitter around src
+            //    default:
+            //        throw new ArgumentOutOfRangeException(nameof(side), "Unknown Side value");
+            //}
+
+            //double minRad = DegToRad(minDeg);
+            //double maxRad = DegToRad(maxDeg);
+
+            //for (int i = 0; i < maxAttempts; i++)
+            //{
+            //    double randomRad = minRad + (_random.NextDouble() * (maxRad - minRad));
+            //    double s_x = src.X + dist * Math.Cos(randomRad);
+            //    double s_y = src.Y + dist * Math.Sin(randomRad);
+            //    Point candidate = new Point((int)Math.Round(s_x), (int)Math.Round(s_y));
+
+            //    if (rect.Contains(candidate))
+            //    {
+            //        return candidate;
+            //    }
+            //}
+
+            //return new Point(-1, -1);
+        }
+
         private void GoToNextBlock()
         {
             _activeBlockNum++;
@@ -1189,7 +1292,7 @@ namespace Multi.Cursor
 
             // Get the block and begin
             _block = _experiment.GetBlock(_activeBlockNum);
-            this.TrialInfo($"Block#{_activeBlockNum} Trials: {_block.ToString()}");
+            //this.TrialInfo($"Block#{_activeBlockNum} Trials: {_block.ToString()}");
             _activeTrialNum = 1;
             _trial = _block.GetTrial(_activeTrialNum);
             //ShowTrial();
@@ -1198,7 +1301,7 @@ namespace Multi.Cursor
 
         private void GoToNextTrial()
         {
-            this.TrialInfo($"Block#{_activeBlockNum}: {_block.ToString()}");
+            //this.TrialInfo($"Block#{_activeBlockNum}: {_block.ToString()}");
             _activeTrialNum++;
             _trial = _block.GetTrial(_activeTrialNum);
             //ShowTrial();
@@ -1225,9 +1328,29 @@ namespace Multi.Cursor
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             int startHalfW = startW / 2;
 
+            // Set the target window based on the trial's target side
+            switch (_trial.TargetSide)
+            {
+                case Side.Left:
+                    _targetWindow = _leftWindow;
+                    break;
+                case Side.Right:
+                    _targetWindow = _rightWindow;
+                    break;
+                case Side.Top:
+                    _targetWindow = _topWindow;
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid target side: {_trial.TargetSide}");
+            }
+
             // Color the target button
-            this.TrialInfo(_trialIdToTargetId.Stringify<int, int>());
-            _targetWindow.FillGridButton(_trialIdToTargetId[_trial.Id], Config.TARGET_UNAVAILABLE_COLOR);
+            //this.TrialInfo(_trialTargetIds.Stringify<int, int>());
+            _targetWindow.FillGridButton(_trialTargetIds[_trial.Id], Config.TARGET_UNAVAILABLE_COLOR);
+            _targetWindow.SetGridButtonHandlers(_trialTargetIds[_trial.Id], Target_MouseDown, Target_MouseUp);
+
+            // Show Start
+            ShowStart(_trialStartPosition[_trial.Id]);
 
             // Set the target window
             //switch (_trial.TargetSide)
@@ -1956,6 +2079,7 @@ namespace Multi.Cursor
 
                 //_targetWindow.ColorElement(_trial.TargetKey, Config.TARGET_AVAILABLE_COLOR);
                 _startRectangle.Fill = Config.START_UNAVAILABLE_COLOR;
+                _targetWindow.FillGridButton(_trialTargetIds[_trial.Id], Config.TARGET_AVAILABLE_COLOR);
                 //_targetWindow.MakeTargetAvailable(); // Target is now available for clicking
 
             }
@@ -2015,6 +2139,7 @@ namespace Multi.Cursor
                 //--- Change the colors
                 //_targetWindow.ColorElement(_trial.TargetKey, Config.TARGET_UNAVAILABLE_COLOR);
                 _startRectangle.Fill = Config.START_AVAILABLE_COLOR; // Change Start to green
+                _targetWindow.FillGridButton(_trialTargetIds[_trial.Id], Config.TARGET_UNAVAILABLE_COLOR);
                 //_targetWindow.ColorTarget(Brushes.Red);
                 //_startCircle.Fill = Brushes.Green; // Change Start back to green
 
@@ -2080,9 +2205,10 @@ namespace Multi.Cursor
             canvas.Children.Add(_startRectangle);
         }
 
-        private void ShowStart()
+        private void ShowStart(Point startPosition)
         {
-            int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
+            this.TrialInfo($"Showing Start at {startPosition}");
+            double startW = Utils.MmToDips(Experiment.START_WIDTH_MM);
 
             // Create the square
             _startRectangle = new Rectangle
@@ -2093,8 +2219,8 @@ namespace Multi.Cursor
             };
 
             // Position the Start on the Canvas
-            Canvas.SetLeft(_startRectangle, _trialStartPosition[_trial.Id].X);
-            Canvas.SetTop(_startRectangle, _trialStartPosition[_trial.Id].Y);
+            Canvas.SetLeft(_startRectangle, startPosition.X);
+            Canvas.SetTop(_startRectangle, startPosition.Y);
 
             // Add event
             _startRectangle.MouseEnter += Start_MouseEnter;
