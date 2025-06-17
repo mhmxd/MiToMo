@@ -149,7 +149,7 @@ namespace Multi.Cursor
         private AuxWindow _topWindow;
         private AuxWindow _leftWindow; 
         private AuxWindow _rightWindow;
-        private Window _activeAuxWindow;
+        private AuxWindow _activeAuxWindow;
         private OverlayWindow _overlayWindow;
 
         private double _monitorHeightMM;
@@ -435,16 +435,14 @@ namespace Multi.Cursor
             //switch (e.Key)
             //{
             //    case SysIput.Key.Right:
-            //        _overlayWindow.RotateBeam(2, 0);
+                    
             //        break;
             //    case SysIput.Key.Left:
-            //        _overlayWindow.RotateBeam(-2, 0);
+                    
             //        break;
             //    case SysIput.Key.Up:
-            //        _overlayWindow.RotateBeam(0, -2);
             //        break;
             //    case SysIput.Key.Down:
-            //        _overlayWindow.RotateBeam(0, 2);
             //        break;
             //}
 
@@ -2318,7 +2316,32 @@ namespace Multi.Cursor
         //    _rightWindow.DeactivateCursor();   
         //}
 
-        private void ActivateSideWin(Side window, Side tapLoc)
+        private void ActivateAuxGridNavigator(Side window)
+        {
+            this.TrialInfo($"Activating aux window: {window}");
+            // Deactivate all aux windows
+            _leftWindow.DeactivateGridNavigator();
+            _topWindow.DeactivateGridNavigator();
+            _rightWindow.DeactivateGridNavigator();
+
+            switch (window)
+            {
+                case Side.Left:
+                    _activeAuxWindow = _leftWindow;
+                    _activeAuxWindow.ActivateGridNavigator();
+                    break;
+                case Side.Top:
+                    _activeAuxWindow = _topWindow;
+                    _activeAuxWindow.ActivateGridNavigator();
+                    break;
+                case Side.Right:
+                    _activeAuxWindow = _rightWindow;
+                    _activeAuxWindow.ActivateGridNavigator();
+                    break;
+            }
+        }
+
+        private void ActivateAuxWindow(Side window, Side tapLoc)
         {
             switch (window)
             {
@@ -2334,7 +2357,7 @@ namespace Multi.Cursor
                     _activeAuxWindow = _topWindow;
                     HideAuxursors();
                     //_topWindow.ShowCursor(tapLoc);
-                    _topWindow.ActivateGridNavigator();
+                    //_topWindow.ActivateGridNavigator();
                     //_leftWindow.DeactivateCursor();
                     //_rightWindow.DeactivateCursor();
                     break;
@@ -2395,7 +2418,8 @@ namespace Multi.Cursor
         {
             if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                ActivateSideWin(Side.Top, Side.Left);
+                //ActivateAuxWindow(Side.Top, Side.Left);
+                ActivateAuxGridNavigator(Side.Top);
             }
 
             this.TrialInfo($"Active side: {_activeAuxWindow}");
@@ -2405,7 +2429,7 @@ namespace Multi.Cursor
             //    && _touchSurface.IsFingerActive(TouchSurface.Finger.Middle)
             //    && _touchSurface.IsFingerActive(TouchSurface.Finger.Ring))
             //{
-            //    ActivateSideWin(Side.Top, Side.Left);
+            //    ActivateAuxWindow(Side.Top, Side.Left);
             //}
         }
 
@@ -2452,13 +2476,13 @@ namespace Multi.Cursor
                 switch (dir)
                 {
                     case Direction.Left:
-                        ActivateSideWin(Side.Left, Side.Middle);
+                        ActivateAuxGridNavigator(Side.Left);
                         break;
                     case Direction.Right:
-                        ActivateSideWin(Side.Right, Side.Middle);
+                        ActivateAuxGridNavigator(Side.Right);
                         break;
                     case Direction.Up:
-                        ActivateSideWin(Side.Top, Side.Middle);
+                        ActivateAuxGridNavigator(Side.Top);
                         break;
                 }
             }
@@ -2490,7 +2514,8 @@ namespace Multi.Cursor
                 && _timestamps.ContainsKey(Str.START_PRESS_ONE) 
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Index))
             {
-                ActivateSideWin(Side.Left, tapLoc);
+                //ActivateAuxWindow(Side.Left, tapLoc);
+                ActivateAuxGridNavigator(Side.Left); // Left side of the left window
             }
             
         }
@@ -2502,7 +2527,7 @@ namespace Multi.Cursor
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Index)
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Ring))
             {
-                ActivateSideWin(Side.Top, Side.Middle);
+                ActivateAuxGridNavigator(Side.Right);
             }
         }
 
@@ -2514,7 +2539,7 @@ namespace Multi.Cursor
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Middle)
                 && _touchSurface.IsFingerInactive(TouchSurface.Finger.Pinky))
             {
-                ActivateSideWin(Side.Top, Side.Right); // Right side of the top window
+                //ActivateAuxGridNavigator(Side.Top); // Right side of the top window
                 //ActivateSide(Direction.Up, tapDir);
             }
         }
@@ -2526,7 +2551,7 @@ namespace Multi.Cursor
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Index)
                 && _touchSurface.IsFingerActive(TouchSurface.Finger.Ring))
             {
-                ActivateSideWin(Side.Right, tapLoc);
+                ActivateAuxWindow(Side.Right, tapLoc);
             }
         }
     }

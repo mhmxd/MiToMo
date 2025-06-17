@@ -904,7 +904,7 @@ namespace Multi.Cursor
 
         private void RegisterButtons(Grid group)
         {
-            //this.TrialInfo($"Registering buttons ----------------------------------------------------------");
+            this.TrialInfo($"Registering buttons in group with {group.Children.Count} children...");
 
             // Iterate through all direct children of the Grid column
             foreach (UIElement childOfGroup in group.Children)
@@ -920,6 +920,7 @@ namespace Multi.Cursor
                         {
                             _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
                             _allButtons.Add(button.Id, button); // Add to the list of all buttons
+
                             //foreach (int wm in _widthButtons.Keys)
                             //{
                             //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
@@ -931,12 +932,22 @@ namespace Multi.Cursor
                             // Get the point representing the top-left corner of the button relative to the Window
                             Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
                             _buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
+                            this.TrialInfo($"Button Position: {positionInWindow}");
+                            if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
+                            {
+                                this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
+                                _topLeftButtonPosition = positionInWindow; // Update the top-left button position
+                                _lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+                            }
 
                             //this.TrialInfo($"Registered button ID#{button.Id}, Wx{button.WidthMultiple} | Position: {positionInWindow}");
                         }
                     }
                 }
             }
+
+            // Set the first button as the highlighted button
+            //_lastHighlightedButtonId = _widthButtons.FirstOrDefault().Value.FirstOrDefault()?.Id ?? -1; // Get the first button ID or -1 if no buttons are present
         }
 
         private void AddElementToCanvas(Element element, int left, int top)

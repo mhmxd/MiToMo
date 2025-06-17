@@ -109,6 +109,9 @@ namespace Multi.Cursor
 
         private void RegisterButtons(Grid column)
         {
+            this.TrialInfo($"Registering buttons in column with {column.Children.Count} children...");
+
+            
             // Iterate through all direct children of the Grid column
             foreach (UIElement childOfColumn in column.Children)
             {
@@ -123,17 +126,25 @@ namespace Multi.Cursor
                         {
                             _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
                             _allButtons.Add(button.Id, button); // Add to the list of all buttons
-                            this.TrialInfo($"Registered button with ID {button.Id} and width multiple {button.WidthMultiple}.");
+                            
                             // Add button position to the dictionary
                             // Get the transform from the button to the Window (or the root visual)
                             GeneralTransform transformToWindow = button.TransformToVisual(Window.GetWindow(button));
                             // Get the point representing the top-left corner of the button relative to the Window
                             Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
                             _buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
+                            this.TrialInfo($"Button Position: {positionInWindow}");
+                            if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
+                            {
+                                this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
+                                _topLeftButtonPosition = positionInWindow; // Update the top-left button position
+                                _lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+                            }
                         }
                     }
                 }
             }
+
         }
 
         //public override void MakeTargetAvailable()
@@ -157,10 +168,10 @@ namespace Multi.Cursor
         //    }
         //}
 
-        public override void ActivateGridNavigator()
-        {
-            _gridNavigator.Activate();
-        }
+        //public override void ActivateGridNavigator()
+        //{
+        //    _gridNavigator.Activate();
+        //}
 
         public void DeactivateGridNavigator()
         {

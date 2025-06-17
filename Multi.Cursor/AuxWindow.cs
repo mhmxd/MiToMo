@@ -15,12 +15,15 @@ namespace Multi.Cursor
 {
     public abstract class AuxWindow : Window
     {
-        protected GridNavigator _gridNavigator;
         protected List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
         protected Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
         protected Dictionary<int, SButton> _allButtons = new Dictionary<int, SButton>(); // List of all buttons in the grid (id as key)
         protected Dictionary<int, Point> _buttonPositions = new Dictionary<int, Point>(); // Dictionary to hold button positions by their ID
         protected SButton _targetButton; // Currently selected button (if any)
+
+        protected GridNavigator _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
+        protected int _lastHighlightedButtonId = -1; // ID of the currently highlighted button
+        protected Point _topLeftButtonPosition = new Point(10000, 10000); // Initialize to a large value to find the top-left button
 
         public abstract void GenerateGrid(params Func<Grid>[] columnCreators);
 
@@ -121,9 +124,33 @@ namespace Multi.Cursor
         //    // Implemented in the derived classes
         //}
 
-        public virtual void ActivateGridNavigator()
+        public void ActivateGridNavigator()
         {
-            // Implemented in the derived classes
+            ActivateGridNavigator(_lastHighlightedButtonId); // Activate the grid navigator with the last highlighted button ID
+        }
+
+        public void ActivateGridNavigator(int buttonId)
+        {
+            // Find the button with the specified ID
+            if (_allButtons.TryGetValue(buttonId, out SButton button))
+            {
+                _gridNavigator.Activate(); // Activate the grid navigator
+                button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
+                _lastHighlightedButtonId = buttonId; // Store the ID of the highlighted button
+            }
+            else
+            {
+                this.TrialInfo($"Button with ID {buttonId} not found.");
+            }
+        }
+
+        public void DeactivateGridNavigator()
+        {
+            _gridNavigator.Deactivate(); // Deactivate the grid navigator
+            if (_lastHighlightedButtonId != -1 && _allButtons.TryGetValue(_lastHighlightedButtonId, out SButton button))
+            {
+                button.BorderBrush = Config.ELEMENT_DEFAULT_BORDER_COLOR; // Reset the border color of the last highlighted button
+            }
         }
     }
 }
