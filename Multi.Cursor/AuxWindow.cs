@@ -135,8 +135,7 @@ namespace Multi.Cursor
             if (_allButtons.TryGetValue(buttonId, out SButton button))
             {
                 _gridNavigator.Activate(); // Activate the grid navigator
-                button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
-                _lastHighlightedButtonId = buttonId; // Store the ID of the highlighted button
+                HighlightButton(buttonId); // Highlight the button
             }
             else
             {
@@ -151,6 +150,173 @@ namespace Multi.Cursor
             {
                 button.BorderBrush = Config.ELEMENT_DEFAULT_BORDER_COLOR; // Reset the border color of the last highlighted button
             }
+        }
+
+        public void StopGridNavigator()
+        {
+            _gridNavigator.Stop();
+        }
+
+        public void HighlightButton(int buttonId)
+        {
+            // Reset the border of all buttons
+            foreach (var btn in _allButtons.Values)
+            {
+                btn.BorderBrush = Config.ELEMENT_DEFAULT_BORDER_COLOR; // Reset the border color of all buttons
+            }
+
+            // Find the button with the specified ID
+            if (_allButtons.TryGetValue(buttonId, out SButton button))
+            {
+                button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
+                _lastHighlightedButtonId = buttonId; // Store the ID of the highlighted button
+            }
+            else
+            {
+                this.TrialInfo($"Button with ID {buttonId} not found.");
+            }
+        }
+
+        public void MoveGridNavigator(TouchPoint tp)
+        {
+            // Update the grid navigator with the current touch point
+            var (dGridX, dGridY) = _gridNavigator.Update(tp);
+
+            if ((dGridX == 0 && dGridY == 0) || _lastHighlightedButtonId == -1)
+            {
+                return; // No movement needed
+            }
+
+            SButton highlightedButton = _allButtons[_lastHighlightedButtonId];
+
+            // --- Process Horizontal Movement ---
+            if (dGridX > 0) // Move Right
+            {
+                for (int i = 0; i < dGridX; i++)
+                {
+                    if (highlightedButton.RightId == -1) break; // Hit the edge
+                    highlightedButton = _allButtons[highlightedButton.RightId];
+                }
+            }
+            else // Move Left
+            {
+                for (int i = 0; i < -dGridX; i++)
+                {
+                    if (highlightedButton.LeftId == -1) break; // Hit the edge
+                    highlightedButton = _allButtons[highlightedButton.LeftId];
+                }
+            }
+
+            // --- Process Vertical Movement ---
+            if (dGridY > 0) // Move Down
+            {
+                for (int i = 0; i < dGridY; i++)
+                {
+                    if (highlightedButton.BottomId == -1) break; // Hit the edge
+                    highlightedButton = _allButtons[highlightedButton.BottomId];
+                }
+            }
+            else // Move Up
+            {
+                for (int i = 0; i < -dGridY; i++)
+                {
+                    if (highlightedButton.TopId == -1) break; // Hit the edge
+                    highlightedButton = _allButtons[highlightedButton.TopId];
+                }
+            }
+
+            // If the target button has changed, update the focus
+            if (highlightedButton.Id != _lastHighlightedButtonId)
+            {
+                _lastHighlightedButtonId = highlightedButton.Id; // Update the last highlighted button ID
+                HighlightButton(highlightedButton.Id); // Highlight the new button
+            }
+        }
+
+        /// <summary>
+        /// Finds the nearest neighboring SButton in a given direction.
+        /// </summary>
+        /// <param name="currentButton">The starting button.</param>
+        /// <param name="direction">The direction to navigate (Up, Down, Left, Right).</param>
+        /// <returns>The closest SButton in the specified direction, or null if none is found.</returns>
+        public SButton GetNeighbor(SButton currentButton, Side direction)
+        {
+            // 1. Validate input and get the position of the current button.
+            if (currentButton == null || !_buttonPositions.TryGetValue(currentButton.Id, out Point currentPosition))
+            {
+                // Cannot navigate from a button that isn't registered.
+                return null;
+            }
+
+            SButton bestCandidate = null;
+            double minDistanceSquared = double.PositiveInfinity;
+
+            // 2. Iterate through all other buttons to find the best candidate.
+            foreach (var candidateButton in _allButtons.Values)
+            {
+                // Don't compare a button to itself.
+                if (candidateButton.Id == currentButton.Id)
+                {
+                    continue;
+                }
+
+                if (!_buttonPositions.TryGetValue(candidateButton.Id, out Point candidatePosition))
+                {
+                    // Skip any candidate button that doesn't have a registered position.
+                    continue;
+                }
+
+                // 3. Check if the candidate is in the correct direction.
+                // We use a simple heuristic: to be considered "to the right", a button's horizontal distance
+                // should be greater than its vertical distance. This prevents jumping to a different row.
+                double deltaX = candidatePosition.X - currentPosition.X;
+                double deltaY = candidatePosition.Y - currentPosition.Y;
+
+                bool isPotentialCandidate = false;
+                switch (direction)
+                {
+                    case Side.Right:
+                        // Must be to the right and more horizontal than vertical.
+                        if (deltaX > 0 && Math.Abs(deltaX) > Math.Abs(deltaY)) isPotentialCandidate = true;
+                        break;
+
+                    case Side.Left:
+                        // Must be to the left and more horizontal than vertical.
+                        if (deltaX < 0 && Math.Abs(deltaX) > Math.Abs(deltaY)) isPotentialCandidate = true;
+                        break;
+
+                    case Side.Down:
+                        // Must be below and more vertical than horizontal.
+                        if (deltaY > 0 && Math.Abs(deltaY) > Math.Abs(deltaX)) isPotentialCandidate = true;
+                        break;
+
+                    case Side.Top:
+                        // Must be above and more vertical than horizontal.
+                        if (deltaY < 0 && Math.Abs(deltaY) > Math.Abs(deltaX)) isPotentialCandidate = true;
+                        break;
+                }
+
+
+                if (isPotentialCandidate)
+                {
+                    // 4. If it's a valid candidate, check if it's the closest one yet.
+                    // We use the square of the distance to avoid costly square root operations.
+                    double distanceSquared = (candidatePosition - currentPosition).LengthSquared;
+
+                    if (distanceSquared < minDistanceSquared)
+                    {
+                        minDistanceSquared = distanceSquared;
+                        bestCandidate = candidateButton;
+                    }
+                }
+            }
+
+            return bestCandidate;
+        }
+
+        public bool IsNavigatorOnButton(int buttonId)
+        {
+            return _lastHighlightedButtonId == buttonId;
         }
     }
 }

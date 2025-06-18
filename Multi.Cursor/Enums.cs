@@ -13,6 +13,6 @@ namespace Multi.Cursor
 
     public enum Side
     {
-        Left, Top, Right, Bottom, Middle
+        Left, Top, Right, Down, Middle
     }
 }

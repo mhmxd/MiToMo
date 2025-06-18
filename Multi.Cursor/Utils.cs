@@ -193,7 +193,7 @@ namespace Multi.Cursor
         {
             (new Point(rect.Left, rect.Top),    new Point(rect.Right, rect.Top)),    // Top
             (new Point(rect.Right, rect.Top),   new Point(rect.Right, rect.Bottom)), // Right
-            (new Point(rect.Right, rect.Bottom),new Point(rect.Left, rect.Bottom)),  // Bottom
+            (new Point(rect.Right, rect.Bottom),new Point(rect.Left, rect.Bottom)),  // Down
             (new Point(rect.Left, rect.Bottom), new Point(rect.Left, rect.Top))      // Left
         };
 
@@ -408,8 +408,8 @@ namespace Multi.Cursor
             {
                 Side.Left => Side.Right,
                 Side.Right => Side.Left,
-                Side.Top => Side.Bottom,
-                Side.Bottom => Side.Top,
+                Side.Top => Side.Down,
+                Side.Down => Side.Top,
                 _ => throw new ArgumentOutOfRangeException(nameof(side), "Unknown Side value")
             };
         }

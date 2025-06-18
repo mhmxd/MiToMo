@@ -525,7 +525,7 @@ namespace Multi.Cursor
                         Abs(lastPosition.X - downPosition.X),
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
-                        // Find the Tap position (Top or Bottom)
+                        // Find the Tap position (Top or Down)
                         if (lastPosition.Y < THUMB_TOP_LOWEST_ROW) // Top
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
@@ -533,11 +533,11 @@ namespace Multi.Cursor
                             _gestureReceiver.ThumbTap(Side.Top);
                             
                         }
-                        else // Bottom
+                        else // Down
                         {
-                            //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Bottom.");
-                            LogTap(finger.ToString(), Side.Bottom, currentFrame.Timestamp); // LOG
-                            _gestureReceiver.ThumbTap(Side.Bottom);
+                            //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Down.");
+                            LogTap(finger.ToString(), Side.Down, currentFrame.Timestamp); // LOG
+                            _gestureReceiver.ThumbTap(Side.Down);
                             
                         }
                     }
@@ -769,18 +769,18 @@ namespace Multi.Cursor
                         Abs(lastPosition.X - downPosition.X), 
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
-                        // Find the Tap position (Top or Bottom)
+                        // Find the Tap position (Top or Down)
                         if (lastPosition.Y < LITTLE_TOP_LOWEST_ROW) // Top
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
                             LogTap(finger.ToString(), Side.Top, currentFrame.Timestamp); // LOG
                             _gestureReceiver.PinkyTap(Side.Top);
                         }
-                        else // Bottom
+                        else // Down
                         {
-                            //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Bottom.");
-                            LogTap(finger.ToString(), Side.Bottom, currentFrame.Timestamp); // LOG
-                            _gestureReceiver.PinkyTap(Side.Bottom);
+                            //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Down.");
+                            LogTap(finger.ToString(), Side.Down, currentFrame.Timestamp); // LOG
+                            _gestureReceiver.PinkyTap(Side.Down);
                         }
                     }
 

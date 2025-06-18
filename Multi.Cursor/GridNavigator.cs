@@ -140,11 +140,6 @@ namespace Multi.Cursor
                 _accumulatedY_displacement += Config.CELL_HEIGHT_THRESHOLD;
             }
 
-            //if (dGridX != 0 || dGridY != 0)
-            //{
-            //    FILOG.Debug($"Calculated Grid Movement: ({dGridX}, {dGridY})");
-            //}
-
             return (dGridX, dGridY);
         }
     }

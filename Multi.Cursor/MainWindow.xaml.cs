@@ -696,7 +696,14 @@ namespace Multi.Cursor
                 }
                 else if (_timestamps.ContainsKey(Str.START_RELEASE_ONE)) // Phase 2: Aiming for Target
                 {
-
+                    if (_targetWindow.IsNavigatorOnButton(_trialTargetIds[_trial.Id]))
+                    {
+                        TargetMouseDown();
+                    } 
+                    else
+                    {
+                        EndTrial(RESULT.MISS);
+                    }
                     //if (_targetWindow.IsCursorInsideTarget()) // Auxursor in target
                     //{
                     //    TargetMouseDown();
@@ -771,6 +778,14 @@ namespace Multi.Cursor
             this.TrialInfo($"{_timestamps.Stringify()}");
             if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Target is pressed => Was release outside or inside?
             {
+                if (_targetWindow.IsNavigatorOnButton(_trialTargetIds[_trial.Id]))
+                {
+                    TargetMouseUp();
+                }
+                else
+                {
+                    EndTrial(RESULT.MISS);
+                }
                 //if (_activeAuxWindow.IsCursorInsideTarget()) // Released inside Target => Next phase
                 //{
                 //    // Add timestamp
@@ -779,7 +794,7 @@ namespace Multi.Cursor
                 //    // Deactive Target and auxursor
                 //    _activeAuxWindow.ColorTarget(Brushes.Red);
                 //    _activeAuxWindow.DeactivateCursor();
-                    
+
                 //    // Activate Start again
                 //    _startRectangle.Fill = Brushes.Green;
                 //} else // Released outside Target => MISS
@@ -1094,7 +1109,7 @@ namespace Multi.Cursor
                                 _leftWinRect.Top + _leftWinRect.Height / 4)); // Top
                             jumpPositions.Add(new Point(
                                 _leftWinRect.Left + _leftWinRect.Width / 2, 
-                                _leftWinRect.Top + _leftWinRect.Height * 3 / 4)); // Bottom
+                                _leftWinRect.Top + _leftWinRect.Height * 3 / 4)); // Down
 
                             //(startPositionInMainWin, targetPositionInSideWin) = LeftTargetPositionElements(
                             //    startW, targetW, dist, startCenterBounds, targetCenterBounds, jumpPositions);
@@ -1113,7 +1128,7 @@ namespace Multi.Cursor
                                 _rightWinRect.Top + _rightWinRect.Height / 4)); // Top
                             jumpPositions.Add(new Point(
                                 _rightWinRect.Left + _rightWinRect.Width / 2,
-                                _rightWinRect.Top + _rightWinRect.Height * 3 / 4)); // Bottom
+                                _rightWinRect.Top + _rightWinRect.Height * 3 / 4)); // Down
 
                             //(startPositionInMainWin, targetPositionInSideWin) = RightTargetPositionElements(
                             //    startW, targetW, dist, startCenterBounds, targetCenterBounds, jumpPositions);
@@ -1248,7 +1263,7 @@ namespace Multi.Cursor
             //        minDeg = 225;
             //        maxDeg = 315;
             //        break;
-            //    case Side.Bottom:
+            //    case Side.Down:
             //        minDeg = 45;
             //        maxDeg = 135;
             //        break;
@@ -1515,7 +1530,7 @@ namespace Multi.Cursor
                 //    targetCenterBounds.Top + Sqrt(Pow(dist, 2)
                 //    - Pow(startCetnerBounds.Right - targetCenterBounds.Right, 2)));
                 //int stYMin = (int)Max(stYMinPossible, startCetnerBounds.Top);
-                //int stYMax = (int)startCetnerBounds.Bottom;
+                //int stYMax = (int)startCetnerBounds.Down;
                 //int stPosY = _random.Next(stYMin, stYMax);
 
                 //int stXMinPossible = (int)(
@@ -1526,7 +1541,7 @@ namespace Multi.Cursor
                 //int stPosX = _random.Next(stXMin, stXMax);
 
                 //int possibleStartYMin = (int)(targetCenterBounds.Top - dist);
-                //int possibleStartYMax = (int)(targetCenterBounds.Bottom + dist);
+                //int possibleStartYMax = (int)(targetCenterBounds.Down + dist);
 
                 int stYMin = (int)startCenterBounds.Top;
                 int stYMax = (int)startCenterBounds.Bottom;
@@ -1939,6 +1954,9 @@ namespace Multi.Cursor
             double duration = (_timestamps[Str.TRIAL_END] - _timestamps[Str.START_RELEASE_ONE]) / 1000.0;
             ToMoLogger.LogTrialEvent($"Trial#{_trial.Id}: {duration:F2}");
 
+            // Clear the highlight
+            _targetWindow.DeactivateGridNavigator();
+
             if (_activeTrialNum < _block.GetNumTrials()) // More trials to show
             {
                 GoToNextTrial();
@@ -2011,6 +2029,15 @@ namespace Multi.Cursor
             }
             else if (_timestamps.ContainsKey(Str.START_RELEASE_ONE)) // Phase 2: Start already clicked, it's actually Aux click
             {
+                this.TrialInfo($"Target Id: {_trialTargetIds[_trial.Id]}");
+                if (_targetWindow.IsNavigatorOnButton(_trialTargetIds[_trial.Id]))
+                {
+                    TargetMouseDown();
+                }
+                else
+                {
+                    EndTrial(RESULT.MISS);
+                }
                 //if (_targetWindow.IsCursorInsideTarget()) // Inside target => Target hit
                 //{
                 //    TargetMouseDown();
@@ -2060,6 +2087,14 @@ namespace Multi.Cursor
             this.TrialInfo($"{_timestamps.Stringify()}");
             if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Already pressed with Auxursor => Check if release is also inside
             {
+                if (_targetWindow.IsNavigatorOnButton(_trialTargetIds[_trial.Id]))
+                {
+                    TargetMouseUp();
+                }
+                else
+                {
+                    EndTrial(RESULT.MISS);
+                }
                 //if (_targetWindow.IsCursorInsideTarget())
                 //{
                 //    TargetMouseUp();
@@ -2117,6 +2152,10 @@ namespace Multi.Cursor
             {
                 // Set the time
                 _timestamps[Str.TARGET_PRESS] = _trialtWatch.ElapsedMilliseconds;
+
+                // Change colors
+                _targetWindow.FillGridButton(_trialTargetIds[_trial.Id], Config.TARGET_UNAVAILABLE_COLOR);
+                _startRectangle.Fill = Config.START_AVAILABLE_COLOR;
             }
             else // Clicked Target before Start => NO_START
             {
@@ -2435,8 +2474,9 @@ namespace Multi.Cursor
 
         public void IndexMove(TouchPoint indPoint)
         {
-            if (_experiment.IsTechAuxCursor())
+            if (_experiment.IsTechAuxCursor() && _activeAuxWindow != null)
             {
+                _activeAuxWindow.MoveGridNavigator(indPoint);
                 //if (_activeAuxWindow != null)
                 //{
                 //    _activeAuxWindow.UpdateCursor(indPoint);
@@ -2458,13 +2498,13 @@ namespace Multi.Cursor
 
         public void IndexUp()
         {
-            //if (_experiment.IsTechAuxCursor() && _activeAuxWindow != null)
-            //{
-            //    _activeAuxWindow.StopCursor();
-            //}
+            if (_experiment.IsTechAuxCursor() && _activeAuxWindow != null)
+            {
+                _activeAuxWindow.StopGridNavigator();
+            }
 
             //_lastPlusPointerPos.X = -1;
-            _lastRotPointerPos.X = -1;
+            //_lastRotPointerPos.X = -1;
 
         }
 

@@ -235,7 +235,7 @@ namespace Multi.Cursor
                     position.X = canvas.ActualWidth / 2.0; // Middle of width
                     position.Y = canvas.ActualHeight / 4.0; // Middle of the top
                     break;
-                case Side.Bottom:
+                case Side.Down:
                     position.X = canvas.ActualWidth / 2.0; // Middle of width
                     position.Y = canvas.ActualHeight * 3 / 4.0; // Middle of the top
                     break;
@@ -296,11 +296,6 @@ namespace Multi.Cursor
                 this.TrialInfo($"Grid movement: dX = {dGridX}, dY = {dGridY}");
                 MoveSelection(dGridX, dGridY);
             }
-
-        }
-
-        public void UpdateGridNavigator(TouchPoint tp)
-        {
 
         }
 
@@ -894,12 +889,20 @@ namespace Multi.Cursor
 
             Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
             {
-                this.TrialInfo("Registering button positions after full render pass...");
-                foreach (Grid group in _gridGroups)
-                {
-                    RegisterButtons(group);
-                }
+                RegisterAllButtons(); // Register all buttons after all groups are created
+                LinkButtonNeighbors(); // Link neighbors after all buttons are registered
             }));
+        }
+
+        private void RegisterAllButtons()
+        {
+            this.TrialInfo($"Registering all buttons in the window with {_gridGroups.Count} groups...");
+            // Iterate through all groups (Grids) in the window
+            foreach (Grid group in _gridGroups)
+            {
+                RegisterButtons(group); // Register buttons for each group
+            }
+            this.TrialInfo($"Total buttons registered: {_allButtons.Count}");
         }
 
         private void RegisterButtons(Grid group)
@@ -932,10 +935,10 @@ namespace Multi.Cursor
                             // Get the point representing the top-left corner of the button relative to the Window
                             Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
                             _buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
-                            this.TrialInfo($"Button Position: {positionInWindow}");
+                            //this.TrialInfo($"Button Position: {positionInWindow}");
                             if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
                             {
-                                this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
+                                //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
                                 _topLeftButtonPosition = positionInWindow; // Update the top-left button position
                                 _lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
                             }
@@ -948,6 +951,36 @@ namespace Multi.Cursor
 
             // Set the first button as the highlighted button
             //_lastHighlightedButtonId = _widthButtons.FirstOrDefault().Value.FirstOrDefault()?.Id ?? -1; // Get the first button ID or -1 if no buttons are present
+        }
+
+        /// <summary>
+        /// Calculates and stores the spatial neighbor links for every button
+        /// by setting the neighbor IDs directly on each SButton instance.
+        /// </summary>
+        private void LinkButtonNeighbors()
+        {
+            this.TrialInfo("Linking neighbor IDs for all buttons...");
+            if (_allButtons.Count == 0) return;
+
+            // For each button in the grid...
+            foreach (SButton button in _allButtons.Values)
+            {
+                // ...find its neighbor in each of the four directions.
+                SButton topNeighbor = GetNeighbor(button, Side.Top);
+                SButton bottomNeighbor = GetNeighbor(button, Side.Down);
+                SButton leftNeighbor = GetNeighbor(button, Side.Left);
+                SButton rightNeighbor = GetNeighbor(button, Side.Right);
+
+                // Get the ID of each neighbor, or -1 if the neighbor is null.
+                int topId = topNeighbor?.Id ?? -1;
+                int bottomId = bottomNeighbor?.Id ?? -1;
+                int leftId = leftNeighbor?.Id ?? -1;
+                int rightId = rightNeighbor?.Id ?? -1;
+
+                // Call the method on the button to store its neighbor IDs.
+                button.SetNeighbors(topId, bottomId, leftId, rightId);
+            }
+            this.TrialInfo($"Finished linking neighbors for {_allButtons.Count} buttons.");
         }
 
         private void AddElementToCanvas(Element element, int left, int top)

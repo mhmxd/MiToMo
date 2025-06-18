@@ -62,9 +62,9 @@ namespace Multi.Cursor
         //        get { return new Point(_rect.Right, _rect.Top); }
         //    }
 
-        //    public int Bottom
+        //    public int Down
         //    {
-        //        get { return (int)_rect.Bottom; }
+        //        get { return (int)_rect.Down; }
         //    }
 
         //    private Rect _rect = new Rect();

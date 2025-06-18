@@ -99,12 +99,18 @@ namespace Multi.Cursor
 
             Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
             {
-                this.TrialInfo("Registering button positions after full render pass...");
-                foreach (Grid column in _gridColumns)
-                {
-                    RegisterButtons(column);
-                }
+                RegisterAllButtons(); // Register buttons in all columns after they are created
+                LinkButtonNeighbors();
             }));
+        }
+
+        private void RegisterAllButtons()
+        {
+            this.TrialInfo("Registering buttons in all columns...");
+            foreach (Grid column in _gridColumns)
+            {
+                RegisterButtons(column);
+            }
         }
 
         private void RegisterButtons(Grid column)
@@ -133,10 +139,10 @@ namespace Multi.Cursor
                             // Get the point representing the top-left corner of the button relative to the Window
                             Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
                             _buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
-                            this.TrialInfo($"Button Position: {positionInWindow}");
+                            //this.TrialInfo($"Button Position: {positionInWindow}");
                             if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
                             {
-                                this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
+                                //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
                                 _topLeftButtonPosition = positionInWindow; // Update the top-left button position
                                 _lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
                             }
@@ -145,6 +151,36 @@ namespace Multi.Cursor
                 }
             }
 
+        }
+
+        /// <summary>
+        /// Calculates and stores the spatial neighbor links for every button
+        /// by setting the neighbor IDs directly on each SButton instance.
+        /// </summary>
+        private void LinkButtonNeighbors()
+        {
+            this.TrialInfo("Linking neighbor IDs for all buttons...");
+            if (_allButtons.Count == 0) return;
+
+            // For each button in the grid...
+            foreach (SButton button in _allButtons.Values)
+            {
+                // ...find its neighbor in each of the four directions.
+                SButton topNeighbor = GetNeighbor(button, Side.Top);
+                SButton bottomNeighbor = GetNeighbor(button, Side.Down);
+                SButton leftNeighbor = GetNeighbor(button, Side.Left);
+                SButton rightNeighbor = GetNeighbor(button, Side.Right);
+
+                // Get the ID of each neighbor, or -1 if the neighbor is null.
+                int topId = topNeighbor?.Id ?? -1;
+                int bottomId = bottomNeighbor?.Id ?? -1;
+                int leftId = leftNeighbor?.Id ?? -1;
+                int rightId = rightNeighbor?.Id ?? -1;
+
+                // Call the method on the button to store its neighbor IDs.
+                button.SetNeighbors(topId, bottomId, leftId, rightId);
+            }
+            this.TrialInfo($"Finished linking neighbors for {_allButtons.Count} buttons.");
         }
 
         //public override void MakeTargetAvailable()
