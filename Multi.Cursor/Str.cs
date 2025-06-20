@@ -35,5 +35,15 @@ namespace Multi.Cursor
 
         public static string MAJOR_LINE = "=================================================";
         public static string MINOR_LINE = "-------------------------------------------------";
+
+        public static string x3 = "3mm";
+        public static string x6 = "6mm";
+        public static string x12 = "12mm";
+        public static string x15 = "15mm";
+        public static string x18 = "18mm";
+        public static string x20 = "20mm";
+        public static string x30 = "30mm";
+        public static string _52MM = "52mm";
+
     }
 }

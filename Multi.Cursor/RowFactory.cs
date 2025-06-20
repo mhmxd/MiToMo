@@ -8,7 +8,7 @@ namespace Multi.Cursor
 {
     internal class RowFactory : Grid
     {
-        public static double GUTTER = Utils.MmToDips(Config.GRID_GUTTER_MM); // Space in-between the grid elements
+        public static double WithinGroupGutter = Utils.MmToDips(Config.GRID_WITHINGROUP_GUTTER_MM); // Space in-between the grid elements
         public static double UNIT = Utils.MmToDips(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         public static double ROW_HEIGHT = 6 * UNIT; // Height of each row in pixels
 
@@ -28,7 +28,7 @@ namespace Multi.Cursor
         {
             return new Rectangle
             {
-                Width = GUTTER, // Use GUTTER for width, not a derived UNIT value unless intentional
+                Width = WithinGroupGutter, // Use WithinGroupGutter for width, not a derived UNIT value unless intentional
                 Height = ROW_HEIGHT,
                 //Fill = Brushes.Orange, // <-- Make it highly visible for debugging
                 //Stroke = Brushes.Black, // Add a stroke
@@ -42,7 +42,7 @@ namespace Multi.Cursor
             return new Rectangle
             {
                 // Width will be set to HorizontalAlignment.Stretch in CreateCol1
-                Height = GUTTER,
+                Height = WithinGroupGutter,
                 //Fill = Brushes.Red, // <-- Make it highly visible for debugging
                 //Stroke = Brushes.Green,
                 //StrokeThickness = 0.5,
@@ -52,7 +52,7 @@ namespace Multi.Cursor
 
         private static SButton CreateDropdownButton()
         {
-            int wMultiple = Experiment.SIDE_BUTTONS_WIDTH_MULTIPLES[0]; // 3 x Unit
+            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x3]; // 3 x Unit
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -64,7 +64,7 @@ namespace Multi.Cursor
 
         private static SButton CreateSmallButton()
         {
-            int wMultiple = Experiment.SIDE_BUTTONS_WIDTH_MULTIPLES[1];
+            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x6];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -76,7 +76,7 @@ namespace Multi.Cursor
 
         private static SButton CreateWideButton()
         {
-            int wMultiple = Experiment.SIDE_BUTTONS_WIDTH_MULTIPLES[2];
+            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x12];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -88,7 +88,7 @@ namespace Multi.Cursor
 
         private static SButton CreateWiderButton()
         {
-            int wMultiple = Experiment.SIDE_BUTTONS_WIDTH_MULTIPLES[3];
+            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x18];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -100,7 +100,7 @@ namespace Multi.Cursor
 
         private static SButton CreateWidestButton()
         {
-            int wMultiple = Experiment.SIDE_BUTTONS_WIDTH_MULTIPLES[4];
+            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x30];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -392,9 +392,9 @@ namespace Multi.Cursor
                 {
                     group.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
                 }
-                else if (element is Rectangle && ((Rectangle)element).Height == GUTTER) // WithinRow gutter
+                else if (element is Rectangle && ((Rectangle)element).Height == WithinGroupGutter) // WithinRow gutter
                 {
-                    group.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER) });
+                    group.RowDefinitions.Add(new RowDefinition { Height = new GridLength(WithinGroupGutter) });
                     // Ensure gutter also stretches horizontally if it's not already
                     ((Rectangle)element).HorizontalAlignment = HorizontalAlignment.Stretch;
                 }

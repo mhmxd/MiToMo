@@ -91,7 +91,7 @@ namespace Multi.Cursor
 
         public static int MM2PX(double mm)
         {
-            return (int)(mm / MM_IN_INCH * Config.PPI);
+            return (int)Math.Round(mm / MM_IN_INCH * Config.PPI);
         }
 
         public static double MmToDips(double mm)

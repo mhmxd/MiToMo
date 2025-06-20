@@ -26,7 +26,7 @@ namespace Multi.Cursor
     public partial class TopWindow : AuxWindow
     {
         private double HORIZONTAL_PADDING = Utils.MmToDips(Config.HORIZONTAL_PADDING_MM);
-        private double GUTTER = Utils.MmToDips(Config.GRID_GUTTER_MM);
+        private double InterGroupGutter = Utils.MmToDips(Config.GRID_INTERGROUP_GUTTER_MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -55,7 +55,7 @@ namespace Multi.Cursor
 
             _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
 
-            foreach (int wm in Experiment.TOP_BUTTONS_WIDTH_MULTIPLES)
+            foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
             {
                 _widthButtons.TryAdd(wm, new List<SButton>());
             }
@@ -94,7 +94,7 @@ namespace Multi.Cursor
                 newColumnGrid.Arrange(new Rect(newColumnGrid.DesiredSize));
 
                 // Update the currentLeftPosition for the next column, adding the current column's width and the gutter
-                currentLeftPosition += newColumnGrid.ActualWidth + HORIZONTAL_PADDING;
+                currentLeftPosition += newColumnGrid.ActualWidth + InterGroupGutter;
             }
 
             Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>

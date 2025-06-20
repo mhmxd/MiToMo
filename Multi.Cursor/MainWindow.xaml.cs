@@ -51,7 +51,7 @@ using Serilog;
 using MessageBox = System.Windows.Forms.MessageBox;
 using System.Numerics;
 using System.Threading.Tasks;
-using System.Runtime.CompilerServices; // Alias Serilog's Log class
+using System.Runtime.CompilerServices;
 
 namespace Multi.Cursor
 {
@@ -130,8 +130,8 @@ namespace Multi.Cursor
         private int VERTICAL_PADDING = Utils.MM2PX(Config.VERTICAL_PADDING_MM); // Padding for the windows
         private int HORIZONTAL_PADDING = Utils.MM2PX(Config.HORIZONTAL_PADDING_MM); // Padding for the windows
 
-        private int TOP_WINDOW_HEIGHT = Utils.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
-        private int SIDE_WINDOW_WIDTH = Utils.MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
+        private int TopWindowHeight = Utils.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
+        private int SideWindowWidth = Utils.MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
 
 
         // Dead zone
@@ -269,40 +269,40 @@ namespace Multi.Cursor
             
 
             // Create left grid
-            Func<Grid>[] leftGroupCreators = new Func<Grid>[]
-            {
-                () => RowFactory.CreateGroupType1(combination: 1),
-                () => RowFactory.CreateGroupType1(combination: 3),
-                () => RowFactory.CreateGroupType2(combination: 2),
-                () => RowFactory.CreateGroupType2(combination: 4),
-                () => RowFactory.CreateGroupType2(combination: 6),
-                () => RowFactory.CreateGroupType1(combination: 1),
-                () => RowFactory.CreateGroupType1(combination: 3),
-                () => RowFactory.CreateGroupType2(combination: 5),
-                () => RowFactory.CreateGroupType2(combination: 2),
-                () => RowFactory.CreateGroupType2(combination: 2),
-                () => RowFactory.CreateGroupType1(combination: 6),
-            };
+            //Func<Grid>[] leftGroupCreators = new Func<Grid>[]
+            //{
+            //    () => RowFactory.CreateGroupType1(combination: 1),
+            //    () => RowFactory.CreateGroupType1(combination: 3),
+            //    () => RowFactory.CreateGroupType2(combination: 2),
+            //    () => RowFactory.CreateGroupType2(combination: 4),
+            //    () => RowFactory.CreateGroupType2(combination: 6),
+            //    () => RowFactory.CreateGroupType1(combination: 1),
+            //    () => RowFactory.CreateGroupType1(combination: 3),
+            //    () => RowFactory.CreateGroupType2(combination: 5),
+            //    () => RowFactory.CreateGroupType2(combination: 2),
+            //    () => RowFactory.CreateGroupType2(combination: 2),
+            //    () => RowFactory.CreateGroupType1(combination: 6),
+            //};
 
-            _leftWindow.GenerateGrid(leftGroupCreators);
+            _leftWindow.GenerateGrid(topColCreators);
 
             // Create right grid
-            Func<Grid>[] rightGroupCreators = new Func<Grid>[]
-            {
-                () => RowFactory.CreateGroupType1(combination: 1),
-                () => RowFactory.CreateGroupType1(combination: 3),
-                () => RowFactory.CreateGroupType2(combination: 2),
-                () => RowFactory.CreateGroupType1(combination: 4),
-                () => RowFactory.CreateGroupType2(combination: 6),
-                () => RowFactory.CreateGroupType1(combination: 1),
-                () => RowFactory.CreateGroupType2(combination: 3),
-                () => RowFactory.CreateGroupType2(combination: 5),
-                () => RowFactory.CreateGroupType1(combination: 2),
-                () => RowFactory.CreateGroupType2(combination: 2),
-                () => RowFactory.CreateGroupType2(combination: 6),
-            };
+            //Func<Grid>[] rightGroupCreators = new Func<Grid>[]
+            //{
+            //    () => RowFactory.CreateGroupType1(combination: 1),
+            //    () => RowFactory.CreateGroupType1(combination: 3),
+            //    () => RowFactory.CreateGroupType2(combination: 2),
+            //    () => RowFactory.CreateGroupType1(combination: 4),
+            //    () => RowFactory.CreateGroupType2(combination: 6),
+            //    () => RowFactory.CreateGroupType1(combination: 1),
+            //    () => RowFactory.CreateGroupType2(combination: 3),
+            //    () => RowFactory.CreateGroupType2(combination: 5),
+            //    () => RowFactory.CreateGroupType1(combination: 2),
+            //    () => RowFactory.CreateGroupType2(combination: 2),
+            //    () => RowFactory.CreateGroupType2(combination: 6),
+            //};
 
-            _rightWindow.GenerateGrid(rightGroupCreators);
+            _rightWindow.GenerateGrid(topColCreators);
 
 
             UpdateLabel();
@@ -370,11 +370,11 @@ namespace Multi.Cursor
             double shortestDistMM = 150;
             //double startHW = Utils.MmToDips(Experiment.START_WIDTH_MM) / 2.0;
             //Point srcPoint = new Point(
-            //    _topWinRectPadded.Left + HORIZONTAL_PADDING, 
-            //    _topWinRectPadded.Top + VERTICAL_PADDING);
+            //    _topWinRectPadded.Left + HorizontalPadding, 
+            //    _topWinRectPadded.Top + VerticalPadding);
             //Point destPoint = new Point(
-            //    _mainWinRect.Left + HORIZONTAL_PADDING + startHW, 
-            //    _mainWinRect.Top + VERTICAL_PADDING + startHW);
+            //    _mainWinRect.Left + HorizontalPadding + startHW, 
+            //    _mainWinRect.Top + VerticalPadding + startHW);
             //double shortestDistMM = Utils.DipsToMm(Utils.Dist(srcPoint, destPoint));
 
             //double shortestDistMM = 
@@ -473,8 +473,8 @@ namespace Multi.Cursor
 
                 // Set the window position to the second monitor's working area
                 this.WindowStartupLocation = WindowStartupLocation.Manual;
-                this.Left = Config.ACTIVE_SCREEN.WorkingArea.Left + SIDE_WINDOW_WIDTH;
-                this.Top = Config.ACTIVE_SCREEN.WorkingArea.Top + TOP_WINDOW_HEIGHT;
+                this.Left = Config.ACTIVE_SCREEN.WorkingArea.Left + SideWindowWidth;
+                this.Top = Config.ACTIVE_SCREEN.WorkingArea.Top + TopWindowHeight;
             }
         }
 
@@ -521,12 +521,12 @@ namespace Multi.Cursor
 
                 // Set the window position to the second monitor's working area
                 this.Background = Config.GRAY_E6E6E6;
-                this.Width = _backgroundWindow.Width - (2 * SIDE_WINDOW_WIDTH);
-                this.Height = _backgroundWindow.Height - TOP_WINDOW_HEIGHT;
+                this.Width = _backgroundWindow.Width - (2 * SideWindowWidth);
+                this.Height = _backgroundWindow.Height - TopWindowHeight;
                 this.WindowStartupLocation = WindowStartupLocation.Manual;
-                this.Left = Config.ACTIVE_SCREEN.WorkingArea.Left + SIDE_WINDOW_WIDTH;
+                this.Left = Config.ACTIVE_SCREEN.WorkingArea.Left + SideWindowWidth;
                 thisLeft = this.Left; // Save the left position 
-                this.Top = Config.ACTIVE_SCREEN.WorkingArea.Top + TOP_WINDOW_HEIGHT;
+                this.Top = Config.ACTIVE_SCREEN.WorkingArea.Top + TopWindowHeight;
                 thisTop = this.Top; // Save the top position
                 this.Owner = _backgroundWindow;
                 //this.Topmost = true;
@@ -546,10 +546,10 @@ namespace Multi.Cursor
                 //_topWindow.MouseUp += SideWindow_MouseUp;
                 //_topWindow.Show();
                 //_topWinRect = Utils.GetRect(_topWindow);
-                //_topWinRectPadded = Utils.GetRect(_topWindow, HORIZONTAL_PADDING);
+                //_topWinRectPadded = Utils.GetRect(_topWindow, HorizontalPadding);
                 _topWindow = new TopWindow();
                 _topWindow.Background = Config.GRAY_F3F3F3;
-                _topWindow.Height = TOP_WINDOW_HEIGHT;
+                _topWindow.Height = TopWindowHeight;
                 _topWindow.Width = Config.ACTIVE_SCREEN.WorkingArea.Width;
                 _topWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _topWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
@@ -564,9 +564,9 @@ namespace Multi.Cursor
                 //topWinHeightRatio = topWindow.Height / TOMOPAD_SIDE_SIZE;
 
                 // Create left window
-                _leftWindow = new SideWindow("Left Window", new Point(0, SIDE_WINDOW_WIDTH));
+                _leftWindow = new SideWindow("Left Window", new Point(0, SideWindowWidth));
                 _leftWindow.Background = Config.GRAY_F3F3F3;
-                _leftWindow.Width = SIDE_WINDOW_WIDTH;
+                _leftWindow.Width = SideWindowWidth;
                 _leftWindow.Height = this.Height;
                 _leftWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _leftWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
@@ -581,9 +581,9 @@ namespace Multi.Cursor
                 //leftWinHeightRatio = leftWindow.Height / (TOMOPAD_LAST_ROW - TOMOPAD_SIDE_SIZE);
 
                 // Create right window
-                _rightWindow = new SideWindow("Right Window", new Point(SIDE_WINDOW_WIDTH + this.Width, SIDE_WINDOW_WIDTH));
+                _rightWindow = new SideWindow("Right Window", new Point(SideWindowWidth + this.Width, SideWindowWidth));
                 _rightWindow.Background = Config.GRAY_F3F3F3;
-                _rightWindow.Width = SIDE_WINDOW_WIDTH;
+                _rightWindow.Width = SideWindowWidth;
                 _rightWindow.Height = this.Height;
                 _rightWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _rightWindow.Left = this.Left + this.Width;
@@ -598,8 +598,8 @@ namespace Multi.Cursor
                 //rightWinHeightRatio = rightWindow.Height / (TOMOPAD_LAST_ROW - TOMOPAD_SIDE_SIZE);
 
                 // Get the absolute position of the window
-                _absLeft = SIDE_WINDOW_WIDTH;
-                _absTop = TOP_WINDOW_HEIGHT;
+                _absLeft = SideWindowWidth;
+                _absTop = TopWindowHeight;
                 _absRight = _absLeft + (int)this.Width;
                 _absBottom = _absTop + (int)Height;
 

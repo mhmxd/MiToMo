@@ -43,19 +43,27 @@ namespace Multi.Cursor
             //    this.TrialInfo($"WM {wm} -> {ids}");
             //}
 
-            SButton button = _widthButtons[widthMult].GetRandomElement(); // Get a random button from the list for that width
-            if (button != null)
+            if (_widthButtons[widthMult].Count > 0)
             {
+                SButton button = _widthButtons[widthMult].GetRandomElement(); // Get a random button from the list for that width
+                if (button != null)
+                {
 
-                this.TrialInfo($"Selected button id in window: {button.Id}");
-                return button.Id;
+                    this.TrialInfo($"Selected button id in window: {button.Id}");
+                    return button.Id;
 
-            }
-            else
+                }
+                else
+                {
+                    this.TrialInfo($"No buttons found for width multiple {widthMult}.");
+                    return -1; // Return an invalid point if no buttons are found
+                }
+            } else
             {
                 this.TrialInfo($"No buttons found for width multiple {widthMult}.");
                 return -1; // Return an invalid point if no buttons are found
             }
+            
         }
 
         public virtual void FillGridButton(int buttonId, Brush color)
@@ -64,6 +72,7 @@ namespace Multi.Cursor
             if (_allButtons.TryGetValue(buttonId, out SButton button))
             {
                 button.Background = color; // Change the background color of the button
+                button.DisableBackgroundHover = true; // Disable hover fill for this button
                 this.TrialInfo($"Button with ID {buttonId} filled with color {color}.");
             }
             else
@@ -110,7 +119,7 @@ namespace Multi.Cursor
         {
             foreach (var button in _allButtons.Values)
             {
-                button.Background = Config.ELEMENT_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
+                button.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
             }
         }
 
@@ -148,7 +157,7 @@ namespace Multi.Cursor
             _gridNavigator.Deactivate(); // Deactivate the grid navigator
             if (_lastHighlightedButtonId != -1 && _allButtons.TryGetValue(_lastHighlightedButtonId, out SButton button))
             {
-                button.BorderBrush = Config.ELEMENT_DEFAULT_BORDER_COLOR; // Reset the border color of the last highlighted button
+                button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of the last highlighted button
             }
         }
 
@@ -162,7 +171,7 @@ namespace Multi.Cursor
             // Reset the border of all buttons
             foreach (var btn in _allButtons.Values)
             {
-                btn.BorderBrush = Config.ELEMENT_DEFAULT_BORDER_COLOR; // Reset the border color of all buttons
+                btn.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of all buttons
             }
 
             // Find the button with the specified ID

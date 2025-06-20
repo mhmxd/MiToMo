@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 
 namespace Multi.Cursor
@@ -26,14 +27,60 @@ namespace Multi.Cursor
         public int TopId { get; private set; } = -1;
         public int BottomId { get; private set; } = -1;
 
+        public static readonly DependencyProperty DisableBackgroundHoverProperty =
+         DependencyProperty.Register("DisableBackgroundHover", typeof(bool), typeof(SButton), new PropertyMetadata(false));
+
+        public bool DisableBackgroundHover
+        {
+            get { return (bool)GetValue(DisableBackgroundHoverProperty); }
+            set { SetValue(DisableBackgroundHoverProperty, value); }
+        }
+
         public SButton()
         {
             this.Id = Interlocked.Increment(ref _nextId);
 
-            this.BorderBrush = Config.ELEMENT_DEFAULT_BORDER_COLOR; // Set the border brush for the button
-            this.BorderThickness = new System.Windows.Thickness(2); // Set the border thickness
-            this.Padding = new System.Windows.Thickness(0); 
-            this.Background = Config.ELEMENT_DEFAULT_FILL_COLOR; // Set the background color
+            this.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Set the background color
+            this.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Set the border brush for the button
+            this.BorderThickness = new Thickness(2); // Set the border thickness
+            this.Padding = new Thickness(0); 
+            this.Margin = new Thickness(0); // Set the margin to zero
+
+            // Set the default style for the button
+            StyleButton();
+        }
+
+        private void StyleButton()
+        {
+            var template = new ControlTemplate(typeof(Button));
+
+            var borderFactory = new FrameworkElementFactory(typeof(Border));
+            borderFactory.Name = "MainBorder";
+            borderFactory.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(BackgroundProperty));
+            borderFactory.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(BorderBrushProperty));
+            borderFactory.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(BorderThicknessProperty));
+
+            var contentFactory = new FrameworkElementFactory(typeof(ContentPresenter));
+            contentFactory.SetValue(ContentPresenter.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            contentFactory.SetValue(ContentPresenter.VerticalAlignmentProperty, VerticalAlignment.Center);
+            borderFactory.AppendChild(contentFactory);
+
+            template.VisualTree = borderFactory;
+
+            // Trigger for background hover (only when not disabled)
+            var backgroundHoverTrigger = new MultiTrigger();
+            backgroundHoverTrigger.Conditions.Add(new Condition(IsMouseOverProperty, true));
+            backgroundHoverTrigger.Conditions.Add(new Condition(DisableBackgroundHoverProperty, false));
+            backgroundHoverTrigger.Setters.Add(new Setter(Border.BackgroundProperty, Config.BUTTON_HOVER_FILL_COLOR, "MainBorder"));
+            template.Triggers.Add(backgroundHoverTrigger);
+
+            // Trigger for border hover (always active)
+            var borderHoverTrigger = new Trigger { Property = IsMouseOverProperty, Value = true };
+            borderHoverTrigger.Setters.Add(new Setter(Border.BorderBrushProperty, Config.BUTTON_HOVER_BORDER_COLOR, "MainBorder"));
+            template.Triggers.Add(borderHoverTrigger);
+
+            this.Template = template;
+
         }
 
         /// <summary>

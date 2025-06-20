@@ -16,10 +16,13 @@ namespace Multi.Cursor
 {
     internal class ColumnFactory : Grid  // Inherits from Grid to use WPF's Grid layout capabilities
     {
-        public static double GUTTER = Utils.MmToDips(Config.GRID_GUTTER_MM); // Space in-between the grid elements
-        public static double UNIT = Utils.MmToDips(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
-        public static double ROW_HEIGHT = Utils.MmToDips(Config.GRID_ROW_HEIGHT_MM); // Height of each row in pixels
+        public static double WithinGroupGutter = Utils.MM2PX(Config.GRID_WITHINGROUP_GUTTER_MM); // Space in-between the grid elements
+        public static double UNIT = Utils.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
+        public static double ROW_HEIGHT = Utils.MM2PX(Config.GRID_ROW_HEIGHT_MM); // Height of each row in pixels
         
+        public static double MAX_GROUP_WITH = Utils.MM2PX(Experiment.BUTTON_MULTIPLES[Str.x30]); // Maximum width of the group in pixels
+        public static double COLUMN_HEIGHT = Utils.MM2PX(3 * Config.GRID_ROW_HEIGHT_MM + 2 * Config.GRID_WITHINGROUP_GUTTER_MM);
+
         //private class Column
         //{
         //    public Point Position = new Point(0, 0); // Top-left position of the column
@@ -32,7 +35,7 @@ namespace Multi.Cursor
 
         //    public Point GetMiddleRowPosition()
         //    {
-        //        return Position.OffsetPosition(0, Row.ROW_HEIGHT + GUTTER);
+        //        return Position.OffsetPosition(0, Row.ROW_HEIGHT + WithinGroupGutter);
         //    }
 
         //}
@@ -126,7 +129,7 @@ namespace Multi.Cursor
         {
             return new Rectangle
             {
-                Width = GUTTER, // Use GUTTER for width, not a derived UNIT value unless intentional
+                Width = WithinGroupGutter, // Use WithinGroupGutter for width, not a derived UNIT value unless intentional
                 Height = ROW_HEIGHT,
                 //Fill = Brushes.Orange, // <-- Make it highly visible for debugging
                 //Stroke = Brushes.Black, // Add a stroke
@@ -140,7 +143,7 @@ namespace Multi.Cursor
             return new Rectangle
             {
                 // Width will be set to HorizontalAlignment.Stretch in CreateCol1
-                Height = GUTTER,
+                Height = WithinGroupGutter,
                 //Fill = Brushes.Red, // <-- Make it highly visible for debugging
                 //Stroke = Brushes.Green,
                 //StrokeThickness = 0.5,
@@ -150,23 +153,23 @@ namespace Multi.Cursor
 
         private static SButton CreateBigButton()
         {
-            int wMultiple = Experiment.TOP_BUTTONS_WIDTH_MULTIPLES[2];
+            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x15];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[5] is defined in Experiment
-                Height = 19 * UNIT // 19 * UNIT is the height in pixels
+                Width = Utils.MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[5] is defined in Experiment
+                Height = Utils.MM2PX(19 * Config.GRID_UNIT_MM) // 19 * UNIT is the height in pixels
             };
             return sButton;
         }
 
         private static SButton CreateSmallButton()
         {
-            int wMultiple = Experiment.TOP_BUTTONS_WIDTH_MULTIPLES[1];
+            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x6];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[1] is defined in Experiment
+                Width = Utils.MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[1] is defined in Experiment
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -174,11 +177,11 @@ namespace Multi.Cursor
 
         private static SButton CreateDropdownButton()
         {
-            int wMultiple = Experiment.TOP_BUTTONS_WIDTH_MULTIPLES[0]; // Assuming 0 is the index for dropdown button width
+            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x3]; // Assuming 0 is the index for dropdown button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[0] is defined in Experiment
+                Width = Utils.MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[0] is defined in Experiment
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -186,11 +189,11 @@ namespace Multi.Cursor
 
         private static SButton CreateWideButton()
         {
-            int wMultiple = Experiment.TOP_BUTTONS_WIDTH_MULTIPLES[3]; // Assuming 3 is the index for wide button width
+            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x18]; // Assuming 3 is the index for wide button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[3] is defined in Experiment
+                Width = Utils.MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[3] is defined in Experiment
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -198,11 +201,11 @@ namespace Multi.Cursor
 
         private static SButton CreateWiderButton()
         {
-            int wMultiple = Experiment.TOP_BUTTONS_WIDTH_MULTIPLES[4]; // Assuming 4 is the index for wider button width
+            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x30]; // Assuming 4 is the index for wider button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[4] is defined in Experiment
+                Width = Utils.MM2PX(wMultiple * Config.GRID_UNIT_MM),
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -218,6 +221,7 @@ namespace Multi.Cursor
             stackPanel.Children.Add(CreateSmallButton());
             stackPanel.Children.Add(CreateInRowGutter());
             stackPanel.Children.Add(CreateWideButton());
+            stackPanel.Children.Add(CreateInRowGutter());
             stackPanel.Children.Add(CreateDropdownButton());
 
             return stackPanel;
@@ -236,6 +240,7 @@ namespace Multi.Cursor
             stackPanel.Children.Add(CreateSmallButton());
             stackPanel.Children.Add(CreateInRowGutter());
             stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateInRowGutter());
             stackPanel.Children.Add(CreateDropdownButton());
             stackPanel.Children.Add(CreateInRowGutter());
             stackPanel.Children.Add(CreateSmallButton());
@@ -297,9 +302,9 @@ namespace Multi.Cursor
                 {
                     column.RowDefinitions.Add(new RowDefinition {  });
                 }
-                else if (element is Rectangle && ((Rectangle)element).Height == GUTTER)
+                else if (element is Rectangle && ((Rectangle)element).Height == WithinGroupGutter)
                 {
-                    column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER) });
+                    column.RowDefinitions.Add(new RowDefinition { Height = new GridLength(WithinGroupGutter) });
                     // Ensure gutter also stretches horizontally if it's not already
                     ((Rectangle)element).HorizontalAlignment = HorizontalAlignment.Stretch;
                 }

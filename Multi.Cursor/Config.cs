@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Policy;
 using System.Windows;
 using System.Windows.Forms;
@@ -9,7 +10,7 @@ namespace Multi.Cursor
 {
     internal class Config
     {
-        public const double PPI = 89; // BenQ = 89, Apple Display = 109
+        public const double PPI = 93.54; // BenQ = 89, Apple Display = 109
 
         public static int LAST_TOUCH_COL = 14; // Total number of touch columns
 
@@ -68,9 +69,10 @@ namespace Multi.Cursor
         // --------------------------------------
 
         // --------------- Sizes and Margins
-        public static int TOP_WINDOW_HEIGTH_MM = 28; // ~100px
-        public static int SIDE_WINDOW_WIDTH_MM = 68; // ~240
-        public static double VERTICAL_PADDING_MM = 3; // 12px
+        //public static int TOP_WINDOW_HEIGTH_MM = 28; // ~100px
+        //public static int SIDE_WINDOW_WIDTH_MM = 68; // ~240
+        
+        public static double VERTICAL_PADDING_MM = 4; // 12px
         public static double HORIZONTAL_PADDING_MM = 4; // 4px (for the side window)
 
         // --------------------------------------
@@ -122,12 +124,16 @@ namespace Multi.Cursor
 
         public static readonly Brush ELEMENT_HIGHLIGHT_COLOR = Brushes.Black;
         public static readonly Brush GRID_TARGET_COLOR = Brushes.LightGreen;
-        public static readonly Brush ELEMENT_DEFAULT_FILL_COLOR = Brushes.White;
-        public static readonly Brush ELEMENT_DEFAULT_BORDER_COLOR = Brushes.LightGray;
+        public static readonly Brush BUTTON_DEFAULT_FILL_COLOR = Brushes.White;
+        public static readonly Brush BUTTON_DEFAULT_BORDER_COLOR = Brushes.LightGray;
+
+        public static readonly Brush BUTTON_HOVER_FILL_COLOR = Brushes.LightGray; // Color when hovering over an element
+        public static readonly Brush BUTTON_HOVER_BORDER_COLOR = Brushes.Black; // Color when hovering over an element border
         // --------------------------------------
 
         // --------------- Grid --------------------
-        public static double GRID_GUTTER_MM = 0.5; // Space in-between the grid elements
+        public static double GRID_INTERGROUP_GUTTER_MM = 0.5; // Space in-between the grid groups
+        public static double GRID_WITHINGROUP_GUTTER_MM = 0.5; // Space in-between the grid elements within a group
         public static double GRID_MAX_ELEMENT_WIDTH_MM = 45; // Width of the widest element in the grid
         public static double GRID_MIN_ELEMENT_WIDTH_MM = 3; // Width of the narrowest element in the grid
         public static int ELEMENT_BORDER_THICKNESS = 2; // Thickness of the border around the grid elements
@@ -138,6 +144,9 @@ namespace Multi.Cursor
         public static int CELL_WIDTH_THRESHOLD = 50; // px
         public static int CELL_HEIGHT_THRESHOLD = 50; // px
         // -----------------------------------------
+
+        public static double SIDE_WINDOW_WIDTH_MM = 2 * Experiment.BUTTON_MULTIPLES.Values.Max() + 2 * HORIZONTAL_PADDING_MM + GRID_INTERGROUP_GUTTER_MM;
+        public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GRID_WITHINGROUP_GUTTER_MM + 2 * VERTICAL_PADDING_MM;
 
         public static void SetMode(int speed)
         {

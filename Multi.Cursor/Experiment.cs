@@ -15,8 +15,18 @@ namespace Multi.Cursor
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
         //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
         private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30}; // BenQ
-        public static List<int> SIDE_BUTTONS_WIDTH_MULTIPLES = new List<int>() { 3, 6, 18, 30, 52 }; // Multiples of the UNIT (1mm = 4px) widths for grid
-        public static List<int> TOP_BUTTONS_WIDTH_MULTIPLES = new List<int>() { 3, 6, 15, 18, 30 }; // Multiples of the UNIT (1mm = 4px) widths for top buttons
+        //public static List<int> SIDE_BUTTONS_WIDTH_MULTIPLES = new List<int>() { 3, 6, 18, 30, 52 }; // Multiples of the UNIT (1mm = 4px) widths for grid
+        //public static List<int> TOP_BUTTONS_WIDTH_MULTIPLES = new List<int>() { 3, 6, 15, 18, 30 }; // Multiples of the UNIT (1mm = 4px) widths for top buttons
+        public static Dictionary<string, int> BUTTON_MULTIPLES = new Dictionary<string, int>()
+        {
+            { Str.x3, 3 },
+            { Str.x6, 6 },
+            { Str.x12, 12 },
+            { Str.x15, 15 },
+            { Str.x18, 18 },
+            { Str.x20, 20 },
+            { Str.x30, 30 }
+        };
 
         private static List<double> _distances = new List<double>(); // Generated in constructor
         private static int N_BLOCKS = 3; // Number of blocks in the experiment
@@ -114,14 +124,23 @@ namespace Multi.Cursor
             }
 
             //-- Create blocks of trials
-            // 2 top blocks, 2 left blocks, 2 right blocks
             int blockId = Participant_Number * 100 + 1;
-            for (int i = 0; i < N_BLOCKS; i++)
-            {
-                Block block = new Block(blockId, TOP_BUTTONS_WIDTH_MULTIPLES, SIDE_BUTTONS_WIDTH_MULTIPLES, _distances, N_REPS_IN_BLOCK);
-                _blocks.Add(block);
-                blockId++;
-            }
+            Block block = new Block(Side.Top, blockId, BUTTON_MULTIPLES.Values.ToList(), _distances);
+            _blocks.Add(block);
+            blockId++;
+            block = new Block(Side.Left, blockId, BUTTON_MULTIPLES.Values.ToList(), _distances);
+            _blocks.Add(block);
+            blockId++;
+            block = new Block(Side.Right, blockId, BUTTON_MULTIPLES.Values.ToList(), _distances);
+            _blocks.Add(block);
+
+
+            //for (int i = 0; i < N_BLOCKS; i++)
+            //{
+            //    Block block = new Block(blockId, BUTTON_MULTIPLES.Values.ToList(), _distances, N_REPS_IN_BLOCK);
+            //    _blocks.Add(block);
+            //    blockId++;
+            //}
 
 
             //-- Create blocks of trials
