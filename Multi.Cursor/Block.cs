@@ -9,8 +9,14 @@ using Seril = Serilog.Log;
 namespace Multi.Cursor
 {
     // A block of trials in the experiment
-    internal class Block
+    public class Block
     {
+        public enum BLOCK_TYPE
+        {
+            REPEATING = 0,
+            ALTERNATING = 1
+        }
+
         private List<Trial> _trials = new List<Trial>();
         public List<Trial> Trials
         {
@@ -24,11 +30,16 @@ namespace Multi.Cursor
             set => _id = value;
         }
 
-        private Experiment.BLOCK_TYPE _blockType = Experiment.BLOCK_TYPE.REPEATING;
-        public Experiment.BLOCK_TYPE BlockType
+        private BLOCK_TYPE _blockType = BLOCK_TYPE.REPEATING;
+        public BLOCK_TYPE BlockType
         {
             get => _blockType;
             set => _blockType = value;
+        }
+
+        public Block(BLOCK_TYPE type)
+        {
+            this.BlockType = type;
         }
 
         /// <summary>
@@ -58,6 +69,72 @@ namespace Multi.Cursor
             _trials.Shuffle();
         }
 
+        public static Block CreateRepBlock(
+            int id, 
+            List<int> targetMultiples,
+            List<Range> distRanges,
+            int nPasses)
+        {
+            Block block = new Block(BLOCK_TYPE.REPEATING);
+            block.Id = id;
+
+            // Create and add trials to the block
+            int trialNum = 1;
+            for (int sInd = 0; sInd < 3; sInd++)
+            {
+                Side side = (Side)sInd;
+                foreach (int targetMultiple in targetMultiples)
+                {
+                    foreach (Range range in distRanges)
+                    {
+                        Trial trial = Trial.CreateRepetingTrial(
+                            id * 100 + trialNum, 
+                            side,
+                            targetMultiple, 
+                            range, 
+                            nPasses);
+                        block._trials.Add(trial);
+                    }
+                }
+
+                trialNum++;
+            }
+            block._trials.Shuffle();
+
+            return block;
+        }
+
+        public static Block CreateAltBlock(
+            int id, 
+            List<int> targetMultiples,
+            List<Range> distRanges)
+        {
+            Block block = new Block(BLOCK_TYPE.ALTERNATING);
+            block.Id = id;
+
+            // Create and add trials to the block
+            int trialNum = 1;
+            for (int sInd = 0; sInd < 3; sInd++)
+            {
+                Side side = (Side)sInd;
+                foreach (int targetMultiple in targetMultiples)
+                {
+                    foreach (Range range in distRanges)
+                    {
+                        Trial trial = Trial.CreateAlternatingTrial(
+                            id * 100 + trialNum,
+                            side,
+                            targetMultiple,
+                            range);
+                        block._trials.Add(trial);
+                    }
+                }
+
+                trialNum++;
+            }
+            block._trials.Shuffle();
+            return block;
+        }
 
         public Block(int id, List<int> topTargetMultiples, List<int> sideTargetMultiples, List<double> distsMM, int rep)
         {

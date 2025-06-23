@@ -936,7 +936,7 @@ namespace Multi.Cursor
 
         private void RegisterButtons(Grid group)
         {
-            this.TrialInfo($"Registering buttons in group with {group.Children.Count} children...");
+            //this.TrialInfo($"Registering buttons in group with {group.Children.Count} children...");
 
             // Iterate through all direct children of the Grid column
             foreach (UIElement childOfGroup in group.Children)

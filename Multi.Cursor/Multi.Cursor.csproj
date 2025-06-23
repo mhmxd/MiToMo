@@ -298,6 +298,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AlternatingBlockHandler.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -323,6 +324,8 @@
     <Compile Include="GestureTimesLogRow.cs" />
     <Compile Include="ColumnFactory.cs" />
     <Compile Include="GridNavigator.cs" />
+    <Compile Include="Range.cs" />
+    <Compile Include="RepeatingBlockHandler.cs" />
     <Compile Include="RowFactory.cs" />
     <Compile Include="SButton.cs" />
     <Compile Include="Sounder.cs" />
@@ -363,6 +366,7 @@
     <Compile Include="TouchSimulator.cs" />
     <Compile Include="TouchSurface.cs" />
     <Compile Include="Trial.cs" />
+    <Compile Include="IBlockHandler.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="WindowHelper.cs" />
   </ItemGroup>

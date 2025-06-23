@@ -36,12 +36,12 @@ namespace Multi.Cursor
             //    this.TrialInfo($"Button#{bid} -> {_allButtons[bid].Id}");
             //}
 
-            //this.TrialInfo($"Available buttons:");
-            //foreach (int wm in _widthButtons.Keys)
-            //{
-            //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-            //    this.TrialInfo($"WM {wm} -> {ids}");
-            //}
+            this.TrialInfo($"Available buttons:");
+            foreach (int wm in _widthButtons.Keys)
+            {
+                string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
+                this.TrialInfo($"WM {wm} -> {ids}");
+            }
 
             if (_widthButtons[widthMult].Count > 0)
             {

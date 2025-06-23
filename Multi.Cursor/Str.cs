@@ -11,9 +11,11 @@ namespace Multi.Cursor
         public static string TRIAL_SHOW = "trial_show";
         public static string FIRST_MOVE = "first_move";
 
-        public static string START1_LAST_ENTRY = "start_last_entry";
+        public static string START1_LAST_ENTRY = "start1_last_entry";
         public static string START2_LAST_ENTRY = "start2_last_entry";
-        
+        public static string START1_LAST_EXIT = "start1_last_entry";
+        public static string START2_LAST_EXIT = "start2_last_entry";
+
         public static string START_PRESS_ONE = "start1_press";
         public static string START_RELEASE_ONE = "start1_release";
 

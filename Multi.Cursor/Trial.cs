@@ -8,7 +8,7 @@ using System.Windows;
 namespace Multi.Cursor
 {
     // A trial in the experiment
-    internal class Trial
+    public class Trial
     {
         // Trial Id
         private int _id { get; set; }
@@ -36,6 +36,8 @@ namespace Multi.Cursor
         }
         public double DistancePX => Utils.MmToDips(DistanceMM);
 
+        public List<double> Distances = new List<double>(); // Distances in px
+
         //public Point StartPosition, TargetPosition; // Relative to the respective windows
 
         // Trial number (not needed for now)
@@ -57,6 +59,10 @@ namespace Multi.Cursor
 
         //=========================================================================
 
+        public Trial(int id)
+        {
+            this._id = id;
+        }
 
         /// <summary>
         /// Constructor
@@ -73,6 +79,29 @@ namespace Multi.Cursor
             //Side[] validDirections = { Side.Top, Side.Left, Side.Right };
             //_sideWindow = validDirections[Utils.Random.Next(validDirections.Length)];
             //_straightPath = true;
+        }
+
+        public static Trial CreateRepetingTrial(int id, Side side, int targetWidthU, Range distRange, int nPasses)
+        {
+            Trial trial = new Trial(id);
+            trial.TargetSide = side;
+            trial.TargetMultiple = targetWidthU;
+            for (int i = 0; i < nPasses; i++)
+            {
+                int randDist = Utils.MM2PX(distRange.GetRandomValue()); // Get a random distance in px
+                trial.Distances.Add(randDist);
+            }
+
+            return trial;
+        }
+
+        public static Trial CreateAlternatingTrial(int id, Side side, int targetWidthU, Range distRange)
+        {
+            Trial trial = new Trial(id);
+            trial.TargetSide = side;
+            trial.TargetMultiple = targetWidthU;
+            trial.DistanceMM = distRange.GetRandomValue();
+            return trial;
         }
 
         public override string ToString()

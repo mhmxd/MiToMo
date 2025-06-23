@@ -9,7 +9,7 @@ using static Multi.Cursor.Output;
 
 namespace Multi.Cursor
 {
-    internal class Experiment
+    public class Experiment
     {
         //-- Variables
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
@@ -21,26 +21,23 @@ namespace Multi.Cursor
         {
             { Str.x3, 3 },
             { Str.x6, 6 },
-            { Str.x12, 12 },
             { Str.x15, 15 },
             { Str.x18, 18 },
-            { Str.x20, 20 },
             { Str.x30, 30 }
         };
 
         private static List<double> _distances = new List<double>(); // Generated in constructor
+        private Range _shortDistRangeMM; // Short distances range (mm)
+        private Range _midDistRangeMM; // Mid distances range (mm)
+        private Range _longDistRangeMM; // Long distances range (mm)
+
+
         private static int N_BLOCKS = 3; // Number of blocks in the experiment
-        private static int N_REPS_IN_BLOCK = 1;
+        private static int REP_TRIALS_NUM_PASSES = 4; // Must be even number (trial ends on Start)
         private double _distPaddingMM; // Padding to each side of the dist thresholds
 
         public static double Min_Target_Width_MM = TARGET_WIDTHS_MM.Min();
         public static double Max_Target_Width_MM = TARGET_WIDTHS_MM.Max();
-
-        public enum BLOCK_TYPE
-        {
-            REPEATING = 0,
-            ALTERNATING = 1
-        }
 
         //-- Calculated
         public double Longest_Dist_MM;
@@ -76,9 +73,15 @@ namespace Multi.Cursor
             double distDiff = Longest_Dist_MM - Shortest_Dist_MM;
             //_distPaddingMM = 0.1 * distDiff;
             _distPaddingMM = 2.5; // 2.5 mm padding
-            double oneThird = Shortest_Dist_MM +  distDiff / 3;
+            double oneThird = Shortest_Dist_MM + distDiff / 3;
             double twoThird = Shortest_Dist_MM + distDiff * 2 / 3;
 
+            // Set the distRanges
+            _shortDistRangeMM = new Range(Shortest_Dist_MM, oneThird - _distPaddingMM); // Short distances range
+            _midDistRangeMM = new Range(oneThird + _distPaddingMM, twoThird - _distPaddingMM); // Middle distances range (will be set later)
+            _longDistRangeMM = new Range(twoThird + _distPaddingMM, Longest_Dist_MM); // Long distances range
+
+            // Find random distances in the distRanges
             double midDist = Utils.RandDouble(oneThird + _distPaddingMM, twoThird - _distPaddingMM); // Middle distance
             double shortDist = Utils.RandDouble(Shortest_Dist_MM, oneThird - _distPaddingMM); // Shortest distance
             double longDist = Utils.RandDouble(twoThird + _distPaddingMM, Longest_Dist_MM); // Longest distance
@@ -123,16 +126,29 @@ namespace Multi.Cursor
                 Active_Technique = Technique.Mouse;
             }
 
+            // Create repeting blocks
+            List<Range> distRanges = new List<Range>()
+            {
+                _shortDistRangeMM, // Short distances
+                _midDistRangeMM,   // Mid distances
+                _longDistRangeMM    // Long distances
+            };
+            List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
+
+            //Block block = Block.CreateRepBlock(Participant_Number * 100 + 1, targetMultiples, distRanges, REP_TRIALS_NUM_PASSES);
+            Block block = Block.CreateAltBlock(Participant_Number * 100 + 1, targetMultiples, distRanges);
+            _blocks.Add(block);
+
             //-- Create blocks of trials
-            int blockId = Participant_Number * 100 + 1;
-            Block block = new Block(Side.Top, blockId, BUTTON_MULTIPLES.Values.ToList(), _distances);
-            _blocks.Add(block);
-            blockId++;
-            block = new Block(Side.Left, blockId, BUTTON_MULTIPLES.Values.ToList(), _distances);
-            _blocks.Add(block);
-            blockId++;
-            block = new Block(Side.Right, blockId, BUTTON_MULTIPLES.Values.ToList(), _distances);
-            _blocks.Add(block);
+            //int blockId = Participant_Number * 100 + 1;
+            //Block block = new Block(Side.Top, blockId, BUTTON_MULTIPLES.Values.ToList(), _distances);
+            //_blocks.Add(block);
+            //blockId++;
+            //block = new Block(Side.Left, blockId, BUTTON_MULTIPLES.Values.ToList(), _distances);
+            //_blocks.Add(block);
+            //blockId++;
+            //block = new Block(Side.Right, blockId, BUTTON_MULTIPLES.Values.ToList(), _distances);
+            //_blocks.Add(block);
 
 
             //for (int i = 0; i < N_BLOCKS; i++)
