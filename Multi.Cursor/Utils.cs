@@ -364,6 +364,19 @@ namespace Multi.Cursor
             return list[randomIndex];
         }
 
+        public static bool ContainsKeys<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, params TKey[] keys)
+        {
+            for (int i = 0; i < keys.Length; i++)
+            {
+                if (!dictionary.ContainsKey(keys[i]))
+                {
+                    return false; // If any key is not found, return false
+                }
+            }
+
+            return true;
+        }
+
         public static Point FindRandPointWithDist(this Rect rect, Point src, int dist, Range degreeRange)
         {
             // Define a maximum number of attempts to prevent infinite loops

@@ -33,7 +33,9 @@ namespace Multi.Cursor
 
 
         private static int N_BLOCKS = 3; // Number of blocks in the experiment
-        private static int REP_TRIALS_NUM_PASSES = 4; // Must be even number (trial ends on Start)
+        private static int REP_TRIALS_NUM_PASSES = 3; // Must be even number (trial ends on Start)
+        public static double REP_TRIAL_MAX_DIST_STARTS_MM = 30; // Max distance between Starts in a repeating trial (mm)
+
         private double _distPaddingMM; // Padding to each side of the dist thresholds
 
         public static double Min_Target_Width_MM = TARGET_WIDTHS_MM.Min();
@@ -52,7 +54,7 @@ namespace Multi.Cursor
 
         //-- Current state
         
-        public enum RESULT { MISS, HIT, NO_START }
+        public enum Result { MISS, HIT, NO_START }
 
         //-- Information
         public Technique Active_Technique = Technique.Auxursor_Tap; // Set in the info dialog
@@ -136,43 +138,33 @@ namespace Multi.Cursor
             List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
 
             //Block block = Block.CreateRepBlock(Participant_Number * 100 + 1, targetMultiples, distRanges, REP_TRIALS_NUM_PASSES);
-            Block block = Block.CreateAltBlock(Participant_Number * 100 + 1, targetMultiples, distRanges);
-            _blocks.Add(block);
+            //Block block = Block.CreateAltBlock(Participant_Number * 100 + 1, targetMultiples, distRanges);
+            CreateAltBlocks(3, targetMultiples, distRanges);
+        }
 
-            //-- Create blocks of trials
-            //int blockId = Participant_Number * 100 + 1;
-            //Block block = new Block(Side.Top, blockId, BUTTON_MULTIPLES.Values.ToList(), _distances);
-            //_blocks.Add(block);
-            //blockId++;
-            //block = new Block(Side.Left, blockId, BUTTON_MULTIPLES.Values.ToList(), _distances);
-            //_blocks.Add(block);
-            //blockId++;
-            //block = new Block(Side.Right, blockId, BUTTON_MULTIPLES.Values.ToList(), _distances);
-            //_blocks.Add(block);
+        private void CreateAltBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
+        {
+            // Create n alternating blocks
+            for (int i = 0; i < n; i++)
+            {
+                int blockId = Participant_Number * 100 + i + 1;
+                Block block = Block.CreateAltBlock(blockId, targetMultiples, distRanges);
+                this.TrialInfo($"Created block #{block.Id} with {block.Trials.Count} trials.");
+                _blocks.Add(block);
+            }
 
+        }
 
-            //for (int i = 0; i < N_BLOCKS; i++)
-            //{
-            //    Block block = new Block(blockId, BUTTON_MULTIPLES.Values.ToList(), _distances, N_REPS_IN_BLOCK);
-            //    _blocks.Add(block);
-            //    blockId++;
-            //}
-
-
-            //-- Create blocks of trials
-            //for (int i = 0; i < N_BLOCKS; i++)
-            //{
-            //    int blockId = Participant_Number * 100 + i;
-            //    Block block = new Block(blockId, BUTTON_WIDTHS_MULTIPLES, _distances, N_REPS_IN_BLOCK);
-            //    _blocks.Add(block);
-            //}
-
-            //-- Init
-            //_activeBlockNum = 1;
-            //_activeBlockInd = 0;
-            //_activeTrialNum = 1;
-            //_activeTrialInd = 0;
-            //_activeBlock = _blocks[0];
+        public void CreateRepBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
+        {
+            // Create n repeating blocks
+            for (int i = 0; i < n; i++)
+            {
+                int blockId = Participant_Number * 100 + i + 1;
+                Block block = Block.CreateRepBlock(blockId, targetMultiples, distRanges, REP_TRIALS_NUM_PASSES);
+                this.TrialInfo($"Created block #{block.Id} with {block.Trials.Count} trials.");
+                _blocks.Add(block);
+            }
         }
 
         public int GetNumBlocks()

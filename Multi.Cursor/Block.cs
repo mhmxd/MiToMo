@@ -94,10 +94,10 @@ namespace Multi.Cursor
                             range, 
                             nPasses);
                         block._trials.Add(trial);
+
+                        trialNum++;
                     }
                 }
-
-                trialNum++;
             }
             block._trials.Shuffle();
 
@@ -127,12 +127,31 @@ namespace Multi.Cursor
                             targetMultiple,
                             range);
                         block._trials.Add(trial);
+
+                        trialNum++;
                     }
                 }
 
-                trialNum++;
+                
             }
-            block._trials.Shuffle();
+
+            // Shuffle until no consecutive trials have the same target multiple
+            // This is a simple shuffle, but it may not guarantee no consecutive trials with the same target multiple
+            bool hasConsecutive = true;
+            while (hasConsecutive)
+            {
+                block._trials.Shuffle();
+                hasConsecutive = false;
+                for (int i = 1; i < block._trials.Count; i++)
+                {
+                    if (block._trials[i].TargetMultiple == block._trials[i - 1].TargetMultiple)
+                    {
+                        hasConsecutive = true;
+                        break;
+                    }
+                }
+            }
+
             return block;
         }
 

@@ -36,20 +36,19 @@ namespace Multi.Cursor
             //    this.TrialInfo($"Button#{bid} -> {_allButtons[bid].Id}");
             //}
 
-            this.TrialInfo($"Available buttons:");
-            foreach (int wm in _widthButtons.Keys)
-            {
-                string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-                this.TrialInfo($"WM {wm} -> {ids}");
-            }
+            //this.TrialInfo($"Available buttons:");
+            //foreach (int wm in _widthButtons.Keys)
+            //{
+            //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
+            //    this.TrialInfo($"WM {wm} -> {ids}");
+            //}
 
             if (_widthButtons[widthMult].Count > 0)
             {
                 SButton button = _widthButtons[widthMult].GetRandomElement(); // Get a random button from the list for that width
                 if (button != null)
                 {
-
-                    this.TrialInfo($"Selected button id in window: {button.Id}");
+                    this.TrialInfo($"Selected button id: {button.Id}");
                     return button.Id;
 
                 }

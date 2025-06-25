@@ -650,11 +650,11 @@ namespace Multi.Cursor
             {
                 if (_timestamps.ContainsKey(Str.START_RELEASE_ONE)) // Phase 2: Aiming for Target (missing because Target is not pressed)
                 {
-                    EndTrial(RESULT.MISS);
+                    EndTrial(Result.MISS);
                 }
                 else // Phase 1: Aiming for Start (missing because here is Window!)
                 {
-                    EndTrial(RESULT.NO_START);
+                    EndTrial(Result.NO_START);
                 }
             }
         }
@@ -663,7 +663,7 @@ namespace Multi.Cursor
         {
             if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Released outside target
             {
-                EndTrial(RESULT.MISS);
+                EndTrial(Result.MISS);
             }
         }
 
@@ -692,126 +692,128 @@ namespace Multi.Cursor
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"{_timestamps.Stringify()}");
-            if (_timestamps.ContainsKey(Str.FIRST_MOVE)) // Trial is officially started (to prevent accidental click at the beginning)
-            {
-                if (_timestamps.ContainsKey(Str.TARGET_RELEASE)) // Phase 3: Window press => Outside Start
-                {
-                    EndTrial(RESULT.MISS);
-                }
-                else if (_timestamps.ContainsKey(Str.START_RELEASE_ONE)) // Phase 2: Aiming for Target
-                {
-                    if (_targetWindow.IsNavigatorOnButton(_trialTargetIds[_trial.Id]))
-                    {
-                        TargetMouseDown();
-                    }
-                    else
-                    {
-                        EndTrial(RESULT.MISS);
-                    }
-                    //if (_targetWindow.IsCursorInsideTarget()) // Auxursor in target
-                    //{
-                    //    TargetMouseDown();
-                    //}
-                    //else // Pressed outside target => MISS
-                    //{
-                    //    EndTrial(RESULT.MISS);
-                    //}
-                }
-                else // Phase 1: Aiming for Start (missing because here is Window!)
-                {
-                    //EndTrial(RESULT.NO_START);
-                    EndTrial(RESULT.NO_START);
-                }
+            _blockHandler.OnMainWindowMouseDown(sender, e);
+            //this.TrialInfo($"{_timestamps.Stringify()}");
+            //if (_timestamps.ContainsKey(Str.FIRST_MOVE)) // Trial is officially started (to prevent accidental click at the beginning)
+            //{
+            //    if (_timestamps.ContainsKey(Str.TARGET_RELEASE)) // Phase 3: Window press => Outside Start
+            //    {
+            //        EndTrial(Result.MISS);
+            //    }
+            //    else if (_timestamps.ContainsKey(Str.START_RELEASE_ONE)) // Phase 2: Aiming for Target
+            //    {
+            //        if (_targetWindow.IsNavigatorOnButton(_trialTargetIds[_trial.Id]))
+            //        {
+            //            TargetMouseDown();
+            //        }
+            //        else
+            //        {
+            //            EndTrial(Result.MISS);
+            //        }
+            //        //if (_targetWindow.IsCursorInsideTarget()) // Auxursor in target
+            //        //{
+            //        //    TargetMouseDown();
+            //        //}
+            //        //else // Pressed outside target => MISS
+            //        //{
+            //        //    EndTrial(Result.MISS);
+            //        //}
+            //    }
+            //    else // Phase 1: Aiming for Start (missing because here is Window!)
+            //    {
+            //        //EndTrial(Result.NO_START);
+            //        EndTrial(Result.NO_START);
+            //    }
 
-            }
+            //}
 
 
-            if (_experiment.IsTechRadiusor())
-            {
-                Point crossPos = _overlayWindow.GetCrossPosition();
-                Point crossScreenPos = _overlayWindow.PointToScreen(crossPos);
-                Point crossSideWinPos = _targetWindow.PointFromScreen(crossScreenPos);
+            //if (_experiment.IsTechRadiusor())
+            //{
+            //    Point crossPos = _overlayWindow.GetCrossPosition();
+            //    Point crossScreenPos = _overlayWindow.PointToScreen(crossPos);
+            //    Point crossSideWinPos = _targetWindow.PointFromScreen(crossScreenPos);
 
-                // Trial result
-                //if (_targetWindow.IsPointInsideTarget(crossSideWinPos)) // Cross in target
-                //{
-                //    TargetMouseDown();
-                //}
-                //else
-                //{
-                //    // Nothing for now
-                //}
+            //    // Trial result
+            //    //if (_targetWindow.IsPointInsideTarget(crossSideWinPos)) // Cross in target
+            //    //{
+            //    //    TargetMouseDown();
+            //    //}
+            //    //else
+            //    //{
+            //    //    // Nothing for now
+            //    //}
 
-                // Release the cursor
-                //_cursorFreezed = !UnfreezeCursor();
-            }
+            //    // Release the cursor
+            //    //_cursorFreezed = !UnfreezeCursor();
+            //}
         }
 
         private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            _timestamps.TryAdd(Str.FIRST_MOVE, _stopWatch.ElapsedMilliseconds);
-            //bool notMovedYet = !_timestamps.ContainsKey(Str.FIRST_MOVE);
-            //if (notMovedYet)
+            //_timestamps.TryAdd(Str.FIRST_MOVE, _stopWatch.ElapsedMilliseconds);
+            ////bool notMovedYet = !_timestamps.ContainsKey(Str.FIRST_MOVE);
+            ////if (notMovedYet)
+            ////{
+            ////    _timestamps[Str.FIRST_MOVE] = _stopWatch.ElapsedMilliseconds;
+            ////}
+
+            //// Freeze other cursors when the mouse moves (outside a threshold)
+            //Point currentPos = System.Windows.Input.Mouse.GetPosition(null);
+            //cursorTravelDist = Utils.Dist(mainCursorPrevPosition, currentPos);
+            ////Print($"Dist = {cursorTravelDist}");
+            //// Moved more than the threshold => Deactivate side cursors
+            //if (cursorTravelDist > Utils.MM2PX(Config.MIN_CURSOR_MOVE_MM))
             //{
-            //    _timestamps[Str.FIRST_MOVE] = _stopWatch.ElapsedMilliseconds;
+            //    //Print("Mouse moved significantly");
+            //    //mainCursorActive = true;
+            //    //_activeSideWindow = null;
+
+            //    // Freeze the side cursors
+            //    //_leftAuxPointer.Freeze();
+            //    //_rightAuxPointer.Freeze();
+            //    //_topAuxPointer.Freeze();
             //}
 
-            // Freeze other cursors when the mouse moves (outside a threshold)
-            Point currentPos = System.Windows.Input.Mouse.GetPosition(null);
-            cursorTravelDist = Utils.Dist(mainCursorPrevPosition, currentPos);
-            //Print($"Dist = {cursorTravelDist}");
-            // Moved more than the threshold => Deactivate side cursors
-            if (cursorTravelDist > Utils.MM2PX(Config.MIN_CURSOR_MOVE_MM))
-            {
-                //Print("Mouse moved significantly");
-                //mainCursorActive = true;
-                //_activeSideWindow = null;
-
-                // Freeze the side cursors
-                //_leftAuxPointer.Freeze();
-                //_rightAuxPointer.Freeze();
-                //_topAuxPointer.Freeze();
-            }
-
-            mainCursorPrevPosition = currentPos;
+            //mainCursorPrevPosition = currentPos;
 
         }
 
         private void Window_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"{_timestamps.Stringify()}");
-            if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Target is pressed => Was release outside or inside?
-            {
-                if (_targetWindow.IsNavigatorOnButton(_trialTargetIds[_trial.Id]))
-                {
-                    TargetMouseUp();
-                }
-                else
-                {
-                    EndTrial(RESULT.MISS);
-                }
-                //if (_activeAuxWindow.IsCursorInsideTarget()) // Released inside Target => Next phase
-                //{
-                //    // Add timestamp
-                //    _timestamps.TryAdd(Str.TARGET_RELEASE, _trialtWatch.ElapsedMilliseconds);
+            _blockHandler.OnMainWindowMouseUp(sender, e);
+            //this.TrialInfo($"{_timestamps.Stringify()}");
+            //if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Target is pressed => Was release outside or inside?
+            //{
+            //    if (_targetWindow.IsNavigatorOnButton(_trialTargetIds[_trial.Id]))
+            //    {
+            //        TargetMouseUp();
+            //    }
+            //    else
+            //    {
+            //        EndTrial(Result.MISS);
+            //    }
+            //    //if (_activeAuxWindow.IsCursorInsideTarget()) // Released inside Target => Next phase
+            //    //{
+            //    //    // Add timestamp
+            //    //    _timestamps.TryAdd(Str.TARGET_RELEASE, _trialtWatch.ElapsedMilliseconds);
 
-                //    // Deactive Target and auxursor
-                //    _activeAuxWindow.ColorTarget(Brushes.Red);
-                //    _activeAuxWindow.DeactivateCursor();
+            //    //    // Deactive Target and auxursor
+            //    //    _activeAuxWindow.ColorTarget(Brushes.Red);
+            //    //    _activeAuxWindow.DeactivateCursor();
 
-                //    // Activate Start again
-                //    _startRectangle.Fill = Brushes.Green;
-                //} else // Released outside Target => MISS
-                //{
-                //    EndTrial(RESULT.MISS);
-                //}
+            //    //    // Activate Start again
+            //    //    _startRectangle.Fill = Brushes.Green;
+            //    //} else // Released outside Target => MISS
+            //    //{
+            //    //    EndTrial(Result.MISS);
+            //    //}
 
-            }
-            else if (_timestamps.ContainsKey(Str.START_PRESS_ONE)) // Pressed inside, but released outside Start => MISS
-            {
-                EndTrial(RESULT.MISS);
-            }
+            //}
+            //else if (_timestamps.ContainsKey(Str.START_PRESS_ONE)) // Pressed inside, but released outside Start => MISS
+            //{
+            //    EndTrial(Result.MISS);
+            //}
         }
 
         private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -2025,20 +2027,20 @@ namespace Multi.Cursor
         //        window.Height - 2*padding - infoLabelHeight);
         //}
 
-        private void EndTrial(RESULT result)
+        private void EndTrial(Result result)
         {
             this.TrialInfo($"Trial#{_activeTrialNum} ended: {result}");
 
             // Play sounds
             switch (result)
             {
-                case RESULT.NO_START:
+                case Result.NO_START:
                     Sounder.PlayStartMiss();
                     break;
-                case RESULT.MISS:
+                case Result.MISS:
                     Sounder.PlayTargetMiss();
                     break;
-                case RESULT.HIT:
+                case Result.HIT:
                     Sounder.PlayHit();
                     break;
             }
@@ -2046,8 +2048,8 @@ namespace Multi.Cursor
             _timestamps[Str.TRIAL_END] = _stopWatch.ElapsedMilliseconds;
 
             // Decide on result
-            if (result == RESULT.HIT) { EndTrialHit(); }
-            else if (result == RESULT.MISS) { EndTrialMiss(); }
+            if (result == Result.HIT) { EndTrialHit(); }
+            else if (result == Result.MISS) { EndTrialMiss(); }
             else // Start no clicked 
             {
                 // Repeat the trial
@@ -2133,7 +2135,7 @@ namespace Multi.Cursor
             this.TrialInfo($"{_timestamps.Stringify()}");
             if (_timestamps.ContainsKey(Str.TARGET_RELEASE)) // Phase 3 (Target hit, Start click again => End trial)
             {
-                EndTrial(RESULT.HIT);
+                EndTrial(Result.HIT);
             }
             else if (_timestamps.ContainsKey(Str.START_RELEASE_ONE)) // Phase 2: Start already clicked, it's actually Aux click
             {
@@ -2144,7 +2146,7 @@ namespace Multi.Cursor
                 }
                 else
                 {
-                    EndTrial(RESULT.MISS);
+                    EndTrial(Result.MISS);
                 }
                 //if (_targetWindow.IsCursorInsideTarget()) // Inside target => Target hit
                 //{
@@ -2153,7 +2155,7 @@ namespace Multi.Cursor
                 //else // Pressed outside target => MISS
                 //{
                 //    this.TrialInfo($"Pressed outside Target!");
-                //    EndTrial(RESULT.MISS);
+                //    EndTrial(Result.MISS);
                 //}
             }
             else // Phae 1: First Start press
@@ -2182,7 +2184,7 @@ namespace Multi.Cursor
             //{
             //    if (_timestamps.ContainsKey(Str.TARGT_PRESS)) // Target hit, Start click again => End trial
             //    {
-            //        EndTrial(RESULT.HIT);
+            //        EndTrial(Result.HIT);
             //        return;
             //    }
             //}
@@ -2201,7 +2203,7 @@ namespace Multi.Cursor
                 }
                 else
                 {
-                    EndTrial(RESULT.MISS);
+                    EndTrial(Result.MISS);
                 }
                 //if (_targetWindow.IsCursorInsideTarget())
                 //{
@@ -2210,7 +2212,7 @@ namespace Multi.Cursor
                 //else // Released outside Target => MISS
                 //{
                 //    this.TrialInfo($"Released outside target");
-                //    EndTrial(RESULT.MISS);
+                //    EndTrial(Result.MISS);
                 //}
 
             }
@@ -2226,7 +2228,7 @@ namespace Multi.Cursor
             }
             else // Started from inside, but released outside Start => End on No_Start
             {
-                EndTrial(RESULT.NO_START);
+                EndTrial(Result.NO_START);
             }
 
             e.Handled = true;
@@ -2267,7 +2269,7 @@ namespace Multi.Cursor
             }
             else // Clicked Target before Start => NO_START
             {
-                EndTrial(RESULT.NO_START);
+                EndTrial(Result.NO_START);
             }
 
         }
@@ -2694,11 +2696,8 @@ namespace Multi.Cursor
 
         public void ThumbTap(Side tapLoc)
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap
-                && _timestamps.ContainsKey(Str.START_PRESS_ONE)
-                && _touchSurface.IsFingerActive(TouchSurface.Finger.Index))
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
-                //ActivateAuxWindow(Side.Left, tapLoc);
                 ActivateAuxGridNavigator(Side.Left); // Left side of the left window
             }
 
@@ -2706,10 +2705,7 @@ namespace Multi.Cursor
 
         public void MiddleTap()
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Tap
-                && _timestamps.ContainsKey(Str.START_PRESS_ONE)
-                && _touchSurface.IsFingerActive(TouchSurface.Finger.Index)
-                && _touchSurface.IsFingerActive(TouchSurface.Finger.Ring))
+            if (_experiment.Active_Technique == Technique.Auxursor_Tap)
             {
                 ActivateAuxGridNavigator(Side.Right);
             }
@@ -2836,6 +2832,18 @@ namespace Multi.Cursor
                 thisTop + VERTICAL_PADDING + startHalfW,
                 this.Width - 2 * VERTICAL_PADDING,
                 this.Height - 2 * VERTICAL_PADDING - _infoLabelHeight);
+        }
+
+        public bool IsTechniqueToMo()
+        {
+            return _experiment.Active_Technique == Experiment.Technique.Auxursor_Swipe
+                || _experiment.Active_Technique == Experiment.Technique.Auxursor_Tap;
+        }
+
+        public bool IsGridNavigatorOnButton(Side side, int buttonId)
+        {
+            AuxWindow auxWindow = GetAuxWindow(side);
+            return auxWindow.IsNavigatorOnButton(buttonId);
         }
     }
 }

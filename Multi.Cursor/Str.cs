@@ -35,8 +35,8 @@ namespace Multi.Cursor
         public static string PRACTICE = "Practice";
         public static string TEST = "Test";
 
-        public static string MAJOR_LINE = "=================================================";
-        public static string MINOR_LINE = "-------------------------------------------------";
+        public static string MAJOR_LINE = "==================================================================";
+        public static string MINOR_LINE = "------------------------------------------------------------------";
 
         public static string x3 = "3mm";
         public static string x6 = "6mm";

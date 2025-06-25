@@ -14,7 +14,8 @@ namespace Multi.Cursor
         bool FindPositionsForTrial(Trial trial);
         void BeginActiveBlock();
         void ShowActiveTrial();
-        void EndActiveTrial();
+        void EndActiveTrial(Experiment.Result result);
+        void GoToNextTrial();
 
         void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e);
         void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e);
