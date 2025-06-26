@@ -2793,7 +2793,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void FillButtonInTargetWindow(Side side, int buttonId, Brush color)
+        public void FillButtonInTargetWindow(Side side, int buttonId, Brush color) 
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             auxWindow.FillGridButton(buttonId, color);
