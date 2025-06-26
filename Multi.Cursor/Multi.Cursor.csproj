@@ -338,6 +338,7 @@
     <Compile Include="RowFactory.cs" />
     <Compile Include="SButton.cs" />
     <Compile Include="Sounder.cs" />
+    <Compile Include="Timer.cs" />
     <Compile Include="ToMoLogger.cs" />
     <Compile Include="TopWindow.xaml.cs">
       <DependentUpon>TopWindow.xaml</DependentUpon>

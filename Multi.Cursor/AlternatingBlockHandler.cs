@@ -19,7 +19,7 @@ namespace Multi.Cursor
         private Trial _activeTrial;
         private Dictionary<int, int> _trialTargetIds = new Dictionary<int, int>(); // Trial Id -> Target Button Id
         private Dictionary<int, Point> _trialStartPosition = new Dictionary<int, Point>(); // Trial Id -> Position
-        private Stopwatch _trialtWatch = new Stopwatch();
+        //private Stopwatch _trialtWatch = new Stopwatch();
         private Dictionary<string, long> _trialTimestamps = new Dictionary<string, long>(); // Trial timestamps for logging
 
         public AlternatingBlockHandler(MainWindow mainWindow, Block activeBlock)
@@ -103,18 +103,23 @@ namespace Multi.Cursor
 
         public void BeginActiveBlock()
         {
-            _trialtWatch.Restart();
+            //_trialtWatch.Restart();
             this.TrialInfo($"Target Ids: {_trialTargetIds.Stringify()}");
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
+           
             ShowActiveTrial();
         }
 
         public void ShowActiveTrial()
         {
             this.TrialInfo($"Showing Trial#{_activeTrial.Id} | Side: {_activeTrial.TargetSide} | W: {_activeTrial.TargetMultiple} | Dist: {_activeTrial.DistancePX}");
+
+            // Update the main window label
+            _mainWindow.UpdateInfoLabel(_activeTrialNum);
+
             // Log the trial show timestamp
-            _trialTimestamps[Str.TRIAL_SHOW] = _trialtWatch.ElapsedMilliseconds; 
+            _trialTimestamps[Str.TRIAL_SHOW] = Timer.GetCurrentMillis(); 
 
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.TargetSide);
@@ -132,7 +137,7 @@ namespace Multi.Cursor
         public void EndActiveTrial(Experiment.Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed.");
-            _trialTimestamps[Str.TRIAL_END] = _trialtWatch.ElapsedMilliseconds; // Log the trial end timestamp
+            _trialTimestamps[Str.TRIAL_END] = Timer.GetCurrentMillis(); // Log the trial end timestamp
 
             switch (result)
             {
@@ -169,7 +174,10 @@ namespace Multi.Cursor
             }
             else
             {
-                this.TrialInfo("End of block reached.");
+                // Show end of block window
+                BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
+                blockEndWindow.Owner = _mainWindow;
+                blockEndWindow.ShowDialog();
             }
         }
 
@@ -177,10 +185,10 @@ namespace Multi.Cursor
         {
             if (_trialTimestamps.ContainsKey(Str.TARGET_RELEASE))
             {
-                _trialTimestamps[Str.START2_LAST_ENTRY] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.START2_LAST_ENTRY] = Timer.GetCurrentMillis();
             } else
             {
-                _trialTimestamps[Str.START1_LAST_ENTRY] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.START1_LAST_ENTRY] = Timer.GetCurrentMillis();
             }
             
         }
@@ -189,11 +197,11 @@ namespace Multi.Cursor
         {
             if (_trialTimestamps.ContainsKey(Str.TARGET_RELEASE))
             {
-                _trialTimestamps[Str.START2_LAST_EXIT] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.START2_LAST_EXIT] = Timer.GetCurrentMillis();
             }
             else
             {
-                _trialTimestamps[Str.START1_LAST_EXIT] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.START1_LAST_EXIT] = Timer.GetCurrentMillis();
             }
         }
 
@@ -350,11 +358,11 @@ namespace Multi.Cursor
         {
             if (_trialTimestamps.ContainsKey(Str.TARGET_RELEASE)) // Second Start click
             {
-                _trialTimestamps[Str.START_PRESS_TWO] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.START_PRESS_TWO] = Timer.GetCurrentMillis();
             }
             else // First Start click
             {
-                _trialTimestamps[Str.START_PRESS_ONE] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.START_PRESS_ONE] = Timer.GetCurrentMillis();
             }
         }
 
@@ -363,13 +371,13 @@ namespace Multi.Cursor
             this.TrialInfo($"Trial#{_activeTrial.Id} Timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
             if (_trialTimestamps.ContainsKey(Str.START_PRESS_TWO)) // Second Start click => End trial
             {
-                _trialTimestamps[Str.START_RELEASE_TWO] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.START_RELEASE_TWO] = Timer.GetCurrentMillis();
 
                 EndActiveTrial(Experiment.Result.HIT); // End the active trial with HIT
             }
             else // First Start click
             {
-                _trialTimestamps[Str.START_RELEASE_ONE] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.START_RELEASE_ONE] = Timer.GetCurrentMillis();
 
                 // Change Target and Start colors
                 _mainWindow.FillButtonInTargetWindow(
@@ -385,7 +393,7 @@ namespace Multi.Cursor
             this.TrialInfo($"Trial#{_activeTrial.Id} Timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
             if (_trialTimestamps.ContainsKey(Str.START_RELEASE_ONE)) // First pass
             {
-                _trialTimestamps[Str.TARGET_PRESS] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.TARGET_PRESS] = Timer.GetCurrentMillis();
             }
             else // No Start click yet
             {
@@ -399,7 +407,7 @@ namespace Multi.Cursor
             this.TrialInfo($"Trial#{_activeTrial.Id} Timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
             if (_trialTimestamps.ContainsKey(Str.TARGET_PRESS)) // Target clicked after Start click
             {
-                _trialTimestamps[Str.TARGET_RELEASE] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.TARGET_RELEASE] = Timer.GetCurrentMillis();
 
                 _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id], Config.TARGET_UNAVAILABLE_COLOR);
                 _mainWindow.FillStart(Config.START_AVAILABLE_COLOR);

@@ -21,10 +21,10 @@ namespace Multi.Cursor
     {
         public Action BlockFinishedCallback { get; set; }
 
-        public BlockEndWindow(int blockNumber, Action blockFinishedCallback )
+        public BlockEndWindow(Action blockFinishedCallback )
         {
             InitializeComponent();
-            BlockFinishedText.Text = $"Block {blockNumber} is finished.";
+            BlockFinishedText.Text = $"Block is finished.\n When ready, press blue and red buttons on the keyboard.";
             BlockFinishedCallback = blockFinishedCallback;
             this.KeyDown += BlockEndWindow_KeyDown;
         }
