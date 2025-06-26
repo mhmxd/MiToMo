@@ -29,7 +29,7 @@ namespace Multi.Cursor
 
         public int SelectRandButtonByWidth(int widthMult)
         {
-            this.TrialInfo($"Selecting button by multiple: {widthMult}");
+            //this.TrialInfo($"Selecting button by multiple: {widthMult}");
             //this.TrialInfo($"All buttons: ");
             //foreach (int bid in _allButtons.Keys)
             //{
@@ -48,7 +48,7 @@ namespace Multi.Cursor
                 SButton button = _widthButtons[widthMult].GetRandomElement(); // Get a random button from the list for that width
                 if (button != null)
                 {
-                    this.TrialInfo($"Selected button id: {button.Id}");
+                    //this.TrialInfo($"Selected button id: {button.Id}");
                     return button.Id;
 
                 }
@@ -72,7 +72,7 @@ namespace Multi.Cursor
             {
                 button.Background = color; // Change the background color of the button
                 button.DisableBackgroundHover = true; // Disable hover fill for this button
-                this.TrialInfo($"Button with ID {buttonId} filled with color {color}.");
+                //this.TrialInfo($"Button with ID {buttonId} filled with color {color}.");
             }
             else
             {
@@ -90,7 +90,7 @@ namespace Multi.Cursor
                 button.AddHandler(UIElement.MouseDownEvent, targetMouseDownHandler, handledEventsToo: true);
                 button.AddHandler(UIElement.MouseUpEvent, targetMouseUpHandler, handledEventsToo: true);
 
-                this.TrialInfo($"Button with ID {buttonId} added handlers.");
+                //this.TrialInfo($"Button with ID {buttonId} added handlers.");
             }
             else
             {
@@ -104,7 +104,7 @@ namespace Multi.Cursor
             // Find the button with the specified ID
             if (_buttonPositions.TryGetValue(buttonId, out Point position))
             {
-                this.TrialInfo($"Button#{buttonId} position in window: {position}");
+                //this.TrialInfo($"Button#{buttonId} position in window: {position}");
                 return position;
             }
             else

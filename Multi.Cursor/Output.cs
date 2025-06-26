@@ -26,41 +26,9 @@ namespace Multi.Cursor
             "Multi.Cursor.Logs", "trace_log.txt"
         );
 
-        //public static ILogger TRACK_LOG;
-        //public static ILogger TRIAL_LOG;
-        //public static ILogger GESTURE_LOG;
-
-        //public static ILogger Seril;
-
         public static ILogger FILOG;
         public static ILogger CONSOUT_WITHTIME;
         public static ILogger CONSOUT_NOTIME;
-
-        static Output()
-        {
-            // Configure Serilog
-            //SeriLog.Logger = new LoggerConfiguration()
-            //    .Enrich.WithCaller()
-            //    .WriteTo.Console(outputTemplate: "[{Level:u3}] {Timestamp:HH:mm:ss.fff} " +
-            //    "{Tag} {Message:lj}{NewLine}")
-            //    .Enrich.WithProperty("Tag", "Default") // Default tag
-            //    .MinimumLevel.Information() // Ignore Debug and Verbose
-            //    .Filter.ByIncludingOnly(logEvent =>
-            //        logEvent.Properties.ContainsKey("Tag") &&
-            //        (logEvent.Properties["Tag"].ToString() == "\"{GESTURE}\"" ||
-            //        logEvent.Properties["Tag"].ToString() == "\"{TRIAL}\"")) // Only include logs with Tag = "App"
-            //    .CreateLogger();
-
-            
-
-            //Seril = SeriLog.ForContext("Tag", "{DEF}");
-
-            //TRACK_LOG = SeriLog.ForContext("Tag", "{TRACK}");
-            //TRIAL_LOG = SeriLog.ForContext("Tag", "{TRIAL}");
-            //GESTURE_LOG = SeriLog.ForContext("Tag", "{GESTURE}");
-
-            
-        }
 
         public static void Init()
         {
