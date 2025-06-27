@@ -25,6 +25,7 @@ namespace Multi.Cursor
         void OnStartMouseUp(Object sender, MouseButtonEventArgs e);
         void OnTargetMouseDown(Object sender, MouseButtonEventArgs e);
         void OnTargetMouseUp(Object sender, MouseButtonEventArgs e);
+
     }
 
 }

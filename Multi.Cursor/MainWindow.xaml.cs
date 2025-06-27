@@ -970,7 +970,11 @@ namespace Multi.Cursor
             else if (block.BlockType == Block.BLOCK_TYPE.ALTERNATING) _blockHandler = new AlternatingBlockHandler(this, block);
 
             bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
-            if (positionsFound) _blockHandler.BeginActiveBlock();
+            if (positionsFound)
+            {
+                UpdateInfoLabel(1, _activeBlockNum);
+                _blockHandler.BeginActiveBlock();
+            }
         }
 
         private bool FindStartPosition()
@@ -1375,10 +1379,41 @@ namespace Multi.Cursor
             //return new Point(-1, -1);
         }
 
-        private void GoToNextBlock()
+        public void GoToNextBlock()
         {
-            _activeBlockNum++;
-            BeginBlock();
+            if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
+            {
+                _activeBlockNum++;
+                Block block = _experiment.GetBlock(_activeBlockNum);
+
+                if (block.BlockType == Block.BLOCK_TYPE.REPEATING) _blockHandler = new RepeatingBlockHandler(this, block);
+                else if (block.BlockType == Block.BLOCK_TYPE.ALTERNATING) _blockHandler = new AlternatingBlockHandler(this, block);
+
+                bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
+                if (positionsFound) _blockHandler.BeginActiveBlock();
+            }
+            else // All blocks finished
+            {
+                MessageBoxResult dialogResult = SysWin.MessageBox.Show(
+                    "Technique finished!",
+                    "End",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information
+                );
+
+                if (dialogResult == MessageBoxResult.OK)
+                {
+                    if (Debugger.IsAttached)
+                    {
+                        Environment.Exit(0); // Prevents hanging during debugging
+                    }
+                    else
+                    {
+                        SysWin.Application.Current.Shutdown();
+                    }
+                }
+            }
+            
         }
 
         private void BeginBlock()
@@ -1619,6 +1654,13 @@ namespace Multi.Cursor
         //    _targetWindow.ShowTarget(_activeTrial.TargetPosition, targetW, Config.GRAY_A0A0A0,
         //        Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
         //}
+
+        public void UpdateInfoLabel(int trialNum, int blockNum = 0)
+        {
+            if (blockNum == 0) blockNum = _activeBlockNum;
+            infoLabel.Text = $"Trial {trialNum} | Block {blockNum} ";
+            UpdateLabel();
+        }
 
         private (Point, Point) LeftTargetPositionElements(
             int startW, int targetW,
@@ -2075,7 +2117,7 @@ namespace Multi.Cursor
                 if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
                 {
                     // Show end of block window
-                    BlockEndWindow blockEndWindow = new BlockEndWindow(_activeBlockNum, GoToNextBlock);
+                    BlockEndWindow blockEndWindow = new BlockEndWindow(GoToNextBlock);
                     blockEndWindow.Owner = this;
                     blockEndWindow.ShowDialog();
                 }
@@ -2793,7 +2835,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void FillButtonInTargetWindow(Side side, int buttonId, Brush color)
+        public void FillButtonInTargetWindow(Side side, int buttonId, Brush color) 
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             auxWindow.FillGridButton(buttonId, color);

@@ -19,7 +19,7 @@ namespace Multi.Cursor
         private Trial _activeTrial;
         private Dictionary<int, int> _trialTargetIds = new Dictionary<int, int>(); // Trial Id -> Target Button Id
         private Dictionary<int, Point> _trialStartPosition = new Dictionary<int, Point>(); // Trial Id -> Position
-        private Stopwatch _trialtWatch = new Stopwatch();
+        //private Stopwatch _trialtWatch = new Stopwatch();
         private Dictionary<string, long> _trialTimestamps = new Dictionary<string, long>(); // Trial timestamps for logging
 
         public AlternatingBlockHandler(MainWindow mainWindow, Block activeBlock)
@@ -103,18 +103,23 @@ namespace Multi.Cursor
 
         public void BeginActiveBlock()
         {
-            _trialtWatch.Restart();
+            //_trialtWatch.Restart();
             this.TrialInfo($"Target Ids: {_trialTargetIds.Stringify()}");
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
+           
             ShowActiveTrial();
         }
 
         public void ShowActiveTrial()
         {
             this.TrialInfo($"Showing Trial#{_activeTrial.Id} | Side: {_activeTrial.TargetSide} | W: {_activeTrial.TargetMultiple} | Dist: {_activeTrial.DistancePX}");
+
+            // Update the main window label
+            _mainWindow.UpdateInfoLabel(_activeTrialNum);
+
             // Log the trial show timestamp
-            _trialTimestamps[Str.TRIAL_SHOW] = _trialtWatch.ElapsedMilliseconds; 
+            _trialTimestamps[Str.TRIAL_SHOW] = Timer.GetCurrentMillis(); 
 
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.TargetSide);
@@ -132,7 +137,7 @@ namespace Multi.Cursor
         public void EndActiveTrial(Experiment.Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed.");
-            _trialTimestamps[Str.TRIAL_END] = _trialtWatch.ElapsedMilliseconds; // Log the trial end timestamp
+            _trialTimestamps[Str.TRIAL_END] = Timer.GetCurrentMillis(); // Log the trial end timestamp
 
             switch (result)
             {
@@ -169,7 +174,10 @@ namespace Multi.Cursor
             }
             else
             {
-                this.TrialInfo("End of block reached.");
+                // Show end of block window
+                BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
+                blockEndWindow.Owner = _mainWindow;
+                blockEndWindow.ShowDialog();
             }
         }
 
@@ -177,10 +185,10 @@ namespace Multi.Cursor
         {
             if (_trialTimestamps.ContainsKey(Str.TARGET_RELEASE))
             {
-                _trialTimestamps[Str.START2_LAST_ENTRY] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.START2_LAST_ENTRY] = Timer.GetCurrentMillis();
             } else
             {
-                _trialTimestamps[Str.START1_LAST_ENTRY] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.START1_LAST_ENTRY] = Timer.GetCurrentMillis();
             }
             
         }
@@ -189,28 +197,39 @@ namespace Multi.Cursor
         {
             if (_trialTimestamps.ContainsKey(Str.TARGET_RELEASE))
             {
-                _trialTimestamps[Str.START2_LAST_EXIT] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.START2_LAST_EXIT] = Timer.GetCurrentMillis();
             }
             else
             {
-                _trialTimestamps[Str.START1_LAST_EXIT] = _trialtWatch.ElapsedMilliseconds;
+                _trialTimestamps[Str.START1_LAST_EXIT] = Timer.GetCurrentMillis();
             }
         }
 
         public void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Trial#{_activeTrial.Id} Timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
-
+                if (_trialTimestamps.ContainsKey(Str.START_RELEASE_ONE)) // Target click
+                {
+                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id])) // Navigator on button
+                    {
+                        TargetPress();
+                    }
+                    else // Click outside Target
+                    {
+                        EndActiveTrial(Experiment.Result.MISS); // End the active trial with MISS
+                        return;
+                    }
+                }
+                else
+                {
+                    EndActiveTrial(Experiment.Result.MISS); // End the active trial with MISS
+                    return;
+                }
             }
             else //-- Mouse
             {
-                if (_trialTimestamps.ContainsKey(Str.TARGET_RELEASE)) // Phase 3: Window press => Outside Start
-                {
-                    EndActiveTrial(Experiment.Result.MISS);
-                }
-                else if (_trialTimestamps.ContainsKey(Str.START_RELEASE_ONE)) // Phase 2: Aiming for Target
+                if (_trialTimestamps.ContainsAny(Str.TARGET_RELEASE, Str.START_RELEASE_ONE)) // Phase 3: Window press => Outside Start
                 {
                     EndActiveTrial(Experiment.Result.MISS);
                 }
@@ -223,22 +242,24 @@ namespace Multi.Cursor
 
         public void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Trial#{_activeTrial.Id} Timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
-
+                if (_trialTimestamps.ContainsKey(Str.TARGET_PRESS)) // Target click
+                {
+                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id])) // Navigator on button
+                    {
+                        TargetRelease(); // Release the target
+                    }
+                    else // Navigator moved
+                    {
+                        EndActiveTrial(Experiment.Result.MISS);
+                        return;
+                    }
+                }
             }
             else //-- Mouse
             {
-                if (_trialTimestamps.ContainsKeys(Str.START_PRESS_TWO)) // Released outside Start
-                {
-                    EndActiveTrial(Experiment.Result.MISS);
-                }
-                else if (_trialTimestamps.ContainsKeys(Str.START_PRESS_ONE)) // Released outside Start
-                {
-                    EndActiveTrial(Experiment.Result.MISS);
-                }
-                else if (_trialTimestamps.ContainsKey(Str.TARGET_PRESS)) // Released outside Target
+                if (_trialTimestamps.ContainsAny(Str.START_PRESS_TWO, Str.START_PRESS_ONE, Str.TARGET_PRESS)) // Released outside
                 {
                     EndActiveTrial(Experiment.Result.MISS);
                 }
@@ -247,39 +268,28 @@ namespace Multi.Cursor
 
         public void OnStartMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Trial#{_activeTrial.Id} Timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
-                if (_trialTimestamps.ContainsKey(Str.TARGET_RELEASE)) // Second Start click
-                {
-                    _trialTimestamps[Str.START_PRESS_TWO] = _trialtWatch.ElapsedMilliseconds;
-                }
-                else if (_trialTimestamps.ContainsKey(Str.START_RELEASE_ONE)) // Target click
+                if (GetLatestEvent().Key == Str.START_RELEASE_ONE) // Target click
                 {
                     if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id])) // Navigator on button
                     {
-                        _trialTimestamps[Str.TARGET_PRESS] = _trialtWatch.ElapsedMilliseconds; // Second Start click
+                        TargetPress();
                     }
                     else // Click outside Target
                     {
                         EndActiveTrial(Experiment.Result.MISS); // End the active trial with MISS
+                        return;
                     }
                 }
-                else // First Start click
+                else
                 {
-                    _trialTimestamps[Str.START_PRESS_ONE] = _trialtWatch.ElapsedMilliseconds;
+                    StartPress();
                 }
             }
             else //-- Mouse
             {
-                if (_trialTimestamps.ContainsKey(Str.TARGET_RELEASE)) // Second Start click
-                {
-                    _trialTimestamps[Str.START_PRESS_TWO] = _trialtWatch.ElapsedMilliseconds;
-                }
-                else // First Start click
-                {
-                    _trialTimestamps[Str.START_PRESS_ONE] = _trialtWatch.ElapsedMilliseconds;
-                }
+                StartPress();
             }
             
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -287,53 +297,28 @@ namespace Multi.Cursor
 
         public void OnStartMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Trial#{_activeTrial.Id} Timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
-                if (_trialTimestamps.ContainsKey(Str.START_PRESS_TWO)) // Second Start click
+                if (GetLatestEvent().Key == Str.TARGET_PRESS) // Target click
                 {
-                    _trialTimestamps[Str.START_RELEASE_TWO] = _trialtWatch.ElapsedMilliseconds;
-                    EndActiveTrial(Experiment.Result.HIT); // End the active trial with HIT
+                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id])) // Navigator on button
+                    {
+                        TargetRelease(); // Release the target
+                    }
+                    else // Navigator moved
+                    {
+                        EndActiveTrial(Experiment.Result.MISS);
+                        return;
+                    }
                 }
-                else if (_trialTimestamps.ContainsKey(Str.TARGET_PRESS)) // Target click
+                else
                 {
-                    _trialTimestamps[Str.TARGET_RELEASE] = _trialtWatch.ElapsedMilliseconds; // Target released
-
-                    // Change Target and Start colors
-                    _mainWindow.FillButtonInTargetWindow(
-                        _activeTrial.TargetSide,
-                        _trialTargetIds[_activeTrial.Id],
-                        Config.TARGET_UNAVAILABLE_COLOR);
-                    _mainWindow.FillStart(Config.START_AVAILABLE_COLOR);
-                }
-                else // First Start release
-                {
-                    _trialTimestamps[Str.START_RELEASE_ONE] = _trialtWatch.ElapsedMilliseconds;
-
-                    // Change Target and Start colors
-                    _mainWindow.FillButtonInTargetWindow(
-                        _activeTrial.TargetSide, 
-                        _trialTargetIds[_activeTrial.Id], 
-                        Config.TARGET_AVAILABLE_COLOR);
-                    _mainWindow.FillStart(Config.START_UNAVAILABLE_COLOR);
+                    StartRelease();
                 }
             }
             else //-- Mouse
             {
-                if (_trialTimestamps.ContainsKey(Str.START_PRESS_TWO)) // Second Start click => End trial
-                {
-                    _trialTimestamps[Str.START_RELEASE_TWO] = _trialtWatch.ElapsedMilliseconds;
-                    _trialTimestamps[Str.TRIAL_END] = _trialtWatch.ElapsedMilliseconds;
-
-                    EndActiveTrial(Experiment.Result.HIT); // End the active trial with HIT
-                }
-                else // First Start click
-                {
-                    _trialTimestamps[Str.START_RELEASE_ONE] = _trialtWatch.ElapsedMilliseconds;
-
-                    _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id], Config.TARGET_AVAILABLE_COLOR);
-                    _mainWindow.FillStart(Config.START_UNAVAILABLE_COLOR);
-                }
+                StartRelease();
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -342,15 +327,14 @@ namespace Multi.Cursor
 
         public void OnTargetMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Trial#{_activeTrial.Id} Timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
-            if (_trialTimestamps.ContainsKey(Str.START_RELEASE_ONE)) // First pass
+            if (_mainWindow.IsTechniqueToMo()) //-- ToMo => Shouldn't click on the Target
             {
-                _trialTimestamps[Str.TARGET_PRESS] = _trialtWatch.ElapsedMilliseconds;
+                EndActiveTrial(Experiment.Result.MISS);
+                return;
             }
-            else // No Start click yet
+            else //-- Mouse
             {
-                this.TrialInfo($"Target clicked before Start click in Trial#{_activeTrial.Id}. Ignoring.");
-                return; // Ignore the target click if no Start click has been made
+                TargetPress();
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -358,11 +342,73 @@ namespace Multi.Cursor
 
         public void OnTargetMouseUp(Object sender, MouseButtonEventArgs e)
         {
+            if (_mainWindow.IsTechniqueToMo()) //-- ToMo
+            {
+                // Nothing to do here, as the target should not be clicked
+            }
+            else //-- Mouse
+            {
+                TargetRelease();
+            }
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
+        }
+
+        private void StartPress()
+        {
+            if (_trialTimestamps.ContainsKey(Str.TARGET_RELEASE)) // Second Start click
+            {
+                _trialTimestamps[Str.START_PRESS_TWO] = Timer.GetCurrentMillis();
+            }
+            else // First Start click
+            {
+                _trialTimestamps[Str.START_PRESS_ONE] = Timer.GetCurrentMillis();
+            }
+        }
+
+        private void StartRelease()
+        {
+            this.TrialInfo($"Trial#{_activeTrial.Id} Timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
+            if (_trialTimestamps.ContainsKey(Str.START_PRESS_TWO)) // Second Start click => End trial
+            {
+                _trialTimestamps[Str.START_RELEASE_TWO] = Timer.GetCurrentMillis();
+
+                EndActiveTrial(Experiment.Result.HIT); // End the active trial with HIT
+            }
+            else // First Start click
+            {
+                _trialTimestamps[Str.START_RELEASE_ONE] = Timer.GetCurrentMillis();
+
+                // Change Target and Start colors
+                _mainWindow.FillButtonInTargetWindow(
+                    _activeTrial.TargetSide,
+                    _trialTargetIds[_activeTrial.Id],
+                    Config.TARGET_AVAILABLE_COLOR);
+                _mainWindow.FillStart(Config.START_UNAVAILABLE_COLOR);
+            }
+        }
+
+        private void TargetPress()
+        {
+            this.TrialInfo($"Trial#{_activeTrial.Id} Timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
+            if (_trialTimestamps.ContainsKey(Str.START_RELEASE_ONE)) // First pass
+            {
+                _trialTimestamps[Str.TARGET_PRESS] = Timer.GetCurrentMillis();
+            }
+            else // No Start click yet
+            {
+                this.TrialInfo($"Target clicked before Start click in Trial#{_activeTrial.Id}. Ignoring.");
+                return; // Ignore the target click if no Start click has been made
+            }
+        }
+
+        private void TargetRelease()
+        {
             this.TrialInfo($"Trial#{_activeTrial.Id} Timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
             if (_trialTimestamps.ContainsKey(Str.TARGET_PRESS)) // Target clicked after Start click
             {
-                _trialTimestamps[Str.TARGET_RELEASE] = _trialtWatch.ElapsedMilliseconds;
-                
+                _trialTimestamps[Str.TARGET_RELEASE] = Timer.GetCurrentMillis();
+
                 _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id], Config.TARGET_UNAVAILABLE_COLOR);
                 _mainWindow.FillStart(Config.START_AVAILABLE_COLOR);
             }
@@ -370,9 +416,21 @@ namespace Multi.Cursor
             {
                 this.TrialInfo($"Target clicked before Start click in Trial#{_activeTrial.Id}. Ignoring.");
             }
-
-            e.Handled = true; // Mark the event as handled to prevent further processing
         }
+
+        private KeyValuePair<string, long> GetLatestEvent()
+        {
+            if (_trialTimestamps == null || !_trialTimestamps.Any())
+            {
+                throw new InvalidOperationException("The dictionary is null or empty.");
+            }
+
+            // Order the dictionary by timestamp in descending order and take the first one
+            var lastEvent = _trialTimestamps.OrderByDescending(kv => kv.Value).FirstOrDefault();
+
+            return lastEvent;
+        }
+
 
 
     }

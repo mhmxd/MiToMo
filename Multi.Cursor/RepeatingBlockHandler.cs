@@ -18,7 +18,7 @@ namespace Multi.Cursor
 
         private bool _isTargetAvailable = false; // Whether the target is available for clicking
 
-        private Stopwatch _trialtWatch = new Stopwatch();
+        //private Stopwatch _trialtWatch = new Stopwatch();
         private Dictionary<string, long> _trialTimestamps = new Dictionary<string, long>(); // Trial timestamps for logging
         private Dictionary<string, int> _trialEventCounts = new Dictionary<string, int>(); // Ex.: "start_press" -> 1, "target_release" -> 2, etc.
 
@@ -117,13 +117,13 @@ namespace Multi.Cursor
         public void BeginActiveBlock()
         {
             this.TrialInfo("------------------- Beginning block ----------------------------");
-            _trialtWatch.Restart();
+            //_trialtWatch.Restart();
             // List all the trials in the block
             foreach (Trial trial in _activeBlock.Trials)
             {
                 this.TrialInfo($"Trial#{trial.Id} | Target side: {trial.TargetSide} | Distances: {trial.Distances}");
             }
-            _trialtWatch.Restart();
+
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
             ShowActiveTrial();
@@ -135,8 +135,11 @@ namespace Multi.Cursor
             this.TrialInfo($"Showing rep Trial#{_activeTrial.Id} | Target side: {_activeTrial.TargetSide}");
             this.TrialInfo($"Start positions: {string.Join(", ", _trialStartPositions[_activeTrial.Id])}");
 
+            // Update the main window label
+            _mainWindow.UpdateInfoLabel(_activeTrialNum);
+
             // Log the trial show timestamp
-            _trialTimestamps[Str.TRIAL_SHOW] = _trialtWatch.ElapsedMilliseconds;
+            _trialTimestamps[Str.TRIAL_SHOW] = Timer.GetCurrentMillis();
 
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.TargetSide);
@@ -156,7 +159,7 @@ namespace Multi.Cursor
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
             this.TrialInfo(Str.MAJOR_LINE);
-            _trialTimestamps[Str.TRIAL_END] = _trialtWatch.ElapsedMilliseconds; // Log the trial end timestamp
+            _trialTimestamps[Str.TRIAL_END] = Timer.GetCurrentMillis(); // Log the trial end timestamp
 
             switch (result)
             {
@@ -453,7 +456,7 @@ namespace Multi.Cursor
                 _trialEventCounts[eventName] = 1;
             }
 
-            _trialTimestamps[eventName + "_" + _trialEventCounts[eventName]] = _trialtWatch.ElapsedMilliseconds;
+            _trialTimestamps[eventName + "_" + _trialEventCounts[eventName]] = Timer.GetCurrentMillis();
         }
 
 

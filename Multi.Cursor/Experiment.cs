@@ -137,8 +137,8 @@ namespace Multi.Cursor
             };
             List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
 
-            //CreateAltBlocks(3, targetMultiples, distRanges);
-            CreateRepBlocks(1, targetMultiples, distRanges);
+            CreateAltBlocks(2, targetMultiples, distRanges);
+            //CreateRepBlocks(1, targetMultiples, distRanges);
         }
 
         private void CreateAltBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
