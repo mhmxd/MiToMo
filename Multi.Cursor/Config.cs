@@ -10,7 +10,8 @@ namespace Multi.Cursor
 {
     internal class Config
     {
-        public const double PPI = 93.54; // BenQ = 89, Apple Display = 109
+        //public const double PPI = 93.54; // BenQ = 89, Apple Display = 109
+        public const double PPI = 109.68; // Apple Display (Retina 5K, 27-inch, Late 2014) = 109.68
 
         public static int LAST_TOUCH_COL = 14; // Total number of touch columns
 

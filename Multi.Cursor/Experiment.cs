@@ -34,7 +34,7 @@ namespace Multi.Cursor
 
         private static int N_BLOCKS = 3; // Number of blocks in the experiment
         private static int REP_TRIALS_NUM_PASSES = 3; // Must be even number (trial ends on Start)
-        public static double REP_TRIAL_MAX_DIST_STARTS_MM = 30; // Max distance between Starts in a repeating trial (mm)
+        public static double REP_TRIAL_MAX_DIST_STARTS_MM = 40; // Max distance between Starts in a repeating trial (mm)
 
         private double _distPaddingMM; // Padding to each side of the dist thresholds
 
