@@ -45,6 +45,12 @@ namespace Multi.Cursor
         //private static Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
         //private SButton _targetButton; // Currently selected button (if any)
 
+        // Boundary of the grid (encompassing all buttons)
+        //double _gridMinX = double.MaxValue;
+        //double _gridMinY = double.MaxValue;
+        //double _gridMaxX = double.MinValue;
+        //double _gridMaxY = double.MinValue;
+
         public TopWindow()
         {
             InitializeComponent();
@@ -111,13 +117,22 @@ namespace Multi.Cursor
             {
                 RegisterButtons(column);
             }
+
+            int middleId = FindMiddleButtonId();
+            if (middleId != -1)
+            {
+                _lastHighlightedButtonId = middleId; // Set the last highlighted button to the middle button
+            }
+            else
+            {
+                this.TrialInfo("No middle button found in the grid.");
+            }
         }
 
         private void RegisterButtons(Grid column)
         {
             this.TrialInfo($"Registering buttons in column with {column.Children.Count} children...");
 
-            
             // Iterate through all direct children of the Grid column
             foreach (UIElement childOfColumn in column.Children)
             {
@@ -140,18 +155,66 @@ namespace Multi.Cursor
                             Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
                             _buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
                             //this.TrialInfo($"Button Position: {positionInWindow}");
+
+                            Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
+                            _buttonRects.Add(button.Id, buttonRect); // Store the rect for later
+
+                            // Update min/max X and Y for grid bounds
+                            _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
+                            _gridMinY = Math.Min(_gridMinY, buttonRect.Top);
+                            _gridMaxX = Math.Max(_gridMaxX, buttonRect.Right);
+                            _gridMaxY = Math.Max(_gridMaxY, buttonRect.Bottom);
+
+
                             if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
                             {
                                 //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
                                 _topLeftButtonPosition = positionInWindow; // Update the top-left button position
-                                _lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+                                //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
                             }
                         }
                     }
                 }
             }
 
+            
+
         }
+
+        //private int FindMiddleButtonId()
+        //{
+        //    // Calculate the center of the overall button grid
+        //    double gridCenterX = (_gridMinX + _gridMaxX) / 2;
+        //    double gridCenterY = (_gridMinY + _gridMaxY) / 2;
+        //    Point gridCenterPoint = new Point(gridCenterX, gridCenterY);
+
+        //    // Distance to the center point
+        //    double centerDistance = double.MaxValue;
+        //    int closestButtonId = -1;
+
+        //    foreach (KeyValuePair<int, Rect> idRect in _buttonRects)
+        //    {
+        //        // Check which button contains the grid center point
+        //        if (idRect.Value.Contains(gridCenterPoint))
+        //        {
+        //            // If we find a button that contains the center point, return its ID
+        //            this.TrialInfo($"Middle button found at ID#{idRect.Key} with position {gridCenterPoint}");
+        //            return idRect.Key;
+        //        }
+        //        else // if button doesn't containt the center point, calculate the distance
+        //        {
+        //            double dist = Utils.Dist(gridCenterPoint, new Point(idRect.Value.X + idRect.Value.Width / 2, idRect.Value.Y + idRect.Value.Height / 2));
+        //            if (dist < centerDistance)
+        //            {
+        //                centerDistance = dist;
+        //                closestButtonId = idRect.Key; // Update the last highlighted button to the closest one
+        //            }
+        //        }
+        //    }
+
+        //    return closestButtonId;
+
+        //}
 
         /// <summary>
         /// Calculates and stores the spatial neighbor links for every button

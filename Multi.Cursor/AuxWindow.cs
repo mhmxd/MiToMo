@@ -19,13 +19,55 @@ namespace Multi.Cursor
         protected Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
         protected Dictionary<int, SButton> _allButtons = new Dictionary<int, SButton>(); // List of all buttons in the grid (id as key)
         protected Dictionary<int, Point> _buttonPositions = new Dictionary<int, Point>(); // Dictionary to hold button positions by their ID
+        protected Dictionary<int, Rect> _buttonRects = new Dictionary<int, Rect>(); // Dictionary to hold button rectangles by their ID
         protected SButton _targetButton; // Currently selected button (if any)
+
+        // Boundary of the grid (encompassing all buttons)
+        protected double _gridMinX = double.MaxValue;
+        protected double _gridMinY = double.MaxValue;
+        protected double _gridMaxX = double.MinValue;
+        protected double _gridMaxY = double.MinValue;
 
         protected GridNavigator _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
         protected int _lastHighlightedButtonId = -1; // ID of the currently highlighted button
         protected Point _topLeftButtonPosition = new Point(10000, 10000); // Initialize to a large value to find the top-left button
 
         public abstract void GenerateGrid(params Func<Grid>[] columnCreators);
+
+        protected int FindMiddleButtonId()
+        {
+            // Calculate the center of the overall button grid
+            double gridCenterX = (_gridMinX + _gridMaxX) / 2;
+            double gridCenterY = (_gridMinY + _gridMaxY) / 2;
+            Point gridCenterPoint = new Point(gridCenterX, gridCenterY);
+
+            // Distance to the center point
+            double centerDistance = double.MaxValue;
+            int closestButtonId = -1;
+
+            foreach (KeyValuePair<int, Rect> idRect in _buttonRects)
+            {
+                // Check which button contains the grid center point
+                if (idRect.Value.Contains(gridCenterPoint))
+                {
+                    // If we find a button that contains the center point, return its ID
+                    this.TrialInfo($"Middle button found at ID#{idRect.Key} with position {gridCenterPoint}");
+                    return idRect.Key;
+                }
+                else // if button doesn't containt the center point, calculate the distance
+                {
+                    double dist = Utils.Dist(gridCenterPoint, new Point(idRect.Value.X + idRect.Value.Width / 2, idRect.Value.Y + idRect.Value.Height / 2));
+                    if (dist < centerDistance)
+                    {
+                        centerDistance = dist;
+                        closestButtonId = idRect.Key; // Update the last highlighted button to the closest one
+                    }
+                }
+            }
+
+            return closestButtonId;
+
+        }
 
         public int SelectRandButtonByWidth(int widthMult)
         {
@@ -134,6 +176,7 @@ namespace Multi.Cursor
 
         public void ActivateGridNavigator()
         {
+            this.TrialInfo($"Last highlight = {_lastHighlightedButtonId}");
             ActivateGridNavigator(_lastHighlightedButtonId); // Activate the grid navigator with the last highlighted button ID
         }
 
@@ -156,7 +199,8 @@ namespace Multi.Cursor
             _gridNavigator.Deactivate(); // Deactivate the grid navigator
             if (_lastHighlightedButtonId != -1 && _allButtons.TryGetValue(_lastHighlightedButtonId, out SButton button))
             {
-                button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of the last highlighted button
+                button.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
+                //button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of the last highlighted button
             }
         }
 
@@ -165,18 +209,36 @@ namespace Multi.Cursor
             _gridNavigator.Stop();
         }
 
-        public void HighlightButton(int buttonId)
+        private void ResetHighlights()
         {
-            // Reset the border of all buttons
+            // Reset the border color of all buttons
             foreach (var btn in _allButtons.Values)
             {
-                btn.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of all buttons
+                btn.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR;
+                if (btn.Background != Config.TARGET_AVAILABLE_COLOR && btn.Background != Config.TARGET_UNAVAILABLE_COLOR)
+                {
+                    btn.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
+                }
             }
+        }
+
+        public void HighlightButton(int buttonId)
+        {
+            // Reset the border aof all buttons
+            //foreach (var btn in _allButtons.Values)
+            //{
+            //    btn.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of all buttons
+            //}
 
             // Find the button with the specified ID
             if (_allButtons.TryGetValue(buttonId, out SButton button))
             {
                 button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
+                if (button.Background != Config.TARGET_AVAILABLE_COLOR && button.Background != Config.TARGET_UNAVAILABLE_COLOR)
+                {
+                    button.Background = Config.BUTTON_HOVER_FILL_COLOR;
+                }
+                
                 _lastHighlightedButtonId = buttonId; // Store the ID of the highlighted button
             }
             else
@@ -237,6 +299,7 @@ namespace Multi.Cursor
             if (highlightedButton.Id != _lastHighlightedButtonId)
             {
                 _lastHighlightedButtonId = highlightedButton.Id; // Update the last highlighted button ID
+                ResetHighlights(); // Reset highlights for all buttons
                 HighlightButton(highlightedButton.Id); // Highlight the new button
             }
         }

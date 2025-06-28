@@ -932,6 +932,16 @@ namespace Multi.Cursor
                 RegisterButtons(group); // Register buttons for each group
             }
             this.TrialInfo($"Total buttons registered: {_allButtons.Count}");
+
+            int middleId = FindMiddleButtonId();
+            if (middleId != -1)
+            {
+                _lastHighlightedButtonId = middleId; // Set the last highlighted button to the middle button
+            }
+            else
+            {
+                this.TrialInfo("No middle button found in the grid.");
+            }
         }
 
         private void RegisterButtons(Grid group)
@@ -969,7 +979,24 @@ namespace Multi.Cursor
                             {
                                 //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
                                 _topLeftButtonPosition = positionInWindow; // Update the top-left button position
-                                _lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+                                //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+                            }
+
+                            Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
+                            _buttonRects.Add(button.Id, buttonRect); // Store the rect for later
+
+                            // Update min/max X and Y for grid bounds
+                            _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
+                            _gridMinY = Math.Min(_gridMinY, buttonRect.Top);
+                            _gridMaxX = Math.Max(_gridMaxX, buttonRect.Right);
+                            _gridMaxY = Math.Max(_gridMaxY, buttonRect.Bottom);
+
+
+                            if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
+                            {
+                                //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
+                                _topLeftButtonPosition = positionInWindow; // Update the top-left button position
+                                //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
                             }
 
                             //this.TrialInfo($"Registered button ID#{button.Id}, Wx{button.WidthMultiple} | Position: {positionInWindow}");
