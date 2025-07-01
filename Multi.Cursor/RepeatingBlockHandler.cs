@@ -51,7 +51,7 @@ namespace Multi.Cursor
 
             // Find a random target id for the active trial
             //int targetId = FindRandomTargetIdForTrial(trial);
-            int targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, trial.TargetMultiple);
+            int targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, trial.TargetMultiple, trial.DistancePX);
             if (targetId != -1)
             {
                 _trialTargetIds[trial.Id] = targetId;
@@ -207,7 +207,7 @@ namespace Multi.Cursor
             int targetId = -1;
             do
             {
-                targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, targetMultiple);
+                targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, targetMultiple, trial.DistancePX);
             } while (_trialTargetIds.ContainsValue(targetId));
 
             return targetId;

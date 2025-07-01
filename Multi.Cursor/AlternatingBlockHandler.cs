@@ -46,12 +46,12 @@ namespace Multi.Cursor
         {
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             int startHalfW = startW / 2;
-            this.TrialInfo($"Finding positions for Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
-                $"TargetMult = {trial.TargetMultiple}]");
+            this.TrialInfo($"Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
+                $"TargetMult = {trial.TargetMultiple}, Dist (mm) = {trial.DistanceMM}]");
 
             // Find a random target id for the active trial
             //int targetId = FindRandomTargetIdForTrial(trial); // Was checking for unique target ids, which couldn't work
-            int targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, trial.TargetMultiple);
+            int targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, trial.TargetMultiple, trial.DistancePX);
             if (targetId != -1)
             {
                 _trialTargetIds[trial.Id] = targetId;
@@ -87,19 +87,19 @@ namespace Multi.Cursor
             return true;
         }
 
-        private int FindRandomTargetIdForTrial(Trial trial)
-        {
-            // Based on the width multiple, find a random target button id that haven't been used before
-            int targetMultiple = trial.TargetMultiple;
-            int targetId = -1;
-            do
-            {
-                targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, targetMultiple);
-            } while (_trialTargetIds.ContainsValue(targetId));
+        //private int FindRandomTargetIdForTrial(Trial trial)
+        //{
+        //    // Based on the width multiple, find a random target button id that haven't been used before
+        //    int targetMultiple = trial.TargetMultiple;
+        //    int targetId = -1;
+        //    do
+        //    {
+        //        targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, targetMultiple, trial.DistancePX);
+        //    } while (_trialTargetIds.ContainsValue(targetId));
 
-            return targetId;
+        //    return targetId;
 
-        }
+        //}
 
         public void BeginActiveBlock()
         {
@@ -113,7 +113,7 @@ namespace Multi.Cursor
 
         public void ShowActiveTrial()
         {
-            this.TrialInfo($"Showing Trial#{_activeTrial.Id} | Side: {_activeTrial.TargetSide} | W: {_activeTrial.TargetMultiple} | Dist: {_activeTrial.DistancePX}");
+            this.TrialInfo($"Showing Trial#{_activeTrial.Id} | Side: {_activeTrial.TargetSide} | W: {_activeTrial.TargetMultiple} | Dist: {_activeTrial.DistanceMM:F2}mm");
 
             // Update the main window label
             _mainWindow.UpdateInfoLabel(_activeTrialNum);

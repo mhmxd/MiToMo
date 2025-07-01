@@ -10,7 +10,11 @@ namespace Multi.Cursor
 {
     internal class Config
     {
-        public const double PPI = 93.54; // BenQ = 89, Apple Display = 109
+        public const double PPI = 93.54; // BenQ = 89 (changed to 93.54), Apple Display = 109
+
+        // Used as basis (in Experiment)
+        public const double EXCEL_CELL_W = 18;
+        public const double EXCEL_CELL_H = 6;
 
         public static int LAST_TOUCH_COL = 14; // Total number of touch columns
 
@@ -66,14 +70,15 @@ namespace Multi.Cursor
 
         // -------------- Cursors
         public static double MAPPING_GAIN = 1; // Was 50 // Let's not use it (KvF will take care of it)
-        // --------------------------------------
+                                               // --------------------------------------
 
         // --------------- Sizes and Margins
         //public static int TOP_WINDOW_HEIGTH_MM = 28; // ~100px
         //public static int SIDE_WINDOW_WIDTH_MM = 68; // ~240
-        
-        public static double VERTICAL_PADDING_MM = 4; // 12px
-        public static double HORIZONTAL_PADDING_MM = 4; // 4px (for the side window)
+
+        //public static double VERTICAL_PADDING_MM = 4; // 12px
+        //public static double HORIZONTAL_PADDING_MM = 4; // 4px (for the side window)
+        public static double WINDOW_PADDING_MM = 4; 
 
         // --------------------------------------
 
@@ -145,8 +150,9 @@ namespace Multi.Cursor
         public static int CELL_HEIGHT_THRESHOLD = 50; // px
         // -----------------------------------------
 
-        public static double SIDE_WINDOW_WIDTH_MM = 2 * Experiment.BUTTON_MULTIPLES.Values.Max() + 2 * HORIZONTAL_PADDING_MM + GRID_INTERGROUP_GUTTER_MM;
-        public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GRID_WITHINGROUP_GUTTER_MM + 2 * VERTICAL_PADDING_MM;
+        public static double SIDE_COL_MAX_WIDTH_MM = 2 * Experiment.BUTTON_MULTIPLES[Str.x15] + GRID_WITHINGROUP_GUTTER_MM;
+        public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * WINDOW_PADDING_MM + GRID_INTERGROUP_GUTTER_MM;
+        public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GRID_WITHINGROUP_GUTTER_MM + 2 * WINDOW_PADDING_MM;
 
         public static void SetMode(int speed)
         {

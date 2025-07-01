@@ -15,11 +15,27 @@ namespace Multi.Cursor
 {
     public abstract class AuxWindow : Window
     {
+        // Class to store all the info regarding each button (positions, etc.)
+        protected class ButtonInfo
+        {
+            public ButtonInfo(SButton button) { 
+                Button = button;
+                Position = new Point(0, 0);
+                Rect = new Rect();
+                DistToStart = new Range(0, 0);
+            }
+            public SButton Button {  get; set; }
+            public Point Position { get; set; }
+            public Rect Rect { get; set; }
+            public Range DistToStart { get; set; }
+        }
+
         protected List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
         protected Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
-        protected Dictionary<int, SButton> _allButtons = new Dictionary<int, SButton>(); // List of all buttons in the grid (id as key)
-        protected Dictionary<int, Point> _buttonPositions = new Dictionary<int, Point>(); // Dictionary to hold button positions by their ID
-        protected Dictionary<int, Rect> _buttonRects = new Dictionary<int, Rect>(); // Dictionary to hold button rectangles by their ID
+        //protected Dictionary<int, SButton> _allButtons = new Dictionary<int, SButton>(); // List of all buttons in the grid (id as key)
+        //protected Dictionary<int, Point> _buttonPositions = new Dictionary<int, Point>(); // Dictionary to hold button positions by their ID (rel. to window)
+        //protected Dictionary<int, Rect> _buttonRects = new Dictionary<int, Rect>(); // Dictionary to hold button rectangles by their ID
+        protected Dictionary<int, ButtonInfo> _buttonInfos = new Dictionary<int, ButtonInfo>();
         protected SButton _targetButton; // Currently selected button (if any)
 
         // Boundary of the grid (encompassing all buttons)
@@ -32,7 +48,9 @@ namespace Multi.Cursor
         protected int _lastHighlightedButtonId = -1; // ID of the currently highlighted button
         protected Point _topLeftButtonPosition = new Point(10000, 10000); // Initialize to a large value to find the top-left button
 
-        public abstract void GenerateGrid(params Func<Grid>[] columnCreators);
+        protected Rect _startConstraintsRectAbsolute = new Rect();
+
+        public abstract void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators);
 
         protected int FindMiddleButtonId()
         {
@@ -40,27 +58,30 @@ namespace Multi.Cursor
             double gridCenterX = (_gridMinX + _gridMaxX) / 2;
             double gridCenterY = (_gridMinY + _gridMaxY) / 2;
             Point gridCenterPoint = new Point(gridCenterX, gridCenterY);
-
+            this.TrialInfo($"Central Point: {gridCenterPoint}");
             // Distance to the center point
             double centerDistance = double.MaxValue;
             int closestButtonId = -1;
 
-            foreach (KeyValuePair<int, Rect> idRect in _buttonRects)
+            foreach (int buttonId in _buttonInfos.Keys)
             {
+                Rect buttonRect = _buttonInfos[buttonId].Rect;
+
                 // Check which button contains the grid center point
-                if (idRect.Value.Contains(gridCenterPoint))
+                if (buttonRect.Contains(gridCenterPoint))
                 {
                     // If we find a button that contains the center point, return its ID
-                    this.TrialInfo($"Middle button found at ID#{idRect.Key} with position {gridCenterPoint}");
-                    return idRect.Key;
+                    this.TrialInfo($"Middle button found at ID#{buttonId} with position {gridCenterPoint}");
+                    return buttonId;
                 }
                 else // if button doesn't containt the center point, calculate the distance
                 {
-                    double dist = Utils.Dist(gridCenterPoint, new Point(idRect.Value.X + idRect.Value.Width / 2, idRect.Value.Y + idRect.Value.Height / 2));
+                    double dist = Utils.Dist(gridCenterPoint, new Point(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 2));
+
                     if (dist < centerDistance)
                     {
                         centerDistance = dist;
-                        closestButtonId = idRect.Key; // Update the last highlighted button to the closest one
+                        closestButtonId = buttonId; // Update the last highlighted button to the closest one
                     }
                 }
             }
@@ -69,7 +90,7 @@ namespace Multi.Cursor
 
         }
 
-        public int SelectRandButtonByWidth(int widthMult)
+        public int SelectRandButtonByConstraints(int widthMult, int dist)
         {
             //this.TrialInfo($"Selecting button by multiple: {widthMult}");
             //this.TrialInfo($"All buttons: ");
@@ -87,33 +108,52 @@ namespace Multi.Cursor
 
             if (_widthButtons[widthMult].Count > 0)
             {
-                SButton button = _widthButtons[widthMult].GetRandomElement(); // Get a random button from the list for that width
-                if (button != null)
-                {
-                    //this.TrialInfo($"Selected button id: {button.Id}");
-                    return button.Id;
 
-                }
-                else
+                // Find the buttons with dist laying inside their dist to start range
+                List<int> possibleButtons = new List<int>();
+                foreach (int buttonId in _buttonInfos.Keys)
                 {
-                    this.TrialInfo($"No buttons found for width multiple {widthMult}.");
-                    return -1; // Return an invalid point if no buttons are found
+                    if (_buttonInfos[buttonId].DistToStart.ContainsExc(dist))
+                    {
+                        possibleButtons.Add(buttonId);
+                    }
                 }
+
+                // If we have options, return a random from them
+                if (possibleButtons.Count > 0)
+                {
+                    return possibleButtons.GetRandomElement();
+                }
+
+                
+                //if (button != null)
+                //{
+                //    //this.TrialInfo($"Selected button id: {button.Id}");
+                //    return button.Id;
+                //}
+                //else
+                //{
+                //    this.TrialInfo($"No buttons found for width multiple {widthMult}.");
+                //    return -1; // Return an invalid point if no buttons are found
+                //}
             } else
             {
                 this.TrialInfo($"No buttons found for width multiple {widthMult}.");
                 return -1; // Return an invalid point if no buttons are found
             }
-            
+
+            this.TrialInfo($"No buttons found for width multiple {widthMult}.");
+            return -1; // Return an invalid point if no buttons are found
+
         }
 
         public virtual void FillGridButton(int buttonId, Brush color)
         {
             // Find the button with the specified ID
-            if (_allButtons.TryGetValue(buttonId, out SButton button))
+            if (_buttonInfos.ContainsKey(buttonId))
             {
-                button.Background = color; // Change the background color of the button
-                button.DisableBackgroundHover = true; // Disable hover fill for this button
+                _buttonInfos[buttonId].Button.Background = color; // Change the background color of the button
+                _buttonInfos[buttonId].Button.DisableBackgroundHover = true; // Disable hover fill for this button
                 //this.TrialInfo($"Button with ID {buttonId} filled with color {color}.");
             }
             else
@@ -127,10 +167,10 @@ namespace Multi.Cursor
             MouseButtonEventHandler targetMouseDownHandler, MouseButtonEventHandler targetMouseUpHandler)
         {
             // Find the button with the specified ID
-            if (_allButtons.TryGetValue(buttonId, out SButton button))
+            if (_buttonInfos.ContainsKey(buttonId))
             {
-                button.AddHandler(UIElement.MouseDownEvent, targetMouseDownHandler, handledEventsToo: true);
-                button.AddHandler(UIElement.MouseUpEvent, targetMouseUpHandler, handledEventsToo: true);
+                _buttonInfos[buttonId].Button.AddHandler(UIElement.MouseDownEvent, targetMouseDownHandler, handledEventsToo: true);
+                _buttonInfos[buttonId].Button.AddHandler(UIElement.MouseUpEvent, targetMouseUpHandler, handledEventsToo: true);
 
                 //this.TrialInfo($"Button with ID {buttonId} added handlers.");
             }
@@ -140,14 +180,16 @@ namespace Multi.Cursor
             }
         }
 
-        public virtual Point GetGridButtonPosition(int buttonId)
+        public virtual Point GetGridButtonCenter(int buttonId)
         {
             //this.TrialInfo($"Button positions: {_buttonPositions.Stringify<int, Point>()}");
             // Find the button with the specified ID
-            if (_buttonPositions.TryGetValue(buttonId, out Point position))
+            if (_buttonInfos.ContainsKey(buttonId))
             {
                 //this.TrialInfo($"Button#{buttonId} position in window: {position}");
-                return position;
+                double buttonHalfWidth = _buttonInfos[buttonId].Button.ActualWidth / 2;
+                double buttonHalfHeight = _buttonInfos[buttonId].Button.ActualHeight / 2;
+                return _buttonInfos[buttonId].Position.OffsetPosition(buttonHalfWidth, buttonHalfHeight);
             }
             else
             {
@@ -158,9 +200,9 @@ namespace Multi.Cursor
 
         public virtual void ResetGridSelection()
         {
-            foreach (var button in _allButtons.Values)
+            foreach (int buttonId in _buttonInfos.Keys)
             {
-                button.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
+                _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
             }
         }
 
@@ -183,7 +225,7 @@ namespace Multi.Cursor
         public void ActivateGridNavigator(int buttonId)
         {
             // Find the button with the specified ID
-            if (_allButtons.TryGetValue(buttonId, out SButton button))
+            if (_buttonInfos.ContainsKey(buttonId))
             {
                 _gridNavigator.Activate(); // Activate the grid navigator
                 HighlightButton(buttonId); // Highlight the button
@@ -197,9 +239,9 @@ namespace Multi.Cursor
         public void DeactivateGridNavigator()
         {
             _gridNavigator.Deactivate(); // Deactivate the grid navigator
-            if (_lastHighlightedButtonId != -1 && _allButtons.TryGetValue(_lastHighlightedButtonId, out SButton button))
+            if (_lastHighlightedButtonId != -1 && _buttonInfos.ContainsKey(_lastHighlightedButtonId))
             {
-                button.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
+                _buttonInfos[_lastHighlightedButtonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
                 //button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of the last highlighted button
             }
         }
@@ -212,12 +254,13 @@ namespace Multi.Cursor
         private void ResetHighlights()
         {
             // Reset the border color of all buttons
-            foreach (var btn in _allButtons.Values)
+            foreach (int buttonId in _buttonInfos.Keys)
             {
-                btn.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR;
-                if (btn.Background != Config.TARGET_AVAILABLE_COLOR && btn.Background != Config.TARGET_UNAVAILABLE_COLOR)
+                _buttonInfos[buttonId].Button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR;
+                if (_buttonInfos[buttonId].Button.Background != Config.TARGET_AVAILABLE_COLOR 
+                    && _buttonInfos[buttonId].Button.Background != Config.TARGET_UNAVAILABLE_COLOR)
                 {
-                    btn.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
+                    _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
                 }
             }
         }
@@ -231,12 +274,13 @@ namespace Multi.Cursor
             //}
 
             // Find the button with the specified ID
-            if (_allButtons.TryGetValue(buttonId, out SButton button))
+            if (_buttonInfos.ContainsKey(buttonId))
             {
-                button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
-                if (button.Background != Config.TARGET_AVAILABLE_COLOR && button.Background != Config.TARGET_UNAVAILABLE_COLOR)
+                _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
+                if (_buttonInfos[buttonId].Button.Background != Config.TARGET_AVAILABLE_COLOR && 
+                    _buttonInfos[buttonId].Button.Background != Config.TARGET_UNAVAILABLE_COLOR)
                 {
-                    button.Background = Config.BUTTON_HOVER_FILL_COLOR;
+                    _buttonInfos[buttonId].Button.Background = Config.BUTTON_HOVER_FILL_COLOR;
                 }
                 
                 _lastHighlightedButtonId = buttonId; // Store the ID of the highlighted button
@@ -257,7 +301,7 @@ namespace Multi.Cursor
                 return; // No movement needed
             }
 
-            SButton highlightedButton = _allButtons[_lastHighlightedButtonId];
+            SButton highlightedButton = _buttonInfos[_lastHighlightedButtonId].Button;
 
             // --- Process Horizontal Movement ---
             if (dGridX > 0) // Move Right
@@ -265,7 +309,7 @@ namespace Multi.Cursor
                 for (int i = 0; i < dGridX; i++)
                 {
                     if (highlightedButton.RightId == -1) break; // Hit the edge
-                    highlightedButton = _allButtons[highlightedButton.RightId];
+                    highlightedButton = _buttonInfos[highlightedButton.RightId].Button;
                 }
             }
             else // Move Left
@@ -273,7 +317,7 @@ namespace Multi.Cursor
                 for (int i = 0; i < -dGridX; i++)
                 {
                     if (highlightedButton.LeftId == -1) break; // Hit the edge
-                    highlightedButton = _allButtons[highlightedButton.LeftId];
+                    highlightedButton = _buttonInfos[highlightedButton.LeftId].Button;
                 }
             }
 
@@ -283,7 +327,7 @@ namespace Multi.Cursor
                 for (int i = 0; i < dGridY; i++)
                 {
                     if (highlightedButton.BottomId == -1) break; // Hit the edge
-                    highlightedButton = _allButtons[highlightedButton.BottomId];
+                    highlightedButton = _buttonInfos[highlightedButton.BottomId].Button;
                 }
             }
             else // Move Up
@@ -291,7 +335,7 @@ namespace Multi.Cursor
                 for (int i = 0; i < -dGridY; i++)
                 {
                     if (highlightedButton.TopId == -1) break; // Hit the edge
-                    highlightedButton = _allButtons[highlightedButton.TopId];
+                    highlightedButton = _buttonInfos[highlightedButton.TopId].Button;
                 }
             }
 
@@ -313,35 +357,32 @@ namespace Multi.Cursor
         public SButton GetNeighbor(SButton currentButton, Side direction)
         {
             // 1. Validate input and get the position of the current button.
-            if (currentButton == null || !_buttonPositions.TryGetValue(currentButton.Id, out Point currentPosition))
+            if (currentButton == null || !_buttonInfos.ContainsKey(currentButton.Id))
             {
                 // Cannot navigate from a button that isn't registered.
                 return null;
             }
 
+            //if (currentButton == null || !_buttonPositions.TryGetValue(currentButton.Id, out Point currentPosition))
+            //{
+            //    // Cannot navigate from a button that isn't registered.
+            //    return null;
+            //}
+
             SButton bestCandidate = null;
             double minDistanceSquared = double.PositiveInfinity;
 
             // 2. Iterate through all other buttons to find the best candidate.
-            foreach (var candidateButton in _allButtons.Values)
+            foreach (int buttonId in _buttonInfos.Keys)
             {
                 // Don't compare a button to itself.
-                if (candidateButton.Id == currentButton.Id)
-                {
-                    continue;
-                }
-
-                if (!_buttonPositions.TryGetValue(candidateButton.Id, out Point candidatePosition))
-                {
-                    // Skip any candidate button that doesn't have a registered position.
-                    continue;
-                }
+                if (buttonId == currentButton.Id) continue;
 
                 // 3. Check if the candidate is in the correct direction.
                 // We use a simple heuristic: to be considered "to the right", a button's horizontal distance
                 // should be greater than its vertical distance. This prevents jumping to a different row.
-                double deltaX = candidatePosition.X - currentPosition.X;
-                double deltaY = candidatePosition.Y - currentPosition.Y;
+                double deltaX = _buttonInfos[buttonId].Position.X - _buttonInfos[currentButton.Id].Position.X;
+                double deltaY = _buttonInfos[buttonId].Position.Y - _buttonInfos[currentButton.Id].Position.Y;
 
                 bool isPotentialCandidate = false;
                 switch (direction)
@@ -367,20 +408,78 @@ namespace Multi.Cursor
                         break;
                 }
 
-
                 if (isPotentialCandidate)
                 {
                     // 4. If it's a valid candidate, check if it's the closest one yet.
                     // We use the square of the distance to avoid costly square root operations.
-                    double distanceSquared = (candidatePosition - currentPosition).LengthSquared;
+                    double distanceSquared = (_buttonInfos[buttonId].Position - _buttonInfos[currentButton.Id].Position).LengthSquared;
 
                     if (distanceSquared < minDistanceSquared)
                     {
                         minDistanceSquared = distanceSquared;
-                        bestCandidate = candidateButton;
+                        bestCandidate = _buttonInfos[buttonId].Button;
                     }
                 }
             }
+
+            //foreach (var candidateButton in _allButtons.Values)
+            //{
+            //    // Don't compare a button to itself.
+            //    if (candidateButton.Id == currentButton.Id)
+            //    {
+            //        continue;
+            //    }
+
+            //    if (!_buttonPositions.TryGetValue(candidateButton.Id, out Point candidatePosition))
+            //    {
+            //        // Skip any candidate button that doesn't have a registered position.
+            //        continue;
+            //    }
+
+            //    // 3. Check if the candidate is in the correct direction.
+            //    // We use a simple heuristic: to be considered "to the right", a button's horizontal distance
+            //    // should be greater than its vertical distance. This prevents jumping to a different row.
+            //    double deltaX = candidatePosition.X - currentPosition.X;
+            //    double deltaY = candidatePosition.Y - currentPosition.Y;
+
+            //    bool isPotentialCandidate = false;
+            //    switch (direction)
+            //    {
+            //        case Side.Right:
+            //            // Must be to the right and more horizontal than vertical.
+            //            if (deltaX > 0 && Math.Abs(deltaX) > Math.Abs(deltaY)) isPotentialCandidate = true;
+            //            break;
+
+            //        case Side.Left:
+            //            // Must be to the left and more horizontal than vertical.
+            //            if (deltaX < 0 && Math.Abs(deltaX) > Math.Abs(deltaY)) isPotentialCandidate = true;
+            //            break;
+
+            //        case Side.Down:
+            //            // Must be below and more vertical than horizontal.
+            //            if (deltaY > 0 && Math.Abs(deltaY) > Math.Abs(deltaX)) isPotentialCandidate = true;
+            //            break;
+
+            //        case Side.Top:
+            //            // Must be above and more vertical than horizontal.
+            //            if (deltaY < 0 && Math.Abs(deltaY) > Math.Abs(deltaX)) isPotentialCandidate = true;
+            //            break;
+            //    }
+
+
+            //    if (isPotentialCandidate)
+            //    {
+            //        // 4. If it's a valid candidate, check if it's the closest one yet.
+            //        // We use the square of the distance to avoid costly square root operations.
+            //        double distanceSquared = (candidatePosition - currentPosition).LengthSquared;
+
+            //        if (distanceSquared < minDistanceSquared)
+            //        {
+            //            minDistanceSquared = distanceSquared;
+            //            bestCandidate = candidateButton;
+            //        }
+            //    }
+            //}
 
             return bestCandidate;
         }

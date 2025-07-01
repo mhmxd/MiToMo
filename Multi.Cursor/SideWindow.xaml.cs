@@ -33,11 +33,11 @@ namespace Multi.Cursor
 
         private Random _random = new Random();
 
-        private double HorizontalPadding = Utils.MmToDips(Config.HORIZONTAL_PADDING_MM);
-        private double VerticalPadding = Utils.MmToDips(Config.VERTICAL_PADDING_MM); // Padding for the top and bottom of the grid
+        private double HorizontalPadding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+        private double VerticalPadding = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
         
-        private double InterGroupGutter = Utils.MmToDips(Config.GRID_INTERGROUP_GUTTER_MM);
-        private double WithinGroupGutter = Utils.MmToDips(Config.GRID_WITHINGROUP_GUTTER_MM);
+        private double InterGroupGutter = Utils.MM2PX(Config.GRID_INTERGROUP_GUTTER_MM);
+        private double WithinGroupGutter = Utils.MM2PX(Config.GRID_WITHINGROUP_GUTTER_MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -128,7 +128,7 @@ namespace Multi.Cursor
             int canvasHeight = (int)canvas.ActualHeight;
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = Utils.MM2PX(Config.VERTICAL_PADDING_MM);
+            int marginPX = Utils.MM2PX(Config.WINDOW_PADDING_MM);
             int minX = marginPX;
             int maxX = canvasWidth - marginPX - targetWidth;
             int minY = marginPX;
@@ -488,7 +488,7 @@ namespace Multi.Cursor
 
         //    // Create the grid
         //    Brush defaultElementColor = Config.BUTTON_DEFAULT_FILL_COLOR;
-        //    int padding = Utils.MM2PX(Config.VERTICAL_PADDING_MM);
+        //    int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
         //    int colX = padding;
 
         //    int totalGridContentHeight = (int)ActualHeight - 2 * padding;
@@ -654,7 +654,7 @@ namespace Multi.Cursor
 
         //    // Create the grid
         //    int gutter = Utils.MM2PX(Config.GRID_GUTTER_MM);
-        //    int padding = Utils.MM2PX(Config.VERTICAL_PADDING_MM); // Assuming this is the left/right window padding
+        //    int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Assuming this is the left/right window padding
         //    int rowY = padding; // Start from the top (increased inside the loop)
 
         //    // This represents the total width available for the *grid content* within the window padding.
@@ -852,41 +852,88 @@ namespace Multi.Cursor
             return element;
         }
 
-        public override void GenerateGrid(params Func<Grid>[] groupCreators)
+        public override void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] groupCreators)
         {
+            _startConstraintsRectAbsolute = startConstraintsRectAbsolute;
+
             // Clear any existing columns from the canvas and the list before generating new ones
             canvas.Children.Clear();
             _gridGroups.Clear();
-            this.TrialInfo($"Horizontal Padding = {HorizontalPadding}");
+            _buttonInfos.Clear();
+            this.TrialInfo($"Generating grid");
             double currentTopPosition = VerticalPadding; // Start with the initial padding
             double leftGroupLeft = HorizontalPadding;
             double rightGroupLeft = HorizontalPadding + ColumnFactory.MAX_GROUP_WITH + InterGroupGutter;
 
-            for (int i = 0; i < groupCreators.Count() - 1; i++)
+            // Left column
+            foreach (var group in groupCreators)
             {
                 // Create the row
-                Grid leftGroup = groupCreators[i]();
-                Grid rightGroup = groupCreators[i + 1]();
-
+                Grid newGroup = group();
                 // Set its position on the Canvas
-                Canvas.SetTop(leftGroup, currentTopPosition);
-                Canvas.SetTop(rightGroup, currentTopPosition);
-
-                Canvas.SetLeft(leftGroup, leftGroupLeft);
-                Canvas.SetLeft(rightGroup, rightGroupLeft);
-
+                Canvas.SetTop(newGroup, currentTopPosition);
+                Canvas.SetLeft(newGroup, leftGroupLeft);
                 // Add to the Canvas
-                canvas.Children.Add(leftGroup);
-                canvas.Children.Add(rightGroup);
-
+                canvas.Children.Add(newGroup);
                 // Add to our internal list for tracking/future reference
-                _gridGroups.Add(leftGroup);
-                _gridGroups.Add(rightGroup);
-
+                _gridGroups.Add(newGroup);
+                // Force a layout pass on the newly added column to get its ActualWidth
+                newGroup.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                newGroup.Arrange(new Rect(newGroup.DesiredSize));
+                // Register buttons in this row
+                //RegisterButtons(newGroup);
                 // Update the top position for the next row
-                currentTopPosition += ColumnFactory.COLUMN_HEIGHT + InterGroupGutter; 
-
+                currentTopPosition += ColumnFactory.COLUMN_HEIGHT + InterGroupGutter;
             }
+
+            // Right column
+            currentTopPosition = VerticalPadding; // Reset the top position for the right column
+            foreach (var group in groupCreators)
+            {
+                // Create the row
+                Grid newGroup = group();
+                // Set its position on the Canvas
+                Canvas.SetTop(newGroup, currentTopPosition);
+                Canvas.SetLeft(newGroup, rightGroupLeft);
+                // Add to the Canvas
+                canvas.Children.Add(newGroup);
+                // Add to our internal list for tracking/future reference
+                _gridGroups.Add(newGroup);
+                // Force a layout pass on the newly added column to get its ActualWidth
+                newGroup.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                newGroup.Arrange(new Rect(newGroup.DesiredSize));
+                // Register buttons in this row
+                //RegisterButtons(newGroup);
+                // Update the top position for the next row
+                currentTopPosition += ColumnFactory.COLUMN_HEIGHT + InterGroupGutter;
+            }
+
+
+            //for (int i = 0; i < groupCreators.Count() - 1; i++)
+            //{
+            //    // Create the row
+            //    Grid leftGroup = groupCreators[i]();
+            //    Grid rightGroup = groupCreators[i + 1]();
+
+            //    // Set its position on the Canvas
+            //    Canvas.SetTop(leftGroup, currentTopPosition);
+            //    Canvas.SetTop(rightGroup, currentTopPosition);
+
+            //    Canvas.SetLeft(leftGroup, leftGroupLeft);
+            //    Canvas.SetLeft(rightGroup, rightGroupLeft);
+
+            //    // Add to the Canvas
+            //    canvas.Children.Add(leftGroup);
+            //    canvas.Children.Add(rightGroup);
+
+            //    // Add to our internal list for tracking/future reference
+            //    _gridGroups.Add(leftGroup);
+            //    _gridGroups.Add(rightGroup);
+
+            //    // Update the top position for the next row
+            //    currentTopPosition += ColumnFactory.COLUMN_HEIGHT + InterGroupGutter; 
+
+            //}
 
             //foreach (var createGroupFunc in groupCreators)
             //{
@@ -931,7 +978,7 @@ namespace Multi.Cursor
             {
                 RegisterButtons(group); // Register buttons for each group
             }
-            this.TrialInfo($"Total buttons registered: {_allButtons.Count}");
+            //this.TrialInfo($"Total buttons registered: {_allButtons.Count}");
 
             int middleId = FindMiddleButtonId();
             if (middleId != -1)
@@ -961,7 +1008,8 @@ namespace Multi.Cursor
                         if (childOfRow is SButton button)
                         {
                             _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
-                            _allButtons.Add(button.Id, button); // Add to the list of all buttons
+                            _buttonInfos[button.Id] = new ButtonInfo(button);
+                            //_allButtons.Add(button.Id, button); // Add to the list of all buttons
 
                             //foreach (int wm in _widthButtons.Keys)
                             //{
@@ -973,7 +1021,8 @@ namespace Multi.Cursor
                             GeneralTransform transformToWindow = button.TransformToVisual(Window.GetWindow(button));
                             // Get the point representing the top-left corner of the button relative to the Window
                             Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
-                            _buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
+                            _buttonInfos[button.Id].Position = positionInWindow;
+                            //_buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
                             //this.TrialInfo($"Button Position: {positionInWindow}");
                             if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
                             {
@@ -983,14 +1032,28 @@ namespace Multi.Cursor
                             }
 
                             Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
-                            _buttonRects.Add(button.Id, buttonRect); // Store the rect for later
+                            _buttonInfos[button.Id].Rect = buttonRect;
+                            //_buttonRects.Add(button.Id, buttonRect); // Store the rect for later
+
+                            // Set possible distance range to the Start positions
+                            Point buttonCenterAbsolute =
+                                positionInWindow
+                                .OffsetPosition(button.ActualWidth / 2, button.ActualHeight / 2)
+                                .OffsetPosition(this.Left, this.Top);
+
+                            double distToStartTL = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.TopLeft);
+                            double distToStartTR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.TopRight);
+                            double distToStartLL = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomLeft);
+                            double distToStartLR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomRight);
+
+                            double[] dists = { distToStartTL, distToStartTR, distToStartLL, distToStartLR };
+                            _buttonInfos[button.Id].DistToStart = new Range(dists.Min(), dists.Max());
 
                             // Update min/max X and Y for grid bounds
                             _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
                             _gridMinY = Math.Min(_gridMinY, buttonRect.Top);
                             _gridMaxX = Math.Max(_gridMaxX, buttonRect.Right);
                             _gridMaxY = Math.Max(_gridMaxY, buttonRect.Bottom);
-
 
                             if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
                             {
@@ -1005,6 +1068,7 @@ namespace Multi.Cursor
                 }
             }
 
+            //this.TrialInfo($"Finished registering buttons in group. Current allButtons count: {_allButtons.Count}");
             // Set the first button as the highlighted button
             //_lastHighlightedButtonId = _widthButtons.FirstOrDefault().Value.FirstOrDefault()?.Id ?? -1; // Get the first button ID or -1 if no buttons are present
         }
@@ -1016,16 +1080,17 @@ namespace Multi.Cursor
         private void LinkButtonNeighbors()
         {
             this.TrialInfo("Linking neighbor IDs for all buttons...");
-            if (_allButtons.Count == 0) return;
+            //if (_allButtons.Count == 0) return;
+            if (_buttonInfos.Count == 0) return;
 
             // For each button in the grid...
-            foreach (SButton button in _allButtons.Values)
+            foreach (int buttonId in _buttonInfos.Keys)
             {
                 // ...find its neighbor in each of the four directions.
-                SButton topNeighbor = GetNeighbor(button, Side.Top);
-                SButton bottomNeighbor = GetNeighbor(button, Side.Down);
-                SButton leftNeighbor = GetNeighbor(button, Side.Left);
-                SButton rightNeighbor = GetNeighbor(button, Side.Right);
+                SButton topNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Top);
+                SButton bottomNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Down);
+                SButton leftNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Left);
+                SButton rightNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Right);
 
                 // Get the ID of each neighbor, or -1 if the neighbor is null.
                 int topId = topNeighbor?.Id ?? -1;
@@ -1034,9 +1099,27 @@ namespace Multi.Cursor
                 int rightId = rightNeighbor?.Id ?? -1;
 
                 // Call the method on the button to store its neighbor IDs.
-                button.SetNeighbors(topId, bottomId, leftId, rightId);
+                _buttonInfos[buttonId].Button.SetNeighbors(topId, bottomId, leftId, rightId);
             }
-            this.TrialInfo($"Finished linking neighbors for {_allButtons.Count} buttons.");
+
+            //foreach (SButton button in _allButtons.Values)
+            //{
+            //    // ...find its neighbor in each of the four directions.
+            //    SButton topNeighbor = GetNeighbor(button, Side.Top);
+            //    SButton bottomNeighbor = GetNeighbor(button, Side.Down);
+            //    SButton leftNeighbor = GetNeighbor(button, Side.Left);
+            //    SButton rightNeighbor = GetNeighbor(button, Side.Right);
+
+            //    // Get the ID of each neighbor, or -1 if the neighbor is null.
+            //    int topId = topNeighbor?.Id ?? -1;
+            //    int bottomId = bottomNeighbor?.Id ?? -1;
+            //    int leftId = leftNeighbor?.Id ?? -1;
+            //    int rightId = rightNeighbor?.Id ?? -1;
+
+            //    // Call the method on the button to store its neighbor IDs.
+            //    button.SetNeighbors(topId, bottomId, leftId, rightId);
+            //}
+            //this.TrialInfo($"Finished linking neighbors for {_allButtons.Count} buttons.");
         }
 
         private void AddElementToCanvas(Element element, int left, int top)
