@@ -376,7 +376,7 @@
     <Compile Include="TouchSimulator.cs" />
     <Compile Include="TouchSurface.cs" />
     <Compile Include="Trial.cs" />
-    <Compile Include="IBlockHandler.cs" />
+    <Compile Include="BlockHandler.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="WindowHelper.cs" />
   </ItemGroup>

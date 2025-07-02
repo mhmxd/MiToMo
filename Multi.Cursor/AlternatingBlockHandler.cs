@@ -11,7 +11,7 @@ using System.Windows.Input;
 
 namespace Multi.Cursor
 {
-    public class AlternatingBlockHandler : IBlockHandler
+    public class AlternatingBlockHandler : BlockHandler
     {
         private MainWindow _mainWindow;
         private Block _activeBlock;
@@ -28,7 +28,7 @@ namespace Multi.Cursor
             _activeBlock = activeBlock;
         }
 
-        public bool FindPositionsForActiveBlock()
+        public override bool FindPositionsForActiveBlock()
         {
             foreach (Trial trial in _activeBlock.Trials)
             {
@@ -42,7 +42,7 @@ namespace Multi.Cursor
             return true;
         }
 
-        public bool FindPositionsForTrial(Trial trial)
+        public override bool FindPositionsForTrial(Trial trial)
         {
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             int startHalfW = startW / 2;
@@ -101,7 +101,7 @@ namespace Multi.Cursor
 
         //}
 
-        public void BeginActiveBlock()
+        public override void BeginActiveBlock()
         {
             //_trialtWatch.Restart();
             this.TrialInfo($"Target Ids: {_trialTargetIds.Stringify()}");
@@ -111,7 +111,7 @@ namespace Multi.Cursor
             ShowActiveTrial();
         }
 
-        public void ShowActiveTrial()
+        public override void ShowActiveTrial()
         {
             this.TrialInfo($"Showing Trial#{_activeTrial.Id} | Side: {_activeTrial.TargetSide} | W: {_activeTrial.TargetMultiple} | Dist: {_activeTrial.DistanceMM:F2}mm");
 
@@ -134,7 +134,7 @@ namespace Multi.Cursor
                 OnStartMouseEnter, OnStartMouseLeave, OnStartMouseDown, OnStartMouseUp);
         }
 
-        public void EndActiveTrial(Experiment.Result result)
+        public override void EndActiveTrial(Experiment.Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed.");
             _trialTimestamps[Str.TRIAL_END] = Timer.GetCurrentMillis(); // Log the trial end timestamp
@@ -161,7 +161,7 @@ namespace Multi.Cursor
             
         }
 
-        public void GoToNextTrial()
+        public override void GoToNextTrial()
         {
             _mainWindow.ResetTargetWindow(_activeTrial.TargetSide); // Reset the target window
             _trialTimestamps.Clear();
@@ -181,7 +181,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void OnStartMouseEnter(Object sender, MouseEventArgs e)
+        public override void OnStartMouseEnter(Object sender, MouseEventArgs e)
         {
             if (_trialTimestamps.ContainsKey(Str.TARGET_RELEASE))
             {
@@ -193,7 +193,7 @@ namespace Multi.Cursor
             
         }
 
-        public void OnStartMouseLeave(Object sender, MouseEventArgs e)
+        public override void OnStartMouseLeave(Object sender, MouseEventArgs e)
         {
             if (_trialTimestamps.ContainsKey(Str.TARGET_RELEASE))
             {
@@ -205,7 +205,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
+        public override void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
@@ -240,7 +240,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
+        public override void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
@@ -266,7 +266,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void OnStartMouseDown(Object sender, MouseButtonEventArgs e)
+        public override void OnStartMouseDown(Object sender, MouseButtonEventArgs e)
         {
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
@@ -295,7 +295,7 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public void OnStartMouseUp(Object sender, MouseButtonEventArgs e)
+        public override void OnStartMouseUp(Object sender, MouseButtonEventArgs e)
         {
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
@@ -325,7 +325,7 @@ namespace Multi.Cursor
 
         }
 
-        public void OnTargetMouseDown(Object sender, MouseButtonEventArgs e)
+        public override void OnTargetMouseDown(Object sender, MouseButtonEventArgs e)
         {
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo => Shouldn't click on the Target
             {
@@ -340,7 +340,7 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public void OnTargetMouseUp(Object sender, MouseButtonEventArgs e)
+        public override void OnTargetMouseUp(Object sender, MouseButtonEventArgs e)
         {
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {

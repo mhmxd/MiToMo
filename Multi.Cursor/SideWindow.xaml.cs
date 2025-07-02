@@ -888,6 +888,7 @@ namespace Multi.Cursor
 
             // Right column
             currentTopPosition = VerticalPadding; // Reset the top position for the right column
+            groupCreators.ShiftElementsInPlace(2);
             foreach (var group in groupCreators)
             {
                 // Create the row

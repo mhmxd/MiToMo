@@ -100,11 +100,11 @@ namespace Multi.Cursor
             //}
 
             //this.TrialInfo($"Available buttons:");
-            //foreach (int wm in _widthButtons.Keys)
-            //{
-            //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-            //    this.TrialInfo($"WM {wm} -> {ids}");
-            //}
+            foreach (int wm in _widthButtons.Keys)
+            {
+                string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
+                //this.TrialInfo($"WM {wm} -> {ids}");
+            }
 
             if (_widthButtons[widthMult].Count > 0)
             {
@@ -113,6 +113,7 @@ namespace Multi.Cursor
                 List<int> possibleButtons = new List<int>();
                 foreach (int buttonId in _buttonInfos.Keys)
                 {
+                    //this.TrialInfo($"Dist = {dist} | DistToStart: {_buttonInfos[buttonId].DistToStart.ToString()}");
                     if (_buttonInfos[buttonId].DistToStart.ContainsExc(dist))
                     {
                         possibleButtons.Add(buttonId);
@@ -138,11 +139,11 @@ namespace Multi.Cursor
                 //}
             } else
             {
-                this.TrialInfo($"No buttons found for width multiple {widthMult}.");
+                this.TrialInfo($"No buttons available for width multiple {widthMult}!");
                 return -1; // Return an invalid point if no buttons are found
             }
 
-            this.TrialInfo($"No buttons found for width multiple {widthMult}.");
+            this.TrialInfo($"No buttons with width multiple {widthMult} matched the distance!");
             return -1; // Return an invalid point if no buttons are found
 
         }

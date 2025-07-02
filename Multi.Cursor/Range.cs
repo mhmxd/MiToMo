@@ -42,5 +42,10 @@ namespace Multi.Cursor
         {
             return _rand.NextDouble() * (_max - _min) + _min; // Generate a random value within the range
         }
+
+        public string ToString()
+        {
+            return $"Min: {Min:F2} -- Max: {Max:F2}";
+        }
     }
 }

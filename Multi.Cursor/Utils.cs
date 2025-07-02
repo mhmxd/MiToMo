@@ -543,6 +543,56 @@ namespace Multi.Cursor
             };
         }
 
+        /// <summary>
+        /// Shifts the elements of an array by a specified number of positions, with wrapping, in-place.
+        /// A positive shiftAmount moves elements to the right; a negative shiftAmount moves elements to the left.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the array.</typeparam>
+        /// <param name="array">The array to shift (will be modified).</param>
+        /// <param name="shiftAmount">The number of positions to shift. Can be positive or negative.</param>
+        public static void ShiftElementsInPlace<T>(this T[] array, int shiftAmount)
+        {
+            // No modification needed for null or empty arrays
+            if (array == null || array.Length == 0)
+            {
+                return;
+            }
+
+            int length = array.Length;
+
+            // Calculate the effective shift amount, handling cases where shiftAmount
+            // is greater than array length or negative.
+            int actualShift = shiftAmount % length;
+            if (actualShift < 0)
+            {
+                actualShift += length; // Convert negative shifts to equivalent positive shifts
+            }
+
+            // If actualShift is 0, no shifting is needed
+            if (actualShift == 0)
+            {
+                return;
+            }
+
+            // --- In-place Shifting Logic (using a temporary copy of the original for correct placement) ---
+            // The most robust way for in-place with wrapping is to first copy the original
+            // array, then place elements from the original into their new positions in the *same* array.
+
+            // Create a temporary copy of the original array's elements
+            // This is necessary because if you try to directly move elements,
+            // you might overwrite an element before it's been moved to its new position.
+            T[] tempArray = new T[length];
+            Array.Copy(array, tempArray, length);
+
+            for (int i = 0; i < length; i++)
+            {
+                // Calculate the new index for the element that was originally at 'i'
+                // The element from tempArray[i] moves to array[(i + actualShift) % length]
+                int newIndex = (i + actualShift) % length;
+                array[newIndex] = tempArray[i];
+            }
+        }
+
     }
 
 }

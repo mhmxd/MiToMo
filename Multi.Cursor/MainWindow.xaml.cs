@@ -237,7 +237,7 @@ namespace Multi.Cursor
         private Rectangle _startRectangle;
         private AuxWindow _targetWindow;
         private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)
-        private IBlockHandler _blockHandler;
+        private BlockHandler _blockHandler;
         private Rect _startConstraintRectAbsolue;
 
         public MainWindow()
@@ -957,8 +957,8 @@ namespace Multi.Cursor
         public bool SetExperiment(int ptc, string tech)
         {
             _experiment.Init(ptc, tech);
-            bool positionsFound = FindPositionsForAllBlocks();
-            return positionsFound;
+            //bool positionsFound = FindPositionsForAllBlocks();
+            return true;
         }
 
         private double EMA(List<double> points, double alpha)
@@ -1018,26 +1018,26 @@ namespace Multi.Cursor
             _trialStartPosition.Clear();
             //this.TrialInfo($"Number of blocks = {_experiment.Blocks.Count}");
             // Go through all blocks
-            foreach (Block block in _experiment.Blocks)
-            {
-                if (block.BlockType == Block.BLOCK_TYPE.REPEATING)
-                {
-                    foreach (Trial trial in block.Trials)
-                    {
-                        bool positionsFound = FindPosForRepTrial(trial); // Try to find valid positions for all trials in block
-                        this.TrialInfo($"-----------------------------------------------------");
-                        if (!positionsFound) return false; // No valid positions found for this block
-                    }
-                }
+            //foreach (Block block in _experiment.Blocks)
+            //{
+            //    if (block.BlockType == Block.BLOCK_TYPE.REPEATING)
+            //    {
+            //        foreach (Trial trial in block.Trials)
+            //        {
+            //            bool positionsFound = FindPosForRepTrial(trial); // Try to find valid positions for all trials in block
+            //            this.TrialInfo($"-----------------------------------------------------");
+            //            if (!positionsFound) return false; // No valid positions found for this block
+            //        }
+            //    }
 
-                //foreach (Trial trial in block.Trials)
-                //{
-                //    bool positionsFound = FindPosForGridTrial(trial); // Try to find valid positions for all trials in block
-                //    this.TrialInfo($"Trial#{trial.Id} positions found: {positionsFound}");
-                //    this.TrialInfo($"-----------------------------------------------------");
-                //    if (!positionsFound) return false; // No valid positions found for this block
-                //}
-            }
+            //    //foreach (Trial trial in block.Trials)
+            //    //{
+            //    //    bool positionsFound = FindPosForGridTrial(trial); // Try to find valid positions for all trials in block
+            //    //    this.TrialInfo($"Trial#{trial.Id} positions found: {positionsFound}");
+            //    //    this.TrialInfo($"-----------------------------------------------------");
+            //    //    if (!positionsFound) return false; // No valid positions found for this block
+            //    //}
+            //}
 
             return true; // All blocks have valid positions
         }

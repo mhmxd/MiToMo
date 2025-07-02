@@ -3,32 +3,41 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 
 namespace Multi.Cursor
 {
-    public class RepeatingBlockHandler : IBlockHandler
+    public class RepeatingBlockHandler : BlockHandler
     {
         private MainWindow _mainWindow;
         private Block _activeBlock;
         private int _activeTrialNum = 0;
         private Trial _activeTrial;
-        private Dictionary<int, int> _trialTargetIds = new Dictionary<int, int>(); // Trial Id -> Target Button Id
-        private Dictionary<int, Dictionary<int, Point>> _trialStartPositions = new Dictionary<int, Dictionary<int, Point>>(); // Trial Id -> [Dist (px) -> Position]
+        //private Dictionary<int, int> _trialTargetIds = new Dictionary<int, int>(); // Trial Id -> Target Button Id
+        //private Dictionary<int, Dictionary<int, Point>> _trialStartPositions = new Dictionary<int, Dictionary<int, Point>>(); // Trial Id -> [Dist (px) -> Position]
 
         private bool _isTargetAvailable = false; // Whether the target is available for clicking
 
         //private Stopwatch _trialtWatch = new Stopwatch();
-        private Dictionary<string, long> _trialTimestamps = new Dictionary<string, long>(); // Trial timestamps for logging
-        private Dictionary<string, int> _trialEventCounts = new Dictionary<string, int>(); // Ex.: "start_press" -> 1, "target_release" -> 2, etc.
+        //private Dictionary<string, long> _trialTimestamps = new Dictionary<string, long>(); // Trial timestamps for logging
+        //private Dictionary<string, int> _trialEventCounts = new Dictionary<string, int>(); // Ex.: "start_press" -> 1, "target_release" -> 2, etc.
+
+        private Random _random = new Random();
 
         public RepeatingBlockHandler(MainWindow mainWindow, Block activeBlock)
         {
             _mainWindow = mainWindow;
             _activeBlock = activeBlock;
+
+            // Create records for all trials in the block
+            foreach (Trial trial in _activeBlock.Trials)
+            {
+                _trialRecords[trial.Id] = new TrialRecord();
+            }
         }
 
-        public bool FindPositionsForActiveBlock()
+        public override bool FindPositionsForActiveBlock()
         {
             foreach (Trial trial in _activeBlock.Trials)
             {
@@ -42,19 +51,20 @@ namespace Multi.Cursor
             return true;
         }
 
-        public bool FindPositionsForTrial(Trial trial)
+        public override bool FindPositionsForTrial(Trial trial)
         {
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             int startHalfW = startW / 2;
-            this.TrialInfo($"Finding positions for Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
+            this.TrialInfo($"Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
                 $"TargetMult = {trial.TargetMultiple}]");
 
             // Find a random target id for the active trial
             //int targetId = FindRandomTargetIdForTrial(trial);
-            int targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, trial.TargetMultiple, trial.DistancePX);
+            int targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, trial.TargetMultiple, Utils.MM2PX(trial.DistRange.Max));
             if (targetId != -1)
             {
-                _trialTargetIds[trial.Id] = targetId;
+                _trialRecords[trial.Id].TargetId = targetId;
+                //_trialTargetIds[trial.Id] = targetId;
             }
             else
             {
@@ -68,53 +78,66 @@ namespace Multi.Cursor
             // Get Start constraints
             Rect startConstraintRect = _mainWindow.GetStartConstraintRect();
 
-            // Find a Start position for each distance in the passes
-            _trialStartPositions[trial.Id] = new Dictionary<int, Point>();
+            // Find random Start positions for the number of passes
+            //_trialStartPositions[trial.Id] = new Dictionary<int, Point>();
             Point firstStartCenter = new Point(-1, -1); // Other positions must be close the first one
             int maxRetries = 1000; // Max number of retries to find a valid Start position
             int nRetries = 0;
-            foreach (int dist in trial.Distances)
+            double randDistMM = trial.DistRange.Min + (_random.NextDouble() * (trial.DistRange.Max - trial.DistRange.Min));
+            Point startCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, Utils.MM2PX(randDistMM), trial.TargetSide.GetOpposite());
+            if (startCenter.X == -1) // Couldn't find the first position
             {
-                Point startCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, dist, trial.TargetSide.GetOpposite());
+                this.TrialInfo($"Failed to find a valid first Start position!");
+                return false; // Failed to find a valid position
+            }
+            else
+            {
+                // Save the first position
+                Point startPositionAbsolute = startCenter.OffsetPosition(-startHalfW, -startHalfW);
+                _trialRecords[trial.Id].StartPositions.Add(startPositionAbsolute);
+                this.TrialInfo($"Start position 1 added");
 
-                if (firstStartCenter.X != -1) // Not the first Start
+                // Find the rest
+                for (int p = 0; p < Experiment.REP_TRIAL_NUM_PASS - 1; p++)
                 {
-                    
-                    while (Utils.Dist(startCenter, firstStartCenter) > Utils.MM2PX(Experiment.REP_TRIAL_MAX_DIST_STARTS_MM))
+                    // Try finding a position for each pass
+                    do
                     {
-                        this.TrialInfo($"Distance to first Start = {Utils.PX2MM(Utils.Dist(startCenter, firstStartCenter))}");
+                        randDistMM = trial.DistRange.Min + (_random.NextDouble() * (trial.DistRange.Max - trial.DistRange.Min));
+                        startCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, Utils.MM2PX(randDistMM), trial.TargetSide.GetOpposite());
+
                         if (nRetries >= maxRetries)
                         {
-                            this.TrialInfo($"Failed to find a valid Start position for dist {dist} after {maxRetries} retries!");
+                            this.TrialInfo($"Failed to find a valid Start position after {maxRetries} retries!");
                             return false; // Failed to find a valid position
                         }
-                        startCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, dist, trial.TargetSide.GetOpposite());
+
                         nRetries++;
+                        this.TrialInfo($"Dist = {Utils.Dist(startCenter, _trialRecords[trial.Id].StartPositions[0]):F2}, Max dist = {Utils.MM2PX(Experiment.REP_TRIAL_MAX_DIST_STARTS_MM):F2}");
+                    } while (Utils.Dist(startCenter, _trialRecords[trial.Id].StartPositions[0]) > Utils.MM2PX(Experiment.REP_TRIAL_MAX_DIST_STARTS_MM));
+
+                    // Valid position found
+                    startPositionAbsolute = startCenter.OffsetPosition(-startHalfW, -startHalfW);
+                    if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position
+                    {
+                        this.TrialInfo($"No valid position {p} found for Start!");
+                        return false;
                     }
-                } 
-                else
-                {
-                    firstStartCenter = startCenter; // Save the first Start position
+                    else // Valid position found
+                    {
+                        _trialRecords[trial.Id].StartPositions.Add(startPositionAbsolute); // Add the position to the dictionary
+                        this.TrialInfo($"Start position {p} added");
+                    }
                 }
+                
 
-                Point startPositionAbsolute = startCenter.OffsetPosition(-startHalfW, -startHalfW);
-
-                this.TrialInfo($"Target: {targetCenterAbsolute}; Dist (px): {dist}; Start pos: {startPositionAbsolute}");
-                if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position
-                {
-                    this.TrialInfo($"No valid position found for Start for dist {dist}!");
-                    return false;
-                }
-                else // Valid position found
-                {
-                    _trialStartPositions[trial.Id][dist] = startPositionAbsolute; // Add the position to the dictionary
-                }
             }
+
 
             return true;
         }
 
-        public void BeginActiveBlock()
+        public override void BeginActiveBlock()
         {
             this.TrialInfo("------------------- Beginning block ----------------------------");
             //_trialtWatch.Restart();
@@ -129,37 +152,37 @@ namespace Multi.Cursor
             ShowActiveTrial();
         }
 
-        public void ShowActiveTrial()
+        public override void ShowActiveTrial()
         {
             this.TrialInfo(Str.MINOR_LINE);
             this.TrialInfo($"Showing rep Trial#{_activeTrial.Id} | Target side: {_activeTrial.TargetSide}");
-            this.TrialInfo($"Start positions: {string.Join(", ", _trialStartPositions[_activeTrial.Id])}");
+            this.TrialInfo($"Start positions: {string.Join(", ", _trialRecords[_activeTrial.Id].StartPositions)}");
 
             // Update the main window label
             _mainWindow.UpdateInfoLabel(_activeTrialNum);
 
             // Log the trial show timestamp
-            _trialTimestamps[Str.TRIAL_SHOW] = Timer.GetCurrentMillis();
+            _trialRecords[_activeTrial.Id].Timestamps[Str.TRIAL_SHOW] = Timer.GetCurrentMillis();
 
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.TargetSide);
 
             // Color the target button and set the handlers
-            _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id], Config.TARGET_UNAVAILABLE_COLOR);
-            _mainWindow.SetGridButtonHandlers(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id], OnTargetMouseDown, OnTargetMouseUp);
+            _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.TARGET_UNAVAILABLE_COLOR);
+            _mainWindow.SetGridButtonHandlers(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, OnTargetMouseDown, OnTargetMouseUp);
 
             // Show the first Start
-            Point firstStartPos = _trialStartPositions[_activeTrial.Id].First().Value;
+            Point firstStartPos = _trialRecords[_activeTrial.Id].StartPositions.First();
             _mainWindow.ShowStart(
                 firstStartPos, Config.START_AVAILABLE_COLOR,
                 OnStartMouseEnter, OnStartMouseLeave, OnStartMouseDown, OnStartMouseUp);
         }
 
-        public void EndActiveTrial(Experiment.Result result)
+        public override void EndActiveTrial(Experiment.Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
             this.TrialInfo(Str.MAJOR_LINE);
-            _trialTimestamps[Str.TRIAL_END] = Timer.GetCurrentMillis(); // Log the trial end timestamp
+            _trialRecords[_activeTrial.Id].Timestamps[Str.TRIAL_END] = Timer.GetCurrentMillis(); // Log the trial end timestamp
 
             switch (result)
             {
@@ -181,11 +204,11 @@ namespace Multi.Cursor
 
         }
 
-        public void GoToNextTrial()
+        public override void GoToNextTrial()
         {
             _mainWindow.ResetTargetWindow(_activeTrial.TargetSide); // Reset the target window
-            _trialEventCounts.Clear(); // Reset the event counts for the trial
-            _trialTimestamps.Clear(); // Reset the timestamps for the trial
+            //_trialEventCounts.Clear(); // Reset the event counts for the trial
+            //_trialTimestamps.Clear(); // Reset the timestamps for the trial
             _isTargetAvailable = false; // Reset the target availability
 
             if (_activeTrialNum < _activeBlock.Trials.Count)
@@ -200,36 +223,22 @@ namespace Multi.Cursor
             }
         }
 
-        private int FindRandomTargetIdForTrial(Trial trial)
-        {
-            // Based on the width multiple, find a random target button id that haven't been used before
-            int targetMultiple = trial.TargetMultiple;
-            int targetId = -1;
-            do
-            {
-                targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, targetMultiple, trial.DistancePX);
-            } while (_trialTargetIds.ContainsValue(targetId));
-
-            return targetId;
-
-        }
-
-        public void OnStartMouseEnter(Object sender, MouseEventArgs e)
+        public override void OnStartMouseEnter(Object sender, MouseEventArgs e)
         {
             
         }
 
-        public void OnStartMouseLeave(Object sender, MouseEventArgs e)
+        public override void OnStartMouseLeave(Object sender, MouseEventArgs e)
         {
             
         }
 
-        public void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
+        public override void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
 
-                if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id]))
+                if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
                 {
                     TargetPress();
                 }
@@ -246,13 +255,13 @@ namespace Multi.Cursor
             }
         }
 
-        public void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
+        public override void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
                 string key = Str.TARGET_RELEASE;
 
-                if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id]))
+                if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
                 {
                     TargetRelease();
                 }
@@ -267,17 +276,17 @@ namespace Multi.Cursor
             }
         }
 
-        public void OnStartMouseDown(Object sender, MouseButtonEventArgs e)
+        public override void OnStartMouseDown(Object sender, MouseButtonEventArgs e)
         {
             // Show the current timestamps
-            this.TrialInfo($"Trial timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
+            this.TrialInfo($"Trial timestamps: {string.Join(", ", _trialRecords[_activeTrial.Id].Timestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
 
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
                 if (GetLatestEvent().Key.Contains(Str.START_RELEASE)) // Target press?
                 {
                     // If navigator is on the button, count the event
-                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id]))
+                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
                     {
                         TargetPress();
                     }
@@ -300,10 +309,10 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public void OnStartMouseUp(Object sender, MouseButtonEventArgs e)
+        public override void OnStartMouseUp(Object sender, MouseButtonEventArgs e)
         {
             // Show the current timestamps
-            this.TrialInfo($"Trial timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
+            this.TrialInfo($"Trial timestamps: {string.Join(", ", _trialRecords[_activeTrial.Id].Timestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
 
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
@@ -314,7 +323,7 @@ namespace Multi.Cursor
                 else // Target release?
                 {
                     // If navigator is on the button, count the event
-                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id]))
+                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
                     {
                         TargetRelease();
                     }
@@ -333,10 +342,10 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public void OnTargetMouseDown(Object sender, MouseButtonEventArgs e)
+        public override void OnTargetMouseDown(Object sender, MouseButtonEventArgs e)
         {
             // Show the current timestamps
-            this.TrialInfo($"Trial timestamps: {string.Join(", ", _trialTimestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
+            this.TrialInfo($"Trial timestamps: {string.Join(", ", _trialRecords[_activeTrial.Id].Timestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
 
             string key = Str.TARGET_PRESS;
 
@@ -352,7 +361,7 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public void OnTargetMouseUp(Object sender, MouseButtonEventArgs e)
+        public override void OnTargetMouseUp(Object sender, MouseButtonEventArgs e)
         {
             string key = Str.TARGET_RELEASE;
 
@@ -379,16 +388,17 @@ namespace Multi.Cursor
 
             LogEvent(key);
 
-            if (_trialEventCounts[key] == _activeTrial.Distances.Count) // All passes done
+            if (_trialRecords[_activeTrial.Id].EventCounts[key] == Experiment.REP_TRIAL_NUM_PASS) // All passes done
             {
                 EndActiveTrial(Experiment.Result.HIT);
             }
             else // Still passes left
             {
+                // Change available/unavailable
                 _mainWindow.FillStart(Config.START_UNAVAILABLE_COLOR);
                 _mainWindow.FillButtonInTargetWindow(
-                    _activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id], Config.TARGET_AVAILABLE_COLOR);
-                _isTargetAvailable = true; // Target is now available for clicking
+                    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.TARGET_AVAILABLE_COLOR);
+                _isTargetAvailable = true;
             }
         }
 
@@ -409,32 +419,34 @@ namespace Multi.Cursor
             LogEvent(Str.TARGET_RELEASE);
 
             // Show the next Start
-            int nStartClicks = _trialEventCounts[Str.START_RELEASE];
+            //int nStartClicks = _trialEventCounts[Str.START_RELEASE];
             //int nextStartInd = nStartClicks - 1; // Starts are indexed from 0
-            Point startAbsolutePosition = _trialStartPositions[_activeTrial.Id].Values.ToList()[nStartClicks];
+            this.TrialInfo($"Num of clicks = {_trialRecords[_activeTrial.Id].EventCounts[Str.START_RELEASE]}, num of pos = {_trialRecords[_activeTrial.Id].StartPositions.Count}");
+            int startClicksCount = _trialRecords[_activeTrial.Id].EventCounts[Str.START_RELEASE];
+            Point startAbsolutePosition = _trialRecords[_activeTrial.Id].StartPositions[startClicksCount];
             _mainWindow.ShowStart(
                 startAbsolutePosition, Config.START_AVAILABLE_COLOR,
                 OnStartMouseEnter, OnStartMouseLeave, OnStartMouseDown, OnStartMouseUp);
             _mainWindow.FillButtonInTargetWindow(
-                _activeTrial.TargetSide, _trialTargetIds[_activeTrial.Id], Config.TARGET_UNAVAILABLE_COLOR);
+                _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.TARGET_UNAVAILABLE_COLOR);
         }
 
         private KeyValuePair<string, long> GetLatestEvent()
         {
-            if (_trialTimestamps == null || !_trialTimestamps.Any())
+            if (!_trialRecords[_activeTrial.Id].Timestamps.Any())
             {
                 throw new InvalidOperationException("The dictionary is null or empty.");
             }
 
             // Order the dictionary by timestamp in descending order and take the first one
-            var lastEvent = _trialTimestamps.OrderByDescending(kv => kv.Value).FirstOrDefault();
+            var lastEvent = _trialRecords[_activeTrial.Id].Timestamps.OrderByDescending(kv => kv.Value).FirstOrDefault();
 
             return lastEvent;
         }
 
         private bool HasEventOccured(string eventName)
         {
-            foreach (var kv in _trialTimestamps)
+            foreach (var kv in _trialRecords[_activeTrial.Id].Timestamps)
             {
                 if (kv.Key.StartsWith(eventName))
                 {
@@ -447,19 +459,17 @@ namespace Multi.Cursor
 
         private void LogEvent(string eventName)
         {
-            if (_trialEventCounts.ContainsKey(eventName))
+            if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(eventName))
             {
-                _trialEventCounts[eventName]++;
+                _trialRecords[_activeTrial.Id].EventCounts[eventName]++;
             }
             else
             {
-                _trialEventCounts[eventName] = 1;
+                _trialRecords[_activeTrial.Id].EventCounts[eventName] = 1;
             }
 
-            _trialTimestamps[eventName + "_" + _trialEventCounts[eventName]] = Timer.GetCurrentMillis();
+            string timeKey = eventName + "_" + _trialRecords[_activeTrial.Id].EventCounts[eventName];
+            _trialRecords[_activeTrial.Id].Timestamps[timeKey] = Timer.GetCurrentMillis();
         }
-
-
-
     }
 }

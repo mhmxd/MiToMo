@@ -38,6 +38,8 @@ namespace Multi.Cursor
 
         public List<double> Distances = new List<double>(); // Distances in px
 
+        public Range DistRange = new Range(0, 0);
+
         //public Point StartPosition, TargetPosition; // Relative to the respective windows
 
         // Trial number (not needed for now)
@@ -86,11 +88,12 @@ namespace Multi.Cursor
             Trial trial = new Trial(id);
             trial.TargetSide = side;
             trial.TargetMultiple = targetWidthU;
-            for (int i = 0; i < nPasses; i++)
-            {
-                int randDist = Utils.MM2PX(distRange.GetRandomValue()); // Get a random distance in px
-                trial.Distances.Add(randDist);
-            }
+            trial.DistRange = distRange;
+            //for (int i = 0; i < nPasses; i++)
+            //{
+            //    int randDist = Utils.MM2PX(distRange.GetRandomValue()); // Get a random distance in px
+            //    trial.Distances.Add(randDist);
+            //}
 
             return trial;
         }
