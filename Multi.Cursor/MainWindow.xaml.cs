@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Markup;
@@ -239,6 +240,7 @@ namespace Multi.Cursor
         private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)
         private BlockHandler _blockHandler;
         private Rect _startConstraintRectAbsolue;
+        private List<BlockHandler> blockHandlers = new List<BlockHandler> ();
 
         public MainWindow()
         {
@@ -273,10 +275,13 @@ namespace Multi.Cursor
                 () => ColumnFactory.CreateGroupType3(),
                 () => ColumnFactory.CreateGroupType1(combination: 3),
                 () => ColumnFactory.CreateGroupType2(combination: 1),
+                () => ColumnFactory.CreateGroupType1(combination: 6),
                 () => ColumnFactory.CreateGroupType3(),
                 () => ColumnFactory.CreateGroupType2(combination: 1),
                 () => ColumnFactory.CreateGroupType1(combination: 5),
                 () => ColumnFactory.CreateGroupType2(combination: 3),
+                () => ColumnFactory.CreateGroupType1(combination: 2),
+                () => ColumnFactory.CreateGroupType1(combination: 4),
             };
 
             // Starts placed at the two bottom corners (to set max distance from grid buttons)
@@ -722,7 +727,7 @@ namespace Multi.Cursor
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            _blockHandler.OnMainWindowMouseDown(sender, e);
+            //_blockHandler.OnMainWindowMouseDown(sender, e);
             //this.TrialInfo($"{_timestamps.Stringify()}");
             //if (_timestamps.ContainsKey(Str.FIRST_MOVE)) // Trial is officially started (to prevent accidental click at the beginning)
             //{
@@ -811,7 +816,7 @@ namespace Multi.Cursor
 
         private void Window_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            _blockHandler.OnMainWindowMouseUp(sender, e);
+            //_blockHandler.OnMainWindowMouseUp(sender, e);
             //this.TrialInfo($"{_timestamps.Stringify()}");
             //if (_timestamps.ContainsKey(Str.TARGET_PRESS)) // Target is pressed => Was release outside or inside?
             //{
@@ -957,6 +962,33 @@ namespace Multi.Cursor
         public bool SetExperiment(int ptc, string tech)
         {
             _experiment.Init(ptc, tech);
+            // Find positions for all blocks
+            foreach (Block bl in _experiment.Blocks)
+            {
+                if (bl.BlockType == Block.BLOCK_TYPE.REPEATING)
+                {
+                    BlockHandler blockHandler = new RepeatingBlockHandler(this, bl);
+                    bool positionsFound = blockHandler.FindPositionsForActiveBlock();
+                    if (positionsFound) blockHandlers.Add(blockHandler);
+                    else
+                    {
+                        this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
+                        return false;
+                    }
+                }
+                else if (bl.BlockType == Block.BLOCK_TYPE.ALTERNATING)
+                {
+                    BlockHandler blockHandler = new AlternatingBlockHandler(this, bl);
+                    bool positionsFound = blockHandler.FindPositionsForActiveBlock();
+                    if (positionsFound) blockHandlers.Add(blockHandler);
+                    else
+                    {
+                        this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
+                        return false;
+                    }
+                }
+            }
+
             //bool positionsFound = FindPositionsForAllBlocks();
             return true;
         }
@@ -995,16 +1027,19 @@ namespace Multi.Cursor
             // Begin
             _activeBlockNum = 1;
             Block block = _experiment.GetBlock(_activeBlockNum);
-            
-            if (block.BlockType == Block.BLOCK_TYPE.REPEATING) _blockHandler = new RepeatingBlockHandler(this, block);
-            else if (block.BlockType == Block.BLOCK_TYPE.ALTERNATING) _blockHandler = new AlternatingBlockHandler(this, block);
 
-            bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
-            if (positionsFound)
-            {
-                UpdateInfoLabel(1, _activeBlockNum);
-                _blockHandler.BeginActiveBlock();
-            }
+            UpdateInfoLabel(1, _activeBlockNum);
+            blockHandlers[_activeBlockNum - 1].BeginActiveBlock();
+
+            //if (block.BlockType == Block.BLOCK_TYPE.REPEATING) _blockHandler = new RepeatingBlockHandler(this, block);
+            //else if (block.BlockType == Block.BLOCK_TYPE.ALTERNATING) _blockHandler = new AlternatingBlockHandler(this, block);
+
+            //bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
+            //if (positionsFound)
+            //{
+            //    UpdateInfoLabel(1, _activeBlockNum);
+            //    _blockHandler.BeginActiveBlock();
+            //}
         }
 
         private bool FindStartPosition()
@@ -2877,10 +2912,24 @@ namespace Multi.Cursor
             auxWindow.SetGridButtonHandlers(buttonId, mouseDownHandler, mouseUpHandler);
         }
 
-        public int GetRadomTargetId(Side side, int widthUnits, int dist)
+        public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
-            return auxWindow.SelectRandButtonByConstraints(widthUnits, dist);
+            int id = auxWindow.SelectRandButtonByConstraints(widthUnits, dist);
+            Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
+            Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
+            
+            return (id,  centerPositionAbsolute); 
+        }
+
+        public (int, Point) GetRadomTarget(Side side, int widthUnits, Range distRange)
+        {
+            AuxWindow auxWindow = GetAuxWindow(side);
+            int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
+            Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
+            Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
+
+            return (id, centerPositionAbsolute);
         }
 
         public Point GetCenterAbsolutePosition(Side side, int buttonId)

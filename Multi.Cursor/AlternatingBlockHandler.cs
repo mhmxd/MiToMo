@@ -47,11 +47,16 @@ namespace Multi.Cursor
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             int startHalfW = startW / 2;
             this.TrialInfo($"Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
-                $"TargetMult = {trial.TargetMultiple}, Dist (mm) = {trial.DistanceMM}]");
+                $"TargetMult = {trial.TargetMultiple}, Dist (mm) = {trial.DistanceMM}, Dist (px) = {trial.DistancePX}]");
 
             // Find a random target id for the active trial
             //int targetId = FindRandomTargetIdForTrial(trial); // Was checking for unique target ids, which couldn't work
-            int targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, trial.TargetMultiple, trial.DistancePX);
+            (int targetId, Point targetCenterAbsolute) = _mainWindow.Dispatcher.Invoke(() =>
+            {
+                return _mainWindow.GetRadomTarget(trial.TargetSide, trial.TargetMultiple, trial.DistancePX);
+            });
+                
+                
             if (targetId != -1)
             {
                 _trialTargetIds[trial.Id] = targetId;
@@ -64,7 +69,7 @@ namespace Multi.Cursor
             }
 
             // Get the absolute position of the target center
-            Point targetCenterAbsolute = _mainWindow.GetCenterAbsolutePosition(trial.TargetSide, targetId);
+            //Point targetCenterAbsolute = _mainWindow.GetCenterAbsolutePosition(trial.TargetSide, targetId);
 
             // Find a Start position for each distance in the passes
             _trialStartPosition[trial.Id] = new Point(); // Initialize the start position dictionary for this trial
@@ -94,7 +99,7 @@ namespace Multi.Cursor
         //    int targetId = -1;
         //    do
         //    {
-        //        targetId = _mainWindow.GetRadomTargetId(trial.TargetSide, targetMultiple, trial.DistancePX);
+        //        targetId = _mainWindow.GetRadomTarget(trial.TargetSide, targetMultiple, trial.DistancePX);
         //    } while (_trialTargetIds.ContainsValue(targetId));
 
         //    return targetId;

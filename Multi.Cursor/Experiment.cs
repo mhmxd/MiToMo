@@ -67,7 +67,6 @@ namespace Multi.Cursor
 
         public Experiment(double shortDistMM, double longDistMM)
         {
-            this.TrialInfo($"Experiment dist range (px): {Utils.MM2PX(shortDistMM):F2} - {Utils.MM2PX(longDistMM):F2}");
             Participant_Number = 100; // Default
             Shortest_Dist_MM = shortDistMM;
             Longest_Dist_MM = longDistMM;
@@ -83,10 +82,15 @@ namespace Multi.Cursor
             _midDistRangeMM = new Range(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM); // Middle distances range (will be set later)
             _longDistRangeMM = new Range(twoThird + Dist_PADDING_MM, Longest_Dist_MM); // Long distances range
 
+            this.TrialInfo($"Short dist range (mm): {_shortDistRangeMM.ToString()}");
+            this.TrialInfo($"Mid dist range (mm): {_midDistRangeMM.ToString()}");
+            this.TrialInfo($"Long dist range (mm): {_longDistRangeMM.ToString()}");
+
+
             // Find random distances in the distRanges
-            double midDist = Utils.RandDouble(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM); // Middle distance
-            double shortDist = Utils.RandDouble(Shortest_Dist_MM, oneThird - Dist_PADDING_MM); // Shortest distance
-            double longDist = Utils.RandDouble(twoThird + Dist_PADDING_MM, Longest_Dist_MM); // Longest distance
+            //double midDist = Utils.RandDouble(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM); // Middle distance
+            //double shortDist = Utils.RandDouble(Shortest_Dist_MM, oneThird - Dist_PADDING_MM); // Shortest distance
+            //double longDist = Utils.RandDouble(twoThird + Dist_PADDING_MM, Longest_Dist_MM); // Longest distance
 
             //_distances.Add(shortDist);
             //_distances.Add(midDist);

@@ -177,7 +177,7 @@ namespace Multi.Cursor
                             double distToStartLR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomRight);
 
                             double[] dists = { distToStartTL, distToStartTR, distToStartLL, distToStartLR };
-                            _buttonInfos[button.Id].DistToStart = new Range(dists.Min(), dists.Max());
+                            _buttonInfos[button.Id].DistToStartRange = new Range(dists.Min(), dists.Max());
 
                             // Update min/max X and Y for grid bounds
                             _gridMinX = Math.Min(_gridMinX, buttonRect.Left);

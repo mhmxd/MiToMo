@@ -430,7 +430,7 @@ namespace Multi.Cursor
         public static Point FindRandPointWithDist(this Rect rect, Point src, double dist, Side side)
         {
 
-            rect.TrialInfo($"Finding position: Rect: {rect.ToString()}; Src: {src}; Dist: {dist:F2}; Side: {side}");
+            //rect.TrialInfo($"Finding position: Rect: {rect.ToString()}; Src: {src}; Dist: {dist:F2}; Side: {side}");
 
             const int maxAttempts = 1000;
             // A wider angle spread is often necessary to cover edge cases, especially for larger distances or wide/tall rects.
@@ -490,7 +490,7 @@ namespace Multi.Cursor
             }
 
             // No valid point found within maxAttempts
-            rect.TrialInfo($"No point found for Rect: {rect.ToString()}; Src: {src}; Dist: {dist:F2}; Side: {side}");
+            //rect.TrialInfo($"No point found for Rect: {rect.ToString()}; Src: {src}; Dist: {dist:F2}; Side: {side}");
             return new Point(-1, -1); // Indicate failure
         }
 

@@ -22,12 +22,12 @@ namespace Multi.Cursor
                 Button = button;
                 Position = new Point(0, 0);
                 Rect = new Rect();
-                DistToStart = new Range(0, 0);
+                DistToStartRange = new Range(0, 0);
             }
             public SButton Button {  get; set; }
             public Point Position { get; set; }
             public Rect Rect { get; set; }
-            public Range DistToStart { get; set; }
+            public Range DistToStartRange { get; set; }
         }
 
         protected List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
@@ -113,8 +113,8 @@ namespace Multi.Cursor
                 List<int> possibleButtons = new List<int>();
                 foreach (int buttonId in _buttonInfos.Keys)
                 {
-                    //this.TrialInfo($"Dist = {dist} | DistToStart: {_buttonInfos[buttonId].DistToStart.ToString()}");
-                    if (_buttonInfos[buttonId].DistToStart.ContainsExc(dist))
+                    this.TrialInfo($"Dist = {dist} | DistToStart: {_buttonInfos[buttonId].DistToStartRange.ToString()}");
+                    if (_buttonInfos[buttonId].DistToStartRange.ContainsExc(dist))
                     {
                         possibleButtons.Add(buttonId);
                     }
@@ -137,7 +137,47 @@ namespace Multi.Cursor
                 //    this.TrialInfo($"No buttons found for width multiple {widthMult}.");
                 //    return -1; // Return an invalid point if no buttons are found
                 //}
-            } else
+            } 
+            else
+            {
+                this.TrialInfo($"No buttons available for width multiple {widthMult}!");
+                return -1; // Return an invalid point if no buttons are found
+            }
+
+            this.TrialInfo($"No buttons with width multiple {widthMult} matched the distance!");
+            return -1; // Return an invalid point if no buttons are found
+
+        }
+
+        public int SelectRandButtonByConstraints(int widthMult, Range distRange)
+        {
+            //this.TrialInfo($"Available buttons:");
+            foreach (int wm in _widthButtons.Keys)
+            {
+                string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
+                //this.TrialInfo($"WM {wm} -> {ids}");
+            }
+
+            if (_widthButtons[widthMult].Count > 0)
+            {
+
+                // Find the buttons with dist laying inside their dist to start range
+                List<int> possibleButtons = new List<int>();
+                foreach (int buttonId in _buttonInfos.Keys)
+                {
+                    if (_buttonInfos[buttonId].DistToStartRange.ContainsExc(distRange))
+                    {
+                        possibleButtons.Add(buttonId);
+                    }
+                }
+
+                // If we have options, return a random from them
+                if (possibleButtons.Count > 0)
+                {
+                    return possibleButtons.GetRandomElement();
+                }
+            }
+            else
             {
                 this.TrialInfo($"No buttons available for width multiple {widthMult}!");
                 return -1; // Return an invalid point if no buttons are found

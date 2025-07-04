@@ -27,6 +27,12 @@ namespace Multi.Cursor
             }
         }
 
+        protected class CachedTrialPositions
+        {
+            public int TargetId { get; set; }
+            public List<Point> StartPositions { get; set; } = new List<Point>();
+        }
+
         protected Dictionary<int, TrialRecord> _trialRecords = new Dictionary<int, TrialRecord>();
 
         public abstract bool FindPositionsForActiveBlock();

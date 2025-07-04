@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -111,7 +112,13 @@ namespace Multi.Cursor
         {
             return $"Trial: [Id = {_id}, W = {_targetMultiple} units, D = {_distanceMM:F2} mm, Loc = {_targetSide}]";
         }
-    
-        
+
+        public string GetCacheFileName(string cachedDirectory)
+        {
+            // Create a unique file name based on trial parameters
+            return Path.Combine(cachedDirectory, $"Cache_{TargetSide}_{TargetMultiple}_{DistRange.Min:F2}_{DistRange.Max:F2}.json");
+        }
+
+
     }
 }

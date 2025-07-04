@@ -38,6 +38,11 @@ namespace Multi.Cursor
             return value > _min && value < _max;
         }
 
+        public bool ContainsExc(Range valueRange)
+        {
+            return ContainsExc(valueRange.Min) && ContainsExc(valueRange.Max);
+        }
+
         public double GetRandomValue()
         {
             return _rand.NextDouble() * (_max - _min) + _min; // Generate a random value within the range
