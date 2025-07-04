@@ -60,7 +60,26 @@ namespace Multi.Cursor
                 }
             }
 
+            // If consecutive trials have the same TargetId, re-order them
+            while (IsTargetRepeated())
+            {
+                _activeBlock.Trials.Shuffle();
+            }
+
             return true;
+        }
+
+        private bool IsTargetRepeated()
+        {
+            for (int i = 0; i < _activeBlock.Trials.Count - 1; i++)
+            {
+                if (_trialRecords[_activeBlock.Trials[i].Id].TargetId == _trialRecords[_activeBlock.Trials[i + 1].Id].TargetId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         //public override bool FindPositionsForTrial(Trial trial)
