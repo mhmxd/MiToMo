@@ -353,7 +353,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ToMoGestures.cs" />
+    <Compile Include="IGestureHandler.cs" />
     <Compile Include="IntroDialog.xaml.cs">
       <DependentUpon>IntroDialog.xaml</DependentUpon>
     </Compile>

@@ -72,7 +72,7 @@ namespace Multi.Cursor
     /// <summary>
     /// Interaction logic for Window1.xaml
     /// </summary>
-    public partial class MainWindow : Window, ToMoGestures
+    public partial class MainWindow : Window, IGestureHandler
     {
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -917,7 +917,7 @@ namespace Multi.Cursor
             if (_touchMouseActive)
             { // Only track the touch if the main cursor isn't moving
                 if (_gestureDetector == null) _gestureDetector = new GestureDetector();
-                if (_touchSurface == null) _touchSurface = new TouchSurface(this, _experiment.Active_Technique);
+                //if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);
 
                 Dispatcher.Invoke((Action<TouchMouseSensorEventArgs>)TrackTouch, e);
             }
@@ -1028,9 +1028,14 @@ namespace Multi.Cursor
             _activeBlockNum = 1;
             Block block = _experiment.GetBlock(_activeBlockNum);
 
-            UpdateInfoLabel(1, _activeBlockNum);
+            if (_touchMouseActive)
+            {
+                if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);
+                _touchSurface.SetGestureReceiver(blockHandlers[_activeBlockNum - 1]);
+            }
+            
             blockHandlers[_activeBlockNum - 1].BeginActiveBlock();
-
+            UpdateInfoLabel(1, _activeBlockNum);
             //if (block.BlockType == Block.BLOCK_TYPE.REPEATING) _blockHandler = new RepeatingBlockHandler(this, block);
             //else if (block.BlockType == Block.BLOCK_TYPE.ALTERNATING) _blockHandler = new AlternatingBlockHandler(this, block);
 
@@ -2606,7 +2611,7 @@ namespace Multi.Cursor
         //    _rightWindow.DeactivateCursor();   
         //}
 
-        private void ActivateAuxGridNavigator(Side window)
+        public void ActivateAuxGridNavigator(Side window)
         {
             this.TrialInfo($"Activating aux window: {window}");
             // Deactivate all aux windows
@@ -2761,8 +2766,9 @@ namespace Multi.Cursor
 
         public void ThumbSwipe(Direction dir)
         {
-            if (_experiment.Active_Technique == Technique.Auxursor_Swipe
-                && _timestamps.ContainsKey(Str.START_PRESS_ONE))
+            this.TrialInfo($"Technique: {_experiment.Active_Technique}, Direction: {dir}");
+
+            if (_experiment.Active_Technique == Technique.Auxursor_Swipe)
             {
                 switch (dir)
                 {
@@ -2963,6 +2969,21 @@ namespace Multi.Cursor
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             return auxWindow.IsNavigatorOnButton(buttonId);
+        }
+
+        public void MoveAuxNavigator(TouchPoint touchPoint)
+        {
+            _activeAuxWindow?.MoveGridNavigator(touchPoint);
+        }
+
+        public void StopAuxNavigator()
+        {
+            _activeAuxWindow?.StopGridNavigator();
+        }
+
+        public Technique GetActiveTechnique()
+        {
+            return _experiment.Active_Technique;
         }
     }
 }

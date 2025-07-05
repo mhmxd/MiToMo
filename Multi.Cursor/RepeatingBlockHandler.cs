@@ -12,10 +12,8 @@ namespace Multi.Cursor
 {
     public class RepeatingBlockHandler : BlockHandler
     {
-        private MainWindow _mainWindow;
         private Block _activeBlock;
         private int _activeTrialNum = 0;
-        private Trial _activeTrial;
         //private Dictionary<int, int> _trialTargetIds = new Dictionary<int, int>(); // Trial Id -> Target Button Id
         //private Dictionary<int, Dictionary<int, Point>> _trialStartPositions = new Dictionary<int, Dictionary<int, Point>>(); // Trial Id -> [Dist (px) -> Position]
 
@@ -432,7 +430,7 @@ namespace Multi.Cursor
         public override void OnTargetMouseDown(Object sender, MouseButtonEventArgs e)
         {
             // Show the current timestamps
-            this.TrialInfo($"Trial timestamps: {string.Join(", ", _trialRecords[_activeTrial.Id].Timestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
+            this.TrialInfo($"Trial timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
 
             string key = Str.TARGET_PRESS;
 

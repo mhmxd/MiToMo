@@ -593,6 +593,16 @@ namespace Multi.Cursor
             }
         }
 
+        public static bool ContainsPartialKey<T>(this Dictionary<string, T> dictionary, string keyPart)
+        {
+            foreach (string key in dictionary.Keys)
+            {
+                if (key.Contains(keyPart)) return true;
+            }
+
+            return false;
+        }
+
     }
 
 }

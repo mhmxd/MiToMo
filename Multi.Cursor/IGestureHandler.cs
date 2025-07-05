@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Multi.Cursor
 {
-    internal interface ToMoGestures
+    internal interface IGestureHandler
     {
 
         void LeftPress();
@@ -25,14 +25,14 @@ namespace Multi.Cursor
         void IndexMove(TouchPoint indPoint);
         void IndexUp();
 
-        void ThumbSwipe(Direction loc);
-        void ThumbTap(Side loc); // Not exactly direction, rather position (up/down)
+        void ThumbSwipe(Direction dir);
+        void ThumbTap(Side side); // Not exactly direction, rather position (up/down)
         void ThumbMove(TouchPoint thumbPoint);
         void ThumbUp();
 
         void MiddleTap();
         void RingTap();
 
-        void PinkyTap(Side loc);
+        void PinkyTap(Side side);
     }
 }
