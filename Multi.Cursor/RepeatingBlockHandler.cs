@@ -64,6 +64,8 @@ namespace Multi.Cursor
                 _activeBlock.Trials.Shuffle();
             }
 
+            // Show all the target ids for the trials
+            this.TrialInfo($"Target IDs: {string.Join(", ", _activeBlock.Trials.Select(t => $"{_trialRecords[t.Id].TargetId}"))}");
             return true;
         }
 
