@@ -49,13 +49,41 @@ namespace Multi.Cursor
         public abstract void GoToNextTrial();
 
         public abstract void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e);
+        public abstract void OnMainWindowMouseMove(Object sender, MouseEventArgs e);
         public abstract void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e);
-        public abstract void OnStartMouseEnter(Object sender, MouseEventArgs e);
-        public abstract void OnStartMouseLeave(Object sender, MouseEventArgs e);
+        public void OnStartMouseEnter(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.START_ENTER);
+        }
+        public void OnStartMouseLeave(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.START_LEAVE);
+        }
         public abstract void OnStartMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnStartMouseUp(Object sender, MouseButtonEventArgs e);
+        public void OnTargetMouseEnter(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.TARGET_ENTER);
+        }
+        public void OnTargetMouseLeave(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.TARGET_LEAVE);
+        }
         public abstract void OnTargetMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnTargetMouseUp(Object sender, MouseButtonEventArgs e);
+        public void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
+        {
+            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
+            SButton clickedButton = sender as SButton;
+            if (clickedButton != null && clickedButton.Tag is int)
+            {
+                int buttonId = (int)clickedButton.Tag;
+                this.TrialInfo($"MouseDown occurred on button with ID: {buttonId}");
+            }
+
+            // It's always a miss
+            EndActiveTrial(Experiment.Result.MISS);
+        }
 
         public void LeftPress()
         {
@@ -84,15 +112,16 @@ namespace Multi.Cursor
 
         public void IndexTap()
         {
+            this.TrialInfo($"IndexTap: {_mainWindow.GetActiveTechnique()}");
             if (_mainWindow.GetActiveTechnique() == Technique.Auxursor_Tap)
             {
-                if (IsStartReleased())
+                if (GetEventCount(Str.START_RELEASE) > 0)
                 {
                     _mainWindow.ActivateAuxGridNavigator(Side.Top);
                 }
             }
             
-        }
+        } 
 
         public void IndexMove(double dX, double dY)
         {
@@ -113,7 +142,7 @@ namespace Multi.Cursor
         {
             if (_mainWindow.GetActiveTechnique() == Technique.Auxursor_Swipe)
             {
-                if (IsStartReleased())
+                if (GetEventCount(Str.START_RELEASE) > 0)
                 {
                     switch (dir)
                     {
@@ -137,7 +166,7 @@ namespace Multi.Cursor
         {
             if (_mainWindow.GetActiveTechnique() == Technique.Auxursor_Tap)
             {
-                if (IsStartReleased())
+                if (GetEventCount(Str.START_RELEASE) > 0)
                 {
                     _mainWindow.ActivateAuxGridNavigator(Side.Left);
                 }
@@ -158,7 +187,7 @@ namespace Multi.Cursor
         {
             if (_mainWindow.GetActiveTechnique() == Technique.Auxursor_Tap)
             {
-                if (IsStartReleased())
+                if (GetEventCount(Str.START_RELEASE) > 0)
                 {
                     _mainWindow.ActivateAuxGridNavigator(Side.Right);
                 }
@@ -175,9 +204,42 @@ namespace Multi.Cursor
             
         }
 
-        protected bool IsStartReleased()
+        //protected bool HasEventOccured(string eventName)
+        //{
+        //    foreach (var kv in _trialRecords[_activeTrial.Id].Timestamps)
+        //    {
+        //        if (kv.Key.StartsWith(eventName))
+        //        {
+        //            return true; // Event has occurred
+        //        }
+        //    }
+
+        //    return false; // Event has not occurred
+        //}
+
+        protected void LogEvent(string eventName)
         {
-            return _trialRecords[_activeTrial.Id].Timestamps.ContainsPartialKey(Str.START_RELEASE);
+            if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(eventName))
+            {
+                _trialRecords[_activeTrial.Id].EventCounts[eventName]++;
+            }
+            else
+            {
+                _trialRecords[_activeTrial.Id].EventCounts[eventName] = 1;
+            }
+
+            string timeKey = eventName + "_" + _trialRecords[_activeTrial.Id].EventCounts[eventName];
+            _trialRecords[_activeTrial.Id].Timestamps[timeKey] = Timer.GetCurrentMillis();
+        }
+
+        protected int GetEventCount(string eventName)
+        {
+            if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(eventName))
+            {
+                return _trialRecords[_activeTrial.Id].EventCounts[eventName];
+            }
+
+            return 0; // Event has not occurred
         }
     }
 

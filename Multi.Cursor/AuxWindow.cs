@@ -195,7 +195,7 @@ namespace Multi.Cursor
             {
                 _buttonInfos[buttonId].Button.Background = color; // Change the background color of the button
                 _buttonInfos[buttonId].Button.DisableBackgroundHover = true; // Disable hover fill for this button
-                //this.TrialInfo($"Button with ID {buttonId} filled with color {color}.");
+                //this.TrialInfo($"Button with ID {targetId} filled with color {color}.");
             }
             else
             {
@@ -204,21 +204,34 @@ namespace Multi.Cursor
         }
 
         public virtual void SetGridButtonHandlers(
-            int buttonId,
-            MouseButtonEventHandler targetMouseDownHandler, MouseButtonEventHandler targetMouseUpHandler)
+            int targetId,
+            MouseButtonEventHandler targetMouseDownHandler, MouseButtonEventHandler targetMouseUpHandler,
+            MouseButtonEventHandler nonTargetMouseDownHandler)
         {
-            // Find the button with the specified ID
-            if (_buttonInfos.ContainsKey(buttonId))
+            // Clear existing handlers for all buttons
+            foreach (int id in _buttonInfos.Keys)
             {
-                _buttonInfos[buttonId].Button.AddHandler(UIElement.MouseDownEvent, targetMouseDownHandler, handledEventsToo: true);
-                _buttonInfos[buttonId].Button.AddHandler(UIElement.MouseUpEvent, targetMouseUpHandler, handledEventsToo: true);
+                _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, targetMouseDownHandler);
+                _buttonInfos[id].Button.RemoveHandler(UIElement.MouseUpEvent, targetMouseUpHandler);
+                _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, nonTargetMouseDownHandler);
+            }
 
-                //this.TrialInfo($"Button with ID {buttonId} added handlers.");
-            }
-            else
+            // Set new handlers for buttons
+            foreach (int id in _buttonInfos.Keys)
             {
-                this.TrialInfo($"Button with ID {buttonId} not found.");
+                if (id == targetId) // Handling Target
+                {
+                    //this.TrialInfo($"Adding target handler for button #{id}");
+                    _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, targetMouseDownHandler, handledEventsToo: true);
+                    _buttonInfos[id].Button.AddHandler(UIElement.MouseUpEvent, targetMouseUpHandler, handledEventsToo: true);
+                }
+                else // Handling non-Targets
+                {
+                    //this.TrialInfo($"Adding non-target handler for button #{id}");
+                    _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, nonTargetMouseDownHandler, handledEventsToo: true);
+                }
             }
+
         }
 
         public virtual Point GetGridButtonCenter(int buttonId)
@@ -227,7 +240,7 @@ namespace Multi.Cursor
             // Find the button with the specified ID
             if (_buttonInfos.ContainsKey(buttonId))
             {
-                //this.TrialInfo($"Button#{buttonId} position in window: {position}");
+                //this.TrialInfo($"Button#{targetId} position in window: {position}");
                 double buttonHalfWidth = _buttonInfos[buttonId].Button.ActualWidth / 2;
                 double buttonHalfHeight = _buttonInfos[buttonId].Button.ActualHeight / 2;
                 return _buttonInfos[buttonId].Position.OffsetPosition(buttonHalfWidth, buttonHalfHeight);

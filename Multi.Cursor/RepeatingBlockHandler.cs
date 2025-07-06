@@ -177,8 +177,8 @@ namespace Multi.Cursor
         {
             int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             int startHalfW = startW / 2;
-            this.TrialInfo($"Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
-                $"TargetMult = {trial.TargetMultiple}, Dist range (mm) = {trial.DistRange.ToString()}]");
+            //this.TrialInfo($"Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
+            //    $"TargetMult = {trial.TargetMultiple}, Dist range (mm) = {trial.DistRange.ToString()}]");
 
             // Ensure TrialRecord exists for this trial
             if (!_trialRecords.ContainsKey(trial.Id))
@@ -202,7 +202,7 @@ namespace Multi.Cursor
             else
             {
                 // If finding new positions failed, attempt to load from cache
-                this.TrialInfo($"Failed to find new positions for Trial#{trial.Id}. Attempting to use cached positions.");
+                //this.TrialInfo($"Failed to find new positions for Trial#{trial.Id}. Attempting to use cached positions.");
                 List<CachedTrialPositions> cachedData = LoadPositionsFromCache(trial);
                 if (cachedData.Any())
                 {
@@ -213,11 +213,11 @@ namespace Multi.Cursor
                         var selectedEntry = randomCachedEntry[_random.Next(randomCachedEntry.Count)];
                         _trialRecords[trial.Id].TargetId = selectedEntry.TargetId;
                         _trialRecords[trial.Id].StartPositions = new List<Point>(selectedEntry.StartPositions);
-                        this.TrialInfo($"Using random cached positions for Trial#{trial.Id}");
+                        //this.TrialInfo($"Using random cached positions for Trial#{trial.Id}");
                         return true;
                     }
                 }
-                this.TrialInfo($"No valid cached positions found for Trial#{trial.Id} either.");
+                //this.TrialInfo($"No valid cached positions found for Trial#{trial.Id} either.");
                 return false; // No cached or new positions found
             }
         }
@@ -227,10 +227,10 @@ namespace Multi.Cursor
             this.TrialInfo("------------------- Beginning block ----------------------------");
             //_trialtWatch.Restart();
             // List all the trials in the block
-            foreach (Trial trial in _activeBlock.Trials)
-            {
-                this.TrialInfo($"Trial#{trial.Id} | Target side: {trial.TargetSide} | Distances: {trial.Distances}");
-            }
+            //foreach (Trial trial in _activeBlock.Trials)
+            //{
+            //    this.TrialInfo($"Trial#{trial.Id} | Target side: {trial.TargetSide} | Distances: {trial.Distances}");
+            //}
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
@@ -254,7 +254,9 @@ namespace Multi.Cursor
 
             // Color the target button and set the handlers
             _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.TARGET_UNAVAILABLE_COLOR);
-            _mainWindow.SetGridButtonHandlers(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, OnTargetMouseDown, OnTargetMouseUp);
+            _mainWindow.SetGridButtonHandlers(
+                _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, 
+                OnTargetMouseDown, OnTargetMouseUp, OnNonTargetMouseDown);
 
             // Show the first Start
             Point firstStartPos = _trialRecords[_activeTrial.Id].StartPositions.First();
@@ -308,40 +310,55 @@ namespace Multi.Cursor
             }
         }
 
-        public override void OnStartMouseEnter(Object sender, MouseEventArgs e)
-        {
-            
-        }
-
-        public override void OnStartMouseLeave(Object sender, MouseEventArgs e)
-        {
-            
-        }
-
         public override void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            if (_mainWindow.IsTechniqueToMo()) //-- ToMo
-            {
+            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
 
-                if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+            if (_mainWindow.IsTechniqueToMo()) ///// ToMo
+            {
+                if (GetEventCount(Str.START_RELEASE) > 0)
                 {
-                    TargetPress();
+                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+                    {
+                        TargetPress();
+                    }
+                    else // Navigator is not on the target button
+                    {
+                        EndActiveTrial(Experiment.Result.MISS);
+                        return;
+                    }
                 }
-                else // Navigator is not on the target button
+                else // Missed the Start
                 {
-                    EndActiveTrial(Experiment.Result.MISS);
+                    EndActiveTrial(Experiment.Result.NO_START);
                     return;
                 }
+
+
             }
-            else //-- Mouse
+            else ///// Mouse
             {
-                if (HasEventOccured(Str.START_RELEASE)) EndActiveTrial(Experiment.Result.MISS);
+                if (GetEventCount(Str.START_RELEASE) > 0) EndActiveTrial(Experiment.Result.MISS);
                 else EndActiveTrial(Experiment.Result.NO_START);
+            }
+        }
+
+        public override void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
+        {
+            if (_mainWindow.IsTechniqueToMo()) //// ToMo
+            {
+                // Nothing specifically
+            }
+            else //// Mouse
+            {
+                // Nothing specifically
             }
         }
 
         public override void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
+            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
+
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
                 string key = Str.TARGET_RELEASE;
@@ -364,7 +381,7 @@ namespace Multi.Cursor
         public override void OnStartMouseDown(Object sender, MouseButtonEventArgs e)
         {
             // Show the current timestamps
-            this.TrialInfo($"Trial timestamps: {string.Join(", ", _trialRecords[_activeTrial.Id].Timestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
+            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
 
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
@@ -397,9 +414,9 @@ namespace Multi.Cursor
         public override void OnStartMouseUp(Object sender, MouseButtonEventArgs e)
         {
             // Show the current timestamps
-            this.TrialInfo($"Trial timestamps: {string.Join(", ", _trialRecords[_activeTrial.Id].Timestamps.Select(kv => $"{kv.Key}: {kv.Value}"))}");
+            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
 
-            if (_mainWindow.IsTechniqueToMo()) //-- ToMo
+            if (_mainWindow.IsTechniqueToMo()) //// ToMo
             {
                 if (GetLatestEvent().Key.Contains(Str.START_PRESS)) // Start release?
                 {
@@ -419,7 +436,7 @@ namespace Multi.Cursor
                     }
                 }
             }
-            else //-- Mouse
+            else //// Mouse
             {
                 StartRelease();
             }
@@ -429,16 +446,9 @@ namespace Multi.Cursor
 
         public override void OnTargetMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            // Show the current timestamps
-            this.TrialInfo($"Trial timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
+            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
 
-            string key = Str.TARGET_PRESS;
-
-            if (_mainWindow.IsTechniqueToMo()) //-- ToMo
-            {
-
-            }
-            else //-- Mouse
+            if (_mainWindow.GetActiveTechnique() == Experiment.Technique.Mouse) //// Mouse
             {
                 TargetPress();
             }
@@ -448,13 +458,9 @@ namespace Multi.Cursor
 
         public override void OnTargetMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            string key = Str.TARGET_RELEASE;
+            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
 
-            if (_mainWindow.IsTechniqueToMo()) //-- ToMo
-            {
-
-            }
-            else //-- Mouse
+            if (_mainWindow.GetActiveTechnique() == Experiment.Technique.Mouse) //// Mouse
             {
                 TargetRelease();
             }
@@ -469,11 +475,9 @@ namespace Multi.Cursor
 
         private void StartRelease()
         {
-            string key = Str.START_RELEASE;
+            LogEvent(Str.START_RELEASE);
 
-            LogEvent(key);
-
-            if (_trialRecords[_activeTrial.Id].EventCounts[key] == Experiment.REP_TRIAL_NUM_PASS) // All passes done
+            if (GetEventCount(Str.START_RELEASE) == Experiment.REP_TRIAL_NUM_PASS) // All passes done
             {
                 EndActiveTrial(Experiment.Result.HIT);
             }
@@ -489,14 +493,15 @@ namespace Multi.Cursor
 
         private void TargetPress()
         {
-            if (!GetLatestEvent().Key.Contains(Str.START_RELEASE)) // Not following the sequence => MISS
+            // Continue normally
+            LogEvent(Str.TARGET_PRESS);
+
+            // Pressed on an unavaailable target
+            if (!_isTargetAvailable)
             {
                 EndActiveTrial(Experiment.Result.MISS);
                 return;
             }
-
-            // Continue normally
-            LogEvent(Str.TARGET_PRESS);
         }
 
         private void TargetRelease()
@@ -504,10 +509,7 @@ namespace Multi.Cursor
             LogEvent(Str.TARGET_RELEASE);
 
             // Show the next Start
-            //int nStartClicks = _trialEventCounts[Str.START_RELEASE];
-            //int nextStartInd = nStartClicks - 1; // Starts are indexed from 0
-            this.TrialInfo($"Num of clicks = {_trialRecords[_activeTrial.Id].EventCounts[Str.START_RELEASE]}, num of pos = {_trialRecords[_activeTrial.Id].StartPositions.Count}");
-            int startClicksCount = _trialRecords[_activeTrial.Id].EventCounts[Str.START_RELEASE];
+            int startClicksCount = GetEventCount(Str.START_RELEASE);
             Point startAbsolutePosition = _trialRecords[_activeTrial.Id].StartPositions[startClicksCount];
             _mainWindow.ShowStart(
                 startAbsolutePosition, Config.START_AVAILABLE_COLOR,
@@ -527,34 +529,6 @@ namespace Multi.Cursor
             var lastEvent = _trialRecords[_activeTrial.Id].Timestamps.OrderByDescending(kv => kv.Value).FirstOrDefault();
 
             return lastEvent;
-        }
-
-        private bool HasEventOccured(string eventName)
-        {
-            foreach (var kv in _trialRecords[_activeTrial.Id].Timestamps)
-            {
-                if (kv.Key.StartsWith(eventName))
-                {
-                    return true; // Event has occurred
-                }
-            }
-
-            return false; // Event has not occurred
-        }
-
-        private void LogEvent(string eventName)
-        {
-            if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(eventName))
-            {
-                _trialRecords[_activeTrial.Id].EventCounts[eventName]++;
-            }
-            else
-            {
-                _trialRecords[_activeTrial.Id].EventCounts[eventName] = 1;
-            }
-
-            string timeKey = eventName + "_" + _trialRecords[_activeTrial.Id].EventCounts[eventName];
-            _trialRecords[_activeTrial.Id].Timestamps[timeKey] = Timer.GetCurrentMillis();
         }
 
         private List<CachedTrialPositions> LoadPositionsFromCache(Trial trial)
@@ -667,7 +641,7 @@ namespace Multi.Cursor
             {
                 string json = JsonConvert.SerializeObject(cachedPositions, Formatting.Indented);
                 File.WriteAllText(fileName, json);
-                this.TrialInfo($"Saved {cachedPositions.Count} positions to cache: {fileName}");
+                //this.TrialInfo($"Saved {cachedPositions.Count} positions to cache: {fileName}");
             }
             catch (Exception ex)
             {

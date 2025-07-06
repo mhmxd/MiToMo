@@ -189,6 +189,7 @@ namespace Multi.Cursor
 
         public void SetGestureReceiver(IGestureHandler gestureReceiver)
         {
+            this.TrialInfo("GestureReceiver set!");
             _gestureReceiver = gestureReceiver;
         }
 

@@ -39,6 +39,7 @@ namespace Multi.Cursor
         public SButton()
         {
             this.Id = Interlocked.Increment(ref _nextId);
+            this.Tag = this.Id; // Set the tag to the unique ID for easy identification
 
             this.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Set the background color
             this.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Set the border brush for the button
