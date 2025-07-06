@@ -75,10 +75,11 @@ namespace Multi.Cursor
         {
             this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
             SButton clickedButton = sender as SButton;
-            if (clickedButton != null && clickedButton.Tag is int)
+            if (clickedButton != null && clickedButton.Tag is Dictionary<string, int>)
             {
-                int buttonId = (int)clickedButton.Tag;
-                this.TrialInfo($"MouseDown occurred on button with ID: {buttonId}");
+                // Show neighbor IDs
+                Dictionary<string, int> tag = clickedButton.Tag as Dictionary<string, int>;
+                this.TrialInfo($"Clicked button ID: {clickedButton.Id}, Left: {tag["LeftId"]}, Right: {tag["RightId"]}, Top: {tag["TopId"]}, Bottom: {tag["BottomId"]}");
             }
 
             // It's always a miss

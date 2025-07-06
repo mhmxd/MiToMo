@@ -264,24 +264,6 @@ namespace Multi.Cursor
                 // Call the method on the button to store its neighbor IDs.
                 _buttonInfos[buttonId].Button.SetNeighbors(topId, bottomId, leftId, rightId);
             }
-            //foreach (SButton button in _allButtons.Values)
-            //{
-            //    // ...find its neighbor in each of the four directions.
-            //    SButton topNeighbor = GetNeighbor(button, Side.Top);
-            //    SButton bottomNeighbor = GetNeighbor(button, Side.Down);
-            //    SButton leftNeighbor = GetNeighbor(button, Side.Left);
-            //    SButton rightNeighbor = GetNeighbor(button, Side.Right);
-
-            //    // Get the ID of each neighbor, or -1 if the neighbor is null.
-            //    int topId = topNeighbor?.Id ?? -1;
-            //    int bottomId = bottomNeighbor?.Id ?? -1;
-            //    int leftId = leftNeighbor?.Id ?? -1;
-            //    int rightId = rightNeighbor?.Id ?? -1;
-
-            //    // Call the method on the button to store its neighbor IDs.
-            //    button.SetNeighbors(topId, bottomId, leftId, rightId);
-            //}
-            //this.TrialInfo($"Finished linking neighbors for {_allButtons.Count} buttons.");
         }
 
         //public override void MakeTargetAvailable()

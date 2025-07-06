@@ -39,7 +39,7 @@ namespace Multi.Cursor
         public SButton()
         {
             this.Id = Interlocked.Increment(ref _nextId);
-            this.Tag = this.Id; // Set the tag to the unique ID for easy identification
+            this.Tag = new Dictionary<string, int>(); // Initialize the Tag property to store additional information
 
             this.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Set the background color
             this.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Set the border brush for the button
@@ -97,8 +97,18 @@ namespace Multi.Cursor
             this.BottomId = bottomId;
             this.LeftId = leftId;
             this.RightId = rightId;
+
+            // Update the Tag dictionary with neighbor IDs
+            var tagDict = this.Tag as Dictionary<string, int>;
+            if (tagDict != null)
+            {
+                tagDict["TopId"] = topId;
+                tagDict["BottomId"] = bottomId;
+                tagDict["LeftId"] = leftId;
+                tagDict["RightId"] = rightId;
+            }
         }
 
-        
+
     }
 }

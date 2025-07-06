@@ -2961,13 +2961,12 @@ namespace Multi.Cursor
         public Rect GetStartConstraintRect()
         {
             double startHalfW = Utils.MM2PX(Experiment.START_WIDTH_MM / 2.0);
-            double thisLeft = this.Left;
-            double thisTop = this.Top;
             return new Rect(
-                thisLeft + VERTICAL_PADDING + startHalfW,
-                thisTop + VERTICAL_PADDING + startHalfW,
-                this.Width - 2 * VERTICAL_PADDING,
-                this.Height - 2 * VERTICAL_PADDING - _infoLabelHeight);
+                this.Left + VERTICAL_PADDING + startHalfW,
+                this.Top + VERTICAL_PADDING + startHalfW,
+                this.Width - 2 * (VERTICAL_PADDING + startHalfW),
+                this.Height - 2 * (VERTICAL_PADDING + startHalfW) - _infoLabelHeight
+                );
         }
 
         public bool IsTechniqueToMo()

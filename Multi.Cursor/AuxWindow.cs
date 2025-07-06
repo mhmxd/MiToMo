@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using static Multi.Cursor.Output;
 
 namespace Multi.Cursor
@@ -49,6 +50,8 @@ namespace Multi.Cursor
         protected Point _topLeftButtonPosition = new Point(10000, 10000); // Initialize to a large value to find the top-left button
 
         protected Rect _startConstraintsRectAbsolute = new Rect();
+
+        private const double Tolerance = 5.0; // A small tolerance for alignment checks (e.g., for slightly misaligned buttons)
 
         public abstract void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators);
 
@@ -408,134 +411,267 @@ namespace Multi.Cursor
         /// <param name="currentButton">The starting button.</param>
         /// <param name="direction">The direction to navigate (Up, Down, Left, Right).</param>
         /// <returns>The closest SButton in the specified direction, or null if none is found.</returns>
+        //public SButton GetNeighbor(SButton currentButton, Side direction)
+        //{
+        //    // 1. Validate input and get the position of the current button.
+        //    if (currentButton == null || !_buttonInfos.ContainsKey(currentButton.Id))
+        //    {
+        //        // Cannot navigate from a button that isn't registered.
+        //        return null;
+        //    }
+
+        //    //if (currentButton == null || !_buttonPositions.TryGetValue(currentButton.Id, out Point currentPosition))
+        //    //{
+        //    //    // Cannot navigate from a button that isn't registered.
+        //    //    return null;
+        //    //}
+
+        //    SButton bestCandidate = null;
+        //    double minDistanceSquared = double.PositiveInfinity;
+
+        //    // 2. Iterate through all other buttons to find the best candidate.
+        //    foreach (int buttonId in _buttonInfos.Keys)
+        //    {
+        //        // Don't compare a button to itself.
+        //        if (buttonId == currentButton.Id) continue;
+
+        //        // 3. Check if the candidate is in the correct direction.
+        //        // We use a simple heuristic: to be considered "to the right", a button's horizontal distance
+        //        // should be greater than its vertical distance. This prevents jumping to a different row.
+        //        double deltaX = _buttonInfos[buttonId].Position.X - _buttonInfos[currentButton.Id].Position.X;
+        //        double deltaY = _buttonInfos[buttonId].Position.Y - _buttonInfos[currentButton.Id].Position.Y;
+
+        //        bool isPotentialCandidate = false;
+        //        switch (direction)
+        //        {
+        //            case Side.Right:
+        //                // Must be to the right and more horizontal than vertical.
+        //                if (deltaX > 0 && Math.Abs(deltaX) > Math.Abs(deltaY)) isPotentialCandidate = true;
+        //                break;
+
+        //            case Side.Left:
+        //                // Must be to the left and more horizontal than vertical.
+        //                if (deltaX < 0 && Math.Abs(deltaX) > Math.Abs(deltaY)) isPotentialCandidate = true;
+        //                break;
+
+        //            case Side.Down:
+        //                // Must be below and more vertical than horizontal.
+        //                if (deltaY > 0 && Math.Abs(deltaY) > Math.Abs(deltaX)) isPotentialCandidate = true;
+        //                break;
+
+        //            case Side.Top:
+        //                // Must be above and more vertical than horizontal.
+        //                if (deltaY < 0 && Math.Abs(deltaY) > Math.Abs(deltaX)) isPotentialCandidate = true;
+        //                break;
+        //        }
+
+        //        if (isPotentialCandidate)
+        //        {
+        //            // 4. If it's a valid candidate, check if it's the closest one yet.
+        //            // We use the square of the distance to avoid costly square root operations.
+        //            double distanceSquared = (_buttonInfos[buttonId].Position - _buttonInfos[currentButton.Id].Position).LengthSquared;
+
+        //            if (distanceSquared < minDistanceSquared)
+        //            {
+        //                minDistanceSquared = distanceSquared;
+        //                bestCandidate = _buttonInfos[buttonId].Button;
+        //            }
+        //        }
+        //    }
+
+        //    //foreach (var candidateButton in _allButtons.Values)
+        //    //{
+        //    //    // Don't compare a button to itself.
+        //    //    if (candidateButton.Id == currentButton.Id)
+        //    //    {
+        //    //        continue;
+        //    //    }
+
+        //    //    if (!_buttonPositions.TryGetValue(candidateButton.Id, out Point candidatePosition))
+        //    //    {
+        //    //        // Skip any candidate button that doesn't have a registered position.
+        //    //        continue;
+        //    //    }
+
+        //    //    // 3. Check if the candidate is in the correct direction.
+        //    //    // We use a simple heuristic: to be considered "to the right", a button's horizontal distance
+        //    //    // should be greater than its vertical distance. This prevents jumping to a different row.
+        //    //    double deltaX = candidatePosition.X - currentPosition.X;
+        //    //    double deltaY = candidatePosition.Y - currentPosition.Y;
+
+        //    //    bool isPotentialCandidate = false;
+        //    //    switch (direction)
+        //    //    {
+        //    //        case Side.Right:
+        //    //            // Must be to the right and more horizontal than vertical.
+        //    //            if (deltaX > 0 && Math.Abs(deltaX) > Math.Abs(deltaY)) isPotentialCandidate = true;
+        //    //            break;
+
+        //    //        case Side.Left:
+        //    //            // Must be to the left and more horizontal than vertical.
+        //    //            if (deltaX < 0 && Math.Abs(deltaX) > Math.Abs(deltaY)) isPotentialCandidate = true;
+        //    //            break;
+
+        //    //        case Side.Down:
+        //    //            // Must be below and more vertical than horizontal.
+        //    //            if (deltaY > 0 && Math.Abs(deltaY) > Math.Abs(deltaX)) isPotentialCandidate = true;
+        //    //            break;
+
+        //    //        case Side.Top:
+        //    //            // Must be above and more vertical than horizontal.
+        //    //            if (deltaY < 0 && Math.Abs(deltaY) > Math.Abs(deltaX)) isPotentialCandidate = true;
+        //    //            break;
+        //    //    }
+
+
+        //    //    if (isPotentialCandidate)
+        //    //    {
+        //    //        // 4. If it's a valid candidate, check if it's the closest one yet.
+        //    //        // We use the square of the distance to avoid costly square root operations.
+        //    //        double distanceSquared = (candidatePosition - currentPosition).LengthSquared;
+
+        //    //        if (distanceSquared < minDistanceSquared)
+        //    //        {
+        //    //            minDistanceSquared = distanceSquared;
+        //    //            bestCandidate = candidateButton;
+        //    //        }
+        //    //    }
+        //    //}
+
+        //    return bestCandidate;
+        //}
+
         public SButton GetNeighbor(SButton currentButton, Side direction)
         {
-            // 1. Validate input and get the position of the current button.
             if (currentButton == null || !_buttonInfos.ContainsKey(currentButton.Id))
             {
-                // Cannot navigate from a button that isn't registered.
-                return null;
+                return null; // Cannot navigate from an unregistered button.
             }
 
-            //if (currentButton == null || !_buttonPositions.TryGetValue(currentButton.Id, out Point currentPosition))
-            //{
-            //    // Cannot navigate from a button that isn't registered.
-            //    return null;
-            //}
+            // Use the Rect property for bounds
+            Rect currentRect = _buttonInfos[currentButton.Id].Rect;
 
-            SButton bestCandidate = null;
-            double minDistanceSquared = double.PositiveInfinity;
+            List<SButton> potentialCandidates = new List<SButton>();
 
-            // 2. Iterate through all other buttons to find the best candidate.
-            foreach (int buttonId in _buttonInfos.Keys)
+            foreach (int candidateId in _buttonInfos.Keys)
             {
-                // Don't compare a button to itself.
-                if (buttonId == currentButton.Id) continue;
+                if (candidateId == currentButton.Id) continue; // Don't compare a button to itself.
 
-                // 3. Check if the candidate is in the correct direction.
-                // We use a simple heuristic: to be considered "to the right", a button's horizontal distance
-                // should be greater than its vertical distance. This prevents jumping to a different row.
-                double deltaX = _buttonInfos[buttonId].Position.X - _buttonInfos[currentButton.Id].Position.X;
-                double deltaY = _buttonInfos[buttonId].Position.Y - _buttonInfos[currentButton.Id].Position.Y;
+                Rect candidateRect = _buttonInfos[candidateId].Rect;
 
-                bool isPotentialCandidate = false;
+                bool isCandidate = false;
+
                 switch (direction)
                 {
                     case Side.Right:
-                        // Must be to the right and more horizontal than vertical.
-                        if (deltaX > 0 && Math.Abs(deltaX) > Math.Abs(deltaY)) isPotentialCandidate = true;
+                        // Candidate's left edge must be to the right of current's right edge
+                        // And their vertical projections must overlap
+                        if (candidateRect.Left >= currentRect.Right - Tolerance &&
+                            candidateRect.Left > currentRect.Left && // Ensure it's truly "to the right"
+                            (currentRect.IntersectsWith(candidateRect) || IsVerticallyAligned(currentRect, candidateRect)))
+                        {
+                            isCandidate = true;
+                        }
                         break;
 
                     case Side.Left:
-                        // Must be to the left and more horizontal than vertical.
-                        if (deltaX < 0 && Math.Abs(deltaX) > Math.Abs(deltaY)) isPotentialCandidate = true;
+                        // Candidate's right edge must be to the left of current's left edge
+                        // And their vertical projections must overlap
+                        if (candidateRect.Right <= currentRect.Left + Tolerance &&
+                            candidateRect.Right < currentRect.Right && // Ensure it's truly "to the left"
+                            (currentRect.IntersectsWith(candidateRect) || IsVerticallyAligned(currentRect, candidateRect)))
+                        {
+                            isCandidate = true;
+                        }
                         break;
 
                     case Side.Down:
-                        // Must be below and more vertical than horizontal.
-                        if (deltaY > 0 && Math.Abs(deltaY) > Math.Abs(deltaX)) isPotentialCandidate = true;
+                        // Candidate's top edge must be below current's bottom edge
+                        // And their horizontal projections must overlap
+                        if (candidateRect.Top >= currentRect.Bottom - Tolerance &&
+                            candidateRect.Top > currentRect.Top && // Ensure it's truly "below"
+                            (currentRect.IntersectsWith(candidateRect) || IsHorizontallyAligned(currentRect, candidateRect)))
+                        {
+                            isCandidate = true;
+                        }
                         break;
 
                     case Side.Top:
-                        // Must be above and more vertical than horizontal.
-                        if (deltaY < 0 && Math.Abs(deltaY) > Math.Abs(deltaX)) isPotentialCandidate = true;
+                        // Candidate's bottom edge must be above current's top edge
+                        // And their horizontal projections must overlap
+                        if (candidateRect.Bottom <= currentRect.Top + Tolerance &&
+                            candidateRect.Bottom < currentRect.Bottom && // Ensure it's truly "above"
+                            (currentRect.IntersectsWith(candidateRect) || IsHorizontallyAligned(currentRect, candidateRect)))
+                        {
+                            isCandidate = true;
+                        }
                         break;
                 }
 
-                if (isPotentialCandidate)
+                if (isCandidate)
                 {
-                    // 4. If it's a valid candidate, check if it's the closest one yet.
-                    // We use the square of the distance to avoid costly square root operations.
-                    double distanceSquared = (_buttonInfos[buttonId].Position - _buttonInfos[currentButton.Id].Position).LengthSquared;
+                    potentialCandidates.Add(_buttonInfos[candidateId].Button);
+                }
+            }
 
-                    if (distanceSquared < minDistanceSquared)
+            if (potentialCandidates.Count == 0)
+            {
+                return null; // No neighbor found in this direction
+            }
+
+            // Now, select the best candidate based on distance and leftmost preference
+            SButton bestNeighbor = null;
+            double minDistance = double.PositiveInfinity; // Euclidean distance between centers
+            double minHorizontalPosition = double.PositiveInfinity; // For leftmost preference
+
+            foreach (SButton candidate in potentialCandidates)
+            {
+                Rect candidateRect = _buttonInfos[candidate.Id].Rect;
+
+                // Calculate Euclidean distance between centers
+                double currentCenterX = currentRect.X + currentRect.Width / 2;
+                double currentCenterY = currentRect.Y + currentRect.Height / 2;
+                double candidateCenterX = candidateRect.X + candidateRect.Width / 2;
+                double candidateCenterY = candidateRect.Y + candidateRect.Height / 2;
+
+                double euclideanDistance = Math.Sqrt(
+                    Math.Pow(candidateCenterX - currentCenterX, 2) +
+                    Math.Pow(candidateCenterY - currentCenterY, 2)
+                );
+
+                // Preference: Closest overall, then leftmost if distances are very similar.
+                if (euclideanDistance < minDistance - Tolerance) // Significantly closer
+                {
+                    minDistance = euclideanDistance;
+                    minHorizontalPosition = candidateRect.Left;
+                    bestNeighbor = candidate;
+                }
+                else if (Math.Abs(euclideanDistance - minDistance) <= Tolerance) // Similar distance, apply leftmost preference
+                {
+                    if (candidateRect.Left < minHorizontalPosition)
                     {
-                        minDistanceSquared = distanceSquared;
-                        bestCandidate = _buttonInfos[buttonId].Button;
+                        minDistance = euclideanDistance; // Update minDistance to reflect the new best
+                        minHorizontalPosition = candidateRect.Left;
+                        bestNeighbor = candidate;
                     }
                 }
             }
 
-            //foreach (var candidateButton in _allButtons.Values)
-            //{
-            //    // Don't compare a button to itself.
-            //    if (candidateButton.Id == currentButton.Id)
-            //    {
-            //        continue;
-            //    }
+            return bestNeighbor;
+        }
 
-            //    if (!_buttonPositions.TryGetValue(candidateButton.Id, out Point candidatePosition))
-            //    {
-            //        // Skip any candidate button that doesn't have a registered position.
-            //        continue;
-            //    }
+        // Helper to check if two rectangles have horizontal overlap within a tolerance
+        private bool IsHorizontallyAligned(Rect r1, Rect r2)
+        {
+            // Checks if the horizontal projection of r1 and r2 overlap
+            return (r1.Left < r2.Right - Tolerance && r1.Right > r2.Left + Tolerance);
+        }
 
-            //    // 3. Check if the candidate is in the correct direction.
-            //    // We use a simple heuristic: to be considered "to the right", a button's horizontal distance
-            //    // should be greater than its vertical distance. This prevents jumping to a different row.
-            //    double deltaX = candidatePosition.X - currentPosition.X;
-            //    double deltaY = candidatePosition.Y - currentPosition.Y;
-
-            //    bool isPotentialCandidate = false;
-            //    switch (direction)
-            //    {
-            //        case Side.Right:
-            //            // Must be to the right and more horizontal than vertical.
-            //            if (deltaX > 0 && Math.Abs(deltaX) > Math.Abs(deltaY)) isPotentialCandidate = true;
-            //            break;
-
-            //        case Side.Left:
-            //            // Must be to the left and more horizontal than vertical.
-            //            if (deltaX < 0 && Math.Abs(deltaX) > Math.Abs(deltaY)) isPotentialCandidate = true;
-            //            break;
-
-            //        case Side.Down:
-            //            // Must be below and more vertical than horizontal.
-            //            if (deltaY > 0 && Math.Abs(deltaY) > Math.Abs(deltaX)) isPotentialCandidate = true;
-            //            break;
-
-            //        case Side.Top:
-            //            // Must be above and more vertical than horizontal.
-            //            if (deltaY < 0 && Math.Abs(deltaY) > Math.Abs(deltaX)) isPotentialCandidate = true;
-            //            break;
-            //    }
-
-
-            //    if (isPotentialCandidate)
-            //    {
-            //        // 4. If it's a valid candidate, check if it's the closest one yet.
-            //        // We use the square of the distance to avoid costly square root operations.
-            //        double distanceSquared = (candidatePosition - currentPosition).LengthSquared;
-
-            //        if (distanceSquared < minDistanceSquared)
-            //        {
-            //            minDistanceSquared = distanceSquared;
-            //            bestCandidate = candidateButton;
-            //        }
-            //    }
-            //}
-
-            return bestCandidate;
+        // Helper to check if two rectangles have vertical overlap within a tolerance
+        private bool IsVerticallyAligned(Rect r1, Rect r2)
+        {
+            // Checks if the vertical projection of r1 and r2 overlap
+            return (r1.Top < r2.Bottom - Tolerance && r1.Bottom > r2.Top + Tolerance);
         }
 
         public bool IsNavigatorOnButton(int buttonId)
