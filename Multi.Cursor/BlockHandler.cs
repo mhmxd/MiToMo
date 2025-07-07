@@ -38,6 +38,7 @@ namespace Multi.Cursor
         // Attributes
         protected Dictionary<int, TrialRecord> _trialRecords = new Dictionary<int, TrialRecord>();
         protected MainWindow _mainWindow;
+        protected Block _activeBlock;
         protected Trial _activeTrial;
         //protected Dictionary<string, long> _trialTimestamps = new Dictionary<string, long>(); // Trial timestamps for logging
 
@@ -139,10 +140,11 @@ namespace Multi.Cursor
             this.TrialInfo($"IndexTap: {_mainWindow.GetActiveTechnique()}");
             if (_mainWindow.GetActiveTechnique() == Technique.Auxursor_Tap)
             {
-                if (GetEventCount(Str.START_RELEASE) > 0)
-                {
-                    _mainWindow.ActivateAuxGridNavigator(Side.Top);
-                }
+                _mainWindow.ActivateAuxGridNavigator(Side.Top);
+                //if (GetEventCount(Str.START_RELEASE) > 0)
+                //{
+                //    _mainWindow.ActivateAuxGridNavigator(Side.Top);
+                //}
             }
             
         } 
@@ -154,7 +156,7 @@ namespace Multi.Cursor
 
         public void IndexMove(TouchPoint indPoint)
         {
-            _mainWindow.MoveAuxNavigator(indPoint);
+            _mainWindow?.MoveAuxNavigator(indPoint);
         }
 
         public void IndexUp()
@@ -190,10 +192,11 @@ namespace Multi.Cursor
         {
             if (_mainWindow.GetActiveTechnique() == Technique.Auxursor_Tap)
             {
-                if (GetEventCount(Str.START_RELEASE) > 0)
-                {
-                    _mainWindow.ActivateAuxGridNavigator(Side.Left);
-                }
+                _mainWindow.ActivateAuxGridNavigator(Side.Left);
+                //if (GetEventCount(Str.START_RELEASE) > 0)
+                //{
+                //    _mainWindow.ActivateAuxGridNavigator(Side.Left);
+                //}
             }
         }
 
@@ -211,10 +214,11 @@ namespace Multi.Cursor
         {
             if (_mainWindow.GetActiveTechnique() == Technique.Auxursor_Tap)
             {
-                if (GetEventCount(Str.START_RELEASE) > 0)
-                {
-                    _mainWindow.ActivateAuxGridNavigator(Side.Right);
-                }
+                _mainWindow.ActivateAuxGridNavigator(Side.Right);
+                //if (GetEventCount(Str.START_RELEASE) > 0)
+                //{
+                //    _mainWindow.ActivateAuxGridNavigator(Side.Right);
+                //}
             }
         }
 
@@ -251,6 +255,16 @@ namespace Multi.Cursor
             }
 
             return 0; // Event has not occurred
+        }
+
+        protected double GetDuration(string begin, string end)
+        {
+            if (_trialRecords[_activeTrial.Id].Timestamps.ContainsKeys(begin, end))
+            {
+                return (_trialRecords[_activeTrial.Id].Timestamps[end] - _trialRecords[_activeTrial.Id].Timestamps[begin]) / 1000.0; // Convert to seconds
+            }
+
+            return 0;
         }
     }
 

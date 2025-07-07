@@ -12,7 +12,6 @@ namespace Multi.Cursor
 {
     public class RepeatingBlockHandler : BlockHandler
     {
-        private Block _activeBlock;
         private int _activeTrialNum = 0;
         //private Dictionary<int, int> _trialTargetIds = new Dictionary<int, int>(); // Trial Id -> Target Button Id
         //private Dictionary<int, Dictionary<int, Point>> _trialStartPositions = new Dictionary<int, Dictionary<int, Point>>(); // Trial Id -> [Dist (px) -> Position]
@@ -279,6 +278,7 @@ namespace Multi.Cursor
             {
                 case Experiment.Result.HIT:
                     Sounder.PlayHit();
+                    this.TrialInfo($"Trial time = {GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END)}s");
                     GoToNextTrial();
                     break;
                 case Experiment.Result.MISS:
