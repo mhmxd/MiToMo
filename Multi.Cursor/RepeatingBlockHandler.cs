@@ -253,7 +253,7 @@ namespace Multi.Cursor
             _trialRecords[_activeTrial.Id].Timestamps[Str.TRIAL_SHOW] = Timer.GetCurrentMillis();
 
             // Set the target window based on the trial's target side
-            _mainWindow.SetTargetWindow(_activeTrial.TargetSide);
+            _mainWindow.SetTargetWindow(_activeTrial.TargetSide, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the target button and set the handlers
             _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.TARGET_UNAVAILABLE_COLOR);

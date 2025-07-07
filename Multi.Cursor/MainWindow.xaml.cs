@@ -332,7 +332,6 @@ namespace Multi.Cursor
             this.MouseDown += Window_MouseDown;
             this.MouseUp += Window_MouseUp;
             this.MouseWheel += Window_MouseWheel;
-
             this.KeyDown += Window_KeyDown;
 
             //_leftWindow.MouseMove += Window_MouseMove;
@@ -2856,7 +2855,8 @@ namespace Multi.Cursor
         //    }
         //}
 
-        public void SetTargetWindow(Side side)
+        public void SetTargetWindow(Side side, 
+            MouseButtonEventHandler windowMouseDownHandler, MouseButtonEventHandler windowMouseUpHandler)
         {
             switch (side)
             {
@@ -2872,6 +2872,15 @@ namespace Multi.Cursor
                 default:
                     throw new ArgumentException($"Invalid target side: {_trial.TargetSide}");
             }
+
+            // All aux windows are treated the same (for now)
+            _leftWindow.MouseDown += windowMouseDownHandler;
+            _leftWindow.MouseUp += windowMouseUpHandler;
+            _rightWindow.MouseDown += windowMouseDownHandler;
+            _rightWindow.MouseUp += windowMouseUpHandler;
+            _topWindow.MouseDown += windowMouseDownHandler;
+            _topWindow.MouseUp += windowMouseUpHandler;
+
         }
 
         public AuxWindow GetAuxWindow(Side side)

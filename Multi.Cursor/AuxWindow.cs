@@ -168,7 +168,7 @@ namespace Multi.Cursor
                 List<int> possibleButtons = new List<int>();
                 foreach (SButton button in _widthButtons[widthMult])
                 {
-                    this.TrialInfo($"Dist range = {distRange.ToString()} | DistToStart: {_buttonInfos[button.Id].DistToStartRange.ToString()}");
+                    //this.TrialInfo($"Dist range = {distRange.ToString()} | DistToStart: {_buttonInfos[button.Id].DistToStartRange.ToString()}");
                     if (_buttonInfos[button.Id].DistToStartRange.ContainsExc(distRange))
                     {
                         possibleButtons.Add(button.Id);

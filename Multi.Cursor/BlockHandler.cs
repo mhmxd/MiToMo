@@ -51,6 +51,27 @@ namespace Multi.Cursor
         public abstract void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnMainWindowMouseMove(Object sender, MouseEventArgs e);
         public abstract void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e);
+        public void OnAuxWindowMouseDown(Object sender, MouseButtonEventArgs e)
+        {
+            if (GetEventCount(Str.START_RELEASE) == 0) // Not yet clicked on the Start => NO_START
+            {
+                EndActiveTrial(Experiment.Result.NO_START);
+            }
+            else // Clicked on the Start => MISS
+            {
+                EndActiveTrial(Experiment.Result.MISS);
+            }
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
+        }
+        public void OnAuxWindowMouseMove(Object sender, MouseEventArgs e)
+        {
+            // Nothing for now
+        }
+        public void OnAuxWindowMouseUp(Object sender, MouseButtonEventArgs e)
+        {
+            // Nothing for now
+        }
         public void OnStartMouseEnter(Object sender, MouseEventArgs e)
         {
             LogEvent(Str.START_ENTER);
@@ -84,6 +105,8 @@ namespace Multi.Cursor
 
             // It's always a miss
             EndActiveTrial(Experiment.Result.MISS);
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public void LeftPress()
@@ -204,19 +227,6 @@ namespace Multi.Cursor
         {
             
         }
-
-        //protected bool HasEventOccured(string eventName)
-        //{
-        //    foreach (var kv in _trialRecords[_activeTrial.Id].Timestamps)
-        //    {
-        //        if (kv.Key.StartsWith(eventName))
-        //        {
-        //            return true; // Event has occurred
-        //        }
-        //    }
-
-        //    return false; // Event has not occurred
-        //}
 
         protected void LogEvent(string eventName)
         {
