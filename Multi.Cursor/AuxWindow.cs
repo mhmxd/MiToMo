@@ -666,7 +666,6 @@ namespace Multi.Cursor
 
         protected void LinkButtonNeighbors()
         {
-            this.TrialInfo("Linking neighbor IDs for all buttons...");
             if (_buttonInfos.Count == 0) return;
             //if (_allButtons.Count == 0) return;
 

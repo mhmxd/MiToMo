@@ -325,7 +325,7 @@ namespace Multi.Cursor
             _rightWindow.GenerateGrid(_startConstraintRectAbsolue, colCreators);
 
 
-            UpdateLabel();
+            UpdateLabelsPosition();
 
             //-- Events
             this.MouseMove += Window_MouseMove;
@@ -435,7 +435,7 @@ namespace Multi.Cursor
             _experiment = new Experiment(shortestDistMM, longestDistMM);
         }
 
-        private void UpdateLabel()
+        private void UpdateLabelsPosition()
         {
             if (canvas != null && infoLabel != null)
             {
@@ -452,7 +452,7 @@ namespace Multi.Cursor
 
         private void InfoLabel_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            UpdateLabel(); // Reposition when the label's size changes (due to text update)
+            UpdateLabelsPosition(); // Reposition when the label's size changes (due to text update)
         }
 
         private void Window_KeyDown(object sender, SysIput.KeyEventArgs e)
@@ -1040,7 +1040,6 @@ namespace Multi.Cursor
 
             _stopWatch.Start();
             _blockHandler.BeginActiveBlock();
-            UpdateInfoLabel(1, _activeBlockNum);
             //if (block.BlockType == Block.BLOCK_TYPE.REPEATING) _blockHandler = new RepeatingBlockHandler(this, block);
             //else if (block.BlockType == Block.BLOCK_TYPE.ALTERNATING) _blockHandler = new AlternatingBlockHandler(this, block);
 
@@ -1732,11 +1731,11 @@ namespace Multi.Cursor
         //        Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
         //}
 
-        public void UpdateInfoLabel(int trialNum, int blockNum = 0)
+        public void UpdateInfoLabel(int trialNum, int nTrials, int blockNum = 0)
         {
             if (blockNum == 0) blockNum = _activeBlockNum;
-            infoLabel.Text = $"Trial {trialNum} | Block {blockNum} ";
-            UpdateLabel();
+            infoLabel.Text = $"Trial {trialNum}/{nTrials} --- Block {blockNum}/{_experiment.GetNumBlocks()}";
+            UpdateLabelsPosition();
         }
 
         //private (Point, Point) LeftTargetPositionElements(

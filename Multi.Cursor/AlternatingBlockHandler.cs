@@ -125,7 +125,7 @@ namespace Multi.Cursor
             this.TrialInfo($"Showing Trial#{_activeTrial.Id} | Side: {_activeTrial.TargetSide} | W: {_activeTrial.TargetMultiple} | Dist: {_activeTrial.DistanceMM:F2}mm");
 
             // Update the main window label
-            _mainWindow.UpdateInfoLabel(_activeTrialNum);
+            _mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
 
             // Log the trial show timestamp
             _trialRecords[_activeTrial.Id].Timestamps[Str.TRIAL_SHOW] = Timer.GetCurrentMillis(); 

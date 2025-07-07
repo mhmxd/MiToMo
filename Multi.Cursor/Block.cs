@@ -79,6 +79,7 @@ namespace Multi.Cursor
             block.Id = id;
 
             // Create and add trials to the block
+            block.TrialInfo($"{targetMultiples.Count}W x {distRanges.Count}D x 3Sides");
             int trialNum = 1;
             for (int sInd = 0; sInd < 3; sInd++)
             {
@@ -93,11 +94,18 @@ namespace Multi.Cursor
                             targetMultiple, 
                             range, 
                             nPasses);
+
                         block._trials.Add(trial);
 
                         trialNum++;
                     }
                 }
+            }
+
+            // Display all trials in the block
+            foreach (Trial trial in block._trials)
+            {
+                block.TrialInfo(trial.ToString());
             }
             block._trials.Shuffle();
 

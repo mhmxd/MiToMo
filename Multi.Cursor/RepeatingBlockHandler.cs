@@ -247,7 +247,8 @@ namespace Multi.Cursor
             //this.TrialInfo($"Start positions: {string.Join(", ", _trialRecords[_activeTrial.Id].StartPositions)}");
 
             // Update the main window label
-            _mainWindow.UpdateInfoLabel(_activeTrialNum);
+            this.TrialInfo($"nTrials = {_activeBlock.GetNumTrials()}");
+            _mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
 
             // Log the trial show timestamp
             _trialRecords[_activeTrial.Id].Timestamps[Str.TRIAL_SHOW] = Timer.GetCurrentMillis();

@@ -172,7 +172,7 @@ namespace Multi.Cursor
 
         public int GetNumBlocks()
         {
-            return N_BLOCKS;
+            return _blocks.Count;
         }
 
         public Block GetBlock(int blockNum)
