@@ -26,17 +26,18 @@ namespace Multi.Cursor
             { Str.x30, 30 }
         };
 
-        private static List<double> _distances = new List<double>(); // Generated in constructor
+        //private static List<double> _distances = new List<double>(); // Generated in constructor
         private Range _shortDistRangeMM; // Short distances range (mm)
         private Range _midDistRangeMM; // Mid distances range (mm)
         private Range _longDistRangeMM; // Long distances range (mm)
 
 
         private static int N_BLOCKS = 3; // Number of blocks in the experiment
-        private static int REP_TRIALS_NUM_PASSES = 3; // Must be even number (trial ends on Start)
-        public static double REP_TRIAL_MAX_DIST_STARTS_MM = 40; // Max distance between Starts in a repeating trial (mm)
 
-        private double _distPaddingMM; // Padding to each side of the dist thresholds
+        public static int REP_TRIAL_NUM_PASS = 3; // Trial ends on Start
+        public static double REP_TRIAL_MAX_DIST_STARTS_MM = Config.EXCEL_CELL_W; // Max distance between Starts in a repeating trial (mm)
+
+        private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
 
         public static double Min_Target_Width_MM = TARGET_WIDTHS_MM.Min();
         public static double Max_Target_Width_MM = TARGET_WIDTHS_MM.Max();
@@ -66,32 +67,35 @@ namespace Multi.Cursor
 
         public Experiment(double shortDistMM, double longDistMM)
         {
-            this.TrialInfo($"Experiment dist range (px): {Utils.MmToDips(shortDistMM):F2} - {Utils.MmToDips(longDistMM):F2}");
             Participant_Number = 100; // Default
             Shortest_Dist_MM = shortDistMM;
             Longest_Dist_MM = longDistMM;
 
             //--- Generate the distances
             double distDiff = Longest_Dist_MM - Shortest_Dist_MM;
-            //_distPaddingMM = 0.1 * distDiff;
-            _distPaddingMM = 2.5; // 2.5 mm padding
+            //Dist_PADDING_MM = 0.1 * distDiff;
             double oneThird = Shortest_Dist_MM + distDiff / 3;
             double twoThird = Shortest_Dist_MM + distDiff * 2 / 3;
 
             // Set the distRanges
-            _shortDistRangeMM = new Range(Shortest_Dist_MM, oneThird - _distPaddingMM); // Short distances range
-            _midDistRangeMM = new Range(oneThird + _distPaddingMM, twoThird - _distPaddingMM); // Middle distances range (will be set later)
-            _longDistRangeMM = new Range(twoThird + _distPaddingMM, Longest_Dist_MM); // Long distances range
+            _shortDistRangeMM = new Range(Shortest_Dist_MM, oneThird - Dist_PADDING_MM); // Short distances range
+            _midDistRangeMM = new Range(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM); // Middle distances range (will be set later)
+            _longDistRangeMM = new Range(twoThird + Dist_PADDING_MM, Longest_Dist_MM); // Long distances range
+
+            this.TrialInfo($"Short dist range (mm): {_shortDistRangeMM.ToString()}");
+            this.TrialInfo($"Mid dist range (mm): {_midDistRangeMM.ToString()}");
+            this.TrialInfo($"Long dist range (mm): {_longDistRangeMM.ToString()}");
+
 
             // Find random distances in the distRanges
-            double midDist = Utils.RandDouble(oneThird + _distPaddingMM, twoThird - _distPaddingMM); // Middle distance
-            double shortDist = Utils.RandDouble(Shortest_Dist_MM, oneThird - _distPaddingMM); // Shortest distance
-            double longDist = Utils.RandDouble(twoThird + _distPaddingMM, Longest_Dist_MM); // Longest distance
+            //double midDist = Utils.RandDouble(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM); // Middle distance
+            //double shortDist = Utils.RandDouble(Shortest_Dist_MM, oneThird - Dist_PADDING_MM); // Shortest distance
+            //double longDist = Utils.RandDouble(twoThird + Dist_PADDING_MM, Longest_Dist_MM); // Longest distance
 
-            _distances.Add(shortDist);
-            _distances.Add(midDist);
-            _distances.Add(longDist);
-            this.TrialInfo($"Experiment distances (mm): {ListToString(_distances)}");
+            //_distances.Add(shortDist);
+            //_distances.Add(midDist);
+            //_distances.Add(longDist);
+            //this.TrialInfo($"Experiment distances (mm): {ListToString(_distances)}");
             //for (int i = 0; i < N_BLOCKS; i++)
             //{
             //    int blockId = Participant_Number * 100 + i;
@@ -137,8 +141,8 @@ namespace Multi.Cursor
             };
             List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
 
-            CreateAltBlocks(2, targetMultiples, distRanges);
-            //CreateRepBlocks(1, targetMultiples, distRanges);
+            //CreateAltBlocks(1, targetMultiples, distRanges);
+            CreateRepBlocks(1, targetMultiples, distRanges);
         }
 
         private void CreateAltBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
@@ -160,7 +164,7 @@ namespace Multi.Cursor
             for (int i = 0; i < n; i++)
             {
                 int blockId = Participant_Number * 100 + i + 1;
-                Block block = Block.CreateRepBlock(blockId, targetMultiples, distRanges, REP_TRIALS_NUM_PASSES);
+                Block block = Block.CreateRepBlock(blockId, targetMultiples, distRanges, REP_TRIAL_NUM_PASS);
                 this.TrialInfo($"Created block #{block.Id} with {block.Trials.Count} trials.");
                 _blocks.Add(block);
             }
@@ -212,6 +216,11 @@ namespace Multi.Cursor
         public static double GetGridMinTargetWidthMM()
         {
             return GRID_TARGET_WIDTHS_MM.Min();
+        }
+
+        public static int GetStartHalfWidth()
+        {
+            return Utils.MM2PX(START_WIDTH_MM / 2);
         }
     }
 }

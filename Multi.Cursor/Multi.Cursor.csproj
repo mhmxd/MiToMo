@@ -353,7 +353,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ToMoGestures.cs" />
+    <Compile Include="IGestureHandler.cs" />
     <Compile Include="IntroDialog.xaml.cs">
       <DependentUpon>IntroDialog.xaml</DependentUpon>
     </Compile>
@@ -376,7 +376,7 @@
     <Compile Include="TouchSimulator.cs" />
     <Compile Include="TouchSurface.cs" />
     <Compile Include="Trial.cs" />
-    <Compile Include="IBlockHandler.cs" />
+    <Compile Include="BlockHandler.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="WindowHelper.cs" />
   </ItemGroup>

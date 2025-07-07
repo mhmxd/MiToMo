@@ -20,7 +20,7 @@ namespace Multi.Cursor
         public static double UNIT = Utils.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         public static double ROW_HEIGHT = Utils.MM2PX(Config.GRID_ROW_HEIGHT_MM); // Height of each row in pixels
         
-        public static double MAX_GROUP_WITH = Utils.MM2PX(Experiment.BUTTON_MULTIPLES[Str.x30]); // Maximum width of the group in pixels
+        public static double MAX_GROUP_WITH = Utils.MM2PX(2 * Experiment.BUTTON_MULTIPLES[Str.x15] + Config.GRID_WITHINGROUP_GUTTER_MM); // Maximum width of the group in pixels
         public static double COLUMN_HEIGHT = Utils.MM2PX(3 * Config.GRID_ROW_HEIGHT_MM + 2 * Config.GRID_WITHINGROUP_GUTTER_MM);
 
         //private class Column
@@ -265,6 +265,8 @@ namespace Multi.Cursor
         private static StackPanel CreateRowType5()
         {
             StackPanel stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
+            stackPanel.Children.Add(CreateBigButton());
+            stackPanel.Children.Add(CreateInRowGutter());
             stackPanel.Children.Add(CreateBigButton());
             return stackPanel;
         }

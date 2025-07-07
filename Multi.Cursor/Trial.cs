@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace Multi.Cursor
             get => _targetWidthMM;
             set => _targetWidthMM = value;
         }
-        public double TargetWidthPX => Utils.MmToDips(TargetWidthMM);
+        public double TargetWidthPX => Utils.MM2PX(TargetWidthMM);
 
         // Distance to the target center, from start's center
         private double _distanceMM;
@@ -34,9 +35,11 @@ namespace Multi.Cursor
             get => _distanceMM;
             set => _distanceMM = value;
         }
-        public double DistancePX => Utils.MmToDips(DistanceMM);
+        public int DistancePX => Utils.MM2PX(DistanceMM);
 
         public List<double> Distances = new List<double>(); // Distances in px
+
+        public Range DistRange = new Range(0, 0);
 
         //public Point StartPosition, TargetPosition; // Relative to the respective windows
 
@@ -86,11 +89,12 @@ namespace Multi.Cursor
             Trial trial = new Trial(id);
             trial.TargetSide = side;
             trial.TargetMultiple = targetWidthU;
-            for (int i = 0; i < nPasses; i++)
-            {
-                int randDist = Utils.MM2PX(distRange.GetRandomValue()); // Get a random distance in px
-                trial.Distances.Add(randDist);
-            }
+            trial.DistRange = distRange;
+            //for (int i = 0; i < nPasses; i++)
+            //{
+            //    int randDist = Utils.MM2PX(distRange.GetRandomValue()); // Get a random distance in px
+            //    trial.Distances.Add(randDist);
+            //}
 
             return trial;
         }
@@ -108,7 +112,13 @@ namespace Multi.Cursor
         {
             return $"Trial: [Id = {_id}, W = {_targetMultiple} units, D = {_distanceMM:F2} mm, Loc = {_targetSide}]";
         }
-    
-        
+
+        public string GetCacheFileName(string cachedDirectory)
+        {
+            // Create a unique file name based on trial parameters
+            return Path.Combine(cachedDirectory, $"Cache_{TargetSide}_{TargetMultiple}_{DistRange.Min:F2}_{DistRange.Max:F2}.json");
+        }
+
+
     }
 }

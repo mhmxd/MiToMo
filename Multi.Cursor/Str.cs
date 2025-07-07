@@ -14,21 +14,25 @@ namespace Multi.Cursor
         public static string START_PRESS = "start_press";
         public static string START_RELEASE = "start_release";
 
-        public static string START1_LAST_ENTRY = "start1_last_entry";
-        public static string START2_LAST_ENTRY = "start2_last_entry";
-        public static string START1_LAST_EXIT = "start1_last_entry";
-        public static string START2_LAST_EXIT = "start2_last_entry";
+        public static string START_ENTER = "start_enter";
+        //public static string START1_LAST_ENTRY = "start1_last_entry";
+        //public static string START2_LAST_ENTRY = "start2_last_entry";
+        //public static string START1_LAST_EXIT = "start1_last_entry";
+        //public static string START2_LAST_EXIT = "start2_last_entry";
+        public static string START_LEAVE = "start_leave";
 
-        public static string START_PRESS_ONE = "start1_press";
-        public static string START_RELEASE_ONE = "start1_release";
+        //public static string START_PRESS_ONE = "start1_press";
+        //public static string START_RELEASE_ONE = "start1_release";
 
-        public static string START_PRESS_TWO = "start2_press";
-        public static string START_RELEASE_TWO = "start2_release";
+        //public static string START_PRESS_TWO = "start2_press";
+        //public static string START_RELEASE_TWO = "start2_release";
 
-        public static string TARGET_LAST_ENTRY = "target_last_entry";
+        public static string TARGET_ENTER = "target_enter";
+        //public static string TARGET_LAST_ENTRY = "target_last_entry";
         public static string TARGET_PRESS = "target_press";
         public static string TARGET_RELEASE = "target_release";
-        
+        public static string TARGET_LEAVE = "target_leave";
+
         public static string TRIAL_END = "trial_end"; // Second release on Start
 
         public static string TOUCH_MOUSE_TAP = "Touch-Mouse-Tap";
@@ -38,8 +42,8 @@ namespace Multi.Cursor
         public static string PRACTICE = "Practice";
         public static string TEST = "Test";
 
-        public static string MAJOR_LINE = "==================================================================";
-        public static string MINOR_LINE = "------------------------------------------------------------------";
+        public static string MAJOR_LINE = "=================================================================================================";
+        public static string MINOR_LINE = "-------------------------------------------------------------------------------------------------";
 
         public static string x3 = "3mm";
         public static string x6 = "6mm";

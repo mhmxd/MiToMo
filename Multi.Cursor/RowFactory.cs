@@ -8,8 +8,8 @@ namespace Multi.Cursor
 {
     internal class RowFactory : Grid
     {
-        public static double WithinGroupGutter = Utils.MmToDips(Config.GRID_WITHINGROUP_GUTTER_MM); // Space in-between the grid elements
-        public static double UNIT = Utils.MmToDips(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
+        public static double WithinGroupGutter = Utils.MM2PX(Config.GRID_WITHINGROUP_GUTTER_MM); // Space in-between the grid elements
+        public static double UNIT = Utils.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         public static double ROW_HEIGHT = 6 * UNIT; // Height of each row in pixels
 
         // Helper to represent a "Gutter" in the sequence

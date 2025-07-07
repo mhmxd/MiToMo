@@ -159,15 +159,15 @@ namespace Multi.Cursor
         private Point _prevPos = new Point(-1, -1);
         private double _moveDelta = 0; // For swipe gestures
 
-        private ToMoGestures _gestureReceiver;
+        private IGestureHandler _gestureReceiver;
 
         private long _lastThumbGestureTimestamp = 0;
         private TouchPoint _lastIndexTP = null;
         private TouchPoint _lastThumbTP = null;
 
-        public TouchSurface(ToMoGestures gestureReceiver, Experiment.Technique activeTechnique)
+        public TouchSurface(Experiment.Technique activeTechnique)
         {
-            _gestureReceiver = gestureReceiver;
+            //_gestureReceiver = gestureReceiver;
 
             _upPointerIds = new List<int>() { -1 };
             _downPointersIds = new List<int>() { -1 };
@@ -185,6 +185,12 @@ namespace Multi.Cursor
             _downPositions.Add(Finger.Pinky, new Point(-1, -1));
 
             _activeTechnique = activeTechnique;
+        }
+
+        public void SetGestureReceiver(IGestureHandler gestureReceiver)
+        {
+            this.TrialInfo("GestureReceiver set!");
+            _gestureReceiver = gestureReceiver;
         }
 
         private TouchFrame FillActiveBlobs(Span2D<Byte> shotSpan)
@@ -530,19 +536,19 @@ namespace Multi.Cursor
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
                             LogTap(finger.ToString(), Side.Top, currentFrame.Timestamp); // LOG
-                            _gestureReceiver.ThumbTap(Side.Top);
+                            _gestureReceiver?.ThumbTap(Side.Top);
                             
                         }
                         else // Down
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Down.");
                             LogTap(finger.ToString(), Side.Down, currentFrame.Timestamp); // LOG
-                            _gestureReceiver.ThumbTap(Side.Down);
+                            _gestureReceiver?.ThumbTap(Side.Down);
                             
                         }
                     }
 
-                    _gestureReceiver.ThumbUp();
+                    _gestureReceiver?.ThumbUp();
                     _touchTimers[finger].Stop();
                 }
                 
@@ -567,7 +573,7 @@ namespace Multi.Cursor
                     _lastPositions[finger] = tpCenter;
 
                     // Index moving
-                    _gestureReceiver.IndexMove(touchPoint);
+                    _gestureReceiver?.IndexMove(touchPoint);
                 }
                 else // First touch
                 {
@@ -595,10 +601,10 @@ namespace Multi.Cursor
                     {
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
                         LogTap(finger.ToString(), Side.Left, currentFrame.Timestamp); // LOG
-                        _gestureReceiver.IndexTap();
+                        _gestureReceiver?.IndexTap();
                     }
 
-                    _gestureReceiver.IndexUp();
+                    _gestureReceiver?.IndexUp();
                     _touchTimers[finger].Stop();
                 }
                 
@@ -652,7 +658,7 @@ namespace Multi.Cursor
                             Abs(lastPosition.Y - downPosition.Y)))
                         {
                             LogTap(finger.ToString(), Side.Middle, currentFrame.Timestamp); // LOG
-                            _gestureReceiver.MiddleTap();
+                            _gestureReceiver?.MiddleTap();
                         }
 
                         _touchTimers[finger].Stop();
@@ -710,7 +716,7 @@ namespace Multi.Cursor
                     {
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
                         LogTap(finger.ToString(), Side.Right, currentFrame.Timestamp); // LOG
-                        _gestureReceiver.RingTap();
+                        _gestureReceiver?.RingTap();
                         
                     }
 
@@ -774,13 +780,13 @@ namespace Multi.Cursor
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
                             LogTap(finger.ToString(), Side.Top, currentFrame.Timestamp); // LOG
-                            _gestureReceiver.PinkyTap(Side.Top);
+                            _gestureReceiver?.PinkyTap(Side.Top);
                         }
                         else // Down
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Down.");
                             LogTap(finger.ToString(), Side.Down, currentFrame.Timestamp); // LOG
-                            _gestureReceiver.PinkyTap(Side.Down);
+                            _gestureReceiver?.PinkyTap(Side.Down);
                         }
                     }
 
@@ -833,7 +839,7 @@ namespace Multi.Cursor
                             if (Abs(dY) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
                             {
                                 // Swipe along X
-                                _gestureReceiver.ThumbSwipe(dX > 0 ? Direction.Right : Direction.Left);
+                                _gestureReceiver?.ThumbSwipe(dX > 0 ? Direction.Right : Direction.Left);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
                                 //GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
@@ -846,7 +852,7 @@ namespace Multi.Cursor
                             if (Abs(dX) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
                             {
                                 // Swipe along Y
-                                _gestureReceiver.ThumbSwipe(dY > 0 ? Direction.Down : Direction.Up);
+                                _gestureReceiver?.ThumbSwipe(dY > 0 ? Direction.Down : Direction.Up);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
                                 //GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
@@ -897,7 +903,7 @@ namespace Multi.Cursor
                     _lastPositions[finger] = tpCenter;
                     LogMove(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds, tpCenter.X, tpCenter.Y); // LOG
 
-                    _gestureReceiver.IndexMove(touchPoint); // Index moving
+                    _gestureReceiver?.IndexMove(touchPoint); // Index moving
                 }
                 else // First touch
                 {
@@ -920,7 +926,7 @@ namespace Multi.Cursor
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
 
-                    _gestureReceiver.IndexUp();
+                    _gestureReceiver?.IndexUp();
                     _touchTimers[finger].Stop();
                 }
 
