@@ -334,11 +334,14 @@ namespace Multi.Cursor
             if (_buttonInfos.ContainsKey(buttonId))
             {
                 _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
-                if (_buttonInfos[buttonId].Button.Background != Config.TARGET_AVAILABLE_COLOR && 
-                    _buttonInfos[buttonId].Button.Background != Config.TARGET_UNAVAILABLE_COLOR)
+
+                // Change the background only if the button is not already a target
+                if (!_buttonInfos[buttonId].Button.Background.Equals(Config.TARGET_AVAILABLE_COLOR) && 
+                    !_buttonInfos[buttonId].Button.Background.Equals(Config.TARGET_UNAVAILABLE_COLOR))
                 {
                     _buttonInfos[buttonId].Button.Background = Config.BUTTON_HOVER_FILL_COLOR;
                 }
+
                 
                 _lastHighlightedButtonId = buttonId; // Store the ID of the highlighted button
             }

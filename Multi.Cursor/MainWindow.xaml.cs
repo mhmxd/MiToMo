@@ -998,11 +998,11 @@ namespace Multi.Cursor
             return true;
         }
 
-        private double EMA(List<double> points, double alpha)
-        {
-            if (points.Count() == 1) return points[0];
-            else return alpha * points.Last() + (1 - alpha) * EMA(points.GetRange(0, points.Count() - 1), alpha);
-        }
+        //private double EMA(List<double> points, double alpha)
+        //{
+        //    if (points.Count() == 1) return points[0];
+        //    else return alpha * points.Last() + (1 - alpha) * EMA(points.GetRange(0, points.Count() - 1), alpha);
+        //}
 
         private void BeginTechnique()
         {
