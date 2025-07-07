@@ -39,7 +39,8 @@ namespace Multi.Cursor
 
         public List<double> Distances = new List<double>(); // Distances in px
 
-        public Range DistRange = new Range(0, 0);
+        public Range DistRangeMM { get; set; }
+        public Range DistRangePX => DistRangeMM.GetPx(); // Distance range in px
 
         //public Point StartPosition, TargetPosition; // Relative to the respective windows
 
@@ -84,12 +85,12 @@ namespace Multi.Cursor
             //_straightPath = true;
         }
 
-        public static Trial CreateRepetingTrial(int id, Side side, int targetWidthU, Range distRange, int nPasses)
+        public static Trial CreateRepetingTrial(int id, Side side, int targetWidthU, Range distRangeMM, int nPasses)
         {
             Trial trial = new Trial(id);
             trial.TargetSide = side;
             trial.TargetMultiple = targetWidthU;
-            trial.DistRange = distRange;
+            trial.DistRangeMM = distRangeMM;
             //for (int i = 0; i < nPasses; i++)
             //{
             //    int randDist = Utils.MM2PX(distRange.GetRandomValue()); // Get a random distance in px
@@ -99,12 +100,12 @@ namespace Multi.Cursor
             return trial;
         }
 
-        public static Trial CreateAlternatingTrial(int id, Side side, int targetWidthU, Range distRange)
+        public static Trial CreateAlternatingTrial(int id, Side side, int targetWidthU, Range distRangeMM)
         {
             Trial trial = new Trial(id);
             trial.TargetSide = side;
             trial.TargetMultiple = targetWidthU;
-            trial.DistanceMM = distRange.GetRandomValue();
+            trial.DistanceMM = distRangeMM.GetRandomValue();
             return trial;
         }
 
@@ -116,7 +117,7 @@ namespace Multi.Cursor
         public string GetCacheFileName(string cachedDirectory)
         {
             // Create a unique file name based on trial parameters
-            return Path.Combine(cachedDirectory, $"Cache_{TargetSide}_{TargetMultiple}_{DistRange.Min:F2}_{DistRange.Max:F2}.json");
+            return Path.Combine(cachedDirectory, $"Cache_{TargetSide}_{TargetMultiple}_{DistRangeMM.Label}.json");
         }
 
 

@@ -28,7 +28,7 @@ namespace Multi.Cursor
             public SButton Button {  get; set; }
             public Point Position { get; set; }
             public Rect Rect { get; set; }
-            public Range DistToStartRange { get; set; }
+            public Range DistToStartRange { get; set; } // In pixels
         }
 
         protected List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
@@ -61,7 +61,7 @@ namespace Multi.Cursor
             double gridCenterX = (_gridMinX + _gridMaxX) / 2;
             double gridCenterY = (_gridMinY + _gridMaxY) / 2;
             Point gridCenterPoint = new Point(gridCenterX, gridCenterY);
-            this.TrialInfo($"Central Point: {gridCenterPoint}");
+            //this.TrialInfo($"Central Point: {gridCenterPoint}");
             // Distance to the center point
             double centerDistance = double.MaxValue;
             int closestButtonId = -1;
@@ -74,7 +74,7 @@ namespace Multi.Cursor
                 if (buttonRect.Contains(gridCenterPoint))
                 {
                     // If we find a button that contains the center point, return its ID
-                    this.TrialInfo($"Middle button found at ID#{buttonId} with position {gridCenterPoint}");
+                    //this.TrialInfo($"Middle button found at ID#{buttonId} with position {gridCenterPoint}");
                     return buttonId;
                 }
                 else // if button doesn't containt the center point, calculate the distance
@@ -116,7 +116,7 @@ namespace Multi.Cursor
                 List<int> possibleButtons = new List<int>();
                 foreach (int buttonId in _buttonInfos.Keys)
                 {
-                    this.TrialInfo($"Dist = {dist} | DistToStart: {_buttonInfos[buttonId].DistToStartRange.ToString()}");
+                    //this.TrialInfo($"Dist = {dist} | DistToStart: {_buttonInfos[buttonId].DistToStartRange.ToString()}");
                     if (_buttonInfos[buttonId].DistToStartRange.ContainsExc(dist))
                     {
                         possibleButtons.Add(buttonId);
@@ -155,22 +155,23 @@ namespace Multi.Cursor
         public int SelectRandButtonByConstraints(int widthMult, Range distRange)
         {
             //this.TrialInfo($"Available buttons:");
-            foreach (int wm in _widthButtons.Keys)
-            {
-                string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-                //this.TrialInfo($"WM {wm} -> {ids}");
-            }
+            //foreach (int wm in _widthButtons.Keys)
+            //{
+            //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
+            //    this.TrialInfo($"WM {wm} -> {ids}");
+            //}
 
             if (_widthButtons[widthMult].Count > 0)
             {
 
                 // Find the buttons with dist laying inside their dist to start range
                 List<int> possibleButtons = new List<int>();
-                foreach (int buttonId in _buttonInfos.Keys)
+                foreach (SButton button in _widthButtons[widthMult])
                 {
-                    if (_buttonInfos[buttonId].DistToStartRange.ContainsExc(distRange))
+                    this.TrialInfo($"Dist range = {distRange.ToString()} | DistToStart: {_buttonInfos[button.Id].DistToStartRange.ToString()}");
+                    if (_buttonInfos[button.Id].DistToStartRange.ContainsExc(distRange))
                     {
-                        possibleButtons.Add(buttonId);
+                        possibleButtons.Add(button.Id);
                     }
                 }
 
@@ -663,6 +664,32 @@ namespace Multi.Cursor
             return bestNeighbor;
         }
 
+        protected void LinkButtonNeighbors()
+        {
+            this.TrialInfo("Linking neighbor IDs for all buttons...");
+            if (_buttonInfos.Count == 0) return;
+            //if (_allButtons.Count == 0) return;
+
+            // For each button in the grid...
+            foreach (int buttonId in _buttonInfos.Keys)
+            {
+                // ...find its neighbor in each of the four directions.
+                SButton topNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Top);
+                SButton bottomNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Down);
+                SButton leftNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Left);
+                SButton rightNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Right);
+
+                // Get the ID of each neighbor, or -1 if the neighbor is null.
+                int topId = topNeighbor?.Id ?? -1;
+                int bottomId = bottomNeighbor?.Id ?? -1;
+                int leftId = leftNeighbor?.Id ?? -1;
+                int rightId = rightNeighbor?.Id ?? -1;
+
+                // Call the method on the button to store its neighbor IDs.
+                _buttonInfos[buttonId].Button.SetNeighbors(topId, bottomId, leftId, rightId);
+            }
+        }
+
         // Helper to check if two rectangles have horizontal overlap within a tolerance
         private bool IsHorizontallyAligned(Rect r1, Rect r2)
         {
@@ -680,6 +707,59 @@ namespace Multi.Cursor
         public bool IsNavigatorOnButton(int buttonId)
         {
             return _lastHighlightedButtonId == buttonId;
+        }
+
+        /// <summary>
+        /// Calculates the minimum and maximum possible distances from an outside point
+        /// to the points inside a WPF Rect.
+        /// </summary>
+        /// <param name="outsidePoint">The point outside (or potentially inside/on the edge of) the rectangle.</param>
+        /// <param name="rect">The WPF Rect object.</param>
+        /// <returns>A Tuple where Item1 is the minimum distance and Item2 is the maximum distance.</returns>
+        public static Range GetMinMaxDistances(Point outsidePoint, Rect rect)
+        {
+            double minDist;
+            double maxDist;
+
+            // --- Calculate Minimum Distance ---
+            // The closest point in the rectangle to outsidePoint could be:
+            // 1. The outsidePoint itself, if it's inside or on the edge of the rectangle (minDist = 0).
+            // 2. A point on one of the rectangle's edges (if outsidePoint projects onto the edge).
+            // 3. One of the rectangle's corners (if outsidePoint projects outside the edge).
+
+            // For WPF Rect, X is Left, Y is Top.
+            // rect.Right and rect.Bottom are calculated properties (X + Width, Y + Height).
+            double dx = Math.Max(0.0, Math.Max(rect.X - outsidePoint.X, outsidePoint.X - rect.Right));
+            double dy = Math.Max(0.0, Math.Max(rect.Y - outsidePoint.Y, outsidePoint.Y - rect.Bottom));
+
+            // If the point is inside the rectangle, dx and dy will both be 0, resulting in minDist = 0.
+            // Otherwise, it's the distance to the closest point on the boundary.
+            minDist = Math.Sqrt(dx * dx + dy * dy);
+
+
+            // --- Calculate Maximum Distance ---
+            // The furthest point from outsidePoint will always be one of the four corners of the rectangle.
+            Point[] corners = new Point[]
+            {
+            new Point(rect.X, rect.Y),           // Top-Left
+            new Point(rect.Right, rect.Y),       // Top-Right
+            new Point(rect.X, rect.Bottom),      // Bottom-Left
+            new Point(rect.Right, rect.Bottom)   // Bottom-Right
+            };
+
+            maxDist = 0.0;
+            foreach (Point corner in corners)
+            {
+                // Use the standard Euclidean distance formula.
+                // WPF Point already has a handy static method for this.
+                double currentDist = Utils.Dist(outsidePoint, corner); // Or Point.Subtract(outsidePoint, corner).Length;
+                if (currentDist > maxDist)
+                {
+                    maxDist = currentDist;
+                }
+            }
+
+            return new Range(minDist, maxDist);
         }
     }
 }

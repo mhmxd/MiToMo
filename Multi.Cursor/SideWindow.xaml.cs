@@ -973,7 +973,6 @@ namespace Multi.Cursor
 
         private void RegisterAllButtons()
         {
-            this.TrialInfo($"Registering all buttons in the window with {_gridGroups.Count} groups...");
             // Iterate through all groups (Grids) in the window
             foreach (Grid group in _gridGroups)
             {
@@ -1042,13 +1041,16 @@ namespace Multi.Cursor
                                 .OffsetPosition(button.ActualWidth / 2, button.ActualHeight / 2)
                                 .OffsetPosition(this.Left, this.Top);
 
-                            double distToStartTL = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.TopLeft);
-                            double distToStartTR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.TopRight);
-                            double distToStartLL = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomLeft);
-                            double distToStartLR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomRight);
+                            //double distToStartTL = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.TopLeft);
+                            //double distToStartTR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.TopRight);
+                            //double distToStartLL = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomLeft);
+                            //double distToStartLR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomRight);
 
-                            double[] dists = { distToStartTL, distToStartTR, distToStartLL, distToStartLR };
-                            _buttonInfos[button.Id].DistToStartRange = new Range(dists.Min(), dists.Max());
+                            //double[] dists = { distToStartTL, distToStartTR, distToStartLL, distToStartLR };
+                            //_buttonInfos[button.Id].DistToStartRange = new Range(dists.Min(), dists.Max());
+
+                            // Correct way of finding min and max dist
+                            _buttonInfos[button.Id].DistToStartRange = GetMinMaxDistances(buttonCenterAbsolute, _startConstraintsRectAbsolute);
 
                             // Update min/max X and Y for grid bounds
                             _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
@@ -1078,50 +1080,50 @@ namespace Multi.Cursor
         /// Calculates and stores the spatial neighbor links for every button
         /// by setting the neighbor IDs directly on each SButton instance.
         /// </summary>
-        private void LinkButtonNeighbors()
-        {
-            this.TrialInfo("Linking neighbor IDs for all buttons...");
-            //if (_allButtons.Count == 0) return;
-            if (_buttonInfos.Count == 0) return;
+        //private void LinkButtonNeighbors()
+        //{
+        //    this.TrialInfo("Linking neighbor IDs for all buttons...");
+        //    //if (_allButtons.Count == 0) return;
+        //    if (_buttonInfos.Count == 0) return;
 
-            // For each button in the grid...
-            foreach (int buttonId in _buttonInfos.Keys)
-            {
-                // ...find its neighbor in each of the four directions.
-                SButton topNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Top);
-                SButton bottomNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Down);
-                SButton leftNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Left);
-                SButton rightNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Right);
+        //    // For each button in the grid...
+        //    foreach (int buttonId in _buttonInfos.Keys)
+        //    {
+        //        // ...find its neighbor in each of the four directions.
+        //        SButton topNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Top);
+        //        SButton bottomNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Down);
+        //        SButton leftNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Left);
+        //        SButton rightNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Right);
 
-                // Get the ID of each neighbor, or -1 if the neighbor is null.
-                int topId = topNeighbor?.Id ?? -1;
-                int bottomId = bottomNeighbor?.Id ?? -1;
-                int leftId = leftNeighbor?.Id ?? -1;
-                int rightId = rightNeighbor?.Id ?? -1;
+        //        // Get the ID of each neighbor, or -1 if the neighbor is null.
+        //        int topId = topNeighbor?.Id ?? -1;
+        //        int bottomId = bottomNeighbor?.Id ?? -1;
+        //        int leftId = leftNeighbor?.Id ?? -1;
+        //        int rightId = rightNeighbor?.Id ?? -1;
 
-                // Call the method on the button to store its neighbor IDs.
-                _buttonInfos[buttonId].Button.SetNeighbors(topId, bottomId, leftId, rightId);
-            }
+        //        // Call the method on the button to store its neighbor IDs.
+        //        _buttonInfos[buttonId].Button.SetNeighbors(topId, bottomId, leftId, rightId);
+        //    }
 
-            //foreach (SButton button in _allButtons.Values)
-            //{
-            //    // ...find its neighbor in each of the four directions.
-            //    SButton topNeighbor = GetNeighbor(button, Side.Top);
-            //    SButton bottomNeighbor = GetNeighbor(button, Side.Down);
-            //    SButton leftNeighbor = GetNeighbor(button, Side.Left);
-            //    SButton rightNeighbor = GetNeighbor(button, Side.Right);
+        //    //foreach (SButton button in _allButtons.Values)
+        //    //{
+        //    //    // ...find its neighbor in each of the four directions.
+        //    //    SButton topNeighbor = GetNeighbor(button, Side.Top);
+        //    //    SButton bottomNeighbor = GetNeighbor(button, Side.Down);
+        //    //    SButton leftNeighbor = GetNeighbor(button, Side.Left);
+        //    //    SButton rightNeighbor = GetNeighbor(button, Side.Right);
 
-            //    // Get the ID of each neighbor, or -1 if the neighbor is null.
-            //    int topId = topNeighbor?.Id ?? -1;
-            //    int bottomId = bottomNeighbor?.Id ?? -1;
-            //    int leftId = leftNeighbor?.Id ?? -1;
-            //    int rightId = rightNeighbor?.Id ?? -1;
+        //    //    // Get the ID of each neighbor, or -1 if the neighbor is null.
+        //    //    int topId = topNeighbor?.Id ?? -1;
+        //    //    int bottomId = bottomNeighbor?.Id ?? -1;
+        //    //    int leftId = leftNeighbor?.Id ?? -1;
+        //    //    int rightId = rightNeighbor?.Id ?? -1;
 
-            //    // Call the method on the button to store its neighbor IDs.
-            //    button.SetNeighbors(topId, bottomId, leftId, rightId);
-            //}
-            //this.TrialInfo($"Finished linking neighbors for {_allButtons.Count} buttons.");
-        }
+        //    //    // Call the method on the button to store its neighbor IDs.
+        //    //    button.SetNeighbors(topId, bottomId, leftId, rightId);
+        //    //}
+        //    //this.TrialInfo($"Finished linking neighbors for {_allButtons.Count} buttons.");
+        //}
 
         private void AddElementToCanvas(Element element, int left, int top)
         {
@@ -1132,33 +1134,33 @@ namespace Multi.Cursor
             _gridElements.Add(element.Id, element); // Cast to Element if needed
         }
 
-        public (string, Point) GetRandomElementByWidth(double widthMM)
-        {
-            int widthPX = Utils.MM2PX(widthMM);
-            foreach (Element element in _gridElements.Values)
-            {
-                Conlog<SideWindow>($"Element: {element.Id}, Width: {element.ElementWidth}");
-            }
+        //public (string, Point) GetRandomElementByWidth(double widthMM)
+        //{
+        //    int widthPX = Utils.MM2PX(widthMM);
+        //    foreach (Element element in _gridElements.Values)
+        //    {
+        //        Conlog<SideWindow>($"Element: {element.Id}, Width: {element.ElementWidth}");
+        //    }
 
-            // 1. Filter the list to get only elements with the target width
-            List<Element> matchingElements = _gridElements.Values
-                                            .Where(e => e.ElementWidth == widthPX)
-                                            .ToList(); // Convert to List to use indexing
+        //    // 1. Filter the list to get only elements with the target width
+        //    List<Element> matchingElements = _gridElements.Values
+        //                                    .Where(e => e.ElementWidth == widthPX)
+        //                                    .ToList(); // Convert to List to use indexing
 
-            // 2. Check if any matching elements were found
-            if (matchingElements.Count == 0)
-            {
-                this.TrialInfo($"No elements found with width: {widthPX}");
-                return ("", new Point());
-            }
+        //    // 2. Check if any matching elements were found
+        //    if (matchingElements.Count == 0)
+        //    {
+        //        this.TrialInfo($"No elements found with width: {widthPX}");
+        //        return ("", new Point());
+        //    }
 
-            // 3. Select a random index
-            int randomIndex = _random.Next(matchingElements.Count);
+        //    // 3. Select a random index
+        //    int randomIndex = _random.Next(matchingElements.Count);
 
-            // 4. Return the element at the random index
-            string key = matchingElements[randomIndex].Id;
-            return (key, GetElementCenter(key));
-        }
+        //    // 4. Return the element at the random index
+        //    string key = matchingElements[randomIndex].Id;
+        //    return (key, GetElementCenter(key));
+        //}
 
         public void SelectElement()
         {

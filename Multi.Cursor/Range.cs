@@ -20,12 +20,19 @@ namespace Multi.Cursor
             set => _max = value;
         }
 
+        public string Label { get; set; } = string.Empty; // Optional label for the range
+
         Random _rand = new Random();
 
         public Range(double min, double max)
         {
             _min = min;
             _max = max;
+        }
+
+        public Range(double min, double max, string label) : this(min, max)
+        {
+            Label = label;
         }
 
         public bool ContainsInc(double value)
@@ -48,7 +55,12 @@ namespace Multi.Cursor
             return _rand.NextDouble() * (_max - _min) + _min; // Generate a random value within the range
         }
 
-        public string ToString()
+        public Range GetPx()
+        {
+            return new Range(Utils.MM2PX(_min), Utils.MM2PX(_max), Label);
+        }
+
+        public override string ToString()
         {
             return $"Min: {Min:F2} -- Max: {Max:F2}";
         }

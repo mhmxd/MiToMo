@@ -242,7 +242,8 @@ namespace Multi.Cursor
         public override void ShowActiveTrial()
         {
             this.TrialInfo(Str.MINOR_LINE);
-            this.TrialInfo($"Showing rep Trial#{_activeTrial.Id} | Target side: {_activeTrial.TargetSide} | Dist (mm): {_activeTrial.DistRange.ToString()}");
+            this.TrialInfo($"Showing rep Trial#{_activeTrial.Id} | Target side: {_activeTrial.TargetSide} " +
+                $"| Dist (mm): ({_activeTrial.DistRangeMM.Label}) {_activeTrial.DistRangeMM.ToString()}");
             //this.TrialInfo($"Start positions: {string.Join(", ", _trialRecords[_activeTrial.Id].StartPositions)}");
 
             // Update the main window label
@@ -560,7 +561,7 @@ namespace Multi.Cursor
 
             (int targetId, Point targetCenterAbsolute) = _mainWindow.Dispatcher.Invoke(() =>
             {
-                return _mainWindow.GetRadomTarget(trial.TargetSide, trial.TargetMultiple, trial.DistRange);
+                return _mainWindow.GetRadomTarget(trial.TargetSide, trial.TargetMultiple, trial.DistRangePX);
             });
 
             if (targetId != -1)
@@ -581,7 +582,7 @@ namespace Multi.Cursor
 
             // Find random Start positions for the number of passes
             int maxRetries = 1000;
-            double randDistMM = trial.DistRange.Min + (_random.NextDouble() * (trial.DistRange.Max - trial.DistRange.Min));
+            double randDistMM = trial.DistRangeMM.GetRandomValue();
             Point startCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, Utils.MM2PX(randDistMM), trial.TargetSide.GetOpposite());
 
             if (startCenter.X == -1 || startCenter.Y == -1) // Couldn't find the first position
@@ -602,7 +603,7 @@ namespace Multi.Cursor
                     Point currentStartCenter;
                     do
                     {
-                        randDistMM = trial.DistRange.Min + (_random.NextDouble() * (trial.DistRange.Max - trial.DistRange.Min));
+                        randDistMM = trial.DistRangeMM.GetRandomValue();
                         currentStartCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, Utils.MM2PX(randDistMM), trial.TargetSide.GetOpposite());
 
                         if (nRetries >= maxRetries)

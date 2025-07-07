@@ -54,5 +54,9 @@ namespace Multi.Cursor
         public static string x30 = "30mm";
         public static string _52MM = "52mm";
 
+        public static readonly string SHORT = "Short";
+        public static readonly string MID = "Mid";
+        public static readonly string LONG = "Long";
+
     }
 }

@@ -114,7 +114,6 @@ namespace Multi.Cursor
 
         private void RegisterAllButtons()
         {
-            this.TrialInfo("Registering buttons in all columns...");
             foreach (Grid column in _gridColumns)
             {
                 RegisterButtons(column);
@@ -171,13 +170,16 @@ namespace Multi.Cursor
                                 .OffsetPosition(button.ActualWidth/2, button.ActualHeight/2)
                                 .OffsetPosition(this.Left, this.Top);
 
-                            double distToStartTL = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.TopLeft);
-                            double distToStartTR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.TopRight);
-                            double distToStartLL = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomLeft);
-                            double distToStartLR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomRight);
+                            //double distToStartTL = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.TopLeft);
+                            //double distToStartTR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.TopRight);
+                            //double distToStartLL = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomLeft);
+                            //double distToStartLR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomRight);
 
-                            double[] dists = { distToStartTL, distToStartTR, distToStartLL, distToStartLR };
-                            _buttonInfos[button.Id].DistToStartRange = new Range(dists.Min(), dists.Max());
+                            //double[] dists = { distToStartTL, distToStartTR, distToStartLL, distToStartLR };
+                            //_buttonInfos[button.Id].DistToStartRange = new Range(dists.Min(), dists.Max());
+
+                            // Correct way of finding min and max dist
+                            _buttonInfos[button.Id].DistToStartRange = GetMinMaxDistances(buttonCenterAbsolute, _startConstraintsRectAbsolute);
 
                             // Update min/max X and Y for grid bounds
                             _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
@@ -240,31 +242,31 @@ namespace Multi.Cursor
         /// Calculates and stores the spatial neighbor links for every button
         /// by setting the neighbor IDs directly on each SButton instance.
         /// </summary>
-        private void LinkButtonNeighbors()
-        {
-            this.TrialInfo("Linking neighbor IDs for all buttons...");
-            if (_buttonInfos.Count == 0) return;
-            //if (_allButtons.Count == 0) return;
+        //private void LinkButtonNeighbors()
+        //{
+        //    this.TrialInfo("Linking neighbor IDs for all buttons...");
+        //    if (_buttonInfos.Count == 0) return;
+        //    //if (_allButtons.Count == 0) return;
 
-            // For each button in the grid...
-            foreach (int buttonId in _buttonInfos.Keys)
-            {
-                // ...find its neighbor in each of the four directions.
-                SButton topNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Top);
-                SButton bottomNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Down);
-                SButton leftNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Left);
-                SButton rightNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Right);
+        //    // For each button in the grid...
+        //    foreach (int buttonId in _buttonInfos.Keys)
+        //    {
+        //        // ...find its neighbor in each of the four directions.
+        //        SButton topNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Top);
+        //        SButton bottomNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Down);
+        //        SButton leftNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Left);
+        //        SButton rightNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Right);
 
-                // Get the ID of each neighbor, or -1 if the neighbor is null.
-                int topId = topNeighbor?.Id ?? -1;
-                int bottomId = bottomNeighbor?.Id ?? -1;
-                int leftId = leftNeighbor?.Id ?? -1;
-                int rightId = rightNeighbor?.Id ?? -1;
+        //        // Get the ID of each neighbor, or -1 if the neighbor is null.
+        //        int topId = topNeighbor?.Id ?? -1;
+        //        int bottomId = bottomNeighbor?.Id ?? -1;
+        //        int leftId = leftNeighbor?.Id ?? -1;
+        //        int rightId = rightNeighbor?.Id ?? -1;
 
-                // Call the method on the button to store its neighbor IDs.
-                _buttonInfos[buttonId].Button.SetNeighbors(topId, bottomId, leftId, rightId);
-            }
-        }
+        //        // Call the method on the button to store its neighbor IDs.
+        //        _buttonInfos[buttonId].Button.SetNeighbors(topId, bottomId, leftId, rightId);
+        //    }
+        //}
 
         //public override void MakeTargetAvailable()
         //{
