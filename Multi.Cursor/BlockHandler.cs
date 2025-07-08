@@ -40,7 +40,7 @@ namespace Multi.Cursor
         protected MainWindow _mainWindow;
         protected Block _activeBlock;
         protected Trial _activeTrial;
-        //protected Dictionary<string, long> _trialTimestamps = new Dictionary<string, long>(); // Trial timestamps for logging
+        protected int _activeTrialNum = 0;
 
         public abstract bool FindPositionsForActiveBlock();
         public abstract bool FindPositionsForTrial(Trial trial);

@@ -12,15 +12,7 @@ namespace Multi.Cursor
 {
     public class RepeatingBlockHandler : BlockHandler
     {
-        private int _activeTrialNum = 0;
-        //private Dictionary<int, int> _trialTargetIds = new Dictionary<int, int>(); // Trial Id -> Target Button Id
-        //private Dictionary<int, Dictionary<int, Point>> _trialStartPositions = new Dictionary<int, Dictionary<int, Point>>(); // Trial Id -> [Dist (px) -> Position]
-
         private bool _isTargetAvailable = false; // Whether the target is available for clicking
-
-        //private Stopwatch _trialtWatch = new Stopwatch();
-        //private Dictionary<string, long> _trialTimestamps = new Dictionary<string, long>(); // Trial timestamps for logging
-        //private Dictionary<string, int> _trialEventCounts = new Dictionary<string, int>(); // Ex.: "start_press" -> 1, "target_release" -> 2, etc.
 
         private const string CacheDirectory = "TrialPositionCache";
         private const int MaxCachedPositions = 100;
@@ -80,99 +72,6 @@ namespace Multi.Cursor
 
             return false;
         }
-
-        //public override bool FindPositionsForTrial(Trial trial)
-        //{
-        //    int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
-        //    int startHalfW = startW / 2;
-        //    this.TrialInfo($"Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
-        //        $"TargetMult = {trial.TargetMultiple}, Dist range (mm) = {trial.DistRange.ToString()}]");
-
-        //    // Find a random target id for the active trial
-        //    //int targetId = FindRandomTargetIdForTrial(trial);
-        //    (int targetId, Point targetCenterAbsolute) = _mainWindow.Dispatcher.Invoke(() =>
-        //    {
-        //        return _mainWindow.GetRadomTarget(trial.TargetSide, trial.TargetMultiple, trial.DistRange);
-        //    });
-
-        //    if (targetId != -1)
-        //    {
-        //        _trialRecords[trial.Id].TargetId = targetId;
-        //        //_trialTargetIds[trial.Id] = targetId;
-        //    }
-        //    else
-        //    {
-        //        this.TrialInfo($"Failed to find a random target id for Trial#{trial.Id}");
-        //        return false;
-        //    }
-
-        //    // Get the absolute position of the target center
-        //    //Point targetCenterAbsolute = _mainWindow.GetCenterAbsolutePosition(trial.TargetSide, targetId);
-
-        //    // Get Start constraints
-        //    Rect startConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
-        //    {
-        //        return _mainWindow.GetStartConstraintRect();
-        //    }); 
-
-        //    // Find random Start positions for the number of passes
-        //    //_trialStartPositions[trial.Id] = new Dictionary<int, Point>();
-        //    Point firstStartCenter = new Point(-1, -1); // Other positions must be close the first one
-        //    int maxRetries = 1000; // Max number of retries to find a valid Start position
-        //    int nRetries = 0;
-        //    double randDistMM = trial.DistRange.Min + (_random.NextDouble() * (trial.DistRange.Max - trial.DistRange.Min));
-        //    Point startCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, Utils.MM2PX(randDistMM), trial.TargetSide.GetOpposite());
-        //    if (startCenter.X == -1) // Couldn't find the first position
-        //    {
-        //        this.TrialInfo($"Failed to find a valid first Start position!");
-        //        return false; // Failed to find a valid position
-        //    }
-        //    else
-        //    {
-        //        // Save the first position
-        //        Point startPositionAbsolute = startCenter.OffsetPosition(-startHalfW, -startHalfW);
-        //        _trialRecords[trial.Id].StartPositions.Add(startPositionAbsolute);
-        //        //this.TrialInfo($"Start position 1 added");
-
-        //        // Find the rest
-        //        for (int p = 0; p < Experiment.REP_TRIAL_NUM_PASS - 1; p++)
-        //        {
-        //            // Try finding a position for each pass
-        //            do
-        //            {
-        //                randDistMM = trial.DistRange.Min + (_random.NextDouble() * (trial.DistRange.Max - trial.DistRange.Min));
-        //                startCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, Utils.MM2PX(randDistMM), trial.TargetSide.GetOpposite());
-
-        //                if (nRetries >= maxRetries)
-        //                {
-        //                    this.TrialInfo($"Failed to find a valid Start position after {maxRetries} retries!");
-        //                    return false; // Failed to find a valid position
-        //                }
-
-        //                nRetries++;
-        //                //this.TrialInfo($"Dist = {Utils.Dist(startCenter, _trialRecords[trial.Id].StartPositions[0]):F2}, Max dist = {Utils.MM2PX(Experiment.REP_TRIAL_MAX_DIST_STARTS_MM):F2}");
-        //            } while (Utils.Dist(startCenter, _trialRecords[trial.Id].StartPositions[0]) > Utils.MM2PX(Experiment.REP_TRIAL_MAX_DIST_STARTS_MM));
-
-        //            // Valid position found
-        //            startPositionAbsolute = startCenter.OffsetPosition(-startHalfW, -startHalfW);
-        //            if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position
-        //            {
-        //                this.TrialInfo($"No valid position {p} found for Start!");
-        //                return false;
-        //            }
-        //            else // Valid position found
-        //            {
-        //                _trialRecords[trial.Id].StartPositions.Add(startPositionAbsolute); // Add the position to the dictionary
-        //                //this.TrialInfo($"Start position {p} added");
-        //            }
-        //        }
-
-
-        //    }
-
-
-        //    return true;
-        //}
 
         public override bool FindPositionsForTrial(Trial trial)
         {

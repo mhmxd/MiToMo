@@ -266,26 +266,6 @@ namespace Multi.Cursor
             return deg * Math.PI / 180;
         }
 
-        //public static double RandAngleClockwise(double angle1, double angle2)
-        //{
-        //    double range;
-        //    if (angle1 >= angle2)
-        //    {
-        //        range = angle1 - angle2;
-        //    }
-        //    else
-        //    {
-        //        range = (2*PI - angle2) + angle1;
-        //    }
-
-        //    Random random = new Random();
-        //    double randomOffset = random.NextDouble() * range;
-
-        //    double randomAngle = angle2 + randomOffset;
-
-        //    return NormalizeAngleRadian(randomAngle);
-        //}
-
         public static double RandAngleClockwise(double angle1, double angle2)
         {
             double delta = NormalizeAngleRadian(angle2 - angle1);
@@ -494,42 +474,6 @@ namespace Multi.Cursor
             return new Point(-1, -1); // Indicate failure
         }
 
-        //public static Point FindRandPointWithDist(this Rect rect, Point src, double dist, Side side)
-        //{
-        //    rect.TrialInfo($"Finding position: Rect: {rect.ToString()}; Src: {src}; Dist: {dist:F2}; Side: {side}");
-
-        //    const int maxAttempts = 1000;
-        //    const double angleSpreadDeg = 90.0; // Spread in degrees
-
-        //    // 1. Find the center of the target rect
-        //    Point center = new Point(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
-
-        //    // 2. Calculate the direction vector and base angle in radians
-        //    double dx = center.X - src.X;
-        //    double dy = center.Y - src.Y;
-        //    double angleToCenter = Math.Atan2(dy, dx); // This is in radians
-
-        //    // 3. Compute the spread around that angle
-        //    double spreadRad = DegToRad(angleSpreadDeg);
-        //    double minRad = angleToCenter - spreadRad / 2;
-        //    double maxRad = angleToCenter + spreadRad / 2;
-
-        //    for (int i = 0; i < maxAttempts; i++)
-        //    {
-        //        double randomRad = minRad + _random.NextDouble() * (maxRad - minRad);
-        //        double s_x = src.X + dist * Math.Cos(randomRad);
-        //        double s_y = src.Y + dist * Math.Sin(randomRad);
-        //        Point candidate = new Point((int)Math.Round(s_x), (int)Math.Round(s_y));
-
-        //        if (rect.Contains(candidate))
-        //        {
-        //            return candidate;
-        //        }
-        //    }
-
-        //    // No valid point found
-        //    return new Point(-1, -1);
-        //}
 
         public static Side GetOpposite(this Side side)
         {
