@@ -202,7 +202,7 @@ namespace Multi.Cursor
             {
                 if (GetEventCount(Str.START_RELEASE) > 0)
                 {
-                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+                    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
                     {
                         TargetPress();
                     }
@@ -249,7 +249,7 @@ namespace Multi.Cursor
             {
                 string key = Str.TARGET_RELEASE;
 
-                if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+                if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
                 {
                     TargetRelease();
                 }
@@ -273,7 +273,7 @@ namespace Multi.Cursor
                 if (GetLatestEvent().Key.Contains(Str.START_RELEASE)) // Target press?
                 {
                     // If navigator is on the button, count the event
-                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+                    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
                     {
                         TargetPress();
                     }
@@ -311,7 +311,7 @@ namespace Multi.Cursor
                 else // Target release?
                 {
                     // If navigator is on the button, count the event
-                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+                    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
                     {
                         TargetRelease();
                     }
@@ -415,6 +415,16 @@ namespace Multi.Cursor
             var lastEvent = _trialRecords[_activeTrial.Id].Timestamps.OrderByDescending(kv => kv.Value).FirstOrDefault();
 
             return lastEvent;
+        }
+
+        public override void OnOjectMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void OnOjectMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

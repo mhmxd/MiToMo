@@ -62,7 +62,7 @@ namespace Multi.Cursor
 
         public override string ToString()
         {
-            return $"Min: {Min:F2} -- Max: {Max:F2}";
+            return $"Min: {Min:F2} | Max: {Max:F2}";
         }
     }
 }

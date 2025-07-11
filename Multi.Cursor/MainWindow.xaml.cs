@@ -339,24 +339,37 @@ namespace Multi.Cursor
         {
             // Distances (v.3)
             // Longest
-            double smallButtonHalfWidth = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
+            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
             double startHalfWidth = START_WIDTH_MM / 2;
             double longestDistMM =
-                (Config.SIDE_WINDOW_WIDTH_MM - Config.WINDOW_PADDING_MM - smallButtonHalfWidth) +
+                (Config.SIDE_WINDOW_WIDTH_MM - Config.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
                 Utils.PX2MM(this.ActualWidth) - Config.WINDOW_PADDING_MM - startHalfWidth;
 
             // Shortest
-            double topLeftButtonCenterLeft = Config.WINDOW_PADDING_MM + smallButtonHalfWidth;
-            double topLeftButtonCenterTop = Config.WINDOW_PADDING_MM + smallButtonHalfWidth;
-            Point topLeftButtonCenterAbsolute = new Point(topLeftButtonCenterLeft, topLeftButtonCenterTop);
+            double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            double objHalfWidth = Utils.MM2PX(START_WIDTH_MM) / 2;
+            double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
+            double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
 
-            double topLeftStartCenterLeft = Config.SIDE_WINDOW_WIDTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
-            double topLeftStartCenterTop = Config.TOP_WINDOW_HEIGTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
-            Point topLeftStartCenterAbsolute = new Point(topLeftStartCenterLeft, topLeftStartCenterTop);
-            
-            double shortestDistMM = Utils.Dist(topLeftButtonCenterAbsolute, topLeftStartCenterAbsolute);
+            Point topLeftButtonCenterPosition = new Point(
+                padding + smallButtonHalfWidth,
+                padding + smallButtonHalfWidth
+                );
+            Point topLeftButtonCenterAbsolute = Utils.OffsetPosition(topLeftButtonCenterPosition, _topWindow.Left, _topWindow.Top);
 
-            this.TrialInfo($"topLeftButtonCenterAbsolute: {topLeftButtonCenterAbsolute.ToStr()}");
+            Point topLeftObjAreaCenterPosition = new Point(
+                padding + objAreaRadius + objHalfWidth,
+                padding + objAreaRadius + objHalfWidth
+            );
+            Point topLeftObjAreaCenterAbsolute = Utils.OffsetPosition(topLeftObjAreaCenterPosition, this.Left, this.Top);
+
+            //double topLeftStartCenterLeft = Config.SIDE_WINDOW_WIDTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
+            //double topLeftStartCenterTop = Config.TOP_WINDOW_HEIGTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
+            //Point topLeftStartCenterAbsolute = new Point(topLeftStartCenterLeft, topLeftStartCenterTop);
+
+            double shortestDistMM = Utils.PX2MM(Utils.Dist(topLeftButtonCenterAbsolute, topLeftObjAreaCenterAbsolute));
+
+            this.TrialInfo($"topLeftObjAreaCenterPosition: {topLeftButtonCenterAbsolute.ToStr()}");
             this.TrialInfo($"Shortest Dist = {shortestDistMM:F2}mm | Longest Dist = {longestDistMM:F2}mm");
 
             _experiment = new Experiment(shortestDistMM, longestDistMM);
@@ -922,6 +935,41 @@ namespace Multi.Cursor
             canvas.Children.Remove(_startRectangle);
         }
 
+        public void ShowObjects(
+            List<BlockHandler.TrialObject> trialObjects, Brush color,
+            MouseButtonEventHandler mouseButtonDownHandler, MouseButtonEventHandler MouseButtonUpHandler)
+        {
+            // Clear the previous objects
+            canvas.Children.Clear();
+
+            // Create and position the objects
+            foreach (BlockHandler.TrialObject trObj in trialObjects)
+            {
+                // Convert the absolute position to relative position
+                Point positionInMain = Utils.Offset(trObj.Position, -this.Left, -this.Top);
+
+                // Create the square
+                Rectangle objRectangle = new Rectangle
+                {
+                    Tag = trObj.Id,
+                    Width = Utils.MM2PX(Experiment.START_WIDTH_MM),
+                    Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
+                    Fill = color
+                };
+
+                // Position the object on the Canvas
+                Canvas.SetLeft(objRectangle, positionInMain.X);
+                Canvas.SetTop(objRectangle, positionInMain.Y);
+
+                // Assign event handlers
+                objRectangle.MouseDown += mouseButtonDownHandler;
+                objRectangle.MouseUp += MouseButtonUpHandler;
+
+                // Add the rectangle to the Canvas
+                canvas.Children.Add(objRectangle);
+            }
+        }
+
         private void HideAuxursors()
         {
             //_leftWindow.HideCursor();
@@ -1040,6 +1088,19 @@ namespace Multi.Cursor
             }
         }
 
+        public void FillObject(int objId, Brush color)
+        {
+            // Find the object by its ID in the canvas children
+            foreach (var child in canvas.Children)
+            {
+                if (child is Rectangle rectangle && rectangle.Tag is int tag && tag == objId)
+                {
+                    rectangle.Fill = color;
+                    return; // Exit after filling the first matching object
+                }
+            }
+        }
+
         public void ResetTargetWindow(Side side)
         {
             if (_targetWindow != null)
@@ -1108,13 +1169,25 @@ namespace Multi.Cursor
                 );
         }
 
+        public Rect GetObjAreaCenterConstraintRect()
+        {
+            double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM + Experiment.START_WIDTH_MM/2);
+            double padding = Utils.MM2PX(VERTICAL_PADDING);
+            return new Rect(
+                this.Left + padding + objAreaRadius,
+                this.Top + padding + objAreaRadius,
+                this.Width - 2 * (padding + objAreaRadius),
+                this.Height - 2 * (padding + objAreaRadius) - _infoLabelHeight
+            );
+        }
+
         public bool IsTechniqueToMo()
         {
             return _experiment.Active_Technique == Experiment.Technique.Auxursor_Swipe
                 || _experiment.Active_Technique == Experiment.Technique.Auxursor_Tap;
         }
 
-        public bool IsGridNavigatorOnButton(Side side, int buttonId)
+        public bool IsMarkerOnButton(Side side, int buttonId)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             return auxWindow.IsNavigatorOnButton(buttonId);

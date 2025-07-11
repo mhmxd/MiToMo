@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using HarfBuzzSharp;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,6 +14,10 @@ namespace Multi.Cursor
     public class RepeatingBlockHandler : BlockHandler
     {
         private bool _isTargetAvailable = false; // Whether the target is available for clicking
+        private int _nAppliedObjects = 0; // Number of clicked objects in the current trial
+        private int _pressedObjectId = -1; // Id of the object that was pressed in the current trial
+        private int _markedObjectId = -1; // Id of the object that was marked in the current trial
+        private bool _isFunctionClicked = false; // Whether the function button was clicked (for mouse)
 
         private const string CacheDirectory = "TrialPositionCache";
         private const int MaxCachedPositions = 100;
@@ -50,10 +55,10 @@ namespace Multi.Cursor
             }
 
             // If consecutive trials have the same TargetId, re-order them
-            while (IsTargetRepeated())
-            {
-                _activeBlock.Trials.Shuffle();
-            }
+            //while (IsTargetRepeated())
+            //{
+            //    _activeBlock.Trials.Shuffle();
+            //}
 
             // Show all the target ids for the trials
             this.TrialInfo($"Target IDs: {string.Join(", ", _activeBlock.Trials.Select(t => $"{_trialRecords[t.Id].TargetId}"))}");
@@ -87,16 +92,17 @@ namespace Multi.Cursor
             }
 
             // --- Attempt to find new positions ---
-            bool success = TryFindNewPositions(trial, startW, startHalfW);
+            //bool success = TryFindNewPositions(trial, startW, startHalfW);
+            bool success = TryFindNewObjPositions(trial);
 
             if (success)
             {
                 // If new positions were successfully found, save them to cache
-                SavePositionsToCache(trial, new CachedTrialPositions
-                {
-                    TargetId = _trialRecords[trial.Id].TargetId,
-                    StartPositions = _trialRecords[trial.Id].StartPositions
-                });
+                //SavePositionsToCache(trial, new CachedTrialPositions
+                //{
+                //    TargetId = _trialRecords[trial.Id].TargetId,
+                //    StartPositions = _trialRecords[trial.Id].StartPositions
+                //});
                 return true;
             }
             else
@@ -155,16 +161,21 @@ namespace Multi.Cursor
             _mainWindow.SetTargetWindow(_activeTrial.TargetSide, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the target button and set the handlers
-            _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.TARGET_UNAVAILABLE_COLOR);
+            _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.FUNCTION_UNAVAILABLE_COLOR);
             _mainWindow.SetGridButtonHandlers(
                 _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, 
                 OnTargetMouseDown, OnTargetMouseUp, OnNonTargetMouseDown);
 
+            // Show the objects
+            _mainWindow.ShowObjects(
+                _trialRecords[_activeTrial.Id].Objects, Config.OBJ_DEFAULT_COLOR,
+                OnOjectMouseDown, OnOjectMouseUp);
+
             // Show the first Start
-            Point firstStartPos = _trialRecords[_activeTrial.Id].StartPositions.First();
-            _mainWindow.ShowStart(
-                firstStartPos, Config.START_AVAILABLE_COLOR,
-                OnStartMouseEnter, OnStartMouseLeave, OnStartMouseDown, OnStartMouseUp);
+            //Point firstStartPos = _trialRecords[_activeTrial.Id].StartPositions.First();
+            //_mainWindow.ShowStart(
+            //    firstStartPos, Config.START_AVAILABLE_COLOR,
+            //    OnStartMouseEnter, OnStartMouseLeave, OnStartMouseDown, OnStartMouseUp);
         }
 
         public override void EndActiveTrial(Experiment.Result result)
@@ -200,6 +211,9 @@ namespace Multi.Cursor
             //_trialEventCounts.Clear(); // Reset the event counts for the trial
             //_trialTimestamps.Clear(); // Reset the timestamps for the trial
             _isTargetAvailable = false; // Reset the target availability
+            _nAppliedObjects = 0; // Reset the number of applied objects
+            _pressedObjectId = -1; // Reset the pressed object id
+            _isFunctionClicked = false; // Reset the function clicked state
 
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
@@ -217,33 +231,33 @@ namespace Multi.Cursor
         {
             this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
 
-            if (_mainWindow.IsTechniqueToMo()) ///// ToMo
-            {
-                if (GetEventCount(Str.START_RELEASE) > 0)
-                {
-                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
-                    {
-                        TargetPress();
-                    }
-                    else // Navigator is not on the target button
-                    {
-                        EndActiveTrial(Experiment.Result.MISS);
-                        return;
-                    }
-                }
-                else // Missed the Start
-                {
-                    EndActiveTrial(Experiment.Result.NO_START);
-                    return;
-                }
+            //if (_mainWindow.IsTechniqueToMo()) ///// ToMo
+            //{
+            //    if (GetEventCount(Str.START_RELEASE) > 0)
+            //    {
+            //        if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+            //        {
+            //            TargetPress();
+            //        }
+            //        else // Navigator is not on the target button
+            //        {
+            //            EndActiveTrial(Experiment.Result.MISS);
+            //            return;
+            //        }
+            //    }
+            //    else // Missed the Start
+            //    {
+            //        EndActiveTrial(Experiment.Result.NO_START);
+            //        return;
+            //    }
 
 
-            }
-            else ///// Mouse
-            {
-                if (GetEventCount(Str.START_RELEASE) > 0) EndActiveTrial(Experiment.Result.MISS);
-                else EndActiveTrial(Experiment.Result.NO_START);
-            }
+            //}
+            //else ///// Mouse
+            //{
+            //    if (GetEventCount(Str.START_RELEASE) > 0) EndActiveTrial(Experiment.Result.MISS);
+            //    else EndActiveTrial(Experiment.Result.NO_START);
+            //}
         }
 
         public override void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
@@ -262,23 +276,23 @@ namespace Multi.Cursor
         {
             this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
 
-            if (_mainWindow.IsTechniqueToMo()) //-- ToMo
-            {
-                string key = Str.TARGET_RELEASE;
+            //if (_mainWindow.IsTechniqueToMo()) //-- ToMo
+            //{
+            //    string key = Str.TARGET_RELEASE;
 
-                if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
-                {
-                    TargetRelease();
-                }
-                else // Navigator is not on the target button
-                {
-                    EndActiveTrial(Experiment.Result.MISS);
-                }
-            }
-            else //-- Mouse
-            {
-                // Nothing specifically
-            }
+            //    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+            //    {
+            //        OnFunctionRelease();
+            //    }
+            //    else // Navigator is not on the target button
+            //    {
+            //        EndActiveTrial(Experiment.Result.MISS);
+            //    }
+            //}
+            //else //-- Mouse
+            //{
+            //    // Nothing specifically
+            //}
         }
 
         public override void OnStartMouseDown(Object sender, MouseButtonEventArgs e)
@@ -291,7 +305,7 @@ namespace Multi.Cursor
                 if (GetLatestEvent().Key.Contains(Str.START_RELEASE)) // Target press?
                 {
                     // If navigator is on the button, count the event
-                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+                    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
                     {
                         TargetPress();
                     }
@@ -328,9 +342,9 @@ namespace Multi.Cursor
                 else // Target release?
                 {
                     // If navigator is on the button, count the event
-                    if (_mainWindow.IsGridNavigatorOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+                    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
                     {
-                        TargetRelease();
+                        OnFunctionRelease();
                     }
                     else // Navator is not on the target button
                     {
@@ -365,7 +379,7 @@ namespace Multi.Cursor
 
             if (_mainWindow.GetActiveTechnique() == Experiment.Technique.Mouse) //// Mouse
             {
-                TargetRelease();
+                OnFunctionRelease();
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -397,28 +411,49 @@ namespace Multi.Cursor
         private void TargetPress()
         {
             // Continue normally
-            LogEvent(Str.TARGET_PRESS);
+            //LogEvent(Str.TARGET_PRESS);
 
-            // Pressed on an unavaailable target
-            if (!_isTargetAvailable)
-            {
-                EndActiveTrial(Experiment.Result.MISS);
-                return;
-            }
+            //// Pressed on an unavaailable target
+            //if (!_isTargetAvailable)
+            //{
+            //    EndActiveTrial(Experiment.Result.MISS);
+            //    return;
+            //}
         }
 
-        private void TargetRelease()
+        private void OnFunctionRelease()
         {
-            LogEvent(Str.TARGET_RELEASE);
+            //LogEvent(string.Join("_", Str.FUNCTION, Str.RELEASE));
+            _isFunctionClicked = true;
+
+            // Check if all objes were clicked
+            if (_nAppliedObjects < _trialRecords[_activeTrial.Id].Objects.Count)
+            {
+                // Change function color
+                _mainWindow.FillObject(_markedObjectId, Config.OBJ_APPLIED_COLOR);
+                _mainWindow.FillButtonInTargetWindow(
+                    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.FUNCTION_UNAVAILABLE_COLOR);
+
+                // Reset the pressed object id
+                _markedObjectId = -1;
+            }
+            else
+            {
+                // If all objects were clicked, end the trial
+                EndActiveTrial(Experiment.Result.HIT);
+                return;
+            }
+
+            
 
             // Show the next Start
-            int startClicksCount = GetEventCount(Str.START_RELEASE);
-            Point startAbsolutePosition = _trialRecords[_activeTrial.Id].StartPositions[startClicksCount];
-            _mainWindow.ShowStart(
-                startAbsolutePosition, Config.START_AVAILABLE_COLOR,
-                OnStartMouseEnter, OnStartMouseLeave, OnStartMouseDown, OnStartMouseUp);
-            _mainWindow.FillButtonInTargetWindow(
-                _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.TARGET_UNAVAILABLE_COLOR);
+            //int startClicksCount = GetEventCount(Str.START_RELEASE);
+            //Point startAbsolutePosition = _trialRecords[_activeTrial.Id].StartPositions[startClicksCount];
+            //_mainWindow.ShowStart(
+            //    startAbsolutePosition, Config.START_AVAILABLE_COLOR,
+            //    OnStartMouseEnter, OnStartMouseLeave, OnStartMouseDown, OnStartMouseUp);
+            //_mainWindow.FillButtonInTargetWindow(
+            //    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.TARGET_UNAVAILABLE_COLOR);
         }
 
         private KeyValuePair<string, long> GetLatestEvent()
@@ -525,6 +560,57 @@ namespace Multi.Cursor
             return _trialRecords[trial.Id].StartPositions.Count == Experiment.REP_TRIAL_NUM_PASS;
         }
 
+        private bool TryFindNewObjPositions(Trial trial)
+        {
+            // Reset trial record for current attempt
+            //_trialRecords[trial.Id].ObjectPositions.Clear();
+            _trialRecords[trial.Id].TargetId = -1;
+
+            // Get a random Target from the main window (which calls the side window)
+            (int targetId, Point targetCenterAbsolute) = _mainWindow.Dispatcher.Invoke(() =>
+            {
+                return _mainWindow.GetRadomTarget(trial.TargetSide, trial.TargetMultiple, trial.DistRangePX);
+            });
+
+            // If a target was found, set the target id
+            if (targetId != -1)
+            {
+                _trialRecords[trial.Id].TargetId = targetId;
+            }
+            else
+            {
+                this.TrialInfo($"Failed to find a random target id for Trial#{trial.Id}.");
+                return false;
+            }
+
+            // Get object constraint Rect
+            Rect objConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+            {
+                return _mainWindow.GetObjAreaCenterConstraintRect();
+            });
+
+            // Find a valid object area position
+            int maxRetries = 1000;
+            double randDistMM = trial.DistRangeMM.GetRandomValue();
+
+            Point objAreaCenterPosition = new Point(0, 0);
+            for (int t = 0; t < maxRetries; t++) {
+                objAreaCenterPosition = objConstraintRect.FindRandPointWithDist(
+                    targetCenterAbsolute, 
+                    Utils.MM2PX(randDistMM), 
+                    trial.TargetSide.GetOpposite());
+
+                if (objAreaCenterPosition.X != 0 && objAreaCenterPosition.Y != 0)
+                {
+                    this.TrialInfo($"Found a valid object area center position for Trial#{trial.Id} at {objAreaCenterPosition}.");
+                    _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenterPosition, Experiment.REP_TRIAL_NUM_PASS);
+                    return true; // Successfully found positions
+                }
+            }
+
+            return false;
+        }
+
         private void SavePositionsToCache(Trial trial, CachedTrialPositions positionsToCache)
         {
             string fileName = trial.GetCacheFileName(CacheDirectory);
@@ -549,6 +635,186 @@ namespace Multi.Cursor
             catch (Exception ex)
             {
                 this.TrialInfo($"Error saving cache to {fileName}: {ex.Message}");
+            }
+        }
+
+        private List<TrialObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
+        {
+            List<TrialObject> placedObjects = new List<TrialObject>();
+            double objW = Utils.MM2PX(Experiment.START_WIDTH_MM);
+            double areaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
+
+            int maxAttemptsPerObject = 1000; // Limit attempts to prevent infinite loops
+
+            for (int i = 0; i < nObjects; i++)
+            {
+                bool placed = false;
+                for (int attempt = 0; attempt < maxAttemptsPerObject; attempt++)
+                {
+                    // 1. Generate a random potential center for the new square
+                    Point potentialCenter = GenerateRandomPointInCircle(objAreaCenterPosition, areaRadius - objW / 2);
+
+                    // Calculate the top-left corner from the potential center
+                    Point topLeft = new Point(potentialCenter.X - objW / 2, potentialCenter.Y - objW / 2);
+
+                    // 2. Check for overlaps with already placed objects
+                    if (!HasOverlap(topLeft, objW, placedObjects))
+                    {
+                        TrialObject trialObject = new TrialObject
+                        {
+                            Id = i + 1, // Assuming IDs start from 1
+                            Position = topLeft
+                        };
+
+                        placedObjects.Add(trialObject);
+                        placed = true;
+                        break; // Move to the next object
+                    }
+                }
+
+                if (!placed)
+                {
+                    // Handle cases where an object couldn't be placed after maxAttempts
+                    // You might log a warning, throw an exception, or return partial results.
+                    Console.WriteLine($"Warning: Could not place object {i + 1} after {maxAttemptsPerObject} attempts.");
+                }
+            }
+
+            return placedObjects;
+
+
+        }
+
+        private Point GenerateRandomPointInCircle(Point center, double effectiveRadius)
+        {
+            // Generate a random angle between 0 and 2*PI
+            double angle = _random.NextDouble() * 2 * Math.PI;
+
+            // Generate a random distance from the center (0 to effectiveRadius)
+            // To ensure a uniform distribution, we take the square root of a uniform random number
+            // This biases points towards the center if not done, making the outer regions less dense.
+            double distance = effectiveRadius * Math.Sqrt(_random.NextDouble());
+
+            // Calculate the coordinates
+            double x = center.X + distance * Math.Cos(angle);
+            double y = center.Y + distance * Math.Sin(angle);
+
+            return new Point(x, y);
+        }
+
+        private bool HasOverlap(Point newObjTopLeft, double newObjW, List<TrialObject> existingObjs)
+        {
+            double newObjRight = newObjTopLeft.X + newObjW;
+            double newObjBottom = newObjTopLeft.Y + newObjW;
+
+            foreach (TrialObject existingObject in existingObjs)
+            {
+                double existingObjRight = existingObject.Position.X + newObjW; // Assuming all objects have the same width
+                double existingObjBottom = existingObject.Position.Y + newObjW;
+
+                // Check for overlap using the bounding box method
+                if (newObjTopLeft.X < existingObjRight &&
+                    newObjRight > existingObject.Position.X &&
+                    newObjTopLeft.Y < existingObjBottom &&
+                    newObjBottom > existingObject.Position.Y)
+                {
+                    return true; // Overlap detected
+                }
+            }
+
+            return false; // No overlap with any existing object
+        }
+
+        public override void OnOjectMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // Treat sender as a Rectangle and get its Tag
+            FrameworkElement element = (FrameworkElement)sender;
+            if (element.Tag is int)
+            {
+                int tag = (int)element.Tag;
+                _pressedObjectId = tag; // Store the pressed object id
+
+                string timeKey = string.Join("_", Str.OBJ, ((int)element.Tag).ToString(), Str.PRESS);
+
+                // Was this object already pressed?
+                if (_trialRecords[_activeTrial.Id].Timestamps.ContainsKey(timeKey))
+                {
+                    EndActiveTrial(Experiment.Result.MISS);
+                    return;
+                }
+                
+
+                _trialRecords[_activeTrial.Id].Timestamps[timeKey] = Timer.GetCurrentMillis();
+            }
+            else
+            {
+                this.TrialInfo("Pressed on an object without a valid Tag.");
+            }
+                
+        }
+
+        public override void OnOjectMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            // Treat sender as a Rectangle and get its Tag
+            FrameworkElement element = (FrameworkElement)sender;
+            if (element.Tag is int)
+            {
+                int tag = (int)element.Tag;
+
+                // If not the same object as pressed => trial is missed
+                if (_pressedObjectId != tag)
+                {
+                    this.TrialInfo($"Pressed on a different object than was pressed: {_pressedObjectId} != {tag}");
+                    EndActiveTrial(Experiment.Result.MISS);
+                    return;
+                }
+
+                // Object clicked
+                OnObjectClick(tag);
+
+                _pressedObjectId = -1; // Reset the pressed object id
+
+            }
+            else
+            {
+                this.TrialInfo("Pressed on an object without a valid Tag.");
+            }
+        }
+
+        private void OnObjectClick(int objId)
+        {
+            // Set the timestamp for the object release
+            string timeKey = string.Join("_", Str.OBJ, objId.ToString(), Str.RELEASE);
+            _trialRecords[_activeTrial.Id].Timestamps[timeKey] = Timer.GetCurrentMillis();
+
+            // Handle based on the technique
+            if (_mainWindow.GetActiveTechnique() == Experiment.Technique.Mouse) /// Mouse
+            {
+                _nAppliedObjects++;
+                this.TrialInfo($"Object#{objId} clicked. Total applied objects: {_nAppliedObjects}");
+
+                _markedObjectId = objId;
+
+                // Color the object as marked and target as available
+                _mainWindow.FillObject(objId, Config.OBJ_MARKED_COLOR);
+                _mainWindow.FillButtonInTargetWindow(
+                    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.FUNCTION_AVAILABLE_COLOR);
+
+                // Apply the function if it was clicked
+                //if (_isFunctionClicked)
+                //{
+
+                //}
+                //else
+                //{
+                //    this.TrialInfo($"Object#{objId} clicked, but ignored.");
+                //}
+            }
+            else if (_mainWindow.GetActiveTechnique() == Experiment.Technique.Auxursor_Tap)
+            {
+                // For Auxursor_Tap technique, we might need to do something specific
+                // For now, just log the event
+                LogEvent(string.Join("_", Str.OBJ, objId.ToString(), Str.RELEASE));
             }
         }
     }

@@ -14,6 +14,12 @@ namespace Multi.Cursor
         public static string START_PRESS = "start_press";
         public static string START_RELEASE = "start_release";
 
+        public static string OBJ = "obj";
+        public static string FUNCTION = "function";
+
+        public static string PRESS = "press";
+        public static string RELEASE = "release";
+
         public static string START_ENTER = "start_enter";
         //public static string START1_LAST_ENTRY = "start1_last_entry";
         //public static string START2_LAST_ENTRY = "start2_last_entry";

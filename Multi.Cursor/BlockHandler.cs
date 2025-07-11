@@ -18,15 +18,23 @@ namespace Multi.Cursor
         {
             public int TargetId;
             public List<Point> StartPositions;
+            public List<TrialObject> Objects;
             public Dictionary<string, int> EventCounts;
             public Dictionary<string, long> Timestamps;
 
             public TrialRecord()
             {
                 StartPositions = new List<Point>();
+                Objects = new List<TrialObject>();
                 EventCounts = new Dictionary<string, int>();
                 Timestamps = new Dictionary<string, long>();
             }
+        }
+
+        public class TrialObject
+        {
+            public int Id { get; set; }
+            public Point Position { get; set; }
         }
 
         protected class CachedTrialPositions
@@ -83,6 +91,8 @@ namespace Multi.Cursor
         }
         public abstract void OnStartMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnStartMouseUp(Object sender, MouseButtonEventArgs e);
+        public abstract void OnOjectMouseDown(Object sender, MouseButtonEventArgs e);
+        public abstract void OnOjectMouseUp(Object sender, MouseButtonEventArgs e);
         public void OnTargetMouseEnter(Object sender, MouseEventArgs e)
         {
             LogEvent(Str.TARGET_ENTER);

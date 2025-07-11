@@ -36,6 +36,7 @@ namespace Multi.Cursor
 
         public static int REP_TRIAL_NUM_PASS = 5; // Trial ends on Start
         public static double REP_TRIAL_MAX_DIST_STARTS_MM = Config.EXCEL_CELL_W; // Max distance between Starts in a repeating trial (mm)
+        public static double REP_TRIAL_OBJ_AREA_RADIUS_MM = Config.EXCEL_CELL_W; // Radius of the object area in repeating trials (mm)
 
         private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
 
@@ -64,7 +65,6 @@ namespace Multi.Cursor
         private List<Block> _blocks = new List<Block>();
         public List<Block> Blocks { get { return _blocks; } }
 
-
         public Experiment(double shortDistMM, double longDistMM)
         {
             Participant_Number = 100; // Default
@@ -85,31 +85,6 @@ namespace Multi.Cursor
             this.TrialInfo($"Short dist range (mm): {_shortDistRangeMM.ToString()}");
             this.TrialInfo($"Mid dist range (mm): {_midDistRangeMM.ToString()}");
             this.TrialInfo($"Long dist range (mm): {_longDistRangeMM.ToString()}");
-
-
-            // Find random distances in the distRanges
-            //double midDist = Utils.RandDouble(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM); // Middle distance
-            //double shortDist = Utils.RandDouble(Shortest_Dist_MM, oneThird - Dist_PADDING_MM); // Shortest distance
-            //double longDist = Utils.RandDouble(twoThird + Dist_PADDING_MM, Longest_Dist_MM); // Longest distance
-
-            //_distances.Add(shortDist);
-            //_distances.Add(midDist);
-            //_distances.Add(longDist);
-            //this.TrialInfo($"Experiment distances (mm): {ListToString(_distances)}");
-            //for (int i = 0; i < N_BLOCKS; i++)
-            //{
-            //    int blockId = Participant_Number * 100 + i;
-            //    //Block block = new Block(blockId, TARGET_WIDTHS_MM, _distances, N_REPS_IN_BLOCK);
-            //    Block block = new Block(BLOCK_TYPE.ALTERNATING, blockId, _distances, N_REPS_IN_BLOCK);
-            //    _blocks.Add(block);
-            //}
-
-            //-- Init
-            //_activeBlockNum = 1;
-            //_activeBlockInd = 0;
-            //_activeTrialNum = 1;
-            //_activeTrialInd = 0;
-            //_activeBlock = _blocks[0];
 
         }
 
@@ -141,8 +116,8 @@ namespace Multi.Cursor
             };
             List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
 
-            CreateAltBlocks(1, targetMultiples, distRanges);
-            //CreateRepBlocks(1, targetMultiples, distRanges);
+            //CreateAltBlocks(1, targetMultiples, distRanges);
+            CreateRepBlocks(1, targetMultiples, distRanges);
         }
 
         private void CreateAltBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
