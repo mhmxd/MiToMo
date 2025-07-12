@@ -123,6 +123,8 @@ namespace Multi.Cursor
         //    new SolidColorBrush((Color)ColorConverter.ConvertFromString("#A0A0A0"));
         public static readonly Brush DARK_ORANGE =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#EE6E36"));
+        public static readonly Brush LIGHT_PURPLE =
+            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B19CD7"));
 
         public static readonly Brush START_AVAILABLE_COLOR = Brushes.Green;
         public static readonly Brush START_UNAVAILABLE_COLOR = DARK_ORANGE;
@@ -164,6 +166,9 @@ namespace Multi.Cursor
         public static double SIDE_COL_MAX_WIDTH_MM = 2 * Experiment.BUTTON_MULTIPLES[Str.x15] + GRID_WITHINGROUP_GUTTER_MM;
         public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * WINDOW_PADDING_MM + GRID_INTERGROUP_GUTTER_MM;
         public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GRID_WITHINGROUP_GUTTER_MM + 2 * WINDOW_PADDING_MM;
+
+        public static Dimensions TRIAL_START_BUTTON_DIM_MM = new Dimensions(60, 20);
+        public static int TRIAL_START_BUTTON_FONT_SIZE = 16;
 
         public static void SetMode(int speed)
         {

@@ -112,16 +112,6 @@ namespace Multi.Cursor
             return true;
         }
 
-        public override void BeginActiveBlock()
-        {
-            //_trialtWatch.Restart();
-            //this.TrialInfo($"Target Ids: {_trialTargetIds.Stringify()}");
-            _activeTrialNum = 1;
-            _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-           
-            ShowActiveTrial();
-        }
-
         public override void ShowActiveTrial()
         {
             this.TrialInfo($"Showing Trial#{_activeTrial.Id} | Side: {_activeTrial.TargetSide} | W: {_activeTrial.TargetMultiple} | Dist: {_activeTrial.DistanceMM:F2}mm");

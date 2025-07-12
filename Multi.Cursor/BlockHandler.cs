@@ -100,7 +100,21 @@ namespace Multi.Cursor
 
         public abstract bool FindPositionsForActiveBlock();
         public abstract bool FindPositionsForTrial(Trial trial);
-        public abstract void BeginActiveBlock();
+        public void BeginActiveBlock()
+        {
+            this.TrialInfo("------------------- Beginning block ----------------------------");
+
+            _activeTrialNum = 1;
+            _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
+            _activeTrialRecord = _trialRecords[_activeTrial.Id];
+
+            // Update the main window label
+            this.TrialInfo($"nTrials = {_activeBlock.GetNumTrials()}");
+            _mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
+
+            // Show the Start Trial button
+            _mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
+        }
         public abstract void ShowActiveTrial();
         public abstract void EndActiveTrial(Experiment.Result result);
         public abstract void GoToNextTrial();
@@ -166,6 +180,11 @@ namespace Multi.Cursor
             EndActiveTrial(Experiment.Result.MISS);
 
             e.Handled = true; // Mark the event as handled to prevent further processing
+        }
+
+        public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
+        {
+            ShowActiveTrial();
         }
 
         public void LeftPress()

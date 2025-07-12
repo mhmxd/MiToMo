@@ -128,32 +128,11 @@ namespace Multi.Cursor
             }
         }
 
-        public override void BeginActiveBlock()
-        {
-            this.TrialInfo("------------------- Beginning block ----------------------------");
-            //_trialtWatch.Restart();
-            // List all the trials in the block
-            //foreach (Trial trial in _activeBlock.Trials)
-            //{
-            //    this.TrialInfo($"Trial#{trial.Id} | Target side: {trial.TargetSide} | Distances: {trial.Distances}");
-            //}
-
-            _activeTrialNum = 1;
-            _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-            _activeTrialRecord = _trialRecords[_activeTrial.Id];
-            ShowActiveTrial();
-        }
-
         public override void ShowActiveTrial()
         {
             this.TrialInfo(Str.MINOR_LINE);
             this.TrialInfo($"Showing rep Trial#{_activeTrial.Id} | Target side: {_activeTrial.TargetSide} " +
                 $"| Dist (mm): ({_activeTrial.DistRangeMM.Label}) {_activeTrial.DistRangeMM.ToString()}");
-            //this.TrialInfo($"Start positions: {string.Join(", ", _trialRecords[_activeTrial.Id].StartPositions)}");
-
-            // Update the main window label
-            this.TrialInfo($"nTrials = {_activeBlock.GetNumTrials()}");
-            _mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
 
             // Log the trial show timestamp
             _activeTrialRecord.AddTimestamp(Str.TRIAL_SHOW);
@@ -164,7 +143,7 @@ namespace Multi.Cursor
             // Color the target button and set the handlers
             _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _activeTrialRecord.TargetId, Config.FUNCTION_UNAVAILABLE_COLOR);
             _mainWindow.SetGridButtonHandlers(
-                _activeTrial.TargetSide, _activeTrialRecord.TargetId, 
+                _activeTrial.TargetSide, _activeTrialRecord.TargetId,
                 OnTargetMouseDown, OnTargetMouseUp, OnNonTargetMouseDown);
 
             // Show the objects
@@ -385,6 +364,7 @@ namespace Multi.Cursor
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
+
 
         private void StartPress()
         {

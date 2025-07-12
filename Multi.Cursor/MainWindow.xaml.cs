@@ -52,7 +52,7 @@ using Seril = Serilog.Log;
 using SysDraw = System.Drawing;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
-using WinForms = System.Windows.Forms; // Alias for Forms namespace
+//using WinForms = System.Windows.Forms; // Alias for Forms namespace
 
 namespace Multi.Cursor
 {
@@ -898,8 +898,8 @@ namespace Multi.Cursor
             SysIput.MouseEventHandler mouseEnterHandler, SysIput.MouseEventHandler mouseLeaveHandler,
             MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
         {
-            // Clear the previous Start
-            ClearStart();
+            // Clear the previous objects
+            canvas.Children.Clear();
 
             // Convert the absolute position to relative position
             Point positionInMain = Utils.Offset(absolutePosition,
@@ -1206,6 +1206,42 @@ namespace Multi.Cursor
         public Technique GetActiveTechnique()
         {
             return _experiment.Active_Technique;
+        }
+
+        public void ShowStartTrialButton(MouseButtonEventHandler mouseUp)
+        {
+
+            // Create the "button" as a Border with text inside
+            var startTrialButton = new Border
+            {
+                Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
+                Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
+                Background = Config.LIGHT_PURPLE,
+                BorderBrush = Brushes.Gray,
+                BorderThickness = new Thickness(2),
+                //CornerRadius = new CornerRadius(6)
+            };
+
+            // Add label inside
+            var label = new TextBlock
+            {
+                Text = "Start Trial",
+                HorizontalAlignment = SysWin.HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextAlignment = TextAlignment.Center,
+                FontSize = Config.TRIAL_START_BUTTON_FONT_SIZE,
+                Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
+            };
+
+            startTrialButton.Child = label;
+
+            // Add event handlers
+            startTrialButton.MouseUp += mouseUp;
+
+
+            Canvas.SetLeft(startTrialButton, (this.Width - startTrialButton.Width) / 2);
+            Canvas.SetTop(startTrialButton, (this.Height - startTrialButton.Height) / 2);
+            canvas.Children.Add(startTrialButton);
         }
     }
 }
