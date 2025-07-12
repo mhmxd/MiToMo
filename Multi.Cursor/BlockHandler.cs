@@ -18,23 +18,70 @@ namespace Multi.Cursor
         {
             public int TargetId;
             public List<Point> StartPositions;
-            public List<TrialObject> Objects;
+            public List<TObject> Objects;
             public Dictionary<string, int> EventCounts;
-            public Dictionary<string, long> Timestamps;
+            private List<Timestamp> Timestamps;
 
             public TrialRecord()
             {
                 StartPositions = new List<Point>();
-                Objects = new List<TrialObject>();
+                Objects = new List<TObject>();
                 EventCounts = new Dictionary<string, int>();
-                Timestamps = new Dictionary<string, long>();
+                Timestamps = new List<Timestamp>();
+            }
+
+            public void AddTimestamp(string label)
+            {
+                Timestamps.Add(new Timestamp(label));
+            }
+
+            public string TimestampsToString()
+            {
+                return string.Join(", ", Timestamps.Select(ts => $"{ts.label}: {ts.time}"));
+            }
+
+            public string GetLastTimestamp()
+            {
+                return Timestamps.Count > 0 ? Timestamps.Last().label : "No timestamps recorded";
+            }
+
+            public long GetTime(string label)
+            {
+                var timestamp = Timestamps.FirstOrDefault(ts => ts.label == label);
+                if (timestamp != null)
+                {
+                    return timestamp.time;
+                }
+                return -1; // Return -1 if the label is not found
+            }
+
+            public bool HasTimestamp(string label)
+            {
+                return Timestamps.Any(ts => ts.label == label);
+            }
+
+            public void ClearTimestamps()
+            {
+                Timestamps.Clear();
             }
         }
 
-        public class TrialObject
+        public class TObject
         {
             public int Id { get; set; }
             public Point Position { get; set; }
+        }
+
+        protected class Timestamp
+        {
+            public string label;
+            public long time;
+
+            public Timestamp(string label)
+            {
+                this.label = label;
+                this.time = Timer.GetCurrentMillis();
+            }
         }
 
         protected class CachedTrialPositions
@@ -49,6 +96,7 @@ namespace Multi.Cursor
         protected Block _activeBlock;
         protected Trial _activeTrial;
         protected int _activeTrialNum = 0;
+        protected TrialRecord _activeTrialRecord;
 
         public abstract bool FindPositionsForActiveBlock();
         public abstract bool FindPositionsForTrial(Trial trial);
@@ -105,7 +153,7 @@ namespace Multi.Cursor
         public abstract void OnTargetMouseUp(Object sender, MouseButtonEventArgs e);
         public void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
             SButton clickedButton = sender as SButton;
             if (clickedButton != null && clickedButton.Tag is Dictionary<string, int>)
             {
@@ -254,7 +302,7 @@ namespace Multi.Cursor
             }
 
             string timeKey = eventName + "_" + _trialRecords[_activeTrial.Id].EventCounts[eventName];
-            _trialRecords[_activeTrial.Id].Timestamps[timeKey] = Timer.GetCurrentMillis();
+            _activeTrialRecord.AddTimestamp(timeKey);
         }
 
         protected int GetEventCount(string eventName)
@@ -269,9 +317,9 @@ namespace Multi.Cursor
 
         protected double GetDuration(string begin, string end)
         {
-            if (_trialRecords[_activeTrial.Id].Timestamps.ContainsKeys(begin, end))
+            if (_activeTrialRecord.HasTimestamp(begin) && _activeTrialRecord.HasTimestamp(end))
             {
-                return (_trialRecords[_activeTrial.Id].Timestamps[end] - _trialRecords[_activeTrial.Id].Timestamps[begin]) / 1000.0; // Convert to seconds
+                return (_activeTrialRecord.GetTime(end) - _activeTrialRecord.GetTime(begin)) / 1000.0; // Convert to seconds
             }
 
             return 0;

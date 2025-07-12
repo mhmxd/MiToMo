@@ -140,6 +140,7 @@ namespace Multi.Cursor
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
+            _activeTrialRecord = _trialRecords[_activeTrial.Id];
             ShowActiveTrial();
         }
 
@@ -155,20 +156,20 @@ namespace Multi.Cursor
             _mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
 
             // Log the trial show timestamp
-            _trialRecords[_activeTrial.Id].Timestamps[Str.TRIAL_SHOW] = Timer.GetCurrentMillis();
+            _activeTrialRecord.AddTimestamp(Str.TRIAL_SHOW);
 
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.TargetSide, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the target button and set the handlers
-            _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.FUNCTION_UNAVAILABLE_COLOR);
+            _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _activeTrialRecord.TargetId, Config.FUNCTION_UNAVAILABLE_COLOR);
             _mainWindow.SetGridButtonHandlers(
-                _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, 
+                _activeTrial.TargetSide, _activeTrialRecord.TargetId, 
                 OnTargetMouseDown, OnTargetMouseUp, OnNonTargetMouseDown);
 
             // Show the objects
             _mainWindow.ShowObjects(
-                _trialRecords[_activeTrial.Id].Objects, Config.OBJ_DEFAULT_COLOR,
+                _activeTrialRecord.Objects, Config.OBJ_DEFAULT_COLOR,
                 OnOjectMouseDown, OnOjectMouseUp);
 
             // Show the first Start
@@ -182,7 +183,7 @@ namespace Multi.Cursor
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
             this.TrialInfo(Str.MAJOR_LINE);
-            _trialRecords[_activeTrial.Id].Timestamps[Str.TRIAL_END] = Timer.GetCurrentMillis(); // Log the trial end timestamp
+            _trialRecords[_activeTrial.Id].AddTimestamp(Str.TRIAL_END); // Log the trial end timestamp
 
             switch (result)
             {
@@ -229,7 +230,7 @@ namespace Multi.Cursor
 
         public override void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             //if (_mainWindow.IsTechniqueToMo()) ///// ToMo
             //{
@@ -274,7 +275,7 @@ namespace Multi.Cursor
 
         public override void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             //if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             //{
@@ -298,14 +299,14 @@ namespace Multi.Cursor
         public override void OnStartMouseDown(Object sender, MouseButtonEventArgs e)
         {
             // Show the current timestamps
-            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
-                if (GetLatestEvent().Key.Contains(Str.START_RELEASE)) // Target press?
+                if (_activeTrialRecord.GetLastTimestamp() == Str.START_RELEASE) // Target press?
                 {
                     // If navigator is on the button, count the event
-                    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+                    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId))
                     {
                         TargetPress();
                     }
@@ -331,18 +332,18 @@ namespace Multi.Cursor
         public override void OnStartMouseUp(Object sender, MouseButtonEventArgs e)
         {
             // Show the current timestamps
-            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             if (_mainWindow.IsTechniqueToMo()) //// ToMo
             {
-                if (GetLatestEvent().Key.Contains(Str.START_PRESS)) // Start release?
+                if (_activeTrialRecord.GetLastTimestamp() ==  Str.START_PRESS) // Start release?
                 {
                     StartRelease();
                 }
                 else // Target release?
                 {
                     // If navigator is on the button, count the event
-                    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+                    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId))
                     {
                         OnFunctionRelease();
                     }
@@ -363,7 +364,7 @@ namespace Multi.Cursor
 
         public override void OnTargetMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             if (_mainWindow.GetActiveTechnique() == Experiment.Technique.Mouse) //// Mouse
             {
@@ -375,7 +376,7 @@ namespace Multi.Cursor
 
         public override void OnTargetMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Timestamps: {_trialRecords[_activeTrial.Id].Timestamps.Stringify()}");
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             if (_mainWindow.GetActiveTechnique() == Experiment.Technique.Mouse) //// Mouse
             {
@@ -403,7 +404,7 @@ namespace Multi.Cursor
                 // Change available/unavailable
                 _mainWindow.FillStart(Config.START_UNAVAILABLE_COLOR);
                 _mainWindow.FillButtonInTargetWindow(
-                    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.TARGET_AVAILABLE_COLOR);
+                    _activeTrial.TargetSide, _activeTrialRecord.TargetId, Config.TARGET_AVAILABLE_COLOR);
                 _isTargetAvailable = true;
             }
         }
@@ -427,12 +428,16 @@ namespace Multi.Cursor
             _isFunctionClicked = true;
 
             // Check if all objes were clicked
-            if (_nAppliedObjects < _trialRecords[_activeTrial.Id].Objects.Count)
+            if (_nAppliedObjects < _activeTrialRecord.Objects.Count)
             {
                 // Change function color
-                _mainWindow.FillObject(_markedObjectId, Config.OBJ_APPLIED_COLOR);
+                _mainWindow.FillObject(
+                    _markedObjectId, 
+                    Config.OBJ_APPLIED_COLOR);
                 _mainWindow.FillButtonInTargetWindow(
-                    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.FUNCTION_UNAVAILABLE_COLOR);
+                    _activeTrial.TargetSide, 
+                    _activeTrialRecord.TargetId, 
+                    Config.FUNCTION_UNAVAILABLE_COLOR);
 
                 // Reset the pressed object id
                 _markedObjectId = -1;
@@ -454,19 +459,6 @@ namespace Multi.Cursor
             //    OnStartMouseEnter, OnStartMouseLeave, OnStartMouseDown, OnStartMouseUp);
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.TARGET_UNAVAILABLE_COLOR);
-        }
-
-        private KeyValuePair<string, long> GetLatestEvent()
-        {
-            if (!_trialRecords[_activeTrial.Id].Timestamps.Any())
-            {
-                throw new InvalidOperationException("The dictionary is null or empty.");
-            }
-
-            // Order the dictionary by timestamp in descending order and take the first one
-            var lastEvent = _trialRecords[_activeTrial.Id].Timestamps.OrderByDescending(kv => kv.Value).FirstOrDefault();
-
-            return lastEvent;
         }
 
         private List<CachedTrialPositions> LoadPositionsFromCache(Trial trial)
@@ -638,9 +630,9 @@ namespace Multi.Cursor
             }
         }
 
-        private List<TrialObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
+        private List<TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
         {
-            List<TrialObject> placedObjects = new List<TrialObject>();
+            List<TObject> placedObjects = new List<TObject>();
             double objW = Utils.MM2PX(Experiment.START_WIDTH_MM);
             double areaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
 
@@ -660,7 +652,7 @@ namespace Multi.Cursor
                     // 2. Check for overlaps with already placed objects
                     if (!HasOverlap(topLeft, objW, placedObjects))
                     {
-                        TrialObject trialObject = new TrialObject
+                        TObject trialObject = new TObject
                         {
                             Id = i + 1, // Assuming IDs start from 1
                             Position = topLeft
@@ -702,12 +694,12 @@ namespace Multi.Cursor
             return new Point(x, y);
         }
 
-        private bool HasOverlap(Point newObjTopLeft, double newObjW, List<TrialObject> existingObjs)
+        private bool HasOverlap(Point newObjTopLeft, double newObjW, List<TObject> existingObjs)
         {
             double newObjRight = newObjTopLeft.X + newObjW;
             double newObjBottom = newObjTopLeft.Y + newObjW;
 
-            foreach (TrialObject existingObject in existingObjs)
+            foreach (TObject existingObject in existingObjs)
             {
                 double existingObjRight = existingObject.Position.X + newObjW; // Assuming all objects have the same width
                 double existingObjBottom = existingObject.Position.Y + newObjW;
@@ -737,14 +729,14 @@ namespace Multi.Cursor
                 string timeKey = string.Join("_", Str.OBJ, ((int)element.Tag).ToString(), Str.PRESS);
 
                 // Was this object already pressed?
-                if (_trialRecords[_activeTrial.Id].Timestamps.ContainsKey(timeKey))
+                if (_activeTrialRecord.HasTimestamp(timeKey))
                 {
                     EndActiveTrial(Experiment.Result.MISS);
                     return;
                 }
-                
 
-                _trialRecords[_activeTrial.Id].Timestamps[timeKey] = Timer.GetCurrentMillis();
+
+                _activeTrialRecord.AddTimestamp(timeKey); // Log the object press timestamp
             }
             else
             {
@@ -785,7 +777,7 @@ namespace Multi.Cursor
         {
             // Set the timestamp for the object release
             string timeKey = string.Join("_", Str.OBJ, objId.ToString(), Str.RELEASE);
-            _trialRecords[_activeTrial.Id].Timestamps[timeKey] = Timer.GetCurrentMillis();
+            _trialRecords[_activeTrial.Id].AddTimestamp(timeKey); // Log the object release timestamp
 
             // Handle based on the technique
             if (_mainWindow.GetActiveTechnique() == Experiment.Technique.Mouse) /// Mouse

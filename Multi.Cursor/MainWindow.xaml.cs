@@ -936,14 +936,14 @@ namespace Multi.Cursor
         }
 
         public void ShowObjects(
-            List<BlockHandler.TrialObject> trialObjects, Brush color,
+            List<BlockHandler.TObject> trialObjects, Brush color,
             MouseButtonEventHandler mouseButtonDownHandler, MouseButtonEventHandler MouseButtonUpHandler)
         {
             // Clear the previous objects
             canvas.Children.Clear();
 
             // Create and position the objects
-            foreach (BlockHandler.TrialObject trObj in trialObjects)
+            foreach (BlockHandler.TObject trObj in trialObjects)
             {
                 // Convert the absolute position to relative position
                 Point positionInMain = Utils.Offset(trObj.Position, -this.Left, -this.Top);
