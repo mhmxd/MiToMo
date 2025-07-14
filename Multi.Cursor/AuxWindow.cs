@@ -312,8 +312,8 @@ namespace Multi.Cursor
             foreach (int buttonId in _buttonInfos.Keys)
             {
                 _buttonInfos[buttonId].Button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR;
-                if (_buttonInfos[buttonId].Button.Background != Config.TARGET_AVAILABLE_COLOR 
-                    && _buttonInfos[buttonId].Button.Background != Config.TARGET_UNAVAILABLE_COLOR)
+                if (_buttonInfos[buttonId].Button.Background != Config.FUNCTION_AVAILABLE_COLOR 
+                    && _buttonInfos[buttonId].Button.Background != Config.FUNCTION_UNAVAILABLE_COLOR)
                 {
                     _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
                 }
@@ -334,8 +334,8 @@ namespace Multi.Cursor
                 _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
 
                 // Change the background only if the button is not already a target
-                if (!_buttonInfos[buttonId].Button.Background.Equals(Config.TARGET_AVAILABLE_COLOR) && 
-                    !_buttonInfos[buttonId].Button.Background.Equals(Config.TARGET_UNAVAILABLE_COLOR))
+                if (!_buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_AVAILABLE_COLOR) && 
+                    !_buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_UNAVAILABLE_COLOR))
                 {
                     _buttonInfos[buttonId].Button.Background = Config.BUTTON_HOVER_FILL_COLOR;
                 }
@@ -349,7 +349,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void MoveGridNavigator(TouchPoint tp)
+        public void MoveMarker(TouchPoint tp)
         {
             // Update the grid navigator with the current touch point
             var (dGridX, dGridY) = _gridNavigator.Update(tp);

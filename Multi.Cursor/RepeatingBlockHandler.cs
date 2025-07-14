@@ -8,13 +8,15 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Media;
+using static Multi.Cursor.Experiment;
 
 namespace Multi.Cursor
 {
     public class RepeatingBlockHandler : BlockHandler
     {
         private bool _isTargetAvailable = false; // Whether the target is available for clicking
-        private int _nAppliedObjects = 0; // Number of clicked objects in the current trial
+        private int _nSelectedObjects = 0; // Number of clicked objects in the current trial
         private int _pressedObjectId = -1; // Id of the object that was pressed in the current trial
         private int _markedObjectId = -1; // Id of the object that was marked in the current trial
         private bool _isFunctionClicked = false; // Whether the function button was clicked (for mouse)
@@ -87,7 +89,7 @@ namespace Multi.Cursor
 
             // Ensure TrialRecord exists for this trial
             if (!_trialRecords.ContainsKey(trial.Id))
-            {  
+            {
                 _trialRecords[trial.Id] = new TrialRecord();
             }
 
@@ -118,7 +120,7 @@ namespace Multi.Cursor
                     {
                         var selectedEntry = randomCachedEntry[_random.Next(randomCachedEntry.Count)];
                         _trialRecords[trial.Id].TargetId = selectedEntry.TargetId;
-                        _trialRecords[trial.Id].StartPositions = new List<Point>(selectedEntry.StartPositions);
+                        //_trialRecords[trial.Id].StartPositions = new List<Point>(selectedEntry.StartPositio   ns);
                         //this.TrialInfo($"Using random cached positions for Trial#{trial.Id}");
                         return true;
                     }
@@ -140,35 +142,39 @@ namespace Multi.Cursor
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.TargetSide, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
-            // Color the target button and set the handlers
-            _mainWindow.FillButtonInTargetWindow(_activeTrial.TargetSide, _activeTrialRecord.TargetId, Config.FUNCTION_UNAVAILABLE_COLOR);
+            // Color the function button and set the handlers
+            Brush funcDefaultColor = _mainWindow.IsTechniqueToMo() ? Config.FUNCTION_AVAILABLE_COLOR : Config.FUNCTION_UNAVAILABLE_COLOR;
+            _mainWindow.FillButtonInTargetWindow(
+                _activeTrial.TargetSide, _activeTrialRecord.TargetId, 
+                funcDefaultColor);
             _mainWindow.SetGridButtonHandlers(
                 _activeTrial.TargetSide, _activeTrialRecord.TargetId,
-                OnTargetMouseDown, OnTargetMouseUp, OnNonTargetMouseDown);
+                OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
 
             // Show the objects
             _mainWindow.ShowObjects(
-                _activeTrialRecord.Objects, Config.OBJ_DEFAULT_COLOR,
-                OnOjectMouseDown, OnOjectMouseUp);
+                _activeTrialRecord.Objects, Config.OBJ_ENABLED_COLOR,
+                OnObjectMouseEnter, OnObjectMouseLeave,
+                OnObjectMouseDown, OnObjectMouseUp);
 
             // Show the first Start
             //Point firstStartPos = _trialRecords[_activeTrial.Id].StartPositions.First();
             //_mainWindow.ShowStart(
             //    firstStartPos, Config.START_AVAILABLE_COLOR,
-            //    OnStartMouseEnter, OnStartMouseLeave, OnStartMouseDown, OnStartMouseUp);
+            //    OnObjectMouseEnter, OnObjectMouseLeave, OnObjectMouseDown, OnObjectMouseUp);
         }
 
         public override void EndActiveTrial(Experiment.Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
             this.TrialInfo(Str.MAJOR_LINE);
-            _trialRecords[_activeTrial.Id].AddTimestamp(Str.TRIAL_END); // Log the trial end timestamp
+            LogEvent(Str.TRIAL_END); // Log the trial end timestamp
 
             switch (result)
             {
                 case Experiment.Result.HIT:
                     Sounder.PlayHit();
-                    this.TrialInfo($"Trial time = {GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END)}s");
+                    this.TrialInfo($"Trial time = {GetDuration(Str.OBJ_RELEASE + "_1", Str.TRIAL_END)}s");
                     GoToNextTrial();
                     break;
                 case Experiment.Result.MISS:
@@ -176,7 +182,7 @@ namespace Multi.Cursor
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
                     GoToNextTrial();
                     break;
-                case Experiment.Result.NO_START:
+                case Experiment.Result.OBJ_NOT_CLICKED:
                     Sounder.PlayStartMiss();
                     // Do nothing, just reset everything
 
@@ -191,20 +197,35 @@ namespace Multi.Cursor
             //_trialEventCounts.Clear(); // Reset the event counts for the trial
             //_trialTimestamps.Clear(); // Reset the timestamps for the trial
             _isTargetAvailable = false; // Reset the target availability
-            _nAppliedObjects = 0; // Reset the number of applied objects
+            _nSelectedObjects = 0; // Reset the number of applied objects
             _pressedObjectId = -1; // Reset the pressed object id
             _isFunctionClicked = false; // Reset the function clicked state
 
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
-                _activeTrialNum++;
-                _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-                ShowActiveTrial();
+                _mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
+                _mainWindow.ResetTargetWindow(_activeTrial.TargetSide);
+
+                _activeTrialRecord.ClearTimestamps();
             }
             else
             {
-                this.TrialInfo("All trials in the block completed.");
+                // Show end of block window
+                BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
+                blockEndWindow.Owner = _mainWindow;
+                blockEndWindow.ShowDialog();
             }
+
+            //if (_activeTrialNum < _activeBlock.Trials.Count)
+            //{
+            //    _activeTrialNum++;
+            //    _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
+            //    ShowActiveTrial();
+            //}
+            //else
+            //{
+            //    this.TrialInfo("All trials in the block completed.");
+            //}
         }
 
         public override void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
@@ -227,7 +248,7 @@ namespace Multi.Cursor
             //    }
             //    else // Missed the Start
             //    {
-            //        EndActiveTrial(Experiment.Result.NO_START);
+            //        EndActiveTrial(Experiment.Result.OBJ_NOT_CLICKED);
             //        return;
             //    }
 
@@ -236,7 +257,7 @@ namespace Multi.Cursor
             //else ///// Mouse
             //{
             //    if (GetEventCount(Str.START_RELEASE) > 0) EndActiveTrial(Experiment.Result.MISS);
-            //    else EndActiveTrial(Experiment.Result.NO_START);
+            //    else EndActiveTrial(Experiment.Result.OBJ_NOT_CLICKED);
             //}
         }
 
@@ -275,73 +296,73 @@ namespace Multi.Cursor
             //}
         }
 
-        public override void OnStartMouseDown(Object sender, MouseButtonEventArgs e)
-        {
-            // Show the current timestamps
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+        //public override void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)
+        //{
+        //    // Show the current timestamps
+        //    this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
-            if (_mainWindow.IsTechniqueToMo()) //-- ToMo
-            {
-                if (_activeTrialRecord.GetLastTimestamp() == Str.START_RELEASE) // Target press?
-                {
-                    // If navigator is on the button, count the event
-                    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId))
-                    {
-                        TargetPress();
-                    }
-                    else // Navator is not on the target button
-                    {
-                        EndActiveTrial(Experiment.Result.MISS);
-                        return;
-                    }
-                }
-                else
-                {
-                    StartPress();
-                }
-            }
-            else //-- Mouse
-            {
-                StartPress();
-            }
+        //    if (_mainWindow.IsTechniqueToMo()) //-- ToMo
+        //    {
+        //        if (_activeTrialRecord.GetLastTimestamp() == Str.OBJ_RELEASE) // Target press?
+        //        {
+        //            // If navigator is on the button, count the event
+        //            if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId))
+        //            {
+        //                TargetPress();
+        //            }
+        //            else // Navator is not on the target button
+        //            {
+        //                EndActiveTrial(Experiment.Result.MISS);
+        //                return;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            ObjectPress();
+        //        }
+        //    }
+        //    else //-- Mouse
+        //    {
+        //        ObjectPress();
+        //    }
 
-            e.Handled = true; // Mark the event as handled to prevent further processing
-        }
+        //    e.Handled = true; // Mark the event as handled to prevent further processing
+        //}
 
-        public override void OnStartMouseUp(Object sender, MouseButtonEventArgs e)
-        {
-            // Show the current timestamps
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+        //public override void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
+        //{
+        //    // Show the current timestamps
+        //    this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
-            if (_mainWindow.IsTechniqueToMo()) //// ToMo
-            {
-                if (_activeTrialRecord.GetLastTimestamp() ==  Str.START_PRESS) // Start release?
-                {
-                    StartRelease();
-                }
-                else // Target release?
-                {
-                    // If navigator is on the button, count the event
-                    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId))
-                    {
-                        OnFunctionRelease();
-                    }
-                    else // Navator is not on the target button
-                    {
-                        EndActiveTrial(Experiment.Result.MISS);
-                        return;
-                    }
-                }
-            }
-            else //// Mouse
-            {
-                StartRelease();
-            }
+        //    if (_mainWindow.IsTechniqueToMo()) //// ToMo
+        //    {
+        //        if (_activeTrialRecord.GetLastTimestamp() ==  Str.OBJ_RELEASE) // Start release?
+        //        {
+        //            ObjectRelease();
+        //        }
+        //        else // Target release?
+        //        {
+        //            // If navigator is on the button, count the event
+        //            if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId))
+        //            {
+        //                OnFunctionRelease();
+        //            }
+        //            else // Navator is not on the target button
+        //            {
+        //                EndActiveTrial(Experiment.Result.MISS);
+        //                return;
+        //            }
+        //        }
+        //    }
+        //    else //// Mouse
+        //    {
+        //        ObjectRelease();
+        //    }
             
-            e.Handled = true; // Mark the event as handled to prevent further processing
-        }
+        //    e.Handled = true; // Mark the event as handled to prevent further processing
+        //}
 
-        public override void OnTargetMouseDown(Object sender, MouseButtonEventArgs e)
+        public override void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
         {
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
@@ -353,29 +374,64 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public override void OnTargetMouseUp(Object sender, MouseButtonEventArgs e)
+        public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
+            var technique = _mainWindow.GetActiveTechnique();
+            
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
-            if (_mainWindow.GetActiveTechnique() == Experiment.Technique.Mouse) //// Mouse
+            switch (technique)
             {
-                OnFunctionRelease();
+                case Experiment.Technique.Auxursor_Tap when _nSelectedObjects < _activeTrialRecord.Objects.Count:
+                    // Change function color
+                    _mainWindow.FillObject(
+                        _markedObjectId,
+                        Config.OBJ_SELECTED_COLOR);
+                    _mainWindow.FillButtonInTargetWindow(
+                        _activeTrial.TargetSide,
+                        _activeTrialRecord.TargetId,
+                        Config.FUNCTION_UNAVAILABLE_COLOR);
+
+                    // Reset the pressed object id
+                    _markedObjectId = -1;
+                    break;
+                case Experiment.Technique.Mouse when _nSelectedObjects < _activeTrialRecord.Objects.Count:
+                    // Change function color
+                    _mainWindow.FillObject(
+                        _markedObjectId,
+                        Config.OBJ_SELECTED_COLOR);
+                    _mainWindow.FillButtonInTargetWindow(
+                        _activeTrial.TargetSide,
+                        _activeTrialRecord.TargetId,
+                        Config.FUNCTION_UNAVAILABLE_COLOR);
+
+                    // Reset the pressed object id
+                    _markedObjectId = -1;
+                    break;
+
+                case Experiment.Technique.Mouse when _nSelectedObjects == _activeTrialRecord.Objects.Count:
+                    EndActiveTrial(Experiment.Result.HIT);
+                    break;
+
+
             }
 
+
+            LogEvent(Str.FUNCTION_RELEASE);
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
 
-        private void StartPress()
+        private void ObjectPress()
         {
-            LogEvent(Str.START_PRESS);
+            LogEvent(Str.OBJ_PRESS);
         }
 
-        private void StartRelease()
+        private void ObjectRelease()
         {
-            LogEvent(Str.START_RELEASE);
+            LogEvent(Str.OBJ_RELEASE);
 
-            if (GetEventCount(Str.START_RELEASE) == Experiment.REP_TRIAL_NUM_PASS) // All passes done
+            if (GetEventCount(Str.OBJ_RELEASE) == Experiment.REP_TRIAL_NUM_PASS) // All passes done
             {
                 EndActiveTrial(Experiment.Result.HIT);
             }
@@ -384,7 +440,7 @@ namespace Multi.Cursor
                 // Change available/unavailable
                 _mainWindow.FillStart(Config.START_UNAVAILABLE_COLOR);
                 _mainWindow.FillButtonInTargetWindow(
-                    _activeTrial.TargetSide, _activeTrialRecord.TargetId, Config.TARGET_AVAILABLE_COLOR);
+                    _activeTrial.TargetSide, _activeTrialRecord.TargetId, Config.FUNCTION_AVAILABLE_COLOR);
                 _isTargetAvailable = true;
             }
         }
@@ -407,28 +463,6 @@ namespace Multi.Cursor
             //LogEvent(string.Join("_", Str.FUNCTION, Str.RELEASE));
             _isFunctionClicked = true;
 
-            // Check if all objes were clicked
-            if (_nAppliedObjects < _activeTrialRecord.Objects.Count)
-            {
-                // Change function color
-                _mainWindow.FillObject(
-                    _markedObjectId, 
-                    Config.OBJ_APPLIED_COLOR);
-                _mainWindow.FillButtonInTargetWindow(
-                    _activeTrial.TargetSide, 
-                    _activeTrialRecord.TargetId, 
-                    Config.FUNCTION_UNAVAILABLE_COLOR);
-
-                // Reset the pressed object id
-                _markedObjectId = -1;
-            }
-            else
-            {
-                // If all objects were clicked, end the trial
-                EndActiveTrial(Experiment.Result.HIT);
-                return;
-            }
-
             
 
             // Show the next Start
@@ -436,7 +470,7 @@ namespace Multi.Cursor
             //Point startAbsolutePosition = _trialRecords[_activeTrial.Id].StartPositions[startClicksCount];
             //_mainWindow.ShowStart(
             //    startAbsolutePosition, Config.START_AVAILABLE_COLOR,
-            //    OnStartMouseEnter, OnStartMouseLeave, OnStartMouseDown, OnStartMouseUp);
+            //    OnObjectMouseEnter, OnObjectMouseLeave, OnObjectMouseDown, OnObjectMouseUp);
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.TARGET_UNAVAILABLE_COLOR);
         }
@@ -460,77 +494,77 @@ namespace Multi.Cursor
             return new List<CachedTrialPositions>();
         }
 
-        private bool TryFindNewPositions(Trial trial, int startW, int startHalfW)
-        {
-            // Reset trial record for current attempt
-            _trialRecords[trial.Id].StartPositions.Clear();
-            _trialRecords[trial.Id].TargetId = -1;
+        //private bool TryFindNewPositions(Trial trial, int startW, int startHalfW)
+        //{
+        //    // Reset trial record for current attempt
+        //    _trialRecords[trial.Id].StartPositions.Clear();
+        //    _trialRecords[trial.Id].TargetId = -1;
 
-            (int targetId, Point targetCenterAbsolute) = _mainWindow.Dispatcher.Invoke(() =>
-            {
-                return _mainWindow.GetRadomTarget(trial.TargetSide, trial.TargetMultiple, trial.DistRangePX);
-            });
+        //    (int targetId, Point targetCenterAbsolute) = _mainWindow.Dispatcher.Invoke(() =>
+        //    {
+        //        return _mainWindow.GetRadomTarget(trial.TargetSide, trial.TargetMultiple, trial.DistRangePX);
+        //    });
 
-            if (targetId != -1)
-            {
-                _trialRecords[trial.Id].TargetId = targetId;
-            }
-            else
-            {
-                this.TrialInfo($"Failed to find a random target id for Trial#{trial.Id}.");
-                return false;
-            }
+        //    if (targetId != -1)
+        //    {
+        //        _trialRecords[trial.Id].TargetId = targetId;
+        //    }
+        //    else
+        //    {
+        //        this.TrialInfo($"Failed to find a random target id for Trial#{trial.Id}.");
+        //        return false;
+        //    }
 
-            // Get Start constraints
-            Rect startConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
-            {
-                return _mainWindow.GetStartConstraintRect();
-            });
+        //    // Get Start constraints
+        //    Rect startConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+        //    {
+        //        return _mainWindow.GetStartConstraintRect();
+        //    });
 
-            // Find random Start positions for the number of passes
-            int maxRetries = 1000;
-            double randDistMM = trial.DistRangeMM.GetRandomValue();
-            Point startCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, Utils.MM2PX(randDistMM), trial.TargetSide.GetOpposite());
+        //    // Find random Start positions for the number of passes
+        //    int maxRetries = 1000;
+        //    double randDistMM = trial.DistRangeMM.GetRandomValue();
+        //    Point startCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, Utils.MM2PX(randDistMM), trial.TargetSide.GetOpposite());
 
-            if (startCenter.X == -1 || startCenter.Y == -1) // Couldn't find the first position
-            {
-                this.TrialInfo($"Failed to find a valid first Start position for Trial#{trial.Id}!");
-                return false;
-            }
-            else
-            {
-                // Save the first position
-                Point startPositionAbsolute = startCenter.OffsetPosition(-startHalfW, -startHalfW);
-                _trialRecords[trial.Id].StartPositions.Add(startPositionAbsolute);
+        //    if (startCenter.X == -1 || startCenter.Y == -1) // Couldn't find the first position
+        //    {
+        //        this.TrialInfo($"Failed to find a valid first Start position for Trial#{trial.Id}!");
+        //        return false;
+        //    }
+        //    else
+        //    {
+        //        // Save the first position
+        //        Point startPositionAbsolute = startCenter.OffsetPosition(-startHalfW, -startHalfW);
+        //        _trialRecords[trial.Id].StartPositions.Add(startPositionAbsolute);
 
-                // Find the rest
-                for (int p = 0; p < Experiment.REP_TRIAL_NUM_PASS - 1; p++)
-                {
-                    int nRetries = 0; // Reset retries for each pass
-                    Point currentStartCenter;
-                    do
-                    {
-                        randDistMM = trial.DistRangeMM.GetRandomValue();
-                        currentStartCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, Utils.MM2PX(randDistMM), trial.TargetSide.GetOpposite());
+        //        // Find the rest
+        //        for (int p = 0; p < Experiment.REP_TRIAL_NUM_PASS - 1; p++)
+        //        {
+        //            int nRetries = 0; // Reset retries for each pass
+        //            Point currentStartCenter;
+        //            do
+        //            {
+        //                randDistMM = trial.DistRangeMM.GetRandomValue();
+        //                currentStartCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, Utils.MM2PX(randDistMM), trial.TargetSide.GetOpposite());
 
-                        if (nRetries >= maxRetries)
-                        {
-                            this.TrialInfo($"Failed to find a valid Start position after {maxRetries} retries for pass {p + 1} of Trial#{trial.Id}!");
-                            return false; // Failed to find a valid position for this pass
-                        }
+        //                if (nRetries >= maxRetries)
+        //                {
+        //                    this.TrialInfo($"Failed to find a valid Start position after {maxRetries} retries for pass {p + 1} of Trial#{trial.Id}!");
+        //                    return false; // Failed to find a valid position for this pass
+        //                }
 
-                        nRetries++;
-                    } while (currentStartCenter.X == -1 || currentStartCenter.Y == -1 || Utils.Dist(currentStartCenter, _trialRecords[trial.Id].StartPositions[0]) > Utils.MM2PX(Experiment.REP_TRIAL_MAX_DIST_STARTS_MM));
+        //                nRetries++;
+        //            } while (currentStartCenter.X == -1 || currentStartCenter.Y == -1 || Utils.Dist(currentStartCenter, _trialRecords[trial.Id].StartPositions[0]) > Utils.MM2PX(Experiment.REP_TRIAL_MAX_DIST_STARTS_MM));
 
-                    // Valid position found
-                    startPositionAbsolute = currentStartCenter.OffsetPosition(-startHalfW, -startHalfW);
-                    _trialRecords[trial.Id].StartPositions.Add(startPositionAbsolute);
-                }
-            }
+        //            // Valid position found
+        //            startPositionAbsolute = currentStartCenter.OffsetPosition(-startHalfW, -startHalfW);
+        //            _trialRecords[trial.Id].StartPositions.Add(startPositionAbsolute);
+        //        }
+        //    }
 
-            // If we reached here, all positions for all passes were successfully found
-            return _trialRecords[trial.Id].StartPositions.Count == Experiment.REP_TRIAL_NUM_PASS;
-        }
+        //    // If we reached here, all positions for all passes were successfully found
+        //    return _trialRecords[trial.Id].StartPositions.Count == Experiment.REP_TRIAL_NUM_PASS;
+        //}
 
         private bool TryFindNewObjPositions(Trial trial)
         {
@@ -632,11 +666,7 @@ namespace Multi.Cursor
                     // 2. Check for overlaps with already placed objects
                     if (!HasOverlap(topLeft, objW, placedObjects))
                     {
-                        TObject trialObject = new TObject
-                        {
-                            Id = i + 1, // Assuming IDs start from 1
-                            Position = topLeft
-                        };
+                        TObject trialObject = new TObject(i + 1, topLeft);
 
                         placedObjects.Add(trialObject);
                         placed = true;
@@ -697,7 +727,7 @@ namespace Multi.Cursor
             return false; // No overlap with any existing object
         }
 
-        public override void OnOjectMouseDown(object sender, MouseButtonEventArgs e)
+        public override void OnObjectMouseDown(object sender, MouseButtonEventArgs e)
         {
             // Treat sender as a Rectangle and get its Tag
             FrameworkElement element = (FrameworkElement)sender;
@@ -725,32 +755,50 @@ namespace Multi.Cursor
                 
         }
 
-        public override void OnOjectMouseUp(object sender, MouseButtonEventArgs e)
+        public override void OnObjectMouseUp(object sender, MouseButtonEventArgs e)
         {
+            var isToMo = _mainWindow.IsTechniqueToMo();
+            var elementTag = (int)((FrameworkElement)sender).Tag;
+            var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId);
+
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+
+            switch (isToMo, markerOnFunction)
+            {
+                case (true, true): // ToMo, marker on function
+                    LogEvent(string.Join("_", Str.OBJ, elementTag.ToString(), Str.RELEASE));
+                    _mainWindow.FillObject(elementTag, Config.OBJ_SELECTED_COLOR);
+                    _nSelectedObjects++;
+                    break;
+                case (false, _): // Mouse, any marker state
+                    break;
+            }
+
+
             // Treat sender as a Rectangle and get its Tag
-            FrameworkElement element = (FrameworkElement)sender;
-            if (element.Tag is int)
-            {
-                int tag = (int)element.Tag;
+            //FrameworkElement element = (FrameworkElement)sender;
+            //if (element.Tag is int)
+            //{
+            //    int tag = (int)element.Tag;
 
-                // If not the same object as pressed => trial is missed
-                if (_pressedObjectId != tag)
-                {
-                    this.TrialInfo($"Pressed on a different object than was pressed: {_pressedObjectId} != {tag}");
-                    EndActiveTrial(Experiment.Result.MISS);
-                    return;
-                }
+            //    // If not the same object as pressed => trial is missed
+            //    if (_pressedObjectId != tag)
+            //    {
+            //        this.TrialInfo($"Pressed on a different object than was pressed: {_pressedObjectId} != {tag}");
+            //        EndActiveTrial(Experiment.Result.MISS);
+            //        return;
+            //    }
 
-                // Object clicked
-                OnObjectClick(tag);
+            //    // Object clicked
+            //    OnObjectClick(tag);
 
-                _pressedObjectId = -1; // Reset the pressed object id
+            //    _pressedObjectId = -1; // Reset the pressed object id
 
-            }
-            else
-            {
-                this.TrialInfo("Pressed on an object without a valid Tag.");
-            }
+            //}
+            //else
+            //{
+            //    this.TrialInfo("Pressed on an object without a valid Tag.");
+            //}
         }
 
         private void OnObjectClick(int objId)
@@ -762,8 +810,8 @@ namespace Multi.Cursor
             // Handle based on the technique
             if (_mainWindow.GetActiveTechnique() == Experiment.Technique.Mouse) /// Mouse
             {
-                _nAppliedObjects++;
-                this.TrialInfo($"Object#{objId} clicked. Total applied objects: {_nAppliedObjects}");
+                _nSelectedObjects++;
+                this.TrialInfo($"Object#{objId} clicked. Total applied objects: {_nSelectedObjects}");
 
                 _markedObjectId = objId;
 
@@ -787,6 +835,145 @@ namespace Multi.Cursor
                 // For Auxursor_Tap technique, we might need to do something specific
                 // For now, just log the event
                 LogEvent(string.Join("_", Str.OBJ, objId.ToString(), Str.RELEASE));
+            }
+        }
+
+        public override void IndexTap()
+        {
+            var technique = _mainWindow.GetActiveTechnique();
+            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
+            Side correspondingSide = Side.Top;
+            var funcOnRightWindow = _activeTrial.TargetSide == correspondingSide;
+
+            this.TrialInfo($"Technique: {_mainWindow.GetActiveTechnique()}");
+
+            switch (technique, allObjSelected, funcOnRightWindow)
+            {
+                case (Technique.Auxursor_Tap, false, true): // Correct side activated
+                    _mainWindow.ActivateAuxGridNavigator(correspondingSide);
+                    break;
+                case (Technique.Auxursor_Tap, false, false): // Incorrect side activated
+                    EndActiveTrial(Result.MISS);
+                    break;
+                case (Technique.Auxursor_Tap, true, true): // Correct deactivation
+                    EndActiveTrial(Result.HIT);
+                    break;
+                case (Technique.Auxursor_Tap, true, false): // Incorrect deactivation
+                    EndActiveTrial(Result.MISS);
+                    break;
+
+                case (Technique.Auxursor_Swipe, _, _): // Wrong technique for index tap
+                    EndActiveTrial(Result.MISS);
+                    break;
+            }
+        }
+
+        public override void ThumbTap()
+        {
+            var technique = _mainWindow.GetActiveTechnique();
+            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
+            Side correspondingSide = Side.Top;
+            var funcOnRightWindow = _activeTrial.TargetSide == correspondingSide;
+
+            this.TrialInfo($"Technique: {_mainWindow.GetActiveTechnique()}");
+
+            switch (technique, allObjSelected, funcOnRightWindow)
+            {
+                case (Technique.Auxursor_Tap, false, true): // Correct side activated
+                    _mainWindow.ActivateAuxGridNavigator(correspondingSide);
+                    break;
+                case (Technique.Auxursor_Tap, false, false): // Incorrect side activated
+                    EndActiveTrial(Result.MISS);
+                    break;
+                case (Technique.Auxursor_Tap, true, true): // Correct deactivation
+                    EndActiveTrial(Result.HIT);
+                    break;
+                case (Technique.Auxursor_Tap, true, false): // Incorrect deactivation
+                    EndActiveTrial(Result.MISS);
+                    break;
+
+                case (Technique.Auxursor_Swipe, _, _): // Wrong technique for index tap
+                    EndActiveTrial(Result.MISS);
+                    break;
+            }
+        }
+
+        public override void MiddleTap()
+        {
+            var technique = _mainWindow.GetActiveTechnique();
+            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
+            Side correspondingSide = Side.Top;
+            var funcOnRightWindow = _activeTrial.TargetSide == correspondingSide;
+
+            this.TrialInfo($"Technique: {_mainWindow.GetActiveTechnique()}");
+
+            switch (technique, allObjSelected, funcOnRightWindow)
+            {
+                case (Technique.Auxursor_Tap, false, true): // Correct side activated
+                    _mainWindow.ActivateAuxGridNavigator(correspondingSide);
+                    break;
+                case (Technique.Auxursor_Tap, false, false): // Incorrect side activated
+                    EndActiveTrial(Result.MISS);
+                    break;
+                case (Technique.Auxursor_Tap, true, true): // Correct deactivation
+                    EndActiveTrial(Result.HIT);
+                    break;
+                case (Technique.Auxursor_Tap, true, false): // Incorrect deactivation
+                    EndActiveTrial(Result.MISS);
+                    break;
+
+                case (Technique.Auxursor_Swipe, _, _): // Wrong technique for index tap
+                    EndActiveTrial(Result.MISS);
+                    break;
+            }
+        }
+
+        public override void ThumbTap(Side side)
+        {
+            ThumbTap();
+        }
+
+        public override void ThumbSwipe(Direction dir)
+        {
+            var technique = _mainWindow.GetActiveTechnique();
+            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
+            var dirMatchesSide = dir switch
+            {
+                Direction.Left => _activeTrial.TargetSide == Side.Left,
+                Direction.Right => _activeTrial.TargetSide == Side.Right,
+                Direction.Up => _activeTrial.TargetSide == Side.Top,
+                _ => false
+            };
+
+            var dirOppositeSide = dir switch
+            {
+                Direction.Left => _activeTrial.TargetSide == Side.Right,
+                Direction.Right => _activeTrial.TargetSide == Side.Left,
+                Direction.Down => _activeTrial.TargetSide == Side.Top,
+                _ => false
+            };
+
+            this.TrialInfo($"Technique: {_mainWindow.GetActiveTechnique()}");
+
+            switch (technique, allObjSelected, dirMatchesSide, dirOppositeSide)
+            {
+                case (Technique.Auxursor_Swipe, true, _, true): // Deactivation success
+                    EndActiveTrial(Result.HIT);
+                    break;
+                case (Technique.Auxursor_Swipe, true, _, false): // Deactivation failure
+                    EndActiveTrial(Result.MISS);
+                    break;
+                case (Technique.Auxursor_Swipe, false, true, _): // Correct activation swipe
+                    _mainWindow.ActivateAuxGridNavigator(_activeTrial.TargetSide);
+                    break;
+                case (Technique.Auxursor_Swipe, false, false, _): // Incorrect activation swipe
+                    EndActiveTrial(Result.MISS);
+                    break;
+
+                case (Technique.Auxursor_Tap, _, _, _): // Wrong technique for swipe
+                    EndActiveTrial(Result.MISS);
+                    break;
+
             }
         }
     }

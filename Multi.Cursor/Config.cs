@@ -129,16 +129,18 @@ namespace Multi.Cursor
         public static readonly Brush START_AVAILABLE_COLOR = Brushes.Green;
         public static readonly Brush START_UNAVAILABLE_COLOR = DARK_ORANGE;
 
-        public static readonly Brush OBJ_DEFAULT_COLOR = Brushes.LightGray;
-        public static readonly Brush OBJ_MARKED_COLOR = Brushes.LightGreen;
-        public static readonly Brush OBJ_APPLIED_COLOR = Brushes.Green;
+        public static readonly Brush OBJ_ENABLED_COLOR = Brushes.LightGreen;
+        public static readonly Brush OBJ_MARKED_COLOR = Brushes.Green;
+        public static readonly Brush OBJ_SELECTED_COLOR = Brushes.Green;
+        public static readonly Brush OBJ_UNAVAILABLE_COLOR = DARK_ORANGE;
 
         public static readonly Brush FUNCTION_UNAVAILABLE_COLOR = DARK_ORANGE;
         public static readonly Brush FUNCTION_AVAILABLE_COLOR = Brushes.LightGreen;
-        public static readonly Brush FUNCTION_MARKED_COLOR = Brushes.DarkGreen;
+        public static readonly Brush FUNCTION_SELECTED_COLOR = Brushes.Green;
 
-        public static readonly Brush TARGET_AVAILABLE_COLOR = Brushes.Blue;
-        public static readonly Brush TARGET_UNAVAILABLE_COLOR = Brushes.LightGreen;
+        //public static readonly Brush TARGET_DEFAULT_COLOR = Brushes.LightGreen;
+        //public static readonly Brush TARGET_AVAILABLE_COLOR = Brushes.Blue;
+        //public static readonly Brush TARGET_UNAVAILABLE_COLOR = Brushes.LightGreen;
 
         public static readonly Brush ELEMENT_HIGHLIGHT_COLOR = Brushes.Black;
         public static readonly Brush GRID_TARGET_COLOR = Brushes.LightGreen;

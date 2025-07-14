@@ -49,14 +49,14 @@ namespace Multi.Cursor
         //private double LONGEST_DIST_MM = 293; // BenQ = 293 mm
         //private double SHORTEST_DIST_MM = 10; // BenQ = 10 mm
 
-        public enum Technique { Auxursor_Swipe, Auxursor_Tap, Radiusor, Mouse }
+        public enum Technique { Auxursor_Swipe, Auxursor_Tap, Mouse }
 
         //-- Constants
         public static double START_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
 
         //-- Current state
         
-        public enum Result { MISS, HIT, NO_START }
+        public enum Result { MISS, HIT, OBJ_NOT_CLICKED }
 
         //-- Information
         public Technique Active_Technique = Technique.Auxursor_Tap; // Set in the info dialog
@@ -116,8 +116,8 @@ namespace Multi.Cursor
             };
             List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
 
-            CreateAltBlocks(1, targetMultiples, distRanges);
-            //CreateRepBlocks(1, targetMultiples, distRanges);
+            //CreateAltBlocks(1, targetMultiples, distRanges);
+            CreateRepBlocks(1, targetMultiples, distRanges);
         }
 
         private void CreateAltBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
@@ -163,19 +163,9 @@ namespace Multi.Cursor
                 Active_Technique == Technique.Auxursor_Tap;
         }
 
-        public bool IsTechRadiusor()
-        {
-            return Active_Technique == Technique.Radiusor;
-        }
-
         public static double GetMinTargetWidthMM()
         {
             return TARGET_WIDTHS_MM.First();
-        }
-
-        private string ListToString<T>(List<T> list)
-        {
-            return "{" + string.Join(", ", list) + "}";
         }
 
         public static int GetNumGridTargetWidths()

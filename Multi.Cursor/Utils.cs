@@ -487,6 +487,18 @@ namespace Multi.Cursor
             };
         }
 
+        public static Side DirToSide(this Direction dir)
+        {
+            return dir switch
+            {
+                Direction.Up => Side.Top,
+                Direction.Down => Side.Down,
+                Direction.Left => Side.Left,
+                Direction.Right => Side.Right,
+                _ => throw new ArgumentOutOfRangeException(nameof(dir), "Unknown Direction value")
+            };
+        }
+
         /// <summary>
         /// Shifts the elements of an array by a specified number of positions, with wrapping, in-place.
         /// A positive shiftAmount moves elements to the right; a negative shiftAmount moves elements to the left.

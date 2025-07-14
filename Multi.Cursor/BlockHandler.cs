@@ -17,14 +17,14 @@ namespace Multi.Cursor
         protected class TrialRecord
         {
             public int TargetId;
-            public List<Point> StartPositions;
+            //public List<Point> StartPositions;
             public List<TObject> Objects;
             public Dictionary<string, int> EventCounts;
             private List<Timestamp> Timestamps;
 
             public TrialRecord()
             {
-                StartPositions = new List<Point>();
+                //StartPositions = new List<Point>();
                 Objects = new List<TObject>();
                 EventCounts = new Dictionary<string, int>();
                 Timestamps = new List<Timestamp>();
@@ -70,6 +70,12 @@ namespace Multi.Cursor
         {
             public int Id { get; set; }
             public Point Position { get; set; }
+
+            public TObject(int id, Point position)
+            {
+                Id = id;
+                Position = position;
+            }
         }
 
         protected class Timestamp
@@ -124,9 +130,9 @@ namespace Multi.Cursor
         public abstract void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e);
         public void OnAuxWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            if (GetEventCount(Str.START_RELEASE) == 0) // Not yet clicked on the Start => NO_START
+            if (GetEventCount(Str.OBJ_RELEASE) == 0) // Not yet clicked on the Object => OBJ_NOT_CLICKED
             {
-                EndActiveTrial(Experiment.Result.NO_START);
+                EndActiveTrial(Experiment.Result.OBJ_NOT_CLICKED);
             }
             else // Clicked on the Start => MISS
             {
@@ -143,18 +149,17 @@ namespace Multi.Cursor
         {
             // Nothing for now
         }
-        public void OnStartMouseEnter(Object sender, MouseEventArgs e)
+        public void OnObjectMouseEnter(Object sender, MouseEventArgs e)
         {
             LogEvent(Str.START_ENTER);
         }
-        public void OnStartMouseLeave(Object sender, MouseEventArgs e)
+        public void OnObjectMouseLeave(Object sender, MouseEventArgs e)
         {
             LogEvent(Str.START_LEAVE);
         }
-        public abstract void OnStartMouseDown(Object sender, MouseButtonEventArgs e);
-        public abstract void OnStartMouseUp(Object sender, MouseButtonEventArgs e);
-        public abstract void OnOjectMouseDown(Object sender, MouseButtonEventArgs e);
-        public abstract void OnOjectMouseUp(Object sender, MouseButtonEventArgs e);
+        public abstract void OnObjectMouseDown(Object sender, MouseButtonEventArgs e);
+        public abstract void OnObjectMouseUp(Object sender, MouseButtonEventArgs e);
+
         public void OnTargetMouseEnter(Object sender, MouseEventArgs e)
         {
             LogEvent(Str.TARGET_ENTER);
@@ -163,8 +168,8 @@ namespace Multi.Cursor
         {
             LogEvent(Str.TARGET_LEAVE);
         }
-        public abstract void OnTargetMouseDown(Object sender, MouseButtonEventArgs e);
-        public abstract void OnTargetMouseUp(Object sender, MouseButtonEventArgs e);
+        public abstract void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e);
+        public abstract void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e);
         public void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
         {
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
@@ -184,7 +189,50 @@ namespace Multi.Cursor
 
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
+            _activeTrialNum++;
+            _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
+            _activeTrialRecord = _trialRecords[_activeTrial.Id];
+
             ShowActiveTrial();
+        }
+
+        protected void SetFunctionAsEnabled()
+        {
+            _mainWindow.FillButtonInTargetWindow(
+                _activeTrial.TargetSide, 
+                _activeTrialRecord.TargetId, 
+                Config.FUNCTION_AVAILABLE_COLOR);
+        }
+
+        protected void SetFunctionAsDisabled()
+        {
+            _mainWindow.FillButtonInTargetWindow(
+                _activeTrial.TargetSide, 
+                _activeTrialRecord.TargetId, 
+                Config.FUNCTION_UNAVAILABLE_COLOR);
+        }
+
+        protected void SetFunctionAsSelected()
+        {
+            _mainWindow.FillButtonInTargetWindow(
+                _activeTrial.TargetSide, 
+                _activeTrialRecord.TargetId, 
+                Config.FUNCTION_SELECTED_COLOR);
+        }
+
+        protected void SetObjectAsEnabled(int objId)
+        {
+            _mainWindow.FillObject(objId, Config.OBJ_ENABLED_COLOR);
+        }
+
+        protected void SetObjectAsSelected(int objId)
+        {
+            _mainWindow.FillObject(objId, Config.OBJ_SELECTED_COLOR);
+        }
+
+        protected void SetObjectAsDisabled(int objId)
+        {
+            _mainWindow.FillObject(objId, Config.OBJ_UNAVAILABLE_COLOR);
         }
 
         public void LeftPress()
@@ -212,28 +260,16 @@ namespace Multi.Cursor
             
         }
 
-        public void IndexTap()
-        {
-            this.TrialInfo($"IndexTap: {_mainWindow.GetActiveTechnique()}");
-            if (_mainWindow.GetActiveTechnique() == Technique.Auxursor_Tap)
-            {
-                _mainWindow.ActivateAuxGridNavigator(Side.Top);
-                //if (GetEventCount(Str.START_RELEASE) > 0)
-                //{
-                //    _mainWindow.ActivateAuxGridNavigator(Side.Top);
-                //}
-            }
-            
-        } 
+        public abstract void IndexTap();
 
         public void IndexMove(double dX, double dY)
         {
-            // Nothing for now
+
         }
 
         public void IndexMove(TouchPoint indPoint)
         {
-            _mainWindow?.MoveAuxNavigator(indPoint);
+            _mainWindow?.MoveMarker(indPoint);
         }
 
         public void IndexUp()
@@ -241,41 +277,9 @@ namespace Multi.Cursor
             _mainWindow.StopAuxNavigator();
         }
 
-        public void ThumbSwipe(Direction dir)
-        {
-            if (_mainWindow.GetActiveTechnique() == Technique.Auxursor_Swipe)
-            {
-                if (GetEventCount(Str.START_RELEASE) > 0)
-                {
-                    switch (dir)
-                    {
-                        case Direction.Left:
-                            _mainWindow.ActivateAuxGridNavigator(Side.Left);
-                            break;
-                        case Direction.Right:
-                            _mainWindow.ActivateAuxGridNavigator(Side.Right);
-                            break;
-                        case Direction.Up:
-                            _mainWindow.ActivateAuxGridNavigator(Side.Top);
-                            break;
-                    }
-                }
-                
-            }
-            
-        }
+        public abstract void ThumbSwipe(Direction dir);
 
-        public void ThumbTap(Side loc)
-        {
-            if (_mainWindow.GetActiveTechnique() == Technique.Auxursor_Tap)
-            {
-                _mainWindow.ActivateAuxGridNavigator(Side.Left);
-                //if (GetEventCount(Str.START_RELEASE) > 0)
-                //{
-                //    _mainWindow.ActivateAuxGridNavigator(Side.Left);
-                //}
-            }
-        }
+        public abstract void ThumbTap();
 
         public void ThumbMove(TouchPoint thumbPoint)
         {
@@ -287,17 +291,7 @@ namespace Multi.Cursor
             // Nothing for now
         }
 
-        public void MiddleTap()
-        {
-            if (_mainWindow.GetActiveTechnique() == Technique.Auxursor_Tap)
-            {
-                _mainWindow.ActivateAuxGridNavigator(Side.Right);
-                //if (GetEventCount(Str.START_RELEASE) > 0)
-                //{
-                //    _mainWindow.ActivateAuxGridNavigator(Side.Right);
-                //}
-            }
-        }
+        public abstract void MiddleTap();
 
         public void RingTap()
         {
@@ -343,6 +337,8 @@ namespace Multi.Cursor
 
             return 0;
         }
+
+        public abstract void ThumbTap(Side side);
     }
 
 }

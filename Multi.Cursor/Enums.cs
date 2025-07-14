@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 
 namespace Multi.Cursor
 {
-    public enum Direction
-    {
-        Up, Down, Left, Right
-    }
-
     public enum Side
     {
         Left, Top, Right, Down, Middle
+    }
+
+    public enum Direction
+    {
+        Up, Down, Left, Right
+
     }
 }

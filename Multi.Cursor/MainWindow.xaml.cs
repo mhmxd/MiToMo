@@ -937,6 +937,7 @@ namespace Multi.Cursor
 
         public void ShowObjects(
             List<BlockHandler.TObject> trialObjects, Brush color,
+            MouseButtonEventHandler mouseEnterHandler, MouseButtonEventHandler mouseLeaveHandler,
             MouseButtonEventHandler mouseButtonDownHandler, MouseButtonEventHandler MouseButtonUpHandler)
         {
             // Clear the previous objects
@@ -945,29 +946,39 @@ namespace Multi.Cursor
             // Create and position the objects
             foreach (BlockHandler.TObject trObj in trialObjects)
             {
-                // Convert the absolute position to relative position
-                Point positionInMain = Utils.Offset(trObj.Position, -this.Left, -this.Top);
-
-                // Create the square
-                Rectangle objRectangle = new Rectangle
-                {
-                    Tag = trObj.Id,
-                    Width = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                    Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                    Fill = color
-                };
-
-                // Position the object on the Canvas
-                Canvas.SetLeft(objRectangle, positionInMain.X);
-                Canvas.SetTop(objRectangle, positionInMain.Y);
-
-                // Assign event handlers
-                objRectangle.MouseDown += mouseButtonDownHandler;
-                objRectangle.MouseUp += MouseButtonUpHandler;
-
-                // Add the rectangle to the Canvas
-                canvas.Children.Add(objRectangle);
+                ShowObject(
+                    trObj, color,
+                    mouseEnterHandler, mouseLeaveHandler,
+                    mouseButtonDownHandler, MouseButtonUpHandler);
             }
+        }
+
+        private void ShowObject(BlockHandler.TObject tObject, Brush color,
+            MouseButtonEventHandler mouseEnterHandler, MouseButtonEventHandler mouseLeaveHandler,
+            MouseButtonEventHandler mouseButtonDownHandler, MouseButtonEventHandler MouseButtonUpHandler)
+        {
+            // Convert the absolute position to relative position
+            Point positionInMain = Utils.Offset(tObject.Position, -this.Left, -this.Top);
+
+            // Create the square
+            Rectangle objRectangle = new Rectangle
+            {
+                Tag = tObject.Id,
+                Width = Utils.MM2PX(Experiment.START_WIDTH_MM),
+                Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
+                Fill = color
+            };
+
+            // Position the object on the Canvas
+            Canvas.SetLeft(objRectangle, positionInMain.X);
+            Canvas.SetTop(objRectangle, positionInMain.Y);
+
+            // Assign event handlers
+            objRectangle.MouseDown += mouseButtonDownHandler;
+            objRectangle.MouseUp += MouseButtonUpHandler;
+
+            // Add the rectangle to the Canvas
+            canvas.Children.Add(objRectangle);
         }
 
         private void HideAuxursors()
@@ -1187,15 +1198,30 @@ namespace Multi.Cursor
                 || _experiment.Active_Technique == Experiment.Technique.Auxursor_Tap;
         }
 
+        public bool IsAuxWindowActivated(Side side)
+        {
+            switch (side)
+            {
+                case Side.Left:
+                    return _activeAuxWindow == _leftWindow;
+                case Side.Top:
+                    return _activeAuxWindow == _topWindow;
+                case Side.Right:
+                    return _activeAuxWindow == _rightWindow;
+                default:
+                    return false; // Invalid side
+            }
+        }
+
         public bool IsMarkerOnButton(Side side, int buttonId)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             return auxWindow.IsNavigatorOnButton(buttonId);
         }
 
-        public void MoveAuxNavigator(TouchPoint touchPoint)
+        public void MoveMarker(TouchPoint touchPoint)
         {
-            _activeAuxWindow?.MoveGridNavigator(touchPoint);
+            _activeAuxWindow?.MoveMarker(touchPoint);
         }
 
         public void StopAuxNavigator()
@@ -1210,6 +1236,7 @@ namespace Multi.Cursor
 
         public void ShowStartTrialButton(MouseButtonEventHandler mouseUp)
         {
+            canvas.Children.Clear(); // Clear the canvas before adding the button
 
             // Create the "button" as a Border with text inside
             var startTrialButton = new Border

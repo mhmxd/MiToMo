@@ -13,14 +13,20 @@ namespace Multi.Cursor
         public static string TRIAL_SHOW = "trial_show";
         public static string FIRST_MOVE = "first_move";
 
-        public static string START_PRESS = "start_press";
-        public static string START_RELEASE = "start_release";
+        //public static string START_PRESS = "start_press";
+        //public static string START_RELEASE = "start_release";
 
         public static string OBJ = "obj";
         public static string FUNCTION = "function";
 
         public static string PRESS = "press";
         public static string RELEASE = "release";
+
+        public static string OBJ_PRESS = "obj_press";
+        public static string OBJ_RELEASE = "obj_release";
+
+        public static string FUNCTION_PRESS = "function_press";
+        public static string FUNCTION_RELEASE = "function_release";
 
         public static string START_ENTER = "start_enter";
         //public static string START1_LAST_ENTRY = "start1_last_entry";
@@ -50,8 +56,8 @@ namespace Multi.Cursor
         public static string PRACTICE = "Practice";
         public static string TEST = "Test";
 
-        public static string MAJOR_LINE = "=================================================================================================";
-        public static string MINOR_LINE = "-------------------------------------------------------------------------------------------------";
+        public static string MAJOR_LINE = "===============================================================================";
+        public static string MINOR_LINE = "-------------------------------------------------------------------------------";
 
         public static string x3 = "3mm";
         public static string x6 = "6mm";
@@ -65,6 +71,11 @@ namespace Multi.Cursor
         public static readonly string SHORT = "Short";
         public static readonly string MID = "Mid";
         public static readonly string LONG = "Long";
+
+        //public static string Join(params string[] parts)
+        //{
+        //    return string.Join("_", parts);
+        //}
 
     }
 }
