@@ -96,7 +96,7 @@ namespace Multi.Cursor
             // Get Start constraints
             Rect startConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
             {
-                return _mainWindow.GetStartConstraintRect();
+                return _mainWindow.GetObjAreaCenterConstraintRect();
             });
 
             Point objCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, trial.DistancePX, trial.TargetSide.GetOpposite());
@@ -110,6 +110,11 @@ namespace Multi.Cursor
             else // Valid position found
             {
                 this.TrialInfo($"Found object position: {objPositionAbsolute.ToStr()}");
+                _trialRecords[trial.Id].ObjectAreaRect = new Rect(
+                        objPositionAbsolute.X - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+                        objPositionAbsolute.Y - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+                        Utils.MM2PX(OBJ_AREA_WIDTH_MM),
+                        Utils.MM2PX(OBJ_AREA_WIDTH_MM));
                 _trialRecords[trial.Id].Objects.Add(new TObject(1, objPositionAbsolute)); // Object is always 1 in this case
             }
 
@@ -142,9 +147,9 @@ namespace Multi.Cursor
 
             // Show the first Start
             Brush objDefaultColor = _mainWindow.IsTechniqueToMo() ? Config.OBJ_ENABLED_COLOR : Config.OBJ_AVAILABLE_COLOR;
-            _mainWindow.ShowObjects(
-                _activeTrialRecord.Objects,
-                objDefaultColor,
+            _mainWindow.ShowObjectsWithArea(
+                _activeTrialRecord.ObjectAreaRect, _activeTrialRecord.Objects,
+                Config.OBJ_AREA_BG_COLOR, objDefaultColor,
                 OnObjectMouseEnter, OnObjectMouseLeave, OnObjectMouseDown, OnObjectMouseUp);
         }
 

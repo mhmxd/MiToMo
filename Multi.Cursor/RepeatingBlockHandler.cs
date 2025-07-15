@@ -152,8 +152,9 @@ namespace Multi.Cursor
                 OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
 
             // Show the objects
-            _mainWindow.ShowObjects(
-                _activeTrialRecord.Objects, Config.OBJ_AVAILABLE_COLOR,
+            _mainWindow.ShowObjectsWithArea(
+                _activeTrialRecord.ObjectAreaRect, _activeTrialRecord.Objects, 
+                Config.OBJ_AREA_BG_COLOR, Config.OBJ_AVAILABLE_COLOR,
                 OnObjectMouseEnter, OnObjectMouseLeave,
                 OnObjectMouseDown, OnObjectMouseUp);
 
@@ -583,6 +584,12 @@ namespace Multi.Cursor
                 if (objAreaCenterPosition.X != 0 && objAreaCenterPosition.Y != 0)
                 {
                     this.TrialInfo($"Found a valid object area center position for Trial#{trial.Id} at {objAreaCenterPosition}.");
+                    // Set the Rect
+                    _trialRecords[trial.Id].ObjectAreaRect = new Rect(
+                        objAreaCenterPosition.X - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+                        objAreaCenterPosition.Y - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+                        Utils.MM2PX(OBJ_AREA_WIDTH_MM),
+                        Utils.MM2PX(OBJ_AREA_WIDTH_MM));
                     _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenterPosition, Experiment.REP_TRIAL_NUM_PASS);
                     return true; // Successfully found positions
                 }

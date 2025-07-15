@@ -37,6 +37,7 @@ namespace Multi.Cursor
         public static int REP_TRIAL_NUM_PASS = 5; // Trial ends on Start
         public static double REP_TRIAL_MAX_DIST_STARTS_MM = Config.EXCEL_CELL_W; // Max distance between Starts in a repeating trial (mm)
         public static double REP_TRIAL_OBJ_AREA_RADIUS_MM = Config.EXCEL_CELL_W; // Radius of the object area in repeating trials (mm)
+        public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 2; // Width of the *square* object area (mm)
 
         private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
 
@@ -116,8 +117,8 @@ namespace Multi.Cursor
             };
             List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
 
-            CreateAltBlocks(1, targetMultiples, distRanges);
-            //CreateRepBlocks(1, targetMultiples, distRanges);
+            //CreateAltBlocks(1, targetMultiples, distRanges);
+            CreateRepBlocks(1, targetMultiples, distRanges);
         }
 
         private void CreateAltBlocks(int n, List<int> targetMultiples, List<Range> distRanges)

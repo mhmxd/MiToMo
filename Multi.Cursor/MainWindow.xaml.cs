@@ -43,6 +43,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Xml.Linq;
 using WindowsInput;
+using static Multi.Cursor.BlockHandler;
 using static Multi.Cursor.Experiment;
 using static Multi.Cursor.Output;
 using static Multi.Cursor.Utils;
@@ -935,19 +936,33 @@ namespace Multi.Cursor
             canvas.Children.Remove(_startRectangle);
         }
 
-        public void ShowObjects(
-            List<BlockHandler.TObject> trialObjects, Brush color,
+        public void ShowObjectsWithArea(
+            Rect areaRect, List<BlockHandler.TObject> trialObjects, 
+            Brush areaColor, Brush objColor,
             MouseButtonEventHandler mouseEnterHandler, MouseButtonEventHandler mouseLeaveHandler,
             MouseButtonEventHandler mouseButtonDownHandler, MouseButtonEventHandler MouseButtonUpHandler)
         {
             // Clear the previous objects
             canvas.Children.Clear();
 
+            // Show the area rectangle
+            Rectangle areaRectangle = new Rectangle
+            {
+                Width = areaRect.Width,
+                Height = areaRect.Height,
+                Fill = areaColor
+            };
+
+            // Position the area rectangle on the Canvas
+            Canvas.SetLeft(areaRectangle, areaRect.Left - this.Left);
+            Canvas.SetTop(areaRectangle, areaRect.Top - this.Top);
+            canvas.Children.Add(areaRectangle);
+
             // Create and position the objects
             foreach (BlockHandler.TObject trObj in trialObjects)
             {
                 ShowObject(
-                    trObj, color,
+                    trObj, objColor,
                     mouseEnterHandler, mouseLeaveHandler,
                     mouseButtonDownHandler, MouseButtonUpHandler);
             }
@@ -1169,27 +1184,38 @@ namespace Multi.Cursor
                 centerPositionInAuxWindow.Y + auxWindow.Top);
         }
 
-        public Rect GetStartConstraintRect()
-        {
-            double startHalfW = Utils.MM2PX(Experiment.START_WIDTH_MM / 2.0);
-            return new Rect(
-                this.Left + VERTICAL_PADDING + startHalfW,
-                this.Top + VERTICAL_PADDING + startHalfW,
-                this.Width - 2 * (VERTICAL_PADDING + startHalfW),
-                this.Height - 2 * (VERTICAL_PADDING + startHalfW) - _infoLabelHeight
-                );
-        }
+        //public Rect GetStartConstraintRect()
+        //{
+        //    double startHalfW = Utils.MM2PX(Experiment.START_WIDTH_MM / 2.0);
+        //    return new Rect(
+        //        this.Left + VERTICAL_PADDING + startHalfW,
+        //        this.Top + VERTICAL_PADDING + startHalfW,
+        //        this.Width - 2 * (VERTICAL_PADDING + startHalfW),
+        //        this.Height - 2 * (VERTICAL_PADDING + startHalfW) - _infoLabelHeight
+        //        );
+        //}
 
         public Rect GetObjAreaCenterConstraintRect()
         {
-            double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM + Experiment.START_WIDTH_MM/2);
+            // Square
             double padding = Utils.MM2PX(VERTICAL_PADDING);
+            double objAreaHalfWidth = Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2);
             return new Rect(
-                this.Left + padding + objAreaRadius,
-                this.Top + padding + objAreaRadius,
-                this.Width - 2 * (padding + objAreaRadius),
-                this.Height - 2 * (padding + objAreaRadius) - _infoLabelHeight
+                this.Left + padding + objAreaHalfWidth,
+                this.Top + padding + objAreaHalfWidth,
+                this.Width - 2 * (padding + objAreaHalfWidth),
+                this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
             );
+
+
+
+            //double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM + Experiment.START_WIDTH_MM/2);
+            //return new Rect(
+            //    this.Left + padding + objAreaRadius,
+            //    this.Top + padding + objAreaRadius,
+            //    this.Width - 2 * (padding + objAreaRadius),
+            //    this.Height - 2 * (padding + objAreaRadius) - _infoLabelHeight
+            //);
         }
 
         public bool IsTechniqueToMo()

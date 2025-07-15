@@ -19,6 +19,7 @@ namespace Multi.Cursor
             public int TargetId;
             //public List<Point> StartPositions;
             public List<TObject> Objects;
+            public Rect ObjectAreaRect;
             public Dictionary<string, int> EventCounts;
             private List<Timestamp> Timestamps;
 
@@ -26,6 +27,7 @@ namespace Multi.Cursor
             {
                 //StartPositions = new List<Point>();
                 Objects = new List<TObject>();
+                ObjectAreaRect = new Rect();
                 EventCounts = new Dictionary<string, int>();
                 Timestamps = new List<Timestamp>();
             }
