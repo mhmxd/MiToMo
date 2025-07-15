@@ -11,8 +11,8 @@ namespace Multi.Cursor
     internal class Config
     {
 
-        //public const double PPI = 109; // Apple Display
-        public const double PPI = 93.54; // BenQ = 89 (changed to 93.54), Apple Display = 109
+        public const double PPI = 109; // Apple Display
+        //public const double PPI = 93.54; // BenQ = 89 (changed to 93.54), Apple Display = 109
 
         // Used as basis (in Experiment)
         public const double EXCEL_CELL_W = 18;
@@ -130,9 +130,9 @@ namespace Multi.Cursor
         public static readonly Brush START_UNAVAILABLE_COLOR = DARK_ORANGE;
 
         public static readonly Brush OBJ_ENABLED_COLOR = Brushes.LightGreen;
-        public static readonly Brush OBJ_MARKED_COLOR = Brushes.Green;
+        public static readonly Brush OBJ_MARKED_COLOR = Brushes.LightGreen;
         public static readonly Brush OBJ_SELECTED_COLOR = Brushes.Green;
-        public static readonly Brush OBJ_UNAVAILABLE_COLOR = DARK_ORANGE;
+        public static readonly Brush OBJ_AVAILABLE_COLOR = Brushes.LightGray;
 
         public static readonly Brush FUNCTION_UNAVAILABLE_COLOR = DARK_ORANGE;
         public static readonly Brush FUNCTION_AVAILABLE_COLOR = Brushes.LightGreen;
@@ -169,7 +169,7 @@ namespace Multi.Cursor
         public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * WINDOW_PADDING_MM + GRID_INTERGROUP_GUTTER_MM;
         public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GRID_WITHINGROUP_GUTTER_MM + 2 * WINDOW_PADDING_MM;
 
-        public static Dimensions TRIAL_START_BUTTON_DIM_MM = new Dimensions(60, 20);
+        public static Dimensions TRIAL_START_BUTTON_DIM_MM = new Dimensions(40, 10);
         public static int TRIAL_START_BUTTON_FONT_SIZE = 16;
 
         public static void SetMode(int speed)

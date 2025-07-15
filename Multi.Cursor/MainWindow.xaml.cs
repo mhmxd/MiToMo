@@ -1244,7 +1244,7 @@ namespace Multi.Cursor
                 Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
                 Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
                 Background = Config.LIGHT_PURPLE,
-                BorderBrush = Brushes.Gray,
+                BorderBrush = Brushes.Black,
                 BorderThickness = new Thickness(2),
                 //CornerRadius = new CornerRadius(6)
             };

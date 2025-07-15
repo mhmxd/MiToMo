@@ -153,7 +153,7 @@ namespace Multi.Cursor
 
             // Show the objects
             _mainWindow.ShowObjects(
-                _activeTrialRecord.Objects, Config.OBJ_ENABLED_COLOR,
+                _activeTrialRecord.Objects, Config.OBJ_AVAILABLE_COLOR,
                 OnObjectMouseEnter, OnObjectMouseLeave,
                 OnObjectMouseDown, OnObjectMouseUp);
 
@@ -382,38 +382,12 @@ namespace Multi.Cursor
 
             switch (technique)
             {
-                case Experiment.Technique.Auxursor_Tap when _nSelectedObjects < _activeTrialRecord.Objects.Count:
-                    // Change function color
-                    _mainWindow.FillObject(
-                        _markedObjectId,
-                        Config.OBJ_SELECTED_COLOR);
-                    _mainWindow.FillButtonInTargetWindow(
-                        _activeTrial.TargetSide,
-                        _activeTrialRecord.TargetId,
-                        Config.FUNCTION_UNAVAILABLE_COLOR);
 
-                    // Reset the pressed object id
-                    _markedObjectId = -1;
+                case Technique.Mouse:
+                    SetObjectAsSelected(_pressedObjectId);
+                    _nSelectedObjects++;
+                    SetFunctionAsSelected();
                     break;
-                case Experiment.Technique.Mouse when _nSelectedObjects < _activeTrialRecord.Objects.Count:
-                    // Change function color
-                    _mainWindow.FillObject(
-                        _markedObjectId,
-                        Config.OBJ_SELECTED_COLOR);
-                    _mainWindow.FillButtonInTargetWindow(
-                        _activeTrial.TargetSide,
-                        _activeTrialRecord.TargetId,
-                        Config.FUNCTION_UNAVAILABLE_COLOR);
-
-                    // Reset the pressed object id
-                    _markedObjectId = -1;
-                    break;
-
-                case Experiment.Technique.Mouse when _nSelectedObjects == _activeTrialRecord.Objects.Count:
-                    EndActiveTrial(Experiment.Result.HIT);
-                    break;
-
-
             }
 
 
@@ -731,48 +705,66 @@ namespace Multi.Cursor
         {
             // Treat sender as a Rectangle and get its Tag
             FrameworkElement element = (FrameworkElement)sender;
-            if (element.Tag is int)
-            {
-                int tag = (int)element.Tag;
-                _pressedObjectId = tag; // Store the pressed object id
+            //if (element.Tag is int)
+            //{
+            //    int tag = (int)element.Tag;
+            //    _pressedObjectId = tag; // Store the pressed object id
 
-                string timeKey = string.Join("_", Str.OBJ, ((int)element.Tag).ToString(), Str.PRESS);
+            //    string timeKey = string.Join("_", Str.OBJ, ((int)element.Tag).ToString(), Str.PRESS);
 
-                // Was this object already pressed?
-                if (_activeTrialRecord.HasTimestamp(timeKey))
-                {
-                    EndActiveTrial(Experiment.Result.MISS);
-                    return;
-                }
+            //    // Was this object already pressed?
+            //    if (_activeTrialRecord.HasTimestamp(timeKey))
+            //    {
+            //        EndActiveTrial(Experiment.Result.MISS);
+            //        return;
+            //    }
 
 
-                _activeTrialRecord.AddTimestamp(timeKey); // Log the object press timestamp
-            }
-            else
-            {
-                this.TrialInfo("Pressed on an object without a valid Tag.");
-            }
-                
+            //    _activeTrialRecord.AddTimestamp(timeKey); // Log the object press timestamp
+            //}
+            //else
+            //{
+            //    this.TrialInfo("Pressed on an object without a valid Tag.");
+            //}
+
+            LogEvent(string.Join("_", Str.OBJ, ((int)element.Tag).ToString(), Str.PRESS));
+            e.Handled = true;
+
         }
 
         public override void OnObjectMouseUp(object sender, MouseButtonEventArgs e)
         {
-            var isToMo = _mainWindow.IsTechniqueToMo();
             var elementTag = (int)((FrameworkElement)sender).Tag;
+
+            var isToMo = _mainWindow.IsTechniqueToMo();
             var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId);
+            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
 
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+            // Show all the flags
+            this.TrialInfo($"isToMo: {isToMo}, markerOnFunction: {markerOnFunction}, allObjSelected: {allObjSelected}");
 
-            switch (isToMo, markerOnFunction)
+            switch (isToMo, markerOnFunction, allObjSelected)
             {
-                case (true, true): // ToMo, marker on function
-                    LogEvent(string.Join("_", Str.OBJ, elementTag.ToString(), Str.RELEASE));
-                    _mainWindow.FillObject(elementTag, Config.OBJ_SELECTED_COLOR);
+                case (true, true, false): // ToMo, marker on function, not all objects selected
+                    SetObjectAsSelected(elementTag);
                     _nSelectedObjects++;
                     break;
-                case (false, _): // Mouse, any marker state
+                case (true, true, true): // ToMo, marker on function, all objects selected
+                    EndActiveTrial(Experiment.Result.MISS);
+                    break;
+
+                case (false, _, false): // Mouse, any marker state, not all objects selected
+                    SetObjectAsMarked(elementTag);
+                    _pressedObjectId = elementTag;
+                    SetFunctionAsEnabled();
+                    break;
+                case (false, _, true): // Mouse, any marker state, all objects selected
+                    EndActiveTrial(Experiment.Result.HIT);
                     break;
             }
+
+            LogEvent(string.Join("_", Str.OBJ, elementTag.ToString(), Str.RELEASE));
+            e.Handled = true;
 
 
             // Treat sender as a Rectangle and get its Tag

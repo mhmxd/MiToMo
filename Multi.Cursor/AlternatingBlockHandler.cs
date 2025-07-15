@@ -16,7 +16,7 @@ namespace Multi.Cursor
 {
     public class AlternatingBlockHandler : BlockHandler
     {
-        //private Dictionary<int, Point> _trialStartPosition = new Dictionary<int, Point>(); // Trial Id -> Position
+        private bool _objectSelected = false; // Is object selected?
 
         public AlternatingBlockHandler(MainWindow mainWindow, Block activeBlock)
         {
@@ -141,7 +141,7 @@ namespace Multi.Cursor
                 OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
 
             // Show the first Start
-            Brush objDefaultColor = _mainWindow.IsTechniqueToMo() ? Config.OBJ_ENABLED_COLOR : Config.OBJ_ENABLED_COLOR;
+            Brush objDefaultColor = _mainWindow.IsTechniqueToMo() ? Config.OBJ_ENABLED_COLOR : Config.OBJ_AVAILABLE_COLOR;
             _mainWindow.ShowObjects(
                 _activeTrialRecord.Objects,
                 objDefaultColor,
@@ -308,43 +308,29 @@ namespace Multi.Cursor
             var technique = _mainWindow.GetActiveTechnique();
             var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId);
             var functionClicked = GetEventCount(Str.FUNCTION_RELEASE) == 1; // Check if the function was clicked
+            var functionWindowActivated = _mainWindow.IsAuxWindowActivated(_activeTrial.TargetSide);
 
             // Show the current timestamps
             this.TrialInfo($"Technique: {technique}, MarkerOnButton: {markerOnFunction}, FunctionClicked: {functionClicked}");
-            switch (technique, markerOnFunction, functionClicked)
+            switch (technique, markerOnFunction, functionClicked, functionWindowActivated, _objectSelected)
             {
-                case (Experiment.Technique.Auxursor_Tap, true, _): // Tap, marker on function, _
+                case (Technique.Auxursor_Tap, true, _, _, _): // Tap, marker on function, _, 
                     LogEvent(Str.OBJ_RELEASE);
                     EndActiveTrial(Experiment.Result.HIT);
                     break;
-
-                case (Experiment.Technique.Auxursor_Tap, false, _): // Tap, marker not on function, _,
-                    // Is it after target window activation or before?
-                    if (_mainWindow.IsAuxWindowActivated(_activeTrial.TargetSide)) // Function window is activated
-                    {
-                        // Hit only if the marker is on the function
-                        if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId))
-                        {
-                            EndActiveTrial(Experiment.Result.HIT);
-                        }
-                        else
-                        {
-                            EndActiveTrial(Experiment.Result.MISS);
-                        }
-                    }
-                    else // Clicked BEFORE function window activation
-                    {
-                        SetObjectAsSelected(1);
-                    }
+                case (Technique.Auxursor_Tap, false, _, false, _): // Tap, marker not on function, _, function window not activated
+                    SetObjectAsMarked(1);
+                    break;
+                case (Technique.Auxursor_Tap, false, _, true, _): // Tap, marker not on function, _, function window activated
+                    EndActiveTrial(Experiment.Result.MISS);
                     break;
 
-                case (Experiment.Technique.Mouse, _, true): // Mouse, _, function clicked
+                case (Technique.Mouse, _, true, _, _): // Mouse, _, function clicked
                     EndActiveTrial(Experiment.Result.HIT);
                     break;
-
-                case (Experiment.Technique.Mouse, _, false): // Mouse, _, function not clicked
+                case (Technique.Mouse, _, false, _, _): // Mouse, _, function not clicked
                     SetFunctionAsEnabled();
-                    SetObjectAsSelected(1);
+                    SetObjectAsMarked(1);
                     break;
                 
                 default:
@@ -361,16 +347,6 @@ namespace Multi.Cursor
         {
             var technique = _mainWindow.GetActiveTechnique();
 
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
-
-            switch (technique)
-            {
-                case Experiment.Technique.Mouse:
-                    // Nothing for now
-                    break;
-
-            }
-
             LogEvent(Str.FUNCTION_PRESS);
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
@@ -378,20 +354,20 @@ namespace Multi.Cursor
         public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
             var technique = _mainWindow.GetActiveTechnique();
-            var objectClicked = GetEventCount(Str.OBJ_RELEASE) == 1;
+            var objectMarked = GetEventCount(Str.OBJ_RELEASE) == 1;
 
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
-            switch (technique, objectClicked)
+            switch (technique, objectMarked)
             {
-                case (Experiment.Technique.Mouse, true): // Mouse, object clicked
-                    SetObjectAsEnabled(1);
+                case (Technique.Mouse, true): // Mouse, object marked
+                    SetObjectAsSelected(1);
                     SetFunctionAsSelected();
                     break;
-                case (Experiment.Technique.Mouse, false): // Mouse, object not clicked
+                case (Technique.Mouse, false): // Mouse, object not marked
                     EndActiveTrial(Experiment.Result.MISS);
                     break;
-                case (Experiment.Technique.Auxursor_Tap, _):
+                case (Technique.Auxursor_Tap, _):
                     // Nothing for now, handled in OnObjectMouseUp
                     break;
                 default:

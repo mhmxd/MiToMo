@@ -220,9 +220,9 @@ namespace Multi.Cursor
                 Config.FUNCTION_SELECTED_COLOR);
         }
 
-        protected void SetObjectAsEnabled(int objId)
+        protected void SetObjectAsMarked(int objId)
         {
-            _mainWindow.FillObject(objId, Config.OBJ_ENABLED_COLOR);
+            _mainWindow.FillObject(objId, Config.OBJ_MARKED_COLOR);
         }
 
         protected void SetObjectAsSelected(int objId)
@@ -232,7 +232,7 @@ namespace Multi.Cursor
 
         protected void SetObjectAsDisabled(int objId)
         {
-            _mainWindow.FillObject(objId, Config.OBJ_UNAVAILABLE_COLOR);
+            _mainWindow.FillObject(objId, Config.OBJ_AVAILABLE_COLOR);
         }
 
         public void LeftPress()
