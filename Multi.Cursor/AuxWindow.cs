@@ -281,13 +281,26 @@ namespace Multi.Cursor
         //    // Implemented in the derived classes
         //}
 
-        public void ActivateGridNavigator()
+        public void ShowMarker()
         {
-            this.TrialInfo($"Last highlight = {_lastHighlightedButtonId}");
-            ActivateGridNavigator(_lastHighlightedButtonId); // Activate the grid navigator with the last highlighted button ID
+            if (_lastHighlightedButtonId != -1 && _buttonInfos.ContainsKey(_lastHighlightedButtonId))
+            {
+                MarkButton(_lastHighlightedButtonId); // Highlight the last highlighted button
+                this.TrialInfo($"Last highlight = {_lastHighlightedButtonId}");
+            }
+            else
+            {
+                this.TrialInfo("No button was highlighted yet.");
+            }
         }
 
-        public void ActivateGridNavigator(int buttonId)
+        public void ActivateMarker()
+        {
+            this.TrialInfo($"Last highlight = {_lastHighlightedButtonId}");
+            ActivateMarker(_lastHighlightedButtonId); // Activate the grid navigator with the last highlighted button ID
+        }
+
+        public void ActivateMarker(int buttonId)
         {
             // Find the button with the specified ID
             if (_buttonInfos.ContainsKey(buttonId))
@@ -327,6 +340,19 @@ namespace Multi.Cursor
                 {
                     _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
                 }
+            }
+        }
+
+        private void MarkButton(int buttonId)
+        {
+            // Find the button with the specified ID
+            if (_buttonInfos.ContainsKey(buttonId))
+            {
+                _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
+            }
+            else
+            {
+                this.TrialInfo($"Button with ID {buttonId} not found.");
             }
         }
 

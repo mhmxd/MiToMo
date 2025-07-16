@@ -150,6 +150,9 @@ namespace Multi.Cursor
                 _activeTrial.TargetSide, _activeTrialRecord.TargetId,
                 OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
 
+            // Activate the auxiliary window marker on all sides
+            _mainWindow.ShowAllAuxMarkers();
+
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
 
@@ -860,7 +863,7 @@ namespace Multi.Cursor
             switch (technique, allObjSelected, funcOnRightWindow)
             {
                 case (Technique.Auxursor_Tap, false, true): // Correct side activated
-                    _mainWindow.ActivateAuxGridNavigator(correspondingSide);
+                    _mainWindow.ActivateAuxWindowMarker(correspondingSide);
                     break;
                 case (Technique.Auxursor_Tap, false, false): // Incorrect side activated
                     EndActiveTrial(Result.MISS);
@@ -890,7 +893,7 @@ namespace Multi.Cursor
             switch (technique, allObjSelected, funcOnRightWindow)
             {
                 case (Technique.Auxursor_Tap, false, true): // Correct side activated
-                    _mainWindow.ActivateAuxGridNavigator(correspondingSide);
+                    _mainWindow.ActivateAuxWindowMarker(correspondingSide);
                     break;
                 case (Technique.Auxursor_Tap, false, false): // Incorrect side activated
                     EndActiveTrial(Result.MISS);
@@ -920,7 +923,7 @@ namespace Multi.Cursor
             switch (technique, allObjSelected, funcOnRightWindow)
             {
                 case (Technique.Auxursor_Tap, false, true): // Correct side activated
-                    _mainWindow.ActivateAuxGridNavigator(correspondingSide);
+                    _mainWindow.ActivateAuxWindowMarker(correspondingSide);
                     break;
                 case (Technique.Auxursor_Tap, false, false): // Incorrect side activated
                     EndActiveTrial(Result.MISS);
@@ -974,7 +977,7 @@ namespace Multi.Cursor
                     EndActiveTrial(Result.MISS);
                     break;
                 case (Technique.Auxursor_Swipe, false, true, _): // Correct activation swipe
-                    _mainWindow.ActivateAuxGridNavigator(_activeTrial.TargetSide);
+                    _mainWindow.ActivateAuxWindowMarker(_activeTrial.TargetSide);
                     break;
                 case (Technique.Auxursor_Swipe, false, false, _): // Incorrect activation swipe
                     EndActiveTrial(Result.MISS);

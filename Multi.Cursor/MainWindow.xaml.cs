@@ -369,7 +369,7 @@ namespace Multi.Cursor
             double longestDistMM = Utils.DistInMM(leftMostSmallButtonCenterAbsolute, rightMostObjAreaCenterAbsolute);
             this.TrialInfo($"Main Rect: {_mainWinRect.ToString()}");
             //ShowPoint(rightMostObjAreaCenterPosition);
-            _leftWindow.ShowPoint(leftMostSmallButtonCenterPosition);
+            //_leftWindow.ShowPoint(leftMostSmallButtonCenterPosition);
             //double longestDistMM =
             //    (Config.SIDE_WINDOW_WIDTH_MM - Config.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
             //    Utils.PX2MM(this.ActualWidth) - Config.WINDOW_PADDING_MM - startHalfWidth;
@@ -1039,7 +1039,7 @@ namespace Multi.Cursor
             //_rightWindow.HideCursor();
         }
 
-        public void ActivateAuxGridNavigator(Side window)
+        public void ActivateAuxWindowMarker(Side window)
         {
             this.TrialInfo($"Activating aux window: {window}");
             // Deactivate all aux windows
@@ -1051,17 +1051,25 @@ namespace Multi.Cursor
             {
                 case Side.Left:
                     _activeAuxWindow = _leftWindow;
-                    _activeAuxWindow.ActivateGridNavigator();
+                    _activeAuxWindow.ActivateMarker();
                     break;
                 case Side.Top:
                     _activeAuxWindow = _topWindow;
-                    _activeAuxWindow.ActivateGridNavigator();
+                    _activeAuxWindow.ActivateMarker();
                     break;
                 case Side.Right:
                     _activeAuxWindow = _rightWindow;
-                    _activeAuxWindow.ActivateGridNavigator();
+                    _activeAuxWindow.ActivateMarker();
                     break;
             }
+        }
+
+        public void ShowAllAuxMarkers()
+        {
+            // Show all aux markers (without activation)
+            _leftWindow.ShowMarker();
+            _topWindow.ShowMarker();
+            _rightWindow.ShowMarker();
         }
 
         private void ActivateAuxWindow(Side window, Side tapLoc)
@@ -1080,7 +1088,7 @@ namespace Multi.Cursor
                     _activeAuxWindow = _topWindow;
                     HideAuxursors();
                     //_topWindow.ShowCursor(tapLoc);
-                    //_topWindow.ActivateGridNavigator();
+                    //_topWindow.ActivateMarker();
                     //_leftWindow.DeactivateCursor();
                     //_rightWindow.DeactivateCursor();
                     break;

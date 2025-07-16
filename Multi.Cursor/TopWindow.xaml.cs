@@ -289,7 +289,7 @@ namespace Multi.Cursor
         //    }
         //}
 
-        //public override void ActivateGridNavigator()
+        //public override void ActivateMarker()
         //{
         //    _gridNavigator.Activate();
         //}

@@ -162,6 +162,9 @@ namespace Multi.Cursor
                 _activeTrial.TargetSide, _activeTrialRecord.TargetId, 
                 OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
 
+            // Activate the auxiliary window marker on all sides
+            _mainWindow.ShowAllAuxMarkers();
+
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
 
@@ -424,7 +427,7 @@ namespace Multi.Cursor
             switch (technique)
             {
                 case Experiment.Technique.Auxursor_Tap:
-                    _mainWindow.ActivateAuxGridNavigator(Side.Top);
+                    _mainWindow.ActivateAuxWindowMarker(Side.Top);
                     break;
 
                 case Experiment.Technique.Auxursor_Swipe: // Wrong technique for index tap
@@ -442,7 +445,7 @@ namespace Multi.Cursor
             switch (technique)
             {
                 case Experiment.Technique.Auxursor_Tap:
-                    _mainWindow.ActivateAuxGridNavigator(Side.Left);
+                    _mainWindow.ActivateAuxWindowMarker(Side.Left);
                     break;
 
                 case Experiment.Technique.Auxursor_Swipe: // Wrong technique for index tap
@@ -460,7 +463,7 @@ namespace Multi.Cursor
             switch (technique)
             {
                 case Experiment.Technique.Auxursor_Tap:
-                    _mainWindow.ActivateAuxGridNavigator(Side.Right);
+                    _mainWindow.ActivateAuxWindowMarker(Side.Right);
                     break;
 
                 case Experiment.Technique.Auxursor_Swipe: // Wrong technique for index tap
@@ -482,7 +485,7 @@ namespace Multi.Cursor
             switch (technique)
             {
                 case Experiment.Technique.Auxursor_Swipe:
-                    _mainWindow.ActivateAuxGridNavigator(Utils.DirToSide(dir));
+                    _mainWindow.ActivateAuxWindowMarker(Utils.DirToSide(dir));
                     break;
                 case Experiment.Technique.Auxursor_Tap: // Wrong technique for thumb swipe
                     EndActiveTrial(Result.MISS);
