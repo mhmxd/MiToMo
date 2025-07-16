@@ -16,7 +16,6 @@ namespace Multi.Cursor
     public class RepeatingBlockHandler : BlockHandler
     {
         private bool _isTargetAvailable = false; // Whether the target is available for clicking
-        private int _nSelectedObjects = 0; // Number of clicked objects in the current trial
         private int _pressedObjectId = -1; // Id of the object that was pressed in the current trial
         private int _markedObjectId = -1; // Id of the object that was marked in the current trial
         private bool _isFunctionClicked = false; // Whether the function button was clicked (for mouse)
@@ -151,10 +150,17 @@ namespace Multi.Cursor
                 _activeTrial.TargetSide, _activeTrialRecord.TargetId,
                 OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
 
+            // Clear the main window canvas (to add shapes)
+            _mainWindow.ClearCanvas();
+
+            // Show the area
+            _mainWindow.ShowObjectsArea(
+                _activeTrialRecord.ObjectAreaRect, Config.OBJ_AREA_BG_COLOR,
+                OnObjectAreaMouseDown);
+
             // Show the objects
-            _mainWindow.ShowObjectsWithArea(
-                _activeTrialRecord.ObjectAreaRect, _activeTrialRecord.Objects, 
-                Config.OBJ_AREA_BG_COLOR, Config.OBJ_AVAILABLE_COLOR,
+            _mainWindow.ShowObjects(
+                _activeTrialRecord.Objects, Config.OBJ_AVAILABLE_COLOR,
                 OnObjectMouseEnter, OnObjectMouseLeave,
                 OnObjectMouseDown, OnObjectMouseUp);
 
@@ -204,10 +210,15 @@ namespace Multi.Cursor
 
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
-                _mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
+                //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
                 _mainWindow.ResetTargetWindow(_activeTrial.TargetSide);
-
                 _activeTrialRecord.ClearTimestamps();
+
+                _activeTrialNum++;
+                _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
+                _activeTrialRecord = _trialRecords[_activeTrial.Id];
+
+                ShowActiveTrial();
             }
             else
             {

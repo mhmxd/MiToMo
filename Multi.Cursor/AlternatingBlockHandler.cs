@@ -162,11 +162,19 @@ namespace Multi.Cursor
                 _activeTrial.TargetSide, _activeTrialRecord.TargetId, 
                 OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
 
-            // Show the first Start
+            // Clear the main window canvas (to add shapes)
+            _mainWindow.ClearCanvas();
+
+            // Show the area
+            _mainWindow.ShowObjectsArea(
+                _activeTrialRecord.ObjectAreaRect, 
+                Config.OBJ_AREA_BG_COLOR, 
+                OnObjectAreaMouseDown);
+
+            // Show objects
             Brush objDefaultColor = _mainWindow.IsTechniqueToMo() ? Config.OBJ_ENABLED_COLOR : Config.OBJ_AVAILABLE_COLOR;
-            _mainWindow.ShowObjectsWithArea(
-                _activeTrialRecord.ObjectAreaRect, _activeTrialRecord.Objects,
-                Config.OBJ_AREA_BG_COLOR, objDefaultColor,
+            _mainWindow.ShowObjects(
+                _activeTrialRecord.Objects, objDefaultColor,
                 OnObjectMouseEnter, OnObjectMouseLeave, OnObjectMouseDown, OnObjectMouseUp);
         }
 
@@ -202,10 +210,16 @@ namespace Multi.Cursor
         {
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
-                _mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
+                //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
                 _mainWindow.ResetTargetWindow(_activeTrial.TargetSide);
-
                 _activeTrialRecord.ClearTimestamps();
+                _nSelectedObjects = 0; // Reset the number of selected objects
+
+                _activeTrialNum++;
+                _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
+                _activeTrialRecord = _trialRecords[_activeTrial.Id];
+
+                ShowActiveTrial();
             }
             else
             {

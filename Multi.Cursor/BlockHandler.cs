@@ -105,6 +105,7 @@ namespace Multi.Cursor
         protected Trial _activeTrial;
         protected int _activeTrialNum = 0;
         protected TrialRecord _activeTrialRecord;
+        protected int _nSelectedObjects = 0; // Number of clicked objects in the current trial
 
         public abstract bool FindPositionsForActiveBlock();
         public abstract bool FindPositionsForTrial(Trial trial);
@@ -121,7 +122,8 @@ namespace Multi.Cursor
             _mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
 
             // Show the Start Trial button
-            _mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
+            //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
+            ShowActiveTrial();
         }
         public abstract void ShowActiveTrial();
         public abstract void EndActiveTrial(Experiment.Result result);
@@ -161,6 +163,25 @@ namespace Multi.Cursor
         }
         public abstract void OnObjectMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnObjectMouseUp(Object sender, MouseButtonEventArgs e);
+
+        public void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
+        {
+            var allObjectsSelected = GetEventCount(Str.FUNCTION_RELEASE) == _activeTrialRecord.Objects.Count;
+
+            switch (allObjectsSelected)
+            {
+                case true:
+                    // All objects are selected, so we can end the trial
+                    EndActiveTrial(Result.HIT);
+                    break;
+                case false:
+                    // Not all objects are selected, so we treat it as a miss
+                    EndActiveTrial(Result.MISS);
+                    break;
+            }
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
+        }
 
         public void OnTargetMouseEnter(Object sender, MouseEventArgs e)
         {

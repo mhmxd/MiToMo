@@ -960,15 +960,16 @@ namespace Multi.Cursor
             canvas.Children.Remove(_startRectangle);
         }
 
-        public void ShowObjectsWithArea(
-            Rect areaRect, List<BlockHandler.TObject> trialObjects, 
-            Brush areaColor, Brush objColor,
-            MouseButtonEventHandler mouseEnterHandler, MouseButtonEventHandler mouseLeaveHandler,
-            MouseButtonEventHandler mouseButtonDownHandler, MouseButtonEventHandler MouseButtonUpHandler)
+        public void ClearCanvas()
         {
-            // Clear the previous objects
+            // Clear the canvas
             canvas.Children.Clear();
+        }
 
+        public void ShowObjectsArea(
+            Rect areaRect, Brush areaColor,
+            MouseButtonEventHandler areaMouseDownHandler)
+        {
             // Show the area rectangle
             Rectangle areaRectangle = new Rectangle
             {
@@ -980,8 +981,19 @@ namespace Multi.Cursor
             // Position the area rectangle on the Canvas
             Canvas.SetLeft(areaRectangle, areaRect.Left - this.Left);
             Canvas.SetTop(areaRectangle, areaRect.Top - this.Top);
-            canvas.Children.Add(areaRectangle);
 
+            // Add the event handler
+            areaRectangle.MouseDown += areaMouseDownHandler;
+
+            // Add the rectangle to the Canvas
+            canvas.Children.Add(areaRectangle);
+        }
+
+        public void ShowObjects(
+            List<BlockHandler.TObject> trialObjects, Brush objColor,
+            MouseButtonEventHandler mouseEnterHandler, MouseButtonEventHandler mouseLeaveHandler,
+            MouseButtonEventHandler mouseButtonDownHandler, MouseButtonEventHandler MouseButtonUpHandler)
+        {
             // Create and position the objects
             foreach (BlockHandler.TObject trObj in trialObjects)
             {
