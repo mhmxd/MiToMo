@@ -1233,5 +1233,29 @@ namespace Multi.Cursor
             };
         }
 
+        public override void ShowPoint(Point p)
+        {
+            // Create a small circle to represent the point
+            Ellipse pointCircle = new Ellipse
+            {
+                Width = 5, // Diameter of the circle
+                Height = 5,
+                Fill = Brushes.Red // Color of the circle
+            };
+            // Position the circle on the canvas
+            Canvas.SetLeft(pointCircle, p.X - pointCircle.Width / 2);
+            Canvas.SetTop(pointCircle, p.Y - pointCircle.Height / 2);
+            // Add the circle to the canvas
+            if (this.canvas != null)
+            {
+                this.canvas.Children.Add(pointCircle);
+            }
+            else
+            {
+                this.TrialInfo("Canvas is not initialized, cannot show point.");
+            }
+
+        }
+
     }
 }

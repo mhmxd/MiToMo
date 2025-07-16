@@ -59,8 +59,10 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForTrial(Trial trial)
         {
-            int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
-            int startHalfW = startW / 2;
+            int objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM) / 2;
+            int objHalfW = objW / 2;
+            int objAreaHalfW = Utils.MM2PX(OBJ_AREA_WIDTH_MM) / 2;
+
             this.TrialInfo($"Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
                 $"TargetMult = {trial.TargetMultiple}, Dist (mm) = {trial.DistanceMM:F2}, Dist (px) = {trial.DistancePX}]");
 
@@ -82,6 +84,14 @@ namespace Multi.Cursor
             {
                 _trialRecords[trial.Id].TargetId = targetId;
                 this.TrialInfo($"Found Target Id: {targetId} for Trial#{trial.Id}");
+                //_mainWindow.Dispatcher.Invoke(() =>
+                //{
+                //    _mainWindow.FillButtonInTargetWindow(
+                //        trial.TargetSide,
+                //        targetId,
+                //        Config.DARK_ORANGE);
+                //});
+                
             }
             else
             {
@@ -94,14 +104,14 @@ namespace Multi.Cursor
 
             // Find a position for the Start
             // Get Start constraints
-            Rect startConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+            Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
             {
                 return _mainWindow.GetObjAreaCenterConstraintRect();
             });
 
-            Point objCenter = startConstraintRect.FindRandPointWithDist(targetCenterAbsolute, trial.DistancePX, trial.TargetSide.GetOpposite());
-            Point objPositionAbsolute = objCenter.OffsetPosition(-startHalfW, -startHalfW);
-            this.TrialInfo($"Target: {targetCenterAbsolute}; Dist (px): {trial.DistancePX}");
+            Point objCenter = objectAreaConstraintRect.FindRandPointWithDist(targetCenterAbsolute, trial.DistancePX, trial.TargetSide.GetOpposite());
+            
+            this.TrialInfo($"Target: {targetCenterAbsolute}; Object Area Rect: {objectAreaConstraintRect.ToString()}");
             if (objCenter.X == -1 && objCenter.Y == -1) // Failed to find a valid position
             {
                 this.TrialInfo($"No valid position found for object!");
@@ -109,13 +119,20 @@ namespace Multi.Cursor
             }
             else // Valid position found
             {
-                this.TrialInfo($"Found object position: {objPositionAbsolute.ToStr()}");
+                // Get the topleft corner of the object area rectangle
+                Point objAreaPosition = objCenter.OffsetPosition(-objAreaHalfW);
+
+                this.TrialInfo($"Found object position: {objAreaPosition.ToStr()}");
+
                 _trialRecords[trial.Id].ObjectAreaRect = new Rect(
-                        objPositionAbsolute.X - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
-                        objPositionAbsolute.Y - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+                        objAreaPosition.X,
+                        objAreaPosition.Y,
                         Utils.MM2PX(OBJ_AREA_WIDTH_MM),
                         Utils.MM2PX(OBJ_AREA_WIDTH_MM));
-                _trialRecords[trial.Id].Objects.Add(new TObject(1, objPositionAbsolute)); // Object is always 1 in this case
+
+                // Put the object at the center
+                TObject obj = new TObject(1, objCenter.OffsetPosition(-objHalfW)); // Object is always 1 in this case
+                _trialRecords[trial.Id].Objects.Add(obj);
             }
 
             return true;

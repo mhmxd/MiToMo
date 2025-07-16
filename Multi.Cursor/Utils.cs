@@ -84,6 +84,12 @@ namespace Multi.Cursor
             return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
         }
 
+        public static double DistInMM(Point p1, Point p2)
+        {
+            // Convert pixel distance to mm
+            return PX2MM(Dist(p1, p2));
+        }
+
         //public static double DistX(Point p1, Point p2)
         //{
         //    return Abs(p1.X - p2.X);
@@ -129,6 +135,11 @@ namespace Multi.Cursor
         public static Point OffsetPosition(this Point p, double offsetX, double offsetY)
         {
             return new Point(p.X + offsetX, p.Y + offsetY);
+        }
+
+        public static Point OffsetPosition(this Point p, double offset)
+        {
+            return new Point(p.X + offset, p.Y + offset);
         }
 
         public static bool IsBetween(double v, double v1, double v2)
@@ -407,60 +418,118 @@ namespace Multi.Cursor
             return new Point(-1, -1);
         }
 
-        public static Point FindRandPointWithDist(this Rect rect, Point src, double dist, Side side)
+        public static Point FindRandPointWithDist(this Rect rect, Point src, double fixedDist, Side side)
         {
-
-            //rect.TrialInfo($"Finding position: Rect: {rect.ToString()}; Src: {src}; Dist: {dist:F2}; Side: {side}");
-
             const int maxAttempts = 1000;
-            // A wider angle spread is often necessary to cover edge cases, especially for larger distances or wide/tall rects.
-            // A 180-degree spread covers a full half-plane.
-            const double angleSearchSpreadDeg = 180.0;
 
-            double baseAngleRad;
-
-            // Determine the base angle based on the side for Y-DOWN PIXEL COORDINATES
-            switch (side)
+            // Ensure src is outside rect for this method's logic to make sense
+            if (rect.Contains(src))
             {
-                case Side.Right:
-                    baseAngleRad = DegToRad(0);   // Right is 0 degrees (positive X axis)
-                    break;
-                case Side.Down:
-                    baseAngleRad = DegToRad(90);  // Down is 90 degrees (positive Y axis - Y increases downwards)
-                    break;
-                case Side.Left:
-                    baseAngleRad = DegToRad(180); // Left is 180 degrees (negative X axis)
-                    break;
-                case Side.Top:
-                    baseAngleRad = DegToRad(270); // Up is 270 degrees (or -90 degrees) (negative Y axis - Y increases upwards)
-                    break;
-                default:
-                    throw new ArgumentException("Invalid Side specified.");
+                // If src is inside, the concept of "distance from an outside point" is invalid.
+                // You might want to handle this differently, e.g., return src itself or throw an exception.
+                return new Point(-1, -1); // Indicate failure or invalid input for this scenario
             }
 
-            // Calculate the angular range for random point generation
-            double halfSpreadRad = DegToRad(angleSearchSpreadDeg / 2.0);
-            double minSearchRad = baseAngleRad - halfSpreadRad;
-            double maxSearchRad = baseAngleRad + halfSpreadRad;
+            // --- 1. Calculate Angular Range of the rectangle from src ---
+            Point topLeft = new Point(rect.Left, rect.Top);
+            Point topRight = new Point(rect.Right, rect.Top);
+            Point bottomLeft = new Point(rect.Left, rect.Bottom);
+            Point bottomRight = new Point(rect.Right, rect.Bottom);
+            Point[] corners = { topLeft, topRight, bottomLeft, bottomRight };
 
-            // Normalize angles to be within a standard range (e.g., -PI to PI or 0 to 2PI)
-            // This is good practice but not strictly necessary for Math.Cos/Sin if the range is continuous.
-            // If minSearchRad < -PI, add 2PI. If maxSearchRad > PI, subtract 2PI.
-            // For simplicity, we'll let Math.Cos/Sin handle angles outside 0-2PI.
+            List<double> angles = new List<double>();
+            foreach (Point corner in corners)
+            {
+                angles.Add(Math.Atan2(corner.Y - src.Y, corner.X - src.X));
+            }
 
+            List<double> normalizedAngles = angles.Select(a => a < 0 ? a + 2 * Math.PI : a).ToList();
+            normalizedAngles.Sort();
+
+            double minSearchRad;
+            double maxSearchRad;
+            double maxGap = 0;
+            int maxGapIndex = -1;
+
+            for (int i = 0; i < normalizedAngles.Count; i++)
+            {
+                double currentAngle = normalizedAngles[i];
+                double nextAngle = normalizedAngles[(i + 1) % normalizedAngles.Count];
+
+                double gap;
+                if (nextAngle < currentAngle) // Wrap-around (e.g., 350 deg and 10 deg)
+                {
+                    gap = (nextAngle + 2 * Math.PI) - currentAngle;
+                }
+                else
+                {
+                    gap = nextAngle - currentAngle;
+                }
+
+                if (gap > maxGap)
+                {
+                    maxGap = gap;
+                    maxGapIndex = i;
+                }
+            }
+
+            minSearchRad = normalizedAngles[(maxGapIndex + 1) % normalizedAngles.Count];
+            maxSearchRad = normalizedAngles[maxGapIndex];
+
+            if (maxSearchRad < minSearchRad)
+            {
+                maxSearchRad += 2 * Math.PI; // Adjust for continuous range if it wrapped around
+            }
+            // --- End Angular Range Calculation ---
+
+
+            // --- 2. Determine the actual minimum and maximum distances from src to rect boundaries ---
+            // This is crucial to find a point within the rect if fixedDist is problematic.
+            double minRectDist = double.MaxValue;
+            double maxRectDist = 0;
+
+            // Calculate distances to all 4 corners
+            foreach (Point corner in corners)
+            {
+                double d = Dist(src, corner);
+                minRectDist = Math.Min(minRectDist, d);
+                maxRectDist = Math.Max(maxRectDist, d);
+            }
+
+            // Calculate distances to closest point on each side segment (if projection is on segment)
+            // This refines minDist particularly if src is aligned with a side but not a corner.
+            minRectDist = Math.Min(minRectDist, src.DistanceToLineSegment(topLeft, topRight));
+            minRectDist = Math.Min(minRectDist, src.DistanceToLineSegment(topRight, bottomRight));
+            minRectDist = Math.Min(minRectDist, src.DistanceToLineSegment(bottomRight, bottomLeft));
+            minRectDist = Math.Min(minRectDist, src.DistanceToLineSegment(bottomLeft, topLeft));
+
+            // Note: For maxRectDist, it will always be one of the corners. The lines do not extend the "farthest" reach beyond corners.
+
+
+            // --- 3. Generate random points within the determined ranges ---
             for (int i = 0; i < maxAttempts; i++)
             {
-                // Generate a random angle within our defined search sector
+                // Generate a random angle within the calculated angular range
                 double randomRad = minSearchRad + _random.NextDouble() * (maxSearchRad - minSearchRad);
 
+                // Determine the distance for this attempt:
+                // Prioritize fixedDist if it's within the actual min/max distances to the rectangle.
+                // Otherwise, pick a random distance within the actual min/max distances to ensure a point is found.
+                double currentDist;
+                if (fixedDist >= minRectDist && fixedDist <= maxRectDist)
+                {
+                    currentDist = fixedDist; // Use the exact fixed distance if it's valid
+                }
+                else
+                {
+                    // If fixedDist is outside the valid range, pick a random distance within the valid range
+                    currentDist = minRectDist + _random.NextDouble() * (maxRectDist - minRectDist);
+                }
+
                 // Calculate candidate point coordinates
-                double candidateX = src.X + dist * Math.Cos(randomRad);
-                double candidateY = src.Y + dist * Math.Sin(randomRad);
-
-                Point candidate = new Point(candidateX, candidateY); // Keep as double for Contains if Rect/Point allow it
-                                                                     // Or cast to int if your Rect.Contains expects int (common for graphics)
-                                                                     // Point candidate = new Point((int)Math.Round(candidateX), (int)Math.Round(candidateY));
-
+                double candidateX = src.X + currentDist * Math.Cos(randomRad);
+                double candidateY = src.Y + currentDist * Math.Sin(randomRad);
+                Point candidate = new Point(candidateX, candidateY);
 
                 // Check if the candidate point is within the target rectangle
                 if (rect.Contains(candidate))
@@ -469,10 +538,106 @@ namespace Multi.Cursor
                 }
             }
 
-            // No valid point found within maxAttempts
-            //rect.TrialInfo($"No point found for Rect: {rect.ToString()}; Src: {src}; Dist: {dist:F2}; Side: {side}");
+            // No valid point found within maxAttempts, even after adjusting distance strategy
             return new Point(-1, -1); // Indicate failure
         }
+
+        //public static Point FindRandPointWithDist(this Rect rect, Point src, double dist, Side side)
+        //{
+        //    const int maxAttempts = 5000;
+
+        //    // 1. Get the four corners of the rectangle
+        //    Point topLeft = new Point(rect.Left, rect.Top);
+        //    Point topRight = new Point(rect.Right, rect.Top);
+        //    Point bottomLeft = new Point(rect.Left, rect.Bottom);
+        //    Point bottomRight = new Point(rect.Right, rect.Bottom);
+
+        //    // List of corners
+        //    Point[] corners = { topLeft, topRight, bottomLeft, bottomRight };
+
+        //    // 2. Calculate angles from src to each corner
+        //    List<double> angles = new List<double>();
+        //    foreach (Point corner in corners)
+        //    {
+        //        // Math.Atan2(y, x) returns an angle in radians between -PI and PI.
+        //        // For Y-DOWN pixel coordinates, the standard Atan2 usage (dy, dx) is correct.
+        //        angles.Add(Math.Atan2(corner.Y - src.Y, corner.X - src.X));
+        //    }
+
+        //    // 3. Find the minimum and maximum angles that define the sector.
+        //    // This is the most critical part, handling angle wrap-around (e.g., from -170 deg to +170 deg).
+        //    // Normalize angles to a 0 to 2*PI range temporarily for easier sorting and span calculation.
+        //    List<double> normalizedAngles = angles.Select(a => a < 0 ? a + 2 * Math.PI : a).ToList();
+        //    normalizedAngles.Sort();
+
+        //    double minSearchRad = 0;
+        //    double maxSearchRad = 0;
+        //    double maxGap = 0;
+        //    int maxGapIndex = -1;
+
+        //    // Find the largest angular gap between sorted angles. This gap represents the "empty" space
+        //    // from the perspective of the source point, meaning the rectangle does not occupy this sector.
+        //    for (int i = 0; i < normalizedAngles.Count; i++)
+        //    {
+        //        double currentAngle = normalizedAngles[i];
+        //        double nextAngle = normalizedAngles[(i + 1) % normalizedAngles.Count]; // Wrap around for the last vs first angle
+
+        //        double gap;
+        //        if (nextAngle < currentAngle) // This means wrap-around happened (e.g., last angle 350, first 10)
+        //        {
+        //            gap = (nextAngle + 2 * Math.PI) - currentAngle;
+        //        }
+        //        else
+        //        {
+        //            gap = nextAngle - currentAngle;
+        //        }
+
+        //        if (gap > maxGap)
+        //        {
+        //            maxGap = gap;
+        //            maxGapIndex = i;
+        //        }
+        //    }
+
+        //    // The search range is the one *opposite* the largest gap.
+        //    // minSearchRad starts after the largest gap.
+        //    minSearchRad = normalizedAngles[(maxGapIndex + 1) % normalizedAngles.Count];
+        //    // maxSearchRad is the angle before the largest gap, potentially adjusted for wrap-around.
+        //    maxSearchRad = normalizedAngles[maxGapIndex];
+
+        //    // Ensure maxSearchRad is always greater than minSearchRad (by adding 2*PI if needed)
+        //    // This forms a continuous range for random generation.
+        //    if (maxSearchRad < minSearchRad)
+        //    {
+        //        maxSearchRad += 2 * Math.PI;
+        //    }
+
+        //    // The 'side' parameter can be used to bias the search if desired, but for finding *any* point,
+        //    // the calculated minSearchRad and maxSearchRad based on the rectangle's corners are sufficient.
+        //    // If you specifically need to find a point *only* accessible from a certain side,
+        //    // you would need more complex logic to intersect the calculated angular range with the side's base angle + spread.
+        //    // For this fix, we prioritize finding any point within the rectangle's angular projection.
+
+        //    for (int i = 0; i < maxAttempts; i++)
+        //    {
+        //        // Generate a random angle within our calculated search sector
+        //        double randomRad = minSearchRad + _random.NextDouble() * (maxSearchRad - minSearchRad);
+
+        //        // Calculate candidate point coordinates
+        //        double candidateX = src.X + dist * Math.Cos(randomRad);
+        //        double candidateY = src.Y + dist * Math.Sin(randomRad);
+        //        Point candidate = new Point(candidateX, candidateY);
+
+        //        // Check if the candidate point is within the target rectangle
+        //        if (rect.Contains(candidate))
+        //        {
+        //            return candidate;
+        //        }
+        //    }
+
+        //    // No valid point found within maxAttempts
+        //    return new Point(-1, -1); // Indicate failure
+        //}
 
 
         public static Side GetOpposite(this Side side)
@@ -557,6 +722,63 @@ namespace Multi.Cursor
             }
 
             return false;
+        }
+
+        public static double MaxDistanceFromPoint(this Rect rect, Point src)
+        {
+            // If the source point is inside the rectangle, the concept of "largest distance from an outside point"
+            // becomes ambiguous in the context of points *inside* the rectangle.
+            // For this method, we assume src is strictly outside the rectangle.
+            if (rect.Contains(src))
+            {
+                throw new ArgumentException("Source point must be outside the rectangle.");
+            }
+
+            // The largest distance from an outside point to any point within a rectangle
+            // will always be the distance from the outside point to one of the rectangle's four corners.
+            // This is because a rectangle is a convex shape, and for any convex shape,
+            // the maximum distance from an external point to any point within the shape
+            // will occur at one of its vertices.
+
+            Point topLeft = new Point(rect.Left, rect.Top);
+            Point topRight = new Point(rect.Right, rect.Top);
+            Point bottomLeft = new Point(rect.Left, rect.Bottom);
+            Point bottomRight = new Point(rect.Right, rect.Bottom);
+
+            double maxDist = 0;
+
+            // Calculate the distance from the source point to each corner and find the maximum.
+            maxDist = Math.Max(maxDist, Dist(src, topLeft));
+            maxDist = Math.Max(maxDist, Dist(src, topRight));
+            maxDist = Math.Max(maxDist, Dist(src, bottomLeft));
+            maxDist = Math.Max(maxDist, Dist(src, bottomRight));
+
+            return maxDist;
+        }
+
+        public static double DistanceToLineSegment(this Point p, Point s1, Point s2)
+        {
+            double dx = s2.X - s1.X;
+            double dy = s2.Y - s1.Y;
+
+            // If the segment is a point (s1 == s2)
+            if (dx == 0 && dy == 0)
+            {
+                return Dist(p, s1); // Distance from point p to point s1
+            }
+
+            // Calculate the parameter t that represents the projection of point p onto the line defined by s1 and s2
+            // t = ((p.x - s1.x) * dx + (p.y - s1.y) * dy) / (dx*dx + dy*dy)
+            double t = ((p.X - s1.X) * dx + (p.Y - s1.Y) * dy) / (dx * dx + dy * dy);
+
+            // Clamp t to be between 0 and 1. This ensures the projected point lies on the segment.
+            t = Math.Max(0, Math.Min(1, t));
+
+            // Calculate the closest point on the segment to p
+            Point closestPoint = new Point(s1.X + t * dx, s1.Y + t * dy);
+
+            // Return the distance from p to this closest point
+            return Dist(p, closestPoint);
         }
 
     }

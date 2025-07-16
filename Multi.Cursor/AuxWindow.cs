@@ -90,7 +90,7 @@ namespace Multi.Cursor
 
         }
 
-        public int SelectRandButtonByConstraints(int widthMult, int dist)
+        public int SelectRandButtonByConstraints(int widthMult, Rect objConstraintRect, int dist)
         {
             //this.TrialInfo($"Selecting button by multiple: {widthMult}");
             //this.TrialInfo($"All buttons: ");
@@ -113,11 +113,21 @@ namespace Multi.Cursor
                 List<int> possibleButtons = new List<int>();
                 foreach (int buttonId in _buttonInfos.Keys)
                 {
-                    //this.TrialInfo($"Dist = {dist} | DistToStart: {_buttonInfos[buttonId].DistToStartRange.ToString()}");
-                    if (_buttonInfos[buttonId].DistToStartRange.ContainsExc(dist))
+                    Point buttonCenter = new Point(
+                        _buttonInfos[buttonId].Rect.X + _buttonInfos[buttonId].Rect.Width / 2,
+                        _buttonInfos[buttonId].Rect.Y + _buttonInfos[buttonId].Rect.Height / 2);
+                    Point buttonCenterAbsolute = buttonCenter.OffsetPosition(this.Left, this.Top); // Offset to the top-left position
+                    //this.TrialInfo($"ButtonCenter: {buttonCenterAbsolute}; Rect: {objConstraintRect.ToString()}; " +
+                    //    $"Dist: {dist}; MaxDist: {objConstraintRect.MaxDistanceFromPoint(buttonCenterAbsolute)}");
+                    if (objConstraintRect.MaxDistanceFromPoint(buttonCenterAbsolute) > dist)
                     {
                         possibleButtons.Add(buttonId);
                     }
+                    //this.TrialInfo($"Dist = {dist} | DistToStart: {_buttonInfos[buttonId].DistToStartRange.ToString()}");
+                    //if (_buttonInfos[buttonId].DistToStartRange.ContainsExc(dist))
+                    //{
+                    //    possibleButtons.Add(buttonId);
+                    //}
                 }
 
                 // If we have options, return a random from them
@@ -621,5 +631,9 @@ namespace Multi.Cursor
 
             return new Range(minDist, maxDist);
         }
+
+        public abstract void ShowPoint(Point p);
+
+        
     }
 }

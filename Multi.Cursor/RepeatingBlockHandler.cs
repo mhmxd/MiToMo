@@ -82,7 +82,7 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForTrial(Trial trial)
         {
-            int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
+            int startW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
             int startHalfW = startW / 2;
             //this.TrialInfo($"Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
             //    $"TargetMult = {trial.TargetMultiple}, Dist range (mm) = {trial.DistRange.ToString()}]");
@@ -628,7 +628,7 @@ namespace Multi.Cursor
         private List<TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
         {
             List<TObject> placedObjects = new List<TObject>();
-            double objW = Utils.MM2PX(Experiment.START_WIDTH_MM);
+            double objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
             double areaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
 
             int maxAttemptsPerObject = 1000; // Limit attempts to prevent infinite loops

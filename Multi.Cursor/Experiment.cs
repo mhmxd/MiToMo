@@ -53,7 +53,7 @@ namespace Multi.Cursor
         public enum Technique { Auxursor_Swipe, Auxursor_Tap, Mouse }
 
         //-- Constants
-        public static double START_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
+        public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
 
         //-- Current state
         
@@ -117,8 +117,8 @@ namespace Multi.Cursor
             };
             List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
 
-            //CreateAltBlocks(1, targetMultiples, distRanges);
-            CreateRepBlocks(1, targetMultiples, distRanges);
+            CreateAltBlocks(1, targetMultiples, distRanges);
+            //CreateRepBlocks(1, targetMultiples, distRanges);
         }
 
         private void CreateAltBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
@@ -186,7 +186,7 @@ namespace Multi.Cursor
 
         public static int GetStartHalfWidth()
         {
-            return Utils.MM2PX(START_WIDTH_MM / 2);
+            return Utils.MM2PX(OBJ_WIDTH_MM / 2);
         }
     }
 }

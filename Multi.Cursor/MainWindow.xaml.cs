@@ -37,6 +37,8 @@ using System.Windows.Input;
 using System.Windows.Markup;
 //using static Tensorflow.tensorflow;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+
 //using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -338,37 +340,59 @@ namespace Multi.Cursor
 
         private void CreateExperiment()
         {
-            // Distances (v.3)
-            // Longest
-            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
-            double startHalfWidth = START_WIDTH_MM / 2;
-            double longestDistMM =
-                (Config.SIDE_WINDOW_WIDTH_MM - Config.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
-                Utils.PX2MM(this.ActualWidth) - Config.WINDOW_PADDING_MM - startHalfWidth;
-
-            // Shortest
             double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            double objHalfWidth = Utils.MM2PX(START_WIDTH_MM) / 2;
+            double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
+            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
+            double startHalfWidth = OBJ_WIDTH_MM / 2;
             double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
             double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
+            double objAreaHalfWidth = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
 
+            // Distances (v.3)
+            // Longest
+            Point leftMostSmallButtonCenterPosition = new Point(
+                padding + smallButtonHalfWidth,
+                padding + smallButtonHalfWidth
+             );
+            Point leftMostSmallButtonCenterAbsolute = Utils.OffsetPosition(
+                leftMostSmallButtonCenterPosition, 
+                _leftWindow.Left, _leftWindow.Top);
+
+            Point rightMostObjAreaCenterAbsolute = new Point(
+                _mainWinRect.Right - padding - objAreaHalfWidth,
+                _mainWinRect.Top + padding - objAreaHalfWidth
+            );
+            //Point rightMostObjAreaCenterAbsolute = Utils.OffsetPosition(
+            //    rightMostObjAreaCenterPosition, 
+            //    this.Left, this.Top);
+
+            double longestDistMM = Utils.DistInMM(leftMostSmallButtonCenterAbsolute, rightMostObjAreaCenterAbsolute);
+            this.TrialInfo($"Main Rect: {_mainWinRect.ToString()}");
+            //ShowPoint(rightMostObjAreaCenterPosition);
+            _leftWindow.ShowPoint(leftMostSmallButtonCenterPosition);
+            //double longestDistMM =
+            //    (Config.SIDE_WINDOW_WIDTH_MM - Config.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
+            //    Utils.PX2MM(this.ActualWidth) - Config.WINDOW_PADDING_MM - startHalfWidth;
+
+
+            // Shortest
             Point topLeftButtonCenterPosition = new Point(
                 padding + smallButtonHalfWidth,
                 padding + smallButtonHalfWidth
-                );
+            );
             Point topLeftButtonCenterAbsolute = Utils.OffsetPosition(topLeftButtonCenterPosition, _topWindow.Left, _topWindow.Top);
 
             Point topLeftObjAreaCenterPosition = new Point(
-                padding + objAreaRadius + objHalfWidth,
-                padding + objAreaRadius + objHalfWidth
+                padding + objAreaHalfWidth,
+                padding + objAreaHalfWidth
             );
             Point topLeftObjAreaCenterAbsolute = Utils.OffsetPosition(topLeftObjAreaCenterPosition, this.Left, this.Top);
+
+            double shortestDistMM = Utils.DistInMM(topLeftButtonCenterAbsolute, topLeftObjAreaCenterAbsolute);
 
             //double topLeftStartCenterLeft = Config.SIDE_WINDOW_WIDTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
             //double topLeftStartCenterTop = Config.TOP_WINDOW_HEIGTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
             //Point topLeftStartCenterAbsolute = new Point(topLeftStartCenterLeft, topLeftStartCenterTop);
-
-            double shortestDistMM = Utils.PX2MM(Utils.Dist(topLeftButtonCenterAbsolute, topLeftObjAreaCenterAbsolute));
 
             this.TrialInfo($"topLeftObjAreaCenterPosition: {topLeftButtonCenterAbsolute.ToStr()}");
             this.TrialInfo($"Shortest Dist = {shortestDistMM:F2}mm | Longest Dist = {longestDistMM:F2}mm");
@@ -744,70 +768,70 @@ namespace Multi.Cursor
             //}
         }
 
-        private bool FindPosForRepTrial(Trial trial)
-        {
-            int startW = Utils.MM2PX(Experiment.START_WIDTH_MM);
-            int startHalfW = startW / 2;
-            this.TrialInfo($"Finding positions for Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
-                $"TargetMult = {trial.TargetMultiple}, D (mm) = {trial.DistanceMM:F2}]");
+        //private bool FindPosForRepTrial(Trial trial)
+        //{
+        //    int startW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
+        //    int startHalfW = startW / 2;
+        //    this.TrialInfo($"Finding positions for Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
+        //        $"TargetMult = {trial.TargetMultiple}, D (mm) = {trial.DistanceMM:F2}]");
 
-            // Get the target window
-            AuxWindow trialTargetWindow = null;
-            Point trialTargetWindowPosition = new Point(0, 0);
-            switch (trial.TargetSide)
-            {
-                case Side.Left:
-                    trialTargetWindow = _leftWindow;
-                    trialTargetWindowPosition = new Point(_leftWinRect.Left, _leftWinRect.Top);
-                    break;
-                case Side.Right:
-                    trialTargetWindow = _rightWindow;
-                    trialTargetWindowPosition = new Point(_rightWinRect.Left, _rightWinRect.Top);
-                    break;
-                case Side.Top:
-                    trialTargetWindow = _topWindow;
-                    trialTargetWindowPosition = new Point(_topWinRect.Left, _topWinRect.Top);
-                    break;
-                default:
-                    throw new ArgumentException($"Invalid target side: {trial.TargetSide}");
-            }
+        //    // Get the target window
+        //    AuxWindow trialTargetWindow = null;
+        //    Point trialTargetWindowPosition = new Point(0, 0);
+        //    switch (trial.TargetSide)
+        //    {
+        //        case Side.Left:
+        //            trialTargetWindow = _leftWindow;
+        //            trialTargetWindowPosition = new Point(_leftWinRect.Left, _leftWinRect.Top);
+        //            break;
+        //        case Side.Right:
+        //            trialTargetWindow = _rightWindow;
+        //            trialTargetWindowPosition = new Point(_rightWinRect.Left, _rightWinRect.Top);
+        //            break;
+        //        case Side.Top:
+        //            trialTargetWindow = _topWindow;
+        //            trialTargetWindowPosition = new Point(_topWinRect.Left, _topWinRect.Top);
+        //            break;
+        //        default:
+        //            throw new ArgumentException($"Invalid target side: {trial.TargetSide}");
+        //    }
 
-            // Set the acceptable range for the Target button
+        //    // Set the acceptable range for the Target button
             
-            int targetId = trialTargetWindow.SelectRandButtonByConstraints(trial.TargetMultiple, trial.DistancePX);
-            _trialTargetIds[trial.Id] = targetId; // Map trial id to target id
+        //    int targetId = trialTargetWindow.SelectRandButtonByConstraints(trial.TargetMultiple, trial.DistancePX);
+        //    _trialTargetIds[trial.Id] = targetId; // Map trial id to target id
 
-            // Get the absolute position of the target center
-            Point targetCenterInTargetWindow = trialTargetWindow.GetGridButtonCenter(targetId);
-            Point targetCenterAbsolute = targetCenterInTargetWindow
-                .OffsetPosition(trialTargetWindowPosition.X, trialTargetWindowPosition.Y);
+        //    // Get the absolute position of the target center
+        //    Point targetCenterInTargetWindow = trialTargetWindow.GetGridButtonCenter(targetId);
+        //    Point targetCenterAbsolute = targetCenterInTargetWindow
+        //        .OffsetPosition(trialTargetWindowPosition.X, trialTargetWindowPosition.Y);
 
-            // Find a Start position for each distance in the passes
-            _repTrialStartPositions[trial.Id] = new Dictionary<int, Point>(); // Initialize the dict for this trial
-            foreach (int dist in trial.Distances)
-            {
-                // Find a position for the Start
-                Point startCenter = FindRandPointWithDist(
-                    _startConstraintRectAbsolue,
-                    targetCenterAbsolute,
-                    dist,
-                    trial.TargetSide.GetOpposite());
-                Point startPosition = startCenter.OffsetPosition(-startHalfW, -startHalfW);
-                Point startPositionInMain = startPosition.OffsetPosition(-thisLeft, -thisTop); // Position relative to the main window
-                this.TrialInfo($"Target: {targetCenterAbsolute}; Dist (px): {dist}; Start pos in main: {startPositionInMain}");
-                if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position
-                {
-                    this.TrialInfo($"No valid position found for Start for dist {dist}!");
-                    return false;
-                }
-                else // Valid position found
-                {
-                    _repTrialStartPositions[trial.Id][dist] = startPositionInMain; // Add the position to the dictionary
-                }
-            }
+        //    // Find a Start position for each distance in the passes
+        //    _repTrialStartPositions[trial.Id] = new Dictionary<int, Point>(); // Initialize the dict for this trial
+        //    foreach (int dist in trial.Distances)
+        //    {
+        //        // Find a position for the Start
+        //        Point startCenter = FindRandPointWithDist(
+        //            _startConstraintRectAbsolue,
+        //            targetCenterAbsolute,
+        //            dist,
+        //            trial.TargetSide.GetOpposite());
+        //        Point startPosition = startCenter.OffsetPosition(-startHalfW, -startHalfW);
+        //        Point startPositionInMain = startPosition.OffsetPosition(-thisLeft, -thisTop); // Position relative to the main window
+        //        this.TrialInfo($"Target: {targetCenterAbsolute}; Dist (px): {dist}; Start pos in main: {startPositionInMain}");
+        //        if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position
+        //        {
+        //            this.TrialInfo($"No valid position found for Start for dist {dist}!");
+        //            return false;
+        //        }
+        //        else // Valid position found
+        //        {
+        //            _repTrialStartPositions[trial.Id][dist] = startPositionInMain; // Add the position to the dictionary
+        //        }
+        //    }
 
-            return true; // Valid positions found for all distances
-        }
+        //    return true; // Valid positions found for all distances
+        //}
 
         public Point FindRandPointWithDist(Rect rect, Point src, double dist, Side side)
         {
@@ -910,8 +934,8 @@ namespace Multi.Cursor
             // Create the square
             _startRectangle = new Rectangle
             {
-                Width = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
+                Width = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
+                Height = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
                 Fill = color
             };
 
@@ -979,8 +1003,8 @@ namespace Multi.Cursor
             Rectangle objRectangle = new Rectangle
             {
                 Tag = tObject.Id,
-                Width = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
+                Width = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
+                Height = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
                 Fill = color
             };
 
@@ -1143,6 +1167,7 @@ namespace Multi.Cursor
         public void FillButtonInTargetWindow(Side side, int buttonId, Brush color) 
         {
             AuxWindow auxWindow = GetAuxWindow(side);
+            auxWindow.ResetGridSelection();
             auxWindow.FillGridButton(buttonId, color);
         }
 
@@ -1157,8 +1182,23 @@ namespace Multi.Cursor
 
         public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
+            double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
+            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
+            double startHalfWidth = OBJ_WIDTH_MM / 2;
+            double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
+            double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
+            double objAreaHalfWidth = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
+
+            // Find the Rect for the object area
+            Rect objAreaRect = new Rect(
+                this.Left + padding + objAreaHalfWidth,
+                this.Top + padding + objAreaHalfWidth,
+                this.Width - 2 * (padding + objAreaHalfWidth),
+                this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
+            );
             AuxWindow auxWindow = GetAuxWindow(side);
-            int id = auxWindow.SelectRandButtonByConstraints(widthUnits, dist);
+            int id = auxWindow.SelectRandButtonByConstraints(widthUnits, objAreaRect, dist);
             Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
             
@@ -1186,7 +1226,7 @@ namespace Multi.Cursor
 
         //public Rect GetStartConstraintRect()
         //{
-        //    double startHalfW = Utils.MM2PX(Experiment.START_WIDTH_MM / 2.0);
+        //    double startHalfW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM / 2.0);
         //    return new Rect(
         //        this.Left + VERTICAL_PADDING + startHalfW,
         //        this.Top + VERTICAL_PADDING + startHalfW,
@@ -1209,7 +1249,7 @@ namespace Multi.Cursor
 
 
 
-            //double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM + Experiment.START_WIDTH_MM/2);
+            //double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM + Experiment.OBJ_WIDTH_MM/2);
             //return new Rect(
             //    this.Left + padding + objAreaRadius,
             //    this.Top + padding + objAreaRadius,
