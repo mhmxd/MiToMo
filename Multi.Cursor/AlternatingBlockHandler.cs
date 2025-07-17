@@ -152,7 +152,7 @@ namespace Multi.Cursor
             _mainWindow.SetTargetWindow(_activeTrial.TargetSide, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the target button and set the handlers
-            Brush funcDefaultColor = _mainWindow.IsTechniqueToMo() ? Config.FUNCTION_AVAILABLE_COLOR : Config.FUNCTION_UNAVAILABLE_COLOR;
+            Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
             _mainWindow.FillButtonInTargetWindow(
                 _activeTrial.TargetSide, 
                 _activeTrialRecord.TargetId, 
@@ -175,7 +175,7 @@ namespace Multi.Cursor
                 OnObjectAreaMouseDown);
 
             // Show objects
-            Brush objDefaultColor = _mainWindow.IsTechniqueToMo() ? Config.OBJ_ENABLED_COLOR : Config.OBJ_AVAILABLE_COLOR;
+            Brush objDefaultColor = Config.OBJ_DEFAULT_COLOR;
             _mainWindow.ShowObjects(
                 _activeTrialRecord.Objects, objDefaultColor,
                 OnObjectMouseEnter, OnObjectMouseLeave, OnObjectMouseDown, OnObjectMouseUp);
@@ -344,7 +344,7 @@ namespace Multi.Cursor
 
         public override void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            var technique = _mainWindow.GetActiveTechnique();
+            var technique = _mainWindow.IsTechniqueToMo() ? Str.ToMo : Str.Mouse;
             var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId);
             var functionClicked = GetEventCount(Str.FUNCTION_RELEASE) == 1; // Check if the function was clicked
             var functionWindowActivated = _mainWindow.IsAuxWindowActivated(_activeTrial.TargetSide);
@@ -353,21 +353,22 @@ namespace Multi.Cursor
             this.TrialInfo($"Technique: {technique}, MarkerOnButton: {markerOnFunction}, FunctionClicked: {functionClicked}");
             switch (technique, markerOnFunction, functionClicked, functionWindowActivated, _objectSelected)
             {
-                case (Technique.Auxursor_Tap, true, _, _, _): // Tap, marker on function, _, 
+                case ("tomo", true, _, _, _): // ToMo, marker on function, _, 
                     LogEvent(Str.OBJ_RELEASE);
-                    EndActiveTrial(Experiment.Result.HIT);
+                    SetObjectAsSelected(1);
+                    _nSelectedObjects++;
                     break;
-                case (Technique.Auxursor_Tap, false, _, false, _): // Tap, marker not on function, _, function window not activated
+                case ("tomo", false, _, false, _): // ToMo, marker not on function, _, function window not activated
                     SetObjectAsMarked(1);
                     break;
-                case (Technique.Auxursor_Tap, false, _, true, _): // Tap, marker not on function, _, function window activated
+                case ("tomo", false, _, true, _): // ToMo, marker not on function, _, function window activated
                     EndActiveTrial(Experiment.Result.MISS);
                     break;
 
-                case (Technique.Mouse, _, true, _, _): // Mouse, _, function clicked
+                case ("mouse", _, true, _, _): // Mouse, _, function clicked
                     EndActiveTrial(Experiment.Result.HIT);
                     break;
-                case (Technique.Mouse, _, false, _, _): // Mouse, _, function not clicked
+                case ("mouse", _, false, _, _): // Mouse, _, function not clicked
                     SetFunctionAsEnabled();
                     SetObjectAsMarked(1);
                     break;
@@ -392,6 +393,8 @@ namespace Multi.Cursor
 
         public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
+            LogEvent(Str.FUNCTION_RELEASE);
+
             var technique = _mainWindow.GetActiveTechnique();
             var objectMarked = GetEventCount(Str.OBJ_RELEASE) == 1;
 
@@ -414,7 +417,7 @@ namespace Multi.Cursor
                     break;
             }
 
-            LogEvent(Str.FUNCTION_RELEASE);
+            
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 

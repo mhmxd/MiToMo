@@ -166,7 +166,9 @@ namespace Multi.Cursor
 
         public void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            var allObjectsSelected = GetEventCount(Str.FUNCTION_RELEASE) == _activeTrialRecord.Objects.Count;
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+
+            var allObjectsSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
 
             switch (allObjectsSelected)
             {
@@ -224,7 +226,7 @@ namespace Multi.Cursor
             _mainWindow.FillButtonInTargetWindow(
                 _activeTrial.TargetSide, 
                 _activeTrialRecord.TargetId, 
-                Config.FUNCTION_AVAILABLE_COLOR);
+                Config.FUNCTION_MARKED_COLOR);
         }
 
         protected void SetFunctionAsDisabled()
@@ -232,7 +234,7 @@ namespace Multi.Cursor
             _mainWindow.FillButtonInTargetWindow(
                 _activeTrial.TargetSide, 
                 _activeTrialRecord.TargetId, 
-                Config.FUNCTION_UNAVAILABLE_COLOR);
+                Config.FUNCTION_DEFAULT_COLOR);
         }
 
         protected void SetFunctionAsSelected()
@@ -255,7 +257,7 @@ namespace Multi.Cursor
 
         protected void SetObjectAsDisabled(int objId)
         {
-            _mainWindow.FillObject(objId, Config.OBJ_AVAILABLE_COLOR);
+            _mainWindow.FillObject(objId, Config.OBJ_DEFAULT_COLOR);
         }
 
         public void LeftPress()

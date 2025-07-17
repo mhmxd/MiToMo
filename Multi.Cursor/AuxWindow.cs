@@ -19,16 +19,36 @@ namespace Multi.Cursor
         // Class to store all the info regarding each button (positions, etc.)
         protected class ButtonInfo
         {
+            public SButton Button { get; set; }
+            public Point Position { get; set; }
+            public Rect Rect { get; set; }
+            public Range DistToStartRange { get; set; } // In pixels
+            public Brush ButtonFill { get; set; } // Default background color for the button
+
             public ButtonInfo(SButton button) { 
                 Button = button;
                 Position = new Point(0, 0);
                 Rect = new Rect();
                 DistToStartRange = new Range(0, 0);
+                ButtonFill = Config.BUTTON_DEFAULT_FILL_COLOR;
             }
-            public SButton Button {  get; set; }
-            public Point Position { get; set; }
-            public Rect Rect { get; set; }
-            public Range DistToStartRange { get; set; } // In pixels
+
+            public void ChangeBackFill()
+            {
+                Button.Background = ButtonFill; // Reset the button background to the default color
+            }
+
+            public void ResetButtonFill()
+            {
+                ButtonFill = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the button fill color to the default
+                Button.Background = ButtonFill; // Change the button background to the default color
+            }
+
+            public void ResetButonBorder()
+            {
+                Button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the button border to the default color
+            }
+
         }
 
         protected List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
@@ -204,6 +224,7 @@ namespace Multi.Cursor
             // Find the button with the specified ID
             if (_buttonInfos.ContainsKey(buttonId))
             {
+                _buttonInfos[buttonId].ButtonFill = color; // Store the default background color
                 _buttonInfos[buttonId].Button.Background = color; // Change the background color of the button
                 _buttonInfos[buttonId].Button.DisableBackgroundHover = true; // Disable hover fill for this button
                 //this.TrialInfo($"Button with ID {targetId} filled with color {color}.");
@@ -263,11 +284,11 @@ namespace Multi.Cursor
             }
         }
 
-        public virtual void ResetGridSelection()
+        public virtual void ResetButtons()
         {
             foreach (int buttonId in _buttonInfos.Keys)
             {
-                _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
+                _buttonInfos[buttonId].ResetButtonFill();
             }
         }
 
@@ -319,7 +340,7 @@ namespace Multi.Cursor
             _gridNavigator.Deactivate(); // Deactivate the grid navigator
             if (_lastHighlightedButtonId != -1 && _buttonInfos.ContainsKey(_lastHighlightedButtonId))
             {
-                _buttonInfos[_lastHighlightedButtonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
+                _buttonInfos[_lastHighlightedButtonId].ChangeBackFill();
                 //button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of the last highlighted button
             }
         }
@@ -334,12 +355,13 @@ namespace Multi.Cursor
             // Reset the border color of all buttons
             foreach (int buttonId in _buttonInfos.Keys)
             {
-                _buttonInfos[buttonId].Button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR;
-                if (_buttonInfos[buttonId].Button.Background != Config.FUNCTION_AVAILABLE_COLOR 
-                    && _buttonInfos[buttonId].Button.Background != Config.FUNCTION_UNAVAILABLE_COLOR)
-                {
-                    _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
-                }
+                _buttonInfos[buttonId].ResetButonBorder();
+                _buttonInfos[buttonId].ChangeBackFill();
+                //if (_buttonInfos[buttonId].Button.Background != Config.FUNCTION_MARKED_COLOR 
+                //    && _buttonInfos[buttonId].Button.Background != Config.FUNCTION_DEFAULT_COLOR)
+                //{
+                //    _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
+                //}
             }
         }
 
@@ -358,6 +380,9 @@ namespace Multi.Cursor
 
         public void HighlightButton(int buttonId)
         {
+            var buttonBgOrangeOrLightGreen =
+                _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_DEFAULT_COLOR) ||
+                _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_MARKED_COLOR);
             // Reset the border aof all buttons
             //foreach (var btn in _allButtons.Values)
             //{
@@ -369,14 +394,16 @@ namespace Multi.Cursor
             {
                 _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
 
-                // Change the background only if the button is not already a target
-                if (!_buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_AVAILABLE_COLOR) && 
-                    !_buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_UNAVAILABLE_COLOR))
+                // Change the background to selected (green) if orange or light green
+                if (buttonBgOrangeOrLightGreen)
+                {
+                    _buttonInfos[buttonId].Button.Background = Config.FUNCTION_SELECTED_COLOR;
+                }
+                else // Other buttons
                 {
                     _buttonInfos[buttonId].Button.Background = Config.BUTTON_HOVER_FILL_COLOR;
                 }
 
-                
                 _lastHighlightedButtonId = buttonId; // Store the ID of the highlighted button
             }
             else
@@ -433,7 +460,7 @@ namespace Multi.Cursor
                 }
             }
 
-            // If the target button has changed, update the focus
+            // Change the last highlighted button if it has changed
             if (highlightedButton.Id != _lastHighlightedButtonId)
             {
                 _lastHighlightedButtonId = highlightedButton.Id; // Update the last highlighted button ID

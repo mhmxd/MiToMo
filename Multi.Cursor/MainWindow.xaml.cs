@@ -1175,7 +1175,7 @@ namespace Multi.Cursor
         {
             if (_targetWindow != null)
             {
-                _targetWindow.ResetGridSelection();
+                _targetWindow.ResetButtons();
                 _targetWindow.DeactivateGridNavigator();
             }
             else
@@ -1187,7 +1187,7 @@ namespace Multi.Cursor
         public void FillButtonInTargetWindow(Side side, int buttonId, Brush color) 
         {
             AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.ResetGridSelection();
+            auxWindow.ResetButtons();
             auxWindow.FillGridButton(buttonId, color);
         }
 

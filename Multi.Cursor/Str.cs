@@ -72,6 +72,9 @@ namespace Multi.Cursor
         public static readonly string MID = "Mid";
         public static readonly string LONG = "Long";
 
+        public static readonly string ToMo = "tomo";
+        public static readonly string Mouse = "mouse";
+
         //public static string Join(params string[] parts)
         //{
         //    return string.Join("_", parts);

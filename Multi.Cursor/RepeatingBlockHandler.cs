@@ -142,7 +142,7 @@ namespace Multi.Cursor
             _mainWindow.SetTargetWindow(_activeTrial.TargetSide, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the function button and set the handlers
-            Brush funcDefaultColor = _mainWindow.IsTechniqueToMo() ? Config.FUNCTION_AVAILABLE_COLOR : Config.FUNCTION_UNAVAILABLE_COLOR;
+            Brush funcDefaultColor = _mainWindow.IsTechniqueToMo() ? Config.FUNCTION_MARKED_COLOR : Config.FUNCTION_DEFAULT_COLOR;
             _mainWindow.FillButtonInTargetWindow(
                 _activeTrial.TargetSide, _activeTrialRecord.TargetId, 
                 funcDefaultColor);
@@ -163,7 +163,7 @@ namespace Multi.Cursor
 
             // Show the objects
             _mainWindow.ShowObjects(
-                _activeTrialRecord.Objects, Config.OBJ_AVAILABLE_COLOR,
+                _activeTrialRecord.Objects, Config.OBJ_DEFAULT_COLOR,
                 OnObjectMouseEnter, OnObjectMouseLeave,
                 OnObjectMouseDown, OnObjectMouseUp);
 
@@ -429,7 +429,7 @@ namespace Multi.Cursor
                 // Change available/unavailable
                 _mainWindow.FillStart(Config.START_UNAVAILABLE_COLOR);
                 _mainWindow.FillButtonInTargetWindow(
-                    _activeTrial.TargetSide, _activeTrialRecord.TargetId, Config.FUNCTION_AVAILABLE_COLOR);
+                    _activeTrial.TargetSide, _activeTrialRecord.TargetId, Config.FUNCTION_MARKED_COLOR);
                 _isTargetAvailable = true;
             }
         }
@@ -831,7 +831,7 @@ namespace Multi.Cursor
                 // Color the object as marked and target as available
                 _mainWindow.FillObject(objId, Config.OBJ_MARKED_COLOR);
                 _mainWindow.FillButtonInTargetWindow(
-                    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.FUNCTION_AVAILABLE_COLOR);
+                    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.FUNCTION_MARKED_COLOR);
 
                 // Apply the function if it was clicked
                 //if (_isFunctionClicked)
