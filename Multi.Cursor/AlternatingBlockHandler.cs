@@ -179,6 +179,11 @@ namespace Multi.Cursor
             _mainWindow.ShowObjects(
                 _activeTrialRecord.Objects, objDefaultColor,
                 OnObjectMouseEnter, OnObjectMouseLeave, OnObjectMouseDown, OnObjectMouseUp);
+            
+
+            // Show Start Trial button
+            _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, OnStartButtonMouseUp);
+
         }
 
         public override void EndActiveTrial(Experiment.Result result)

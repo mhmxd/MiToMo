@@ -107,6 +107,8 @@ namespace Multi.Cursor
         protected TrialRecord _activeTrialRecord;
         protected int _nSelectedObjects = 0; // Number of clicked objects in the current trial
 
+        protected Random _random = new Random();
+
         public abstract bool FindPositionsForActiveBlock();
         public abstract bool FindPositionsForTrial(Trial trial);
         public void BeginActiveBlock()

@@ -23,8 +23,6 @@ namespace Multi.Cursor
         private const string CacheDirectory = "TrialPositionCache";
         private const int MaxCachedPositions = 100;
 
-        private Random _random = new Random();
-
         public RepeatingBlockHandler(MainWindow mainWindow, Block activeBlock)
         {
             _mainWindow = mainWindow;
@@ -166,6 +164,9 @@ namespace Multi.Cursor
                 _activeTrialRecord.Objects, Config.OBJ_DEFAULT_COLOR,
                 OnObjectMouseEnter, OnObjectMouseLeave,
                 OnObjectMouseDown, OnObjectMouseUp);
+
+            // Show Start Trial button
+            _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, OnStartButtonMouseUp);
 
             // Show the first Start
             //Point firstStartPos = _trialRecords[_activeTrial.Id].StartPositions.First();

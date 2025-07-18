@@ -29,6 +29,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -1320,9 +1321,10 @@ namespace Multi.Cursor
             return _experiment.Active_Technique;
         }
 
-        public void ShowStartTrialButton(MouseButtonEventHandler mouseUp)
+        public void ShowStartTrialButton(Rect objAreaRect, MouseButtonEventHandler mouseUp)
         {
-            canvas.Children.Clear(); // Clear the canvas before adding the button
+            //canvas.Children.Clear(); // Clear the canvas before adding the button
+            int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
 
             // Create the "button" as a Border with text inside
             var startTrialButton = new Border
@@ -1331,14 +1333,14 @@ namespace Multi.Cursor
                 Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
                 Background = Config.LIGHT_PURPLE,
                 BorderBrush = Brushes.Black,
-                BorderThickness = new Thickness(2),
+                //BorderThickness = new Thickness(2),
                 //CornerRadius = new CornerRadius(6)
             };
 
             // Add label inside
             var label = new TextBlock
             {
-                Text = "Start Trial",
+                Text = "Start",
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
@@ -1351,9 +1353,49 @@ namespace Multi.Cursor
             // Add event handlers
             startTrialButton.MouseUp += mouseUp;
 
+            // Button is centered-align to the obj area
+            Point startTrialButtonPosition = new Point(0, 0);
+            Point objAreaPosition = new Point(objAreaRect.X - this.Left, objAreaRect.Y - this.Top);
+            startTrialButtonPosition.X = objAreaPosition.X + (objAreaRect.Width - startTrialButton.Width) / 2;
 
-            Canvas.SetLeft(startTrialButton, (this.Width - startTrialButton.Width) / 2);
-            Canvas.SetTop(startTrialButton, (this.Height - startTrialButton.Height) / 2);
+            // If there is no space above or below the obj area, show the button on the other side
+            double aboveY = objAreaPosition.Y - startTrialButton.Height;
+            double belowY = objAreaPosition.Y + objAreaRect.Height;
+            bool showAbove = _random.Next(2) == 0; // Randomly decide whether to show above or below
+            if (showAbove)
+            {
+                if (objAreaPosition.Y - startTrialButton.Height < this.Top + padding) // No space above
+                {
+                    // Show below the area
+                    startTrialButtonPosition.Y = belowY;
+                }
+                else
+                {
+                    // Show above the object area
+                    startTrialButtonPosition.Y = aboveY;
+                }
+            }
+            else // Show below
+            {
+                // If no space below, show above
+                if (objAreaRect.Bottom + startTrialButton.Height > _mainWinRect.Bottom - padding - infoLabel.Height)
+                {
+                    // Show above the object area
+                    startTrialButtonPosition.Y = aboveY;
+                }
+                else
+                {
+                    // Show below the area
+                    startTrialButtonPosition.Y = belowY;
+                }
+            }
+
+            //Canvas.SetLeft(startTrialButton, (this.Width - startTrialButton.Width) / 2);
+            //Canvas.SetTop(startTrialButton, (this.Height - startTrialButton.Height) / 2);
+            this.TrialInfo($"Area Position: {objAreaRect.ToString()}; Start Trial button position: {startTrialButtonPosition.ToStr()}");
+            Canvas.SetLeft(startTrialButton, startTrialButtonPosition.X);
+            Canvas.SetTop(startTrialButton, startTrialButtonPosition.Y);
+
             canvas.Children.Add(startTrialButton);
         }
     }
