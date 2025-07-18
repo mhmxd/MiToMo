@@ -53,14 +53,14 @@ namespace Multi.Cursor
                 }
             }
 
-            // If consecutive trials have the same TargetId, re-order them
+            // If consecutive trials have the same ObjectId, re-order them
             //while (IsTargetRepeated())
             //{
             //    _activeBlock.Trials.Shuffle();
             //}
 
             // Show all the target ids for the trials
-            this.TrialInfo($"Target IDs: {string.Join(", ", _activeBlock.Trials.Select(t => $"{_trialRecords[t.Id].TargetId}"))}");
+            this.TrialInfo($"Target IDs: {string.Join(", ", _activeBlock.Trials.Select(t => $"{_trialRecords[t.Id].ObjectId}"))}");
             return true;
         }
 
@@ -68,7 +68,7 @@ namespace Multi.Cursor
         {
             for (int i = 0; i < _activeBlock.Trials.Count - 1; i++)
             {
-                if (_trialRecords[_activeBlock.Trials[i].Id].TargetId == _trialRecords[_activeBlock.Trials[i + 1].Id].TargetId)
+                if (_trialRecords[_activeBlock.Trials[i].Id].ObjectId == _trialRecords[_activeBlock.Trials[i + 1].Id].ObjectId)
                 {
                     return true;
                 }
@@ -99,7 +99,7 @@ namespace Multi.Cursor
                 // If new positions were successfully found, save them to cache
                 //SavePositionsToCache(trial, new CachedTrialPositions
                 //{
-                //    TargetId = _trialRecords[trial.Id].TargetId,
+                //    ObjectId = _trialRecords[trial.Id].ObjectId,
                 //    StartPositions = _trialRecords[trial.Id].StartPositions
                 //});
                 return true;
@@ -116,7 +116,7 @@ namespace Multi.Cursor
                     if (randomCachedEntry.Any())
                     {
                         var selectedEntry = randomCachedEntry[_random.Next(randomCachedEntry.Count)];
-                        _trialRecords[trial.Id].TargetId = selectedEntry.TargetId;
+                        _trialRecords[trial.Id].ObjectId = selectedEntry.TargetId;
                         //_trialRecords[trial.Id].StartPositions = new List<Point>(selectedEntry.StartPositio   ns);
                         //this.TrialInfo($"Using random cached positions for Trial#{trial.Id}");
                         return true;
@@ -142,10 +142,10 @@ namespace Multi.Cursor
             // Color the function button and set the handlers
             Brush funcDefaultColor = _mainWindow.IsTechniqueToMo() ? Config.FUNCTION_MARKED_COLOR : Config.FUNCTION_DEFAULT_COLOR;
             _mainWindow.FillButtonInTargetWindow(
-                _activeTrial.TargetSide, _activeTrialRecord.TargetId, 
+                _activeTrial.TargetSide, _activeTrialRecord.ObjectId, 
                 funcDefaultColor);
             _mainWindow.SetGridButtonHandlers(
-                _activeTrial.TargetSide, _activeTrialRecord.TargetId,
+                _activeTrial.TargetSide, _activeTrialRecord.ObjectId,
                 OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
 
             // Activate the auxiliary window marker on all sides
@@ -252,7 +252,7 @@ namespace Multi.Cursor
             //{
             //    if (GetEventCount(Str.START_RELEASE) > 0)
             //    {
-            //        if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+            //        if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].ObjectId))
             //        {
             //            TargetPress();
             //        }
@@ -297,7 +297,7 @@ namespace Multi.Cursor
             //{
             //    string key = Str.TARGET_RELEASE;
 
-            //    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId))
+            //    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _trialRecords[_activeTrial.Id].ObjectId))
             //    {
             //        OnFunctionRelease();
             //    }
@@ -322,7 +322,7 @@ namespace Multi.Cursor
         //        if (_activeTrialRecord.GetLastTimestamp() == Str.OBJ_RELEASE) // Target press?
         //        {
         //            // If navigator is on the button, count the event
-        //            if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId))
+        //            if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.ObjectId))
         //            {
         //                TargetPress();
         //            }
@@ -359,7 +359,7 @@ namespace Multi.Cursor
         //        else // Target release?
         //        {
         //            // If navigator is on the button, count the event
-        //            if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId))
+        //            if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.ObjectId))
         //            {
         //                OnFunctionRelease();
         //            }
@@ -430,7 +430,7 @@ namespace Multi.Cursor
                 // Change available/unavailable
                 _mainWindow.FillStart(Config.START_UNAVAILABLE_COLOR);
                 _mainWindow.FillButtonInTargetWindow(
-                    _activeTrial.TargetSide, _activeTrialRecord.TargetId, Config.FUNCTION_MARKED_COLOR);
+                    _activeTrial.TargetSide, _activeTrialRecord.ObjectId, Config.FUNCTION_MARKED_COLOR);
                 _isTargetAvailable = true;
             }
         }
@@ -462,7 +462,7 @@ namespace Multi.Cursor
             //    startAbsolutePosition, Config.START_AVAILABLE_COLOR,
             //    OnObjectMouseEnter, OnObjectMouseLeave, OnObjectMouseDown, OnObjectMouseUp);
             //_mainWindow.FillButtonInTargetWindow(
-            //    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.TARGET_UNAVAILABLE_COLOR);
+            //    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].ObjectId, Config.TARGET_UNAVAILABLE_COLOR);
         }
 
         private List<CachedTrialPositions> LoadPositionsFromCache(Trial trial)
@@ -488,7 +488,7 @@ namespace Multi.Cursor
         //{
         //    // Reset trial record for current attempt
         //    _trialRecords[trial.Id].StartPositions.Clear();
-        //    _trialRecords[trial.Id].TargetId = -1;
+        //    _trialRecords[trial.Id].ObjectId = -1;
 
         //    (int targetId, Point targetCenterAbsolute) = _mainWindow.Dispatcher.Invoke(() =>
         //    {
@@ -497,7 +497,7 @@ namespace Multi.Cursor
 
         //    if (targetId != -1)
         //    {
-        //        _trialRecords[trial.Id].TargetId = targetId;
+        //        _trialRecords[trial.Id].ObjectId = targetId;
         //    }
         //    else
         //    {
@@ -560,7 +560,7 @@ namespace Multi.Cursor
         {
             // Reset trial record for current attempt
             //_trialRecords[trial.Id].ObjectPositions.Clear();
-            _trialRecords[trial.Id].TargetId = -1;
+            _trialRecords[trial.Id].ObjectId = -1;
 
             // Get a random Target from the main window (which calls the side window)
             (int targetId, Point targetCenterAbsolute) = _mainWindow.Dispatcher.Invoke(() =>
@@ -571,7 +571,7 @@ namespace Multi.Cursor
             // If a target was found, set the target id
             if (targetId != -1)
             {
-                _trialRecords[trial.Id].TargetId = targetId;
+                _trialRecords[trial.Id].ObjectId = targetId;
             }
             else
             {
@@ -759,7 +759,7 @@ namespace Multi.Cursor
             var elementTag = (int)((FrameworkElement)sender).Tag;
 
             var isToMo = _mainWindow.IsTechniqueToMo();
-            var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId);
+            var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.ObjectId);
             var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
 
             // Show all the flags
@@ -832,7 +832,7 @@ namespace Multi.Cursor
                 // Color the object as marked and target as available
                 _mainWindow.FillObject(objId, Config.OBJ_MARKED_COLOR);
                 _mainWindow.FillButtonInTargetWindow(
-                    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].TargetId, Config.FUNCTION_MARKED_COLOR);
+                    _activeTrial.TargetSide, _trialRecords[_activeTrial.Id].ObjectId, Config.FUNCTION_MARKED_COLOR);
 
                 // Apply the function if it was clicked
                 //if (_isFunctionClicked)

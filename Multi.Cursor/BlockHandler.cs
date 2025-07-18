@@ -16,7 +16,7 @@ namespace Multi.Cursor
         // Classes
         protected class TrialRecord
         {
-            public int TargetId;
+            public int ObjectId;
             //public List<Point> StartPositions;
             public List<TObject> Objects;
             public Rect ObjectAreaRect;
@@ -227,7 +227,7 @@ namespace Multi.Cursor
         {
             _mainWindow.FillButtonInTargetWindow(
                 _activeTrial.TargetSide, 
-                _activeTrialRecord.TargetId, 
+                _activeTrialRecord.ObjectId, 
                 Config.FUNCTION_MARKED_COLOR);
         }
 
@@ -235,7 +235,7 @@ namespace Multi.Cursor
         {
             _mainWindow.FillButtonInTargetWindow(
                 _activeTrial.TargetSide, 
-                _activeTrialRecord.TargetId, 
+                _activeTrialRecord.ObjectId, 
                 Config.FUNCTION_DEFAULT_COLOR);
         }
 
@@ -243,7 +243,7 @@ namespace Multi.Cursor
         {
             _mainWindow.FillButtonInTargetWindow(
                 _activeTrial.TargetSide, 
-                _activeTrialRecord.TargetId, 
+                _activeTrialRecord.ObjectId, 
                 Config.FUNCTION_SELECTED_COLOR);
         }
 

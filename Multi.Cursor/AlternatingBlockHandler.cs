@@ -35,7 +35,7 @@ namespace Multi.Cursor
                 }
             }
 
-            // If consecutive trials have the same TargetId, re-order them
+            // If consecutive trials have the same ObjectId, re-order them
             while (IsTargetRepeated())
             {
                 _activeBlock.Trials.Shuffle();
@@ -48,7 +48,7 @@ namespace Multi.Cursor
         {
             //for (int i = 0; i < _activeBlock.Trials.Count - 1; i++)
             //{
-            //    if (_trialRecords[_activeBlock.Trials[i].Id]?.TargetId == _trialRecords[_activeBlock.Trials[i + 1].Id]?.TargetId)
+            //    if (_trialRecords[_activeBlock.Trials[i].Id]?.ObjectId == _trialRecords[_activeBlock.Trials[i + 1].Id]?.ObjectId)
             //    {
             //        return true;
             //    }
@@ -59,9 +59,10 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForTrial(Trial trial)
         {
-            int objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM) / 2;
+            int objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
             int objHalfW = objW / 2;
-            int objAreaHalfW = Utils.MM2PX(OBJ_AREA_WIDTH_MM) / 2;
+            int objAreaW = Utils.MM2PX(OBJ_AREA_WIDTH_MM);
+            int objAreaHalfW = objAreaW / 2;
 
             this.TrialInfo($"Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
                 $"TargetMult = {trial.TargetMultiple}, Dist (mm) = {trial.DistanceMM:F2}, Dist (px) = {trial.DistancePX}]");
@@ -82,7 +83,7 @@ namespace Multi.Cursor
                 
             if (targetId != -1)
             {
-                _trialRecords[trial.Id].TargetId = targetId;
+                _trialRecords[trial.Id].ObjectId = targetId;
                 this.TrialInfo($"Found Target Id: {targetId} for Trial#{trial.Id}");
                 //_mainWindow.Dispatcher.Invoke(() =>
                 //{
@@ -119,7 +120,7 @@ namespace Multi.Cursor
             }
             else // Valid position found
             {
-                // Get the topleft corner of the object area rectangle
+                // Get the top-left corner of the object area rectangle
                 Point objAreaPosition = objCenter.OffsetPosition(-objAreaHalfW);
 
                 this.TrialInfo($"Found object position: {objAreaPosition.ToStr()}");
@@ -127,11 +128,12 @@ namespace Multi.Cursor
                 _trialRecords[trial.Id].ObjectAreaRect = new Rect(
                         objAreaPosition.X,
                         objAreaPosition.Y,
-                        Utils.MM2PX(OBJ_AREA_WIDTH_MM),
-                        Utils.MM2PX(OBJ_AREA_WIDTH_MM));
+                        objAreaW,
+                        objAreaW);
 
                 // Put the object at the center
-                TObject obj = new TObject(1, objCenter.OffsetPosition(-objHalfW)); // Object is always 1 in this case
+                Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
+                TObject obj = new TObject(1, objPosition); // Object is always 1 in this case
                 _trialRecords[trial.Id].Objects.Add(obj);
             }
 
@@ -155,11 +157,11 @@ namespace Multi.Cursor
             Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
             _mainWindow.FillButtonInTargetWindow(
                 _activeTrial.TargetSide, 
-                _activeTrialRecord.TargetId, 
+                _activeTrialRecord.ObjectId, 
                 funcDefaultColor);
 
             _mainWindow.SetGridButtonHandlers(
-                _activeTrial.TargetSide, _activeTrialRecord.TargetId, 
+                _activeTrial.TargetSide, _activeTrialRecord.ObjectId, 
                 OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
 
             // Activate the auxiliary window marker on all sides
@@ -246,7 +248,7 @@ namespace Multi.Cursor
             //{
             //    if (GetEventCount(Str.OBJ_RELEASE) > 0)
             //    {
-            //        if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId))
+            //        if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.ObjectId))
             //        {
             //            TargetPress();
             //        }
@@ -293,7 +295,7 @@ namespace Multi.Cursor
             //{
             //    string key = Str.TARGET_RELEASE;
 
-            //    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId))
+            //    if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.ObjectId))
             //    {
             //        TargetRelease();
             //    }
@@ -323,7 +325,7 @@ namespace Multi.Cursor
             //    if (_activeTrialRecord.GetLastTimestamp().Contains(Str.OBJ_RELEASE)) // Target press?
             //    {
             //        // If navigator is on the button, count the event
-            //        if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId))
+            //        if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.ObjectId))
             //        {
             //            TargetPress();
             //        }
@@ -350,7 +352,7 @@ namespace Multi.Cursor
         public override void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         {
             var technique = _mainWindow.IsTechniqueToMo() ? Str.ToMo : Str.Mouse;
-            var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.TargetId);
+            var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.ObjectId);
             var functionClicked = GetEventCount(Str.FUNCTION_RELEASE) == 1; // Check if the function was clicked
             var functionWindowActivated = _mainWindow.IsAuxWindowActivated(_activeTrial.TargetSide);
 
