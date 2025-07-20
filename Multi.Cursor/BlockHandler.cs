@@ -136,9 +136,9 @@ namespace Multi.Cursor
         public abstract void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e);
         public void OnAuxWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            if (GetEventCount(Str.OBJ_RELEASE) == 0) // Not yet clicked on the Object => OBJ_NOT_CLICKED
+            if (GetEventCount(Str.OBJ_RELEASE) == 0) // Not yet clicked on the Object => ERROR
             {
-                EndActiveTrial(Experiment.Result.OBJ_NOT_CLICKED);
+                EndActiveTrial(Experiment.Result.ERROR);
             }
             else // Clicked on the Start => MISS
             {
@@ -187,6 +187,11 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
+        public void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)
+        {
+            // Nothing for now
+        }
+
         public void OnTargetMouseEnter(Object sender, MouseEventArgs e)
         {
             LogEvent(Str.TARGET_ENTER);
@@ -214,13 +219,39 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
+        public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
+        {
+            LogEvent(Str.START_PRESS);
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
+        }
+
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            _activeTrialNum++;
-            _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-            _activeTrialRecord = _trialRecords[_activeTrial.Id];
+            LogEvent(Str.START_RELEASE);
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
-            ShowActiveTrial();
+            var startButtonPressed = GetEventCount(Str.START_PRESS) > 0;
+
+            switch (startButtonPressed)
+            {
+                case true: // Start button was pressed => valid trial started
+
+                    break;
+                case false: // Start button was not pressed => invalid trial
+                    EndActiveTrial(Experiment.Result.MISS);
+                    break;
+            }
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
+
+            //_activeTrialNum++;
+            //_activeTrial = _activeBlock.GetTrial(_activeTrialNum);
+            //_activeTrialRecord = _trialRecords[_activeTrial.Id];
+
+            //ShowActiveTrial();
+
         }
 
         protected void SetFunctionAsEnabled()

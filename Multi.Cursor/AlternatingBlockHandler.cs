@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,6 +12,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Multi.Cursor.Experiment;
+using static Multi.Cursor.Utils;
 
 namespace Multi.Cursor
 {
@@ -171,21 +173,22 @@ namespace Multi.Cursor
             _mainWindow.ClearCanvas();
 
             // Show the area
+            MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp);
             _mainWindow.ShowObjectsArea(
                 _activeTrialRecord.ObjectAreaRect, 
                 Config.OBJ_AREA_BG_COLOR, 
-                OnObjectAreaMouseDown);
+                objAreaEvents);
 
             // Show objects
             Brush objDefaultColor = Config.OBJ_DEFAULT_COLOR;
+            MouseEvents objectEvents = new MouseEvents(
+                OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
             _mainWindow.ShowObjects(
-                _activeTrialRecord.Objects, objDefaultColor,
-                OnObjectMouseEnter, OnObjectMouseLeave, OnObjectMouseDown, OnObjectMouseUp);
-            
+                _activeTrialRecord.Objects, objDefaultColor, objectEvents);
 
             // Show Start Trial button
-            _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, OnStartButtonMouseUp);
-
+            MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp);
+            _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
         }
 
         public override void EndActiveTrial(Experiment.Result result)
@@ -207,7 +210,7 @@ namespace Multi.Cursor
                     this.TrialInfo(Str.MAJOR_LINE);
                     GoToNextTrial();
                     break;
-                case Experiment.Result.OBJ_NOT_CLICKED:
+                case Experiment.Result.ERROR:
                     Sounder.PlayStartMiss();
                     // Do nothing, just reset everything
 
@@ -242,7 +245,21 @@ namespace Multi.Cursor
 
         public override void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
+            LogEvent(Str.MAIN_WIN_PRESS);
+
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+
+            var startButtonClicked = GetEventCount(Str.START_RELEASE) == 1;
+
+            switch (startButtonClicked)
+            {
+                case true: // Start button was clicked
+                    EndActiveTrial(Result.MISS);
+                    break;
+                case false: // Start button was not clicked
+                    EndActiveTrial(Result.ERROR);
+                    break;
+            }
 
             //if (_mainWindow.IsTechniqueToMo()) ///// ToMo
             //{
@@ -260,7 +277,7 @@ namespace Multi.Cursor
             //    }
             //    else // Missed the Start
             //    {
-            //        EndActiveTrial(Experiment.Result.OBJ_NOT_CLICKED);
+            //        EndActiveTrial(Experiment.Result.ERROR);
             //        return;
             //    }
 
@@ -269,7 +286,7 @@ namespace Multi.Cursor
             //else ///// Mouse
             //{
             //    if (GetEventCount(Str.OBJ_RELEASE) > 0) EndActiveTrial(Experiment.Result.MISS);
-            //    else EndActiveTrial(Experiment.Result.OBJ_NOT_CLICKED);
+            //    else EndActiveTrial(Experiment.Result.ERROR);
             //}
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -314,38 +331,22 @@ namespace Multi.Cursor
 
         public override void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            // Show the current timestamps
+            LogEvent(Str.OBJ_PRESS);
+
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
+            var startButtonClicked = GetEventCount(Str.START_RELEASE) == 1;
 
+            switch (startButtonClicked)
+            {
+                case true: // Start button was clicked
+                    // Nothing specific for now
+                    break;
+                case false: // Start button was not clicked
+                    EndActiveTrial(Result.ERROR);
+                    break;
+            }
 
-            //if (_mainWindow.IsTechniqueToMo()) //// ToMo
-            //{
-
-            //    if (_activeTrialRecord.GetLastTimestamp().Contains(Str.OBJ_RELEASE)) // Target press?
-            //    {
-            //        // If navigator is on the button, count the event
-            //        if (_mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.ObjectId))
-            //        {
-            //            TargetPress();
-            //        }
-            //        else // Navator is not on the target button
-            //        {
-            //            EndActiveTrial(Experiment.Result.MISS);
-            //            return;
-            //        }
-            //    }
-            //    else
-            //    {
-            //        ObjectPress();
-            //    }
-            //}
-            //else //-- Mouse
-            //{
-            //    ObjectPress();
-            //}
-
-            LogEvent(Str.OBJ_PRESS);
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
@@ -369,11 +370,11 @@ namespace Multi.Cursor
                     SetObjectAsMarked(1);
                     break;
                 case ("tomo", false, _, true, _): // ToMo, marker not on function, _, function window activated
-                    EndActiveTrial(Experiment.Result.MISS);
+                    EndActiveTrial(Result.MISS);
                     break;
 
                 case ("mouse", _, true, _, _): // Mouse, _, function clicked
-                    EndActiveTrial(Experiment.Result.HIT);
+                    EndActiveTrial(Result.HIT);
                     break;
                 case ("mouse", _, false, _, _): // Mouse, _, function not clicked
                     SetFunctionAsEnabled();
@@ -412,6 +413,7 @@ namespace Multi.Cursor
                 case (Technique.Mouse, true): // Mouse, object marked
                     SetObjectAsSelected(1);
                     SetFunctionAsSelected();
+                    _nSelectedObjects++;
                     break;
                 case (Technique.Mouse, false): // Mouse, object not marked
                     EndActiveTrial(Experiment.Result.MISS);

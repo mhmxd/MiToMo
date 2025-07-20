@@ -6,6 +6,7 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using MathNet.Numerics.Integration;
 using Tensorflow.Operations;
 using static System.Math;
@@ -14,7 +15,7 @@ using static Multi.Cursor.Output;
 
 namespace Multi.Cursor
 {
-    internal static class Utils
+    public static class Utils
     {
         private const double MM_IN_INCH = 25.4;
         private const double DIPS_IN_INCH = 96.0;
@@ -33,6 +34,36 @@ namespace Multi.Cursor
             }
 
             public override string ToString() => $"[{Min}, {Max}]";
+        }
+
+        public class MouseEvents
+        {
+            public MouseEventHandler MouseEnter { get; set; }
+            public MouseButtonEventHandler MouseDown { get; set; }
+            public MouseButtonEventHandler MouseUp { get; set; }
+            public MouseEventHandler MouseLeave { get; set; }
+
+            public MouseEvents(MouseButtonEventHandler mouseDown,
+                               MouseButtonEventHandler mouseUp,
+                               MouseEventHandler mouseEnter = null,
+                               MouseEventHandler mouseLeave = null)
+            {
+                MouseDown = mouseDown;
+                MouseUp = mouseUp;
+                MouseEnter = mouseEnter;
+                MouseLeave = mouseLeave;
+            }
+
+            public MouseEvents(MouseEventHandler mouseEnter,
+                               MouseButtonEventHandler mouseDown,
+                               MouseButtonEventHandler mouseUp,
+                               MouseEventHandler mouseLeave)
+            {
+                MouseEnter = mouseEnter;
+                MouseDown = mouseDown;
+                MouseUp = mouseUp;
+                MouseLeave = mouseLeave;
+            }
         }
 
         public static Boolean AbsIn(double value, double min, double max)

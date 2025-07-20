@@ -57,7 +57,7 @@ namespace Multi.Cursor
 
         //-- Current state
         
-        public enum Result { MISS, HIT, OBJ_NOT_CLICKED }
+        public enum Result { MISS, HIT, ERROR }
 
         //-- Information
         public Technique Active_Technique = Technique.Auxursor_Tap; // Set in the info dialog
@@ -117,8 +117,8 @@ namespace Multi.Cursor
             };
             List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
 
-            CreateAltBlocks(1, targetMultiples, distRanges);
-            //CreateRepBlocks(1, targetMultiples, distRanges);
+            //CreateAltBlocks(1, targetMultiples, distRanges);
+            CreateRepBlocks(1, targetMultiples, distRanges);
         }
 
         private void CreateAltBlocks(int n, List<int> targetMultiples, List<Range> distRanges)

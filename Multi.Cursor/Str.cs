@@ -34,6 +34,8 @@ namespace Multi.Cursor
         //public static string START1_LAST_EXIT = "start1_last_entry";
         //public static string START2_LAST_EXIT = "start2_last_entry";
         public static string START_LEAVE = "start_leave";
+        public static string START_PRESS = "start_press";
+        public static string START_RELEASE = "start_release";
 
         //public static string START_PRESS_ONE = "start1_press";
         //public static string START_RELEASE_ONE = "start1_release";
@@ -46,6 +48,9 @@ namespace Multi.Cursor
         public static string TARGET_PRESS = "target_press";
         public static string TARGET_RELEASE = "target_release";
         public static string TARGET_LEAVE = "target_leave";
+
+        public static string MAIN_WIN_PRESS = "main_win_press";
+        public static string MAIN_WIN_RELEASE = "main_win_release";
 
         public static string TRIAL_END = "trial_end"; // Second release on Start
 

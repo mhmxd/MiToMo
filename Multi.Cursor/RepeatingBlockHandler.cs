@@ -10,6 +10,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Multi.Cursor.Experiment;
+using static Multi.Cursor.Utils;
 
 namespace Multi.Cursor
 {
@@ -155,18 +156,19 @@ namespace Multi.Cursor
             _mainWindow.ClearCanvas();
 
             // Show the area
+            MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp);
             _mainWindow.ShowObjectsArea(
                 _activeTrialRecord.ObjectAreaRect, Config.OBJ_AREA_BG_COLOR,
-                OnObjectAreaMouseDown);
+                objAreaEvents);
 
             // Show the objects
-            _mainWindow.ShowObjects(
-                _activeTrialRecord.Objects, Config.OBJ_DEFAULT_COLOR,
-                OnObjectMouseEnter, OnObjectMouseLeave,
-                OnObjectMouseDown, OnObjectMouseUp);
+            MouseEvents objectEvents = new MouseEvents(
+                OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
+            _mainWindow.ShowObjects(_activeTrialRecord.Objects, Config.OBJ_DEFAULT_COLOR, objectEvents);
 
             // Show Start Trial button
-            _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, OnStartButtonMouseUp);
+            MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp);
+            _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
 
             // Show the first Start
             //Point firstStartPos = _trialRecords[_activeTrial.Id].StartPositions.First();
@@ -193,7 +195,7 @@ namespace Multi.Cursor
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
                     GoToNextTrial();
                     break;
-                case Experiment.Result.OBJ_NOT_CLICKED:
+                case Experiment.Result.ERROR:
                     Sounder.PlayStartMiss();
                     // Do nothing, just reset everything
 
@@ -264,7 +266,7 @@ namespace Multi.Cursor
             //    }
             //    else // Missed the Start
             //    {
-            //        EndActiveTrial(Experiment.Result.OBJ_NOT_CLICKED);
+            //        EndActiveTrial(Experiment.Result.ERROR);
             //        return;
             //    }
 
@@ -273,7 +275,7 @@ namespace Multi.Cursor
             //else ///// Mouse
             //{
             //    if (GetEventCount(Str.START_RELEASE) > 0) EndActiveTrial(Experiment.Result.MISS);
-            //    else EndActiveTrial(Experiment.Result.OBJ_NOT_CLICKED);
+            //    else EndActiveTrial(Experiment.Result.ERROR);
             //}
         }
 

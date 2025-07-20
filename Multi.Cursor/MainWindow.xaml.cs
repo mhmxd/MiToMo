@@ -967,9 +967,7 @@ namespace Multi.Cursor
             canvas.Children.Clear();
         }
 
-        public void ShowObjectsArea(
-            Rect areaRect, Brush areaColor,
-            MouseButtonEventHandler areaMouseDownHandler)
+        public void ShowObjectsArea(Rect areaRect, Brush areaColor, MouseEvents mouseEvents)
         {
             // Show the area rectangle
             Rectangle areaRectangle = new Rectangle
@@ -984,30 +982,23 @@ namespace Multi.Cursor
             Canvas.SetTop(areaRectangle, areaRect.Top - this.Top);
 
             // Add the event handler
-            areaRectangle.MouseDown += areaMouseDownHandler;
+            areaRectangle.MouseDown += mouseEvents.MouseDown;
+            areaRectangle.MouseUp += mouseEvents.MouseUp;
 
             // Add the rectangle to the Canvas
             canvas.Children.Add(areaRectangle);
         }
 
-        public void ShowObjects(
-            List<BlockHandler.TObject> trialObjects, Brush objColor,
-            MouseButtonEventHandler mouseEnterHandler, MouseButtonEventHandler mouseLeaveHandler,
-            MouseButtonEventHandler mouseButtonDownHandler, MouseButtonEventHandler MouseButtonUpHandler)
+        public void ShowObjects(List<BlockHandler.TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
         {
             // Create and position the objects
             foreach (BlockHandler.TObject trObj in trialObjects)
             {
-                ShowObject(
-                    trObj, objColor,
-                    mouseEnterHandler, mouseLeaveHandler,
-                    mouseButtonDownHandler, MouseButtonUpHandler);
+                ShowObject(trObj, objColor, mouseEvents);
             }
         }
 
-        private void ShowObject(BlockHandler.TObject tObject, Brush color,
-            MouseButtonEventHandler mouseEnterHandler, MouseButtonEventHandler mouseLeaveHandler,
-            MouseButtonEventHandler mouseButtonDownHandler, MouseButtonEventHandler MouseButtonUpHandler)
+        private void ShowObject(BlockHandler.TObject tObject, Brush color, MouseEvents mouseEvents)
         {
             // Convert the absolute position to relative position
             Point positionInMain = Utils.Offset(tObject.Position, -this.Left, -this.Top);
@@ -1026,8 +1017,8 @@ namespace Multi.Cursor
             Canvas.SetTop(objRectangle, positionInMain.Y);
 
             // Assign event handlers
-            objRectangle.MouseDown += mouseButtonDownHandler;
-            objRectangle.MouseUp += MouseButtonUpHandler;
+            objRectangle.MouseDown += mouseEvents.MouseDown;
+            objRectangle.MouseUp += mouseEvents.MouseUp;
 
             // Add the rectangle to the Canvas
             canvas.Children.Add(objRectangle);
@@ -1321,7 +1312,7 @@ namespace Multi.Cursor
             return _experiment.Active_Technique;
         }
 
-        public void ShowStartTrialButton(Rect objAreaRect, MouseButtonEventHandler mouseUp)
+        public void ShowStartTrialButton(Rect objAreaRect, MouseEvents mouseEvents)
         {
             //canvas.Children.Clear(); // Clear the canvas before adding the button
             int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
@@ -1351,7 +1342,8 @@ namespace Multi.Cursor
             startTrialButton.Child = label;
 
             // Add event handlers
-            startTrialButton.MouseUp += mouseUp;
+            startTrialButton.MouseDown += mouseEvents.MouseDown;
+            startTrialButton.MouseUp += mouseEvents.MouseUp;
 
             // Button is centered-align to the obj area
             Point startTrialButtonPosition = new Point(0, 0);
@@ -1397,6 +1389,16 @@ namespace Multi.Cursor
             Canvas.SetTop(startTrialButton, startTrialButtonPosition.Y);
 
             canvas.Children.Add(startTrialButton);
+        }
+
+        private void StartTrialButton_MouseDown1(object sender, MouseButtonEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void StartTrialButton_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

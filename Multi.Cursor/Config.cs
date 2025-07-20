@@ -11,8 +11,8 @@ namespace Multi.Cursor
     internal class Config
     {
 
-        public const double PPI = 109; // Apple Display
-        //public const double PPI = 93.54; // BenQ = 89 (changed to 93.54), Apple Display = 109
+        //public const double PPI = 109; // Apple Display
+        public const double PPI = 93.54; // BenQ = 89 (changed to 93.54), Apple Display = 109
 
         // Used as basis (in Experiment)
         public const double EXCEL_CELL_W = 18;
