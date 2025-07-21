@@ -166,8 +166,8 @@ namespace Multi.Cursor
                 _activeTrial.TargetSide, _activeTrialRecord.ObjectId, 
                 OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
 
-            // Activate the auxiliary window marker on all sides
-            _mainWindow.ShowAllAuxMarkers();
+            // If on ToMo, activate the auxiliary window marker on all sides
+            if (_mainWindow.IsTechniqueToMo()) _mainWindow.ShowAllAuxMarkers();
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
@@ -335,16 +335,32 @@ namespace Multi.Cursor
 
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
-            var startButtonClicked = GetEventCount(Str.START_RELEASE) == 1;
+            var startButtonClicked = GetEventCount(Str.START_RELEASE) > 0;
+            var isToMo = _mainWindow.IsTechniqueToMo();
+            var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.ObjectId);
+            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
 
-            switch (startButtonClicked)
+            switch (startButtonClicked, isToMo, markerOnFunction, allObjSelected)
             {
-                case true: // Start button was clicked
-                    // Nothing specific for now
+                case (false, _, _, _): // Start button not clicked, _
+                    EndActiveTrial(Result.ERROR); // Pressed on object without Start button clicked
                     break;
-                case false: // Start button was not clicked
-                    EndActiveTrial(Result.ERROR);
+                case (true, true, true, false): // ToMo, marker on function, not all objects selected
+                    // Nothing to do, just log the event
                     break;
+                case (true, true, true, true): // ToMo, marker on function, all objects selected
+                    EndActiveTrial(Experiment.Result.MISS);
+                    return;
+                case (true, true, false, false): // ToMo, marker not on function, not all objects selected
+                    EndActiveTrial(Result.MISS); // Pressed on object without marker on function 
+                    break;
+                case (true, false, _, false): // Mouse, any marker state, not all objects selected
+                    SetObjectAsMarked(1);
+                    SetFunctionAsEnabled();
+                    break;
+                case (true, false, _, true): // Mouse, any marker state, all objects selected
+                    EndActiveTrial(Experiment.Result.MISS);
+                    return;
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing

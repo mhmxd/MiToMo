@@ -245,6 +245,7 @@ namespace Multi.Cursor
         private BlockHandler _blockHandler;
         private Rect _startConstraintRectAbsolue;
         private List<BlockHandler> _blockHandlers = new List<BlockHandler> ();
+        private Border _startButton;
 
         public MainWindow()
         {
@@ -1318,7 +1319,7 @@ namespace Multi.Cursor
             int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
 
             // Create the "button" as a Border with text inside
-            var startTrialButton = new Border
+            _startButton = new Border
             {
                 Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
                 Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
@@ -1339,24 +1340,24 @@ namespace Multi.Cursor
                 Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
             };
 
-            startTrialButton.Child = label;
+            _startButton.Child = label;
 
             // Add event handlers
-            startTrialButton.MouseDown += mouseEvents.MouseDown;
-            startTrialButton.MouseUp += mouseEvents.MouseUp;
+            _startButton.MouseDown += mouseEvents.MouseDown;
+            _startButton.MouseUp += mouseEvents.MouseUp;
 
             // Button is centered-align to the obj area
             Point startTrialButtonPosition = new Point(0, 0);
             Point objAreaPosition = new Point(objAreaRect.X - this.Left, objAreaRect.Y - this.Top);
-            startTrialButtonPosition.X = objAreaPosition.X + (objAreaRect.Width - startTrialButton.Width) / 2;
+            startTrialButtonPosition.X = objAreaPosition.X + (objAreaRect.Width - _startButton.Width) / 2;
 
             // If there is no space above or below the obj area, show the button on the other side
-            double aboveY = objAreaPosition.Y - startTrialButton.Height;
+            double aboveY = objAreaPosition.Y - _startButton.Height;
             double belowY = objAreaPosition.Y + objAreaRect.Height;
             bool showAbove = _random.Next(2) == 0; // Randomly decide whether to show above or below
             if (showAbove)
             {
-                if (objAreaPosition.Y - startTrialButton.Height < this.Top + padding) // No space above
+                if (objAreaPosition.Y - _startButton.Height < this.Top + padding) // No space above
                 {
                     // Show below the area
                     startTrialButtonPosition.Y = belowY;
@@ -1370,7 +1371,7 @@ namespace Multi.Cursor
             else // Show below
             {
                 // If no space below, show above
-                if (objAreaRect.Bottom + startTrialButton.Height > _mainWinRect.Bottom - padding - infoLabel.Height)
+                if (objAreaRect.Bottom + _startButton.Height > _mainWinRect.Bottom - padding - infoLabel.Height)
                 {
                     // Show above the object area
                     startTrialButtonPosition.Y = aboveY;
@@ -1385,20 +1386,29 @@ namespace Multi.Cursor
             //Canvas.SetLeft(startTrialButton, (this.Width - startTrialButton.Width) / 2);
             //Canvas.SetTop(startTrialButton, (this.Height - startTrialButton.Height) / 2);
             this.TrialInfo($"Area Position: {objAreaRect.ToString()}; Start Trial button position: {startTrialButtonPosition.ToStr()}");
-            Canvas.SetLeft(startTrialButton, startTrialButtonPosition.X);
-            Canvas.SetTop(startTrialButton, startTrialButtonPosition.Y);
+            Canvas.SetLeft(_startButton, startTrialButtonPosition.X);
+            Canvas.SetTop(_startButton, startTrialButtonPosition.Y);
 
-            canvas.Children.Add(startTrialButton);
+            canvas.Children.Add(_startButton);
         }
 
-        private void StartTrialButton_MouseDown1(object sender, MouseButtonEventArgs e)
+        public void ColorStartButton(Brush color)
         {
-            throw new NotImplementedException();
+            // Check if the _startButton is added to the canvas and if yes, change its fill
+            if (canvas.Children.Contains(_startButton))
+            {
+                _startButton.Background = color;
+            }
         }
 
-        private void StartTrialButton_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
+        //private void StartTrialButton_MouseDown1(object sender, MouseButtonEventArgs e)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //private void StartTrialButton_MouseDown(object sender, MouseButtonEventArgs e)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

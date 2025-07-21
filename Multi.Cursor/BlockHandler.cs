@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using static Multi.Cursor.Experiment;
 using static Tensorflow.TensorShapeProto.Types;
 
@@ -237,7 +238,7 @@ namespace Multi.Cursor
             switch (startButtonPressed)
             {
                 case true: // Start button was pressed => valid trial started
-
+                    _mainWindow.ColorStartButton(Brushes.DarkGray);
                     break;
                 case false: // Start button was not pressed => invalid trial
                     EndActiveTrial(Experiment.Result.MISS);

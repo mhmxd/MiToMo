@@ -141,7 +141,7 @@ namespace Multi.Cursor
             _mainWindow.SetTargetWindow(_activeTrial.TargetSide, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the function button and set the handlers
-            Brush funcDefaultColor = _mainWindow.IsTechniqueToMo() ? Config.FUNCTION_MARKED_COLOR : Config.FUNCTION_DEFAULT_COLOR;
+            Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
             _mainWindow.FillButtonInTargetWindow(
                 _activeTrial.TargetSide, _activeTrialRecord.ObjectId, 
                 funcDefaultColor);
@@ -149,8 +149,8 @@ namespace Multi.Cursor
                 _activeTrial.TargetSide, _activeTrialRecord.ObjectId,
                 OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
 
-            // Activate the auxiliary window marker on all sides
-            _mainWindow.ShowAllAuxMarkers();
+            // If on ToMo, activate the auxiliary window marker on all sides
+            if (_mainWindow.IsTechniqueToMo()) _mainWindow.ShowAllAuxMarkers();
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
@@ -727,8 +727,40 @@ namespace Multi.Cursor
 
         public override void OnObjectMouseDown(object sender, MouseButtonEventArgs e)
         {
+            var elementTag = (int)((FrameworkElement)sender).Tag;
+            LogEvent(Str.Join(Str.OBJ, elementTag.ToString(), Str.PRESS));
+
+            var startButtonClicked = GetEventCount(Str.START_RELEASE) > 0;
+            var isToMo = _mainWindow.IsTechniqueToMo();
+            var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.ObjectId);
+            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
+
+            switch (startButtonClicked, isToMo, markerOnFunction, allObjSelected)
+            {
+                case (false, _, _, _): // Start button not clicked, _
+                    EndActiveTrial(Result.ERROR); // Pressed on object without Start button clicked
+                    break;
+                case (true, true, true, false): // ToMo, marker on function, not all objects selected
+                    // Nothing to do, just log the event
+                    break;
+                case (true, true, true, true): // ToMo, marker on function, all objects selected
+                    EndActiveTrial(Experiment.Result.MISS);
+                    return;
+                case (true, true, false, false): // ToMo, marker not on function, not all objects selected
+                    EndActiveTrial(Result.MISS); // Pressed on object without marker on function 
+                    break;
+                case (true, false, _, false): // Mouse, any marker state, not all objects selected
+                    SetObjectAsMarked(elementTag);
+                    _pressedObjectId = elementTag;
+                    SetFunctionAsEnabled();
+                    break;
+                case (true, false, _, true): // Mouse, any marker state, all objects selected
+                    EndActiveTrial(Experiment.Result.MISS); // Should not end on object press (should click area)
+                    return;
+            }
+
             // Treat sender as a Rectangle and get its Tag
-            FrameworkElement element = (FrameworkElement)sender;
+            //FrameworkElement element = (FrameworkElement)sender;
             //if (element.Tag is int)
             //{
             //    int tag = (int)element.Tag;
@@ -751,7 +783,6 @@ namespace Multi.Cursor
             //    this.TrialInfo("Pressed on an object without a valid Tag.");
             //}
 
-            LogEvent(string.Join("_", Str.OBJ, ((int)element.Tag).ToString(), Str.PRESS));
             e.Handled = true;
 
         }
@@ -759,6 +790,7 @@ namespace Multi.Cursor
         public override void OnObjectMouseUp(object sender, MouseButtonEventArgs e)
         {
             var elementTag = (int)((FrameworkElement)sender).Tag;
+            LogEvent(string.Join("_", Str.OBJ, elementTag.ToString(), Str.RELEASE));
 
             var isToMo = _mainWindow.IsTechniqueToMo();
             var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.TargetSide, _activeTrialRecord.ObjectId);
@@ -787,7 +819,7 @@ namespace Multi.Cursor
                     break;
             }
 
-            LogEvent(string.Join("_", Str.OBJ, elementTag.ToString(), Str.RELEASE));
+            
             e.Handled = true;
 
 
@@ -859,11 +891,11 @@ namespace Multi.Cursor
             var technique = _mainWindow.GetActiveTechnique();
             var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
             Side correspondingSide = Side.Top;
-            var funcOnRightWindow = _activeTrial.TargetSide == correspondingSide;
+            var funcOnCorrespondingSide = _activeTrial.TargetSide == correspondingSide;
 
             this.TrialInfo($"Technique: {_mainWindow.GetActiveTechnique()}");
 
-            switch (technique, allObjSelected, funcOnRightWindow)
+            switch (technique, allObjSelected, funcOnCorrespondingSide)
             {
                 case (Technique.Auxursor_Tap, false, true): // Correct side activated
                     _mainWindow.ActivateAuxWindowMarker(correspondingSide);
@@ -888,12 +920,12 @@ namespace Multi.Cursor
         {
             var technique = _mainWindow.GetActiveTechnique();
             var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
-            Side correspondingSide = Side.Top;
-            var funcOnRightWindow = _activeTrial.TargetSide == correspondingSide;
+            Side correspondingSide = Side.Left;
+            var funcOnCorrespondingSide = _activeTrial.TargetSide == correspondingSide;
 
             this.TrialInfo($"Technique: {_mainWindow.GetActiveTechnique()}");
 
-            switch (technique, allObjSelected, funcOnRightWindow)
+            switch (technique, allObjSelected, funcOnCorrespondingSide)
             {
                 case (Technique.Auxursor_Tap, false, true): // Correct side activated
                     _mainWindow.ActivateAuxWindowMarker(correspondingSide);
@@ -918,12 +950,12 @@ namespace Multi.Cursor
         {
             var technique = _mainWindow.GetActiveTechnique();
             var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
-            Side correspondingSide = Side.Top;
-            var funcOnRightWindow = _activeTrial.TargetSide == correspondingSide;
+            Side correspondingSide = Side.Right;
+            var funcOnCorrespondingSide = _activeTrial.TargetSide == correspondingSide;
 
             this.TrialInfo($"Technique: {_mainWindow.GetActiveTechnique()}");
 
-            switch (technique, allObjSelected, funcOnRightWindow)
+            switch (technique, allObjSelected, funcOnCorrespondingSide)
             {
                 case (Technique.Auxursor_Tap, false, true): // Correct side activated
                     _mainWindow.ActivateAuxWindowMarker(correspondingSide);

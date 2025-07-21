@@ -80,10 +80,10 @@ namespace Multi.Cursor
         public static readonly string ToMo = "tomo";
         public static readonly string Mouse = "mouse";
 
-        //public static string Join(params string[] parts)
-        //{
-        //    return string.Join("_", parts);
-        //}
+        public static string Join(params string[] parts)
+        {
+            return string.Join("_", parts);
+        }
 
     }
 }
