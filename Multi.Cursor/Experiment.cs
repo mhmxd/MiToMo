@@ -11,7 +11,10 @@ namespace Multi.Cursor
 {
     public class Experiment
     {
-        //-- Variables
+        //--- Flags
+        public bool MULTI_FUNC_SAME_W = false;
+
+        //--- Variables
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
         //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
         private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30}; // BenQ
@@ -34,7 +37,7 @@ namespace Multi.Cursor
 
         private static int N_BLOCKS = 3; // Number of blocks in the experiment
 
-        public static int REP_TRIAL_NUM_PASS = 5; // Trial ends on Start
+        //public static int REP_TRIAL_NUM_PASS = 5; // Trial ends on Start
         public static double REP_TRIAL_MAX_DIST_STARTS_MM = Config.EXCEL_CELL_W; // Max distance between Starts in a repeating trial (mm)
         public static double REP_TRIAL_OBJ_AREA_RADIUS_MM = Config.EXCEL_CELL_W; // Radius of the object area in repeating trials (mm)
         public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 2; // Width of the *square* object area (mm)
@@ -108,7 +111,7 @@ namespace Multi.Cursor
                 Active_Technique = Technique.Mouse;
             }
 
-            // Create repeting blocks
+            // Create factor levels
             List<Range> distRanges = new List<Range>()
             {
                 _shortDistRangeMM, // Short distances
@@ -117,34 +120,45 @@ namespace Multi.Cursor
             };
             List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
 
+            // Create and add blocks
+            int nObj = 5;
+            int nFunc = 2;
+            int nBlocks = 1;
+            for (int i = 0; i < nBlocks; i++)
+            {
+                int blockId = Participant_Number * 100 + i + 1;
+                Block block = Block.CreateBlock(blockId, distRanges, targetMultiples, nFunc, nObj);
+                _blocks.Add(block);
+            }
+
             //CreateAltBlocks(1, targetMultiples, distRanges);
-            CreateRepBlocks(1, targetMultiples, distRanges);
+            //CreateRepBlocks(1, targetMultiples, distRanges);
         }
 
-        private void CreateAltBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
-        {
-            // Create n alternating blocks
-            for (int i = 0; i < n; i++)
-            {
-                int blockId = Participant_Number * 100 + i + 1;
-                Block block = Block.CreateAltBlock(blockId, targetMultiples, distRanges);
-                this.TrialInfo($"Created block #{block.Id} with {block.Trials.Count} trials.");
-                _blocks.Add(block);
-            }
+        //private void CreateAltBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
+        //{
+        //    // Create n alternating blocks
+        //    for (int i = 0; i < n; i++)
+        //    {
+        //        int blockId = Participant_Number * 100 + i + 1;
+        //        Block block = Block.CreateAltBlock(blockId, targetMultiples, distRanges);
+        //        this.TrialInfo($"Created block #{block.Id} with {block.Trials.Count} trials.");
+        //        _blocks.Add(block);
+        //    }
 
-        }
+        //}
 
-        public void CreateRepBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
-        {
-            // Create n repeating blocks
-            for (int i = 0; i < n; i++)
-            {
-                int blockId = Participant_Number * 100 + i + 1;
-                Block block = Block.CreateRepBlock(blockId, targetMultiples, distRanges, REP_TRIAL_NUM_PASS);
-                this.TrialInfo($"Created block #{block.Id} with {block.Trials.Count} trials.");
-                _blocks.Add(block);
-            }
-        }
+        //public void CreateRepBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
+        //{
+        //    // Create n repeating blocks
+        //    for (int i = 0; i < n; i++)
+        //    {
+        //        int blockId = Participant_Number * 100 + i + 1;
+        //        Block block = Block.CreateRepBlock(blockId, targetMultiples, distRanges, REP_TRIAL_NUM_PASS);
+        //        this.TrialInfo($"Created block #{block.Id} with {block.Trials.Count} trials.");
+        //        _blocks.Add(block);
+        //    }
+        //}
 
         public int GetNumBlocks()
         {

@@ -274,7 +274,7 @@ namespace Multi.Cursor
         // Helper to represent a "Gutter" in the sequence
         private static Func<UIElement> CreateGutterFunc() => () => CreateInColumnGutter();
 
-        // Helper to wrap row creation functions in a Func<UIElement>
+        // Helper to wrap row creation Functions in a Func<UIElement>
         private static Func<UIElement> WrapRowFunc(Func<StackPanel> rowCreator) => () =>
         {
             var row = rowCreator();
@@ -288,7 +288,7 @@ namespace Multi.Cursor
         /// managing row definitions and Grid.SetRow automatically.
         /// </summary>
         /// <param name="column">The Grid to add elements to.</param>
-        /// <param name="elementsToAdd">A sequence of functions, each returning a UIElement (StackPanel row or Rectangle gutter).</param>
+        /// <param name="elementsToAdd">A sequence of Functions, each returning a UIElement (StackPanel row or Rectangle gutter).</param>
         private static void AddRowsAndGuttersToColumn(Grid column, params Func<UIElement>[] elementsToAdd)
         {
             column.Children.Clear(); // Clear existing if reusing the column Grid

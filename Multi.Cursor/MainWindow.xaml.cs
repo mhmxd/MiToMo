@@ -714,9 +714,11 @@ namespace Multi.Cursor
             // Find positions for all blocks
             foreach (Block bl in _experiment.Blocks)
             {
-                if (bl.BlockType == Block.BLOCK_TYPE.REPEATING)
+                this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.BlockType}");
+                if (bl.BlockType >= Block.BLOCK_TYPE.MULTI_OBJ_ONE_FUNC) // Multi-object block
                 {
-                    BlockHandler blockHandler = new RepeatingBlockHandler(this, bl);
+                    this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
+                    BlockHandler blockHandler = new MultiObjectBlockHandler(this, bl);
                     bool positionsFound = blockHandler.FindPositionsForActiveBlock();
                     if (positionsFound) _blockHandlers.Add(blockHandler);
                     else
@@ -725,9 +727,10 @@ namespace Multi.Cursor
                         return false;
                     }
                 }
-                else if (bl.BlockType == Block.BLOCK_TYPE.ALTERNATING)
+                else // Single-object block
                 {
-                    BlockHandler blockHandler = new AlternatingBlockHandler(this, bl);
+                    this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
+                    BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl);
                     bool positionsFound = blockHandler.FindPositionsForActiveBlock();
                     if (positionsFound) _blockHandlers.Add(blockHandler);
                     else
@@ -759,8 +762,8 @@ namespace Multi.Cursor
 
             _stopWatch.Start();
             _blockHandler.BeginActiveBlock();
-            //if (block.BlockType == Block.BLOCK_TYPE.REPEATING) _blockHandler = new RepeatingBlockHandler(this, block);
-            //else if (block.BlockType == Block.BLOCK_TYPE.ALTERNATING) _blockHandler = new AlternatingBlockHandler(this, block);
+            //if (block.BlockType == Block.BLOCK_TYPE.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
+            //else if (block.BlockType == Block.BLOCK_TYPE.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
 
             //bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
             //if (positionsFound)
@@ -774,13 +777,13 @@ namespace Multi.Cursor
         //{
         //    int startW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
         //    int startHalfW = startW / 2;
-        //    this.TrialInfo($"Finding positions for Trial#{trial.Id} [Target = {trial.TargetSide.ToString()}, " +
+        //    this.TrialInfo($"Finding positions for Trial#{trial.Id} [Target = {trial.FuncSide.ToString()}, " +
         //        $"TargetMult = {trial.TargetMultiple}, D (mm) = {trial.DistanceMM:F2}]");
 
         //    // Get the target window
         //    AuxWindow trialTargetWindow = null;
         //    Point trialTargetWindowPosition = new Point(0, 0);
-        //    switch (trial.TargetSide)
+        //    switch (trial.FuncSide)
         //    {
         //        case Side.Left:
         //            trialTargetWindow = _leftWindow;
@@ -795,7 +798,7 @@ namespace Multi.Cursor
         //            trialTargetWindowPosition = new Point(_topWinRect.Left, _topWinRect.Top);
         //            break;
         //        default:
-        //            throw new ArgumentException($"Invalid target side: {trial.TargetSide}");
+        //            throw new ArgumentException($"Invalid target side: {trial.FuncSide}");
         //    }
 
         //    // Set the acceptable range for the Target button
@@ -817,7 +820,7 @@ namespace Multi.Cursor
         //            _startConstraintRectAbsolue,
         //            targetCenterAbsolute,
         //            dist,
-        //            trial.TargetSide.GetOpposite());
+        //            trial.FuncSide.GetOpposite());
         //        Point startPosition = startCenter.OffsetPosition(-startHalfW, -startHalfW);
         //        Point startPositionInMain = startPosition.OffsetPosition(-thisLeft, -thisTop); // Position relative to the main window
         //        this.TrialInfo($"Target: {targetCenterAbsolute}; Dist (px): {dist}; Start pos in main: {startPositionInMain}");
@@ -883,8 +886,8 @@ namespace Multi.Cursor
                 _touchSurface.SetGestureReceiver(_blockHandler);
                 _blockHandler.BeginActiveBlock();
 
-                //if (block.BlockType == Block.BLOCK_TYPE.REPEATING) _blockHandler = new RepeatingBlockHandler(this, block);
-                //else if (block.BlockType == Block.BLOCK_TYPE.ALTERNATING) _blockHandler = new AlternatingBlockHandler(this, block);
+                //if (block.BlockType == Block.BLOCK_TYPE.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
+                //else if (block.BlockType == Block.BLOCK_TYPE.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
 
                 //bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
                 //if (positionsFound) _blockHandler.BeginActiveBlock();
@@ -1111,7 +1114,7 @@ namespace Multi.Cursor
                     _targetWindow = _topWindow;
                     break;
                 default:
-                    throw new ArgumentException($"Invalid target side: {_trial.TargetSide}");
+                    throw new ArgumentException($"Invalid target side: {_trial.FuncSide}");
             }
 
             // All aux windows are treated the same (for now)
@@ -1135,7 +1138,7 @@ namespace Multi.Cursor
                 case Side.Top:
                     return _topWindow;
                 default:
-                    throw new ArgumentException($"Invalid target side: {_trial.TargetSide}");
+                    throw new ArgumentException($"Invalid target side: {_trial.FuncSide}");
             }
         }
 
@@ -1177,10 +1180,18 @@ namespace Multi.Cursor
             }
         }
 
-        public void FillButtonInTargetWindow(Side side, int buttonId, Brush color) 
+        public void FillButtonsInAuxWindow(Side side, List<int> buttonIds, Brush color)
+        {
+            foreach (int buttonId in buttonIds)
+            {
+                FillButtonInAuxWindow(side, buttonId, color);
+            }
+        }
+
+        public void FillButtonInAuxWindow(Side side, int buttonId, Brush color) 
         {
             AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.ResetButtons();
+            //auxWindow.ResetButtons();
             auxWindow.FillGridButton(buttonId, color);
         }
 
@@ -1218,14 +1229,27 @@ namespace Multi.Cursor
             return (id,  centerPositionAbsolute); 
         }
 
-        public (int, Point) GetRadomTarget(Side side, int widthUnits, Range distRange)
+        public TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
             Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
+            Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
+            
+            return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+        }
 
-            return (id, centerPositionAbsolute);
+        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
+        {
+            List<TFunction> functions = new List<TFunction>();
+            foreach (int widthUnit in widthUnits)
+            {
+                TFunction function = FindRandomFunction(side, widthUnit, distRange);
+                functions.Add(function);
+            }
+
+            return functions;
         }
 
         public Point GetCenterAbsolutePosition(Side side, int buttonId)

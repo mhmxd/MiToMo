@@ -116,7 +116,7 @@ namespace Multi.Cursor
             _beamStart = cursorPos;
             _isVisible = true;
 
-            //Seril.Information(Output.GetString(_lineStart));
+            //Seril.Information(Output.ToStr(_lineStart));
 
             // Find the four corners of the main region
             _sideWinSize = Utils.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
@@ -137,7 +137,7 @@ namespace Multi.Cursor
             _outerRect = new Rect(
                 0, 0,
                 this.Width, this.Height);
-            //Seril.Information(Output.GetString(_trPoint));
+            //Seril.Information(Output.ToStr(_trPoint));
 
             //UpdatePlusPosition();
             UpdateBeam();

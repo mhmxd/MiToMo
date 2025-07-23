@@ -1,21 +1,21 @@
 ﻿
+using CommunityToolkit.HighPerformance;
+using Serilog;
+using Serilog.Enrichers.CallerInfo; // Alias Serilog's Log class
+using Serilog.Enrichers.WithCaller;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using Seril = Serilog.Log;
-using Serilog;
-using CommunityToolkit.HighPerformance;
-using System.IO;
-using Serilog.Enrichers.WithCaller;
-using Serilog.Enrichers.CallerInfo; // Alias Serilog's Log class
-using ILogger = Serilog.ILogger;
-using System.Runtime.CompilerServices;
-using static Multi.Cursor.MainWindow;
 using System.Windows;
 using System.Windows.Shapes;
+using System.Xml.Linq;
+using static Multi.Cursor.MainWindow;
+using ILogger = Serilog.ILogger;
+using Seril = Serilog.Log;
 
 namespace Multi.Cursor
 {
@@ -178,17 +178,27 @@ namespace Multi.Cursor
             return sb.ToString();
         }
 
-        public static string GetString(List<double> numbers)
+        public static string ToStr(List<double> numbers)
         {
             if (numbers == null || !numbers.Any())
             {
                 return string.Empty;
             }
 
-            return string.Join(", ", numbers.Select(n => n.ToString("F3")));
+            return string.Join(", ", numbers.Select(n => n.ToString("F2")));
         }
 
-        public static string GetString(Rect rect)
+        public static string ToStr(this List<int> list)
+        {
+            if (list == null || !list.Any())
+            {
+                return string.Empty;
+            }
+
+            return string.Join(", ", list.Select(n => n.ToString()));
+        }
+
+        public static string ToStr(Rect rect)
         {
             return $"{{X={rect.X},Y={rect.Y},Width={rect.Width},Height={rect.Height}}}";
         }

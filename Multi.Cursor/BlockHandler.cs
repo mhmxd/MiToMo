@@ -15,60 +15,6 @@ namespace Multi.Cursor
     public abstract class BlockHandler : IGestureHandler
     {
         // Classes
-        protected class TrialRecord
-        {
-            public int ObjectId;
-            //public List<Point> StartPositions;
-            public List<TObject> Objects;
-            public Rect ObjectAreaRect;
-            public Dictionary<string, int> EventCounts;
-            private List<Timestamp> Timestamps;
-
-            public TrialRecord()
-            {
-                //StartPositions = new List<Point>();
-                Objects = new List<TObject>();
-                ObjectAreaRect = new Rect();
-                EventCounts = new Dictionary<string, int>();
-                Timestamps = new List<Timestamp>();
-            }
-
-            public void AddTimestamp(string label)
-            {
-                Timestamps.Add(new Timestamp(label));
-            }
-
-            public string TimestampsToString()
-            {
-                return string.Join(", ", Timestamps.Select(ts => $"{ts.label}: {ts.time}"));
-            }
-
-            public string GetLastTimestamp()
-            {
-                return Timestamps.Count > 0 ? Timestamps.Last().label : "No timestamps recorded";
-            }
-
-            public long GetTime(string label)
-            {
-                var timestamp = Timestamps.FirstOrDefault(ts => ts.label == label);
-                if (timestamp != null)
-                {
-                    return timestamp.time;
-                }
-                return -1; // Return -1 if the label is not found
-            }
-
-            public bool HasTimestamp(string label)
-            {
-                return Timestamps.Any(ts => ts.label == label);
-            }
-
-            public void ClearTimestamps()
-            {
-                Timestamps.Clear();
-            }
-        }
-
         public class TObject
         {
             public int Id { get; set; }
@@ -81,23 +27,28 @@ namespace Multi.Cursor
             }
         }
 
-        protected class Timestamp
+        public class TFunction
         {
-            public string label;
-            public long time;
+            public int Id { get; set; }
+            public int WidthInUnits { get; set; }
+            public Point Center { get; set; }
+            public Point Position { get; set; } // Top-left corner of the button
 
-            public Timestamp(string label)
+            public TFunction(int id, int widthInUnits, Point center, Point position)
             {
-                this.label = label;
-                this.time = Timer.GetCurrentMillis();
+                Id = id;
+                Center = center;
+                Position = position;
+                WidthInUnits = widthInUnits;
             }
+
         }
 
-        protected class CachedTrialPositions
-        {
-            public int TargetId { get; set; }
-            public List<Point> StartPositions { get; set; } = new List<Point>();
-        }
+        //protected class CachedTrialPositions
+        //{
+        //    public int TargetId { get; set; }
+        //    public List<Point> StartPositions { get; set; } = new List<Point>();
+        //}
 
         // Attributes
         protected Dictionary<int, TrialRecord> _trialRecords = new Dictionary<int, TrialRecord>();
@@ -255,27 +206,27 @@ namespace Multi.Cursor
 
         }
 
-        protected void SetFunctionAsEnabled()
+        protected void SetFunctionAsEnabled(int funcId)
         {
-            _mainWindow.FillButtonInTargetWindow(
-                _activeTrial.TargetSide, 
-                _activeTrialRecord.ObjectId, 
+            _mainWindow.FillButtonInAuxWindow(
+                _activeTrial.FuncSide,
+                funcId, 
                 Config.FUNCTION_MARKED_COLOR);
         }
 
-        protected void SetFunctionAsDisabled()
+        protected void SetFunctionAsDisabled(int funcId)
         {
-            _mainWindow.FillButtonInTargetWindow(
-                _activeTrial.TargetSide, 
-                _activeTrialRecord.ObjectId, 
+            _mainWindow.FillButtonInAuxWindow(
+                _activeTrial.FuncSide, 
+                funcId, 
                 Config.FUNCTION_DEFAULT_COLOR);
         }
 
-        protected void SetFunctionAsSelected()
+        protected void SetFunctionAsSelected(int funcId)
         {
-            _mainWindow.FillButtonInTargetWindow(
-                _activeTrial.TargetSide, 
-                _activeTrialRecord.ObjectId, 
+            _mainWindow.FillButtonInAuxWindow(
+                _activeTrial.FuncSide, 
+                funcId, 
                 Config.FUNCTION_SELECTED_COLOR);
         }
 

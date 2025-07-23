@@ -15,7 +15,7 @@ namespace Multi.Cursor
         // Helper to represent a "Gutter" in the sequence
         private static Func<UIElement> CreateBetweenRowsGutterFunc() => () => CreateGutterBetweenRows();
 
-        // Helper to wrap row creation functions in a Func<UIElement>
+        // Helper to wrap row creation Functions in a Func<UIElement>
         private static Func<UIElement> WrapRowFunc(Func<StackPanel> rowCreator) => () =>
         {
             var row = rowCreator();

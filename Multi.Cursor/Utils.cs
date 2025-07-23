@@ -22,47 +22,28 @@ namespace Multi.Cursor
 
         private static Random _random = new Random();
 
-        public struct Range
+        //public struct Range
+        //{
+        //    public double Min { get; set; }
+        //    public double Max { get; set; }
+
+        //    public Range(double min, double max)
+        //    {
+        //        Min = min;
+        //        Max = max;
+        //    }
+
+        //    public override string ToString() => $"[{Min}, {Max}]";
+        //}
+
+        public class Pair
         {
-            public double Min { get; set; }
-            public double Max { get; set; }
-
-            public Range(double min, double max)
+            public int First { get; set; }
+            public int Second { get; set; }
+            public Pair(int first, int second)
             {
-                Min = min;
-                Max = max;
-            }
-
-            public override string ToString() => $"[{Min}, {Max}]";
-        }
-
-        public class MouseEvents
-        {
-            public MouseEventHandler MouseEnter { get; set; }
-            public MouseButtonEventHandler MouseDown { get; set; }
-            public MouseButtonEventHandler MouseUp { get; set; }
-            public MouseEventHandler MouseLeave { get; set; }
-
-            public MouseEvents(MouseButtonEventHandler mouseDown,
-                               MouseButtonEventHandler mouseUp,
-                               MouseEventHandler mouseEnter = null,
-                               MouseEventHandler mouseLeave = null)
-            {
-                MouseDown = mouseDown;
-                MouseUp = mouseUp;
-                MouseEnter = mouseEnter;
-                MouseLeave = mouseLeave;
-            }
-
-            public MouseEvents(MouseEventHandler mouseEnter,
-                               MouseButtonEventHandler mouseDown,
-                               MouseButtonEventHandler mouseUp,
-                               MouseEventHandler mouseLeave)
-            {
-                MouseEnter = mouseEnter;
-                MouseDown = mouseDown;
-                MouseUp = mouseUp;
-                MouseLeave = mouseLeave;
+                First = first;
+                Second = second;
             }
         }
 
@@ -417,7 +398,7 @@ namespace Multi.Cursor
             // Adjust this value based on expected density of valid points
             const int maxAttempts = 1000;
 
-            // Convert the degree range to radians for trigonometric functions
+            // Convert the degree range to radians for trigonometric Functions
             double minRad = DegToRad(degreeRange.Min);
             double maxRad = DegToRad(degreeRange.Max);
 
@@ -571,6 +552,57 @@ namespace Multi.Cursor
 
             // No valid point found within maxAttempts, even after adjusting distance strategy
             return new Point(-1, -1); // Indicate failure
+        }
+
+        public static Point FindPointWithinDistRangeFromMultipleSources(
+            this Rect rect,
+            List<Point> srcPoints,
+            Range distRange)
+        {
+            const int maxAttempts = 5000; // Increased attempts as the search space is more constrained
+
+            //if (srcPoints == null || srcPoints.Count == 0)
+            //{
+            //    throw new ArgumentException("Source points list cannot be null or empty.", nameof(srcPoints));
+            //}
+            //if (minAllowedDist < 0 || maxAllowedDist < minAllowedDist)
+            //{
+            //    throw new ArgumentOutOfRangeException("Distance range is invalid.");
+            //}
+
+            for (int i = 0; i < maxAttempts; i++)
+            {
+                // 1. Generate a random candidate point *inside* the rectangle
+                double candidateX = rect.Left + _random.NextDouble() * rect.Width;
+                double candidateY = rect.Top + _random.NextDouble() * rect.Height;
+                Point candidate = new Point(candidateX, candidateY);
+
+                // 2. Check if this candidate point satisfies the distance criteria for *all* source points
+                bool allDistancesValid = true;
+                foreach (Point src in srcPoints)
+                {
+                    double dist = candidate.DistanceTo(src);
+
+                    if (!distRange.ContainsExc(dist))
+                    {
+                        allDistancesValid = false;
+                        break; // No need to check other source points if one fails
+                    }
+                }
+
+                if (allDistancesValid)
+                {
+                    return candidate; // Found a valid point!
+                }
+            }
+
+            // No valid point found within maxAttempts
+            return new Point(-1, -1); // Indicate failure
+        }
+
+        public static double DistanceTo(this Point p1, Point p2)
+        {
+            return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
         }
 
         //public static Point FindRandPointWithDist(this Rect rect, Point src, double dist, Side side)

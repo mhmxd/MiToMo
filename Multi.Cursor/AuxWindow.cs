@@ -284,6 +284,21 @@ namespace Multi.Cursor
             }
         }
 
+        public virtual Point GetGridButtonPosition(int buttonId)
+        {
+            // Find the button with the specified ID
+            if (_buttonInfos.ContainsKey(buttonId))
+            {
+                //this.TrialInfo($"Button#{targetId} position in window: {position}");
+                return _buttonInfos[buttonId].Position; // Return the position of the button
+            }
+            else
+            {
+                this.TrialInfo($"Button with ID {buttonId} not found.");
+                return new Point(0, 0); // Return an invalid point if no button is found
+            }
+        }
+
         public virtual void ResetButtons()
         {
             foreach (int buttonId in _buttonInfos.Keys)

@@ -379,7 +379,7 @@ namespace Multi.Cursor
             // Reset the dictionary
             //_activeFrame.Clear();
             //Output.PrintSpan(shotSpan);
-            //FILOG.Debug(Output.GetString(shotSpan));
+            //FILOG.Debug(Output.ToStr(shotSpan));
 
             // Result
             TouchFrame activeFrame = new TouchFrame();
