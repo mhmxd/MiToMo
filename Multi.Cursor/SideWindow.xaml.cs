@@ -423,7 +423,7 @@ namespace Multi.Cursor
             //inactiveCursor.Visibility = Visibility.Hidden;
             //activeCursor.Visibility = Visibility.Hidden;
             //_auxursor.Deactivate();
-            //Mouse.OverrideCursor = Cursors.None;
+            //MOUSE.OverrideCursor = Cursors.None;
         }
 
         public bool HasCursor()

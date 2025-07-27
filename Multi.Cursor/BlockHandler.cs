@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Multi.Cursor.Experiment;
+using static Multi.Cursor.TrialRecord;
 using static Tensorflow.TensorShapeProto.Types;
 
 namespace Multi.Cursor
@@ -14,36 +15,6 @@ namespace Multi.Cursor
 
     public abstract class BlockHandler : IGestureHandler
     {
-        // Classes
-        public class TObject
-        {
-            public int Id { get; set; }
-            public Point Position { get; set; }
-
-            public TObject(int id, Point position)
-            {
-                Id = id;
-                Position = position;
-            }
-        }
-
-        public class TFunction
-        {
-            public int Id { get; set; }
-            public int WidthInUnits { get; set; }
-            public Point Center { get; set; }
-            public Point Position { get; set; } // Top-left corner of the button
-
-            public TFunction(int id, int widthInUnits, Point center, Point position)
-            {
-                Id = id;
-                Center = center;
-                Position = position;
-                WidthInUnits = widthInUnits;
-            }
-
-        }
-
         //protected class CachedTrialPositions
         //{
         //    public int TargetId { get; set; }
@@ -122,9 +93,9 @@ namespace Multi.Cursor
         {
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
-            var allObjectsSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
+            var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
 
-            switch (allObjectsSelected)
+            switch (allFunctionsApplied)
             {
                 case true:
                     // All objects are selected, so we can end the trial
@@ -189,7 +160,7 @@ namespace Multi.Cursor
             switch (startButtonPressed)
             {
                 case true: // Start button was pressed => valid trial started
-                    _mainWindow.ColorStartButton(Brushes.DarkGray);
+                    _mainWindow.RemoveStartTrialButton();
                     break;
                 case false: // Start button was not pressed => invalid trial
                     EndActiveTrial(Experiment.Result.MISS);
@@ -211,7 +182,7 @@ namespace Multi.Cursor
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId, 
-                Config.FUNCTION_MARKED_COLOR);
+                Config.FUNCTION_ENABLED_COLOR);
         }
 
         protected void SetFunctionAsDisabled(int funcId)
@@ -222,27 +193,49 @@ namespace Multi.Cursor
                 Config.FUNCTION_DEFAULT_COLOR);
         }
 
-        protected void SetFunctionAsSelected(int funcId)
+        public void SetFunctionAsApplied(int funcId)
         {
-            _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide, 
-                funcId, 
-                Config.FUNCTION_SELECTED_COLOR);
-        }
-
-        protected void SetObjectAsMarked(int objId)
-        {
-            _mainWindow.FillObject(objId, Config.OBJ_MARKED_COLOR);
-        }
-
-        protected void SetObjectAsSelected(int objId)
-        {
-            _mainWindow.FillObject(objId, Config.OBJ_SELECTED_COLOR);
+            _activeTrialRecord.SetFunctionAsApplied(funcId);
         }
 
         protected void SetObjectAsDisabled(int objId)
         {
             _mainWindow.FillObject(objId, Config.OBJ_DEFAULT_COLOR);
+        }
+
+        public void UpdateScene()
+        {
+            foreach (var func in _activeTrialRecord.Functions)
+            {
+                Brush funcColor = Config.FUNCTION_DEFAULT_COLOR;
+                switch (func.State)
+                {
+                    case ButtonState.MARKED:
+                        funcColor = Config.FUNCTION_ENABLED_COLOR;
+                        break;
+                    case ButtonState.APPLIED:
+                        funcColor = Config.FUNCTION_APPLIED_COLOR;
+                        break;
+                }
+
+                _mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id, funcColor);
+            }
+
+            foreach (var obj in _activeTrialRecord.Objects)
+            {
+                Brush objColor = Config.OBJ_DEFAULT_COLOR;
+                switch (obj.State)
+                {
+                    case ButtonState.MARKED:
+                        objColor = Config.OBJ_MARKED_COLOR;
+                        break;
+                    case ButtonState.APPLIED:
+                        objColor = Config.OBJ_APPLIED_COLOR;
+                        break;
+                }
+
+                _mainWindow.FillObject(obj.Id, objColor);
+            }
         }
 
         public void LeftPress()
@@ -348,7 +341,31 @@ namespace Multi.Cursor
             return 0;
         }
 
+
         public abstract void ThumbTap(Side side);
+
+        public int GetMappedObjId(int funcId)
+        {
+            return _activeTrialRecord.FindMappedObjectId(funcId);
+        }
+
+        public void MarkAllObjects()
+        {
+            _activeTrialRecord.MarkAllObjects();
+        }
+
+        public void MarkMappedObject(int funcId)
+        {
+            switch (_activeBlock.GetFunctionType())
+            {
+                case Block.BlockType.ONE_FUNCTION: // One function => mark all objects
+                    MarkAllObjects();
+                    break;
+                case Block.BlockType.MULTI_FUNCTION: // Multi function => mark the mapped object 
+                    _activeTrialRecord.MarkMappedObject(funcId);
+                    break;
+            }
+        }
     }
 
 }

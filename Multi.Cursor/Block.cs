@@ -12,12 +12,17 @@ namespace Multi.Cursor
     // A block of trials in the experiment
     public class Block
     {
-        public enum BLOCK_TYPE
+        [Flags]
+        public enum BlockType
         {
             ONE_OBJ_ONE_FUNC = 0, // One object, one function
             ONE_OBJ_MULTI_FUNC = 1, // One object, multiple functions
-            MULTI_OBJ_ONE_FUNC = 2, // Multiple objects, one function
-            MULTI_OBJ_MULTI_FUNC = 3, // Multiple objects, multiple functions
+            ONE_OBJECT = 2,
+            ONE_FUNCTION = 3,
+            MULTI_OBJ_ONE_FUNC = 4, // Multiple objects, one function
+            MULTI_OBJ_MULTI_FUNC = 5, // Multiple objects, multiple functions
+            MULTI_OBJECT = 6,
+            MULTI_FUNCTION = 7
         }
 
         private List<Trial> _trials = new List<Trial>();
@@ -33,21 +38,21 @@ namespace Multi.Cursor
             set => _id = value;
         }
 
-        private BLOCK_TYPE _blockType = BLOCK_TYPE.ONE_OBJ_ONE_FUNC;
-        public BLOCK_TYPE BlockType
+        private BlockType _blockType = BlockType.ONE_OBJ_ONE_FUNC;
+
+        public Experiment.Technique _technique = Experiment.Technique.MOUSE;
+
+        public Experiment.Technique Technique
         {
-            get => _blockType;
-            set => _blockType = value;
+            get => _technique;
+            set => _technique = value;
         }
 
-        public Block(BLOCK_TYPE type)
-        {
-            this.BlockType = type;
-        }
-
-        public Block(int id)
+        public Block(Experiment.Technique technique, BlockType type, int id)
         {
             this.Id = id;
+            _technique = technique;
+            _blockType = type;
         }
 
         /// <summary>
@@ -91,33 +96,36 @@ namespace Multi.Cursor
         /// <param name="nObj"></param>
         /// <returns></returns>
         public static Block CreateBlock(
+            Experiment.Technique technique,
             int id,
             List<Range> distRanges,
             List<int> functionWidthsMX,
             int nFunc,
             int nObj)
         {
-            // Init block
-            Block block = new Block(id);
 
             // Set the type of the block based on nFunc and nObj
+            BlockType type = BlockType.ONE_OBJ_ONE_FUNC;
             switch (nObj, nFunc)
             {
                 case (1, 1):
-                    block.BlockType = BLOCK_TYPE.ONE_OBJ_ONE_FUNC;
+                    type = BlockType.ONE_OBJ_ONE_FUNC;
                     break;
                 case (1, > 1):
-                    block.BlockType = BLOCK_TYPE.ONE_OBJ_MULTI_FUNC;
+                    type = BlockType.ONE_OBJ_MULTI_FUNC;
                     break;
                 case (> 1, 1):
-                    block.BlockType = BLOCK_TYPE.MULTI_OBJ_ONE_FUNC;
+                    type = BlockType.MULTI_OBJ_ONE_FUNC;
                     break;
                 case (> 1, > 1):
-                    block.BlockType = BLOCK_TYPE.MULTI_OBJ_MULTI_FUNC;
+                    type = BlockType.MULTI_OBJ_MULTI_FUNC;
                     break;
                 default:
                     throw new ArgumentException("Invalid number of functions or objects.");
             }
+
+            // Create block
+            Block block = new Block(technique, type, id);
 
             // Create and add trials to the block
             int trialNum = 1;
@@ -162,7 +170,7 @@ namespace Multi.Cursor
         //    List<int> functionWidthsMX,
         //    List<Range> distRanges)
         //{
-        //    Block block = new Block(BLOCK_TYPE.ONE_OBJ_ONE_FUNC);
+        //    Block block = new Block(BlockType.ONE_OBJ_ONE_FUNC);
         //    block.Id = id;
 
         //    // Create and add trials to the block
@@ -194,7 +202,7 @@ namespace Multi.Cursor
         //    List<int> functionWidthsMX,
         //    List<Range> distRanges)
         //{
-        //    Block block = new Block(BLOCK_TYPE.ONE_OBJ_ONE_FUNC);
+        //    Block block = new Block(BlockType.ONE_OBJ_ONE_FUNC);
         //    block.Id = id;
 
         //    // Create and add trials to the block (For now, we creat 2 three functions using each widthMX)
@@ -229,7 +237,7 @@ namespace Multi.Cursor
         //    List<int> functionWidthsMX,
         //    List<Range> distRanges)
         //{
-        //    Block block = new Block(BLOCK_TYPE.MULTI_OBJ_ONE_FUNC);
+        //    Block block = new Block(BlockType.MULTI_OBJ_ONE_FUNC);
         //    block.Id = id;
 
         //    // Create and add trials to the block
@@ -263,7 +271,7 @@ namespace Multi.Cursor
         //    List<Range> distRanges,
         //    int nPasses)
         //{
-        //    Block block = new Block(BLOCK_TYPE.MULTI_OBJ_ONE_FUNC);
+        //    Block block = new Block(BlockType.MULTI_OBJ_ONE_FUNC);
         //    block.Id = id;
 
         //    // Create and add trials to the block
@@ -305,7 +313,7 @@ namespace Multi.Cursor
         //    List<int> targetMultiples,
         //    List<Range> distRanges)
         //{
-        //    Block block = new Block(BLOCK_TYPE.ONE_OBJ_ONE_FUNC);
+        //    Block block = new Block(BlockType.ONE_OBJ_ONE_FUNC);
         //    block.Id = id;
 
         //    // Create and add trials to the block
@@ -478,6 +486,35 @@ namespace Multi.Cursor
                 sb.AppendLine(trial.ToString());
             }
             return sb.ToString();
+        }
+
+        public BlockType GetObjectType()
+        {
+            if (_blockType == BlockType.ONE_OBJ_ONE_FUNC || _blockType == BlockType.ONE_OBJ_MULTI_FUNC)
+                return BlockType.ONE_OBJECT;
+            else
+                return BlockType.MULTI_OBJECT;
+        }
+
+        public BlockType GetFunctionType()
+        {
+            if (_blockType == BlockType.ONE_OBJ_ONE_FUNC || _blockType == BlockType.MULTI_OBJ_ONE_FUNC)
+                return BlockType.ONE_FUNCTION;
+            else
+                return BlockType.MULTI_FUNCTION;
+        }
+
+        public Experiment.Technique GetSpecificTechnique()
+        {
+            return _technique;
+        }
+
+        public Experiment.Technique GetGeneralTechnique()
+        {
+            if (_technique == Experiment.Technique.TOMO_SWIPE || _technique == Experiment.Technique.TOMO_TAP)
+                return Experiment.Technique.TOMO;
+            else
+                return Experiment.Technique.MOUSE;
         }
     }
 }

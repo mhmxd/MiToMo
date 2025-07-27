@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,8 +12,19 @@ namespace Multi.Cursor
 {
     public class Experiment
     {
+        public enum Result { MISS, HIT, ERROR }
+        public enum Trial_Action { CONTINUE = 0, MISS = 1 }
+
         //--- Flags
         public bool MULTI_FUNC_SAME_W = false;
+        public Trial_Action OUTSIDE_OBJECT_PRESS = Trial_Action.CONTINUE;
+        public Trial_Action OUTSIDE_AREA_PRESS = Trial_Action.CONTINUE;
+        public Trial_Action MARKER_NOT_ON_FUNCTION_OBJECT_PRESS = Trial_Action.CONTINUE;
+
+        //--- Numbers
+        private int N_FUNC = 1;
+        private int N_OBJ = 1;
+        private int N_BLOCKS = 1;
 
         //--- Variables
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
@@ -34,9 +46,6 @@ namespace Multi.Cursor
         private Range _midDistRangeMM; // Mid distances range (mm)
         private Range _longDistRangeMM; // Long distances range (mm)
 
-
-        private static int N_BLOCKS = 3; // Number of blocks in the experiment
-
         //public static int REP_TRIAL_NUM_PASS = 5; // Trial ends on Start
         public static double REP_TRIAL_MAX_DIST_STARTS_MM = Config.EXCEL_CELL_W; // Max distance between Starts in a repeating trial (mm)
         public static double REP_TRIAL_OBJ_AREA_RADIUS_MM = Config.EXCEL_CELL_W; // Radius of the object area in repeating trials (mm)
@@ -53,17 +62,14 @@ namespace Multi.Cursor
         //private double LONGEST_DIST_MM = 293; // BenQ = 293 mm
         //private double SHORTEST_DIST_MM = 10; // BenQ = 10 mm
 
-        public enum Technique { Auxursor_Swipe, Auxursor_Tap, Mouse }
+        [Flags]
+        public enum Technique { TOMO_SWIPE = 0, TOMO_TAP = 1, TOMO = 2, MOUSE = 3 }
 
         //-- Constants
         public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
 
-        //-- Current state
-        
-        public enum Result { MISS, HIT, ERROR }
-
         //-- Information
-        public Technique Active_Technique = Technique.Auxursor_Tap; // Set in the info dialog
+        public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
         public int Participant_Number { get; set; } // Set in the info dialog
         
         private List<Block> _blocks = new List<Block>();
@@ -98,17 +104,17 @@ namespace Multi.Cursor
             Participant_Number = ptc;
             if (tech == Str.TOUCH_MOUSE_TAP)
             {
-                Active_Technique = Technique.Auxursor_Tap;
+                Active_Technique = Technique.TOMO_TAP;
                 Config.SetMode(0);
             }
             else if (tech == Str.TOUCH_MOUSE_SWIPE)
             {
-                Active_Technique = Technique.Auxursor_Swipe;
+                Active_Technique = Technique.TOMO_SWIPE;
                 Config.SetMode(1);
             }
             else if (tech == Str.MOUSE)
             {
-                Active_Technique = Technique.Mouse;
+                Active_Technique = Technique.MOUSE;
             }
 
             // Create factor levels
@@ -121,13 +127,10 @@ namespace Multi.Cursor
             List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
 
             // Create and add blocks
-            int nObj = 5;
-            int nFunc = 2;
-            int nBlocks = 1;
-            for (int i = 0; i < nBlocks; i++)
+            for (int i = 0; i < N_BLOCKS; i++)
             {
                 int blockId = Participant_Number * 100 + i + 1;
-                Block block = Block.CreateBlock(blockId, distRanges, targetMultiples, nFunc, nObj);
+                Block block = Block.CreateBlock(Active_Technique, blockId, distRanges, targetMultiples, N_FUNC, N_OBJ);
                 _blocks.Add(block);
             }
 
@@ -174,8 +177,8 @@ namespace Multi.Cursor
 
         public bool IsTechAuxCursor()
         {
-            return Active_Technique == Technique.Auxursor_Swipe ||
-                Active_Technique == Technique.Auxursor_Tap;
+            return Active_Technique == Technique.TOMO_SWIPE ||
+                Active_Technique == Technique.TOMO_TAP;
         }
 
         public static double GetMinTargetWidthMM()

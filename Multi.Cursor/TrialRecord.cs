@@ -11,6 +11,45 @@ namespace Multi.Cursor
 {
     public class TrialRecord
     {
+        // Classes
+        public enum ButtonState
+        {
+            DEFAULT = 0, MARKED = 1, APPLIED = 2
+        }
+
+        public class TObject
+        {
+            public int Id { get; set; }
+            public Point Position { get; set; }
+            public ButtonState State { get; set; }
+
+            public TObject(int id, Point position)
+            {
+                Id = id;
+                Position = position;
+                State = ButtonState.DEFAULT;
+            }
+        }
+
+        public class TFunction
+        {
+            public int Id { get; set; }
+            public int WidthInUnits { get; set; }
+            public Point Center { get; set; }
+            public Point Position { get; set; } // Top-left corner of the button
+            public ButtonState State { get; set; }
+
+            public TFunction(int id, int widthInUnits, Point center, Point position)
+            {
+                Id = id;
+                Center = center;
+                Position = position;
+                WidthInUnits = widthInUnits;
+                State = ButtonState.DEFAULT;
+            }
+
+        }
+
         //public int FunctionId;
         public List<TFunction> Functions;
         public List<TObject> Objects;
@@ -36,6 +75,168 @@ namespace Multi.Cursor
             if (!ObjFuncMap.Contains(pair))
             {
                 ObjFuncMap.Add(pair);
+            }
+        }
+
+        public TFunction GetFunctionById(int id)
+        {
+            foreach (TFunction func in Functions)
+            {
+                if (func.Id == id) return func;
+            }
+
+            return null;
+        }
+
+        public int FindMappedFunctionId(int objectId)
+        {
+            // Find the first function that is mapped to the given object funcId
+            var pair = ObjFuncMap.FirstOrDefault(p => p.First == objectId);
+            return pair != null ? pair.Second : -1; // Return -1 if no mapping found
+        }
+
+        public int FindMappedObjectId(int functionId)
+        {
+            // Find the first object that is mapped to the given function funcId
+            var pair = ObjFuncMap.FirstOrDefault(p => p.Second == functionId);
+            return pair != null ? pair.First : -1; // Return -1 if no mapping found
+        }
+
+        public bool IsEnabledFunction(int id)
+        {
+            // Check if it's the funcId of a function and its newState is enabled
+            TFunction func = GetFunctionById(id);
+            return (func != null) && (func.State == ButtonState.MARKED);
+        }
+
+        public bool AreAllFunctionsApplied()
+        {
+            foreach (TFunction func in Functions)
+            {
+                if (func.State != ButtonState.APPLIED)
+                {
+                    return false; // If any function is not selected, return false
+                }
+            }
+
+            return true; // All functions are selected
+        }
+
+        public bool AreAllObjectsApplied()
+        {
+            foreach (TObject obj in Objects)
+            {
+                if (obj.State != ButtonState.APPLIED)
+                {
+                    return false; // If any object is not applied, return false
+                }
+            }
+            return true; // All objects are applied
+        }
+
+        public bool IsAnyFunctionEnabled()
+        {
+            foreach (TFunction func in Functions)
+            {
+                if (func.State == ButtonState.MARKED)
+                {
+                    return true; // If any function is enabled, return true
+                }
+            }
+            return false; // No functions are enabled
+        }
+
+        public void EnableObject(int id)
+        {
+            TObject obj = Objects.FirstOrDefault(o => o.Id == id);
+            if (obj != null)
+            {
+                obj.State = ButtonState.MARKED;
+            }
+        }
+
+        public void ApplyFunction(int funcId, int markedObjId = -1)
+        {
+            TFunction func = GetFunctionById(funcId);
+            if (func != null)
+            {
+                func.State = ButtonState.APPLIED;
+            }
+
+            int nFuncs = Functions.Count;
+            int nObjs = Objects.Count;
+
+            this.TrialInfo($"nFunc: {nFuncs}; nObj: {nObjs}");
+
+            switch (nFuncs, nObjs) 
+            {
+                case (1, 1): // One function and one object => apply the function to the object
+                    ChangeObjectState(1, ButtonState.APPLIED);
+                    break;
+                case (1, _): // One function and multiple objects => apply the function to the marked object
+                    ChangeObjectState(markedObjId, ButtonState.APPLIED);
+                    break;
+                case (_, 1): // Multiple functions and one object => apply the function to the single object
+                    ChangeObjectState(1, ButtonState.APPLIED);
+                    break;
+                default: // Multiple functions and multiple objects => apply the function to the object mapped to the function
+                    int mappedObjId = FindMappedObjectId(funcId);
+                    ChangeObjectState(mappedObjId, ButtonState.APPLIED);
+                    break;
+            }
+
+        }
+
+        public void MarkFunction(int id)
+        {
+            ChangeFunctionState(id, ButtonState.MARKED);
+        }
+
+        public void EnableAllFunctions()
+        {
+            foreach (TFunction func in Functions)
+            {
+                func.State = ButtonState.MARKED;
+            }
+        }
+
+        public void MarkAllObjects()
+        {
+            foreach (TObject obj in Objects)
+            {
+                obj.State = ButtonState.MARKED;
+            }
+        }
+
+        public void SetFunctionAsApplied(int funcId)
+        {
+            ChangeFunctionState(funcId, ButtonState.APPLIED);
+        }
+
+        public void MarkMappedObject(int funcId)
+        {
+            int objId = FindMappedObjectId(funcId);
+            if (objId != -1)
+            {
+                ChangeObjectState(objId, ButtonState.MARKED);
+            }
+        }
+
+        private void ChangeObjectState(int objId, ButtonState newState)
+        {
+            TObject markedObj = Objects.FirstOrDefault(o => o.Id == objId);
+            if (markedObj != null)
+            {
+                markedObj.State = newState;
+            }
+        }
+
+        public void ChangeFunctionState(int funcId, ButtonState newState)
+        {
+            TFunction func = GetFunctionById(funcId);
+            if (func != null)
+            {
+                func.State = newState;
             }
         }
 
@@ -82,6 +283,13 @@ namespace Multi.Cursor
         public List<Point> GetFunctionCenters()
         {
             return Functions.Select(f => f.Center).ToList();
+        }
+
+        public bool IsObjectPressed(int objId)
+        {
+            this.TrialInfo($"Timestamps: {TimestampsToString()}");
+            // Check if timestamps contains Str.OBJ_objId_Str.PRESS
+            return Timestamps.Any(ts => ts.label.Contains(Str.Join(Str.OBJ, objId.ToString(), Str.PRESS)));
         }
     }
 }

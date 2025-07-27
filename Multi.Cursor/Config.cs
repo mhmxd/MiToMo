@@ -24,7 +24,7 @@ namespace Multi.Cursor
         public static int LAST_RIGHT_TOUCH_COL = 2; // Width of the right touch area (in columns)
         public static int LAST_TOP_TOUCH_ROW = 5; // Width of the top touch area (in rows)
 
-        // Mouse movement
+        // MOUSE movement
         public static int TIME_CURSOR_MOVE_RESET = 2; // Cursor timer is reset after 2 seconds 
         public static double MIN_CURSOR_MOVE_MM = 5; // Minimum cursor movement to be considered as mouse moved 
 
@@ -131,14 +131,13 @@ namespace Multi.Cursor
 
         public static readonly Brush OBJ_AREA_BG_COLOR = Brushes.LightGray; // Background color of the object area
 
-        public static readonly Brush OBJ_ENABLED_COLOR = Brushes.LightGreen;
         public static readonly Brush OBJ_MARKED_COLOR = Brushes.LightGreen;
-        public static readonly Brush OBJ_SELECTED_COLOR = Brushes.Green;
+        public static readonly Brush OBJ_APPLIED_COLOR = Brushes.Green;
         public static readonly Brush OBJ_DEFAULT_COLOR = Brushes.Gray;
 
         public static readonly Brush FUNCTION_DEFAULT_COLOR = DARK_ORANGE;
-        public static readonly Brush FUNCTION_MARKED_COLOR = Brushes.LightGreen;
-        public static readonly Brush FUNCTION_SELECTED_COLOR = Brushes.Green;
+        public static readonly Brush FUNCTION_ENABLED_COLOR = Brushes.LightGreen;
+        public static readonly Brush FUNCTION_APPLIED_COLOR = Brushes.Green;
 
         //public static readonly Brush TARGET_DEFAULT_COLOR = Brushes.LightGreen;
         //public static readonly Brush TARGET_AVAILABLE_COLOR = Brushes.Blue;

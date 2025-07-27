@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -115,7 +116,7 @@ namespace Multi.Cursor
 
                 // Put the object at the center
                 Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
-                TObject obj = new TObject(1, objPosition); // Object is always 1 in this case
+                TrialRecord.TObject obj = new TrialRecord.TObject(1, objPosition); // Object is always 1 in this case
                 _trialRecords[trial.Id].Objects.Add(obj);
 
                 return true;
@@ -199,16 +200,17 @@ namespace Multi.Cursor
 
             // Color the target button and set the handlers
             this.TrialInfo($"Function Ids: {_activeTrialRecord.GetFunctionIds().ToStr()}");
-            Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
-            _mainWindow.FillButtonsInAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), funcDefaultColor);
+            //Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
+            //_mainWindow.FillButtonsInAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), funcDefaultColor);
+            UpdateScene();
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.FuncSide, 
             //    _activeTrialRecord.FunctionId, 
             //    funcDefaultColor);
 
-            //_mainWindow.SetGridButtonHandlers(
-            //    _activeTrial.FuncSide, _activeTrialRecord.FunctionId, 
-            //    OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
+            _mainWindow.SetAuxButtonsHandlers(
+                _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
+                OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
 
             // If on ToMo, activate the auxiliary window marker on all sides
             if (_mainWindow.IsTechniqueToMo()) _mainWindow.ShowAllAuxMarkers();
@@ -256,8 +258,12 @@ namespace Multi.Cursor
                     break;
                 case Experiment.Result.ERROR:
                     Sounder.PlayStartMiss();
-                    // Do nothing, just reset everything
+                    // Record everything and reset
+                    // TODO: Record times
 
+                    // Reset timestamps
+                    _activeTrialRecord.ClearTimestamps();
+                    
                     break;
             }
 
@@ -314,7 +320,7 @@ namespace Multi.Cursor
             {
                 // Nothing for now
             }
-            else //-- Mouse
+            else //-- MOUSE
             {
                 // Nothing for now
             }
@@ -334,32 +340,27 @@ namespace Multi.Cursor
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             var startButtonClicked = GetEventCount(Str.START_RELEASE) > 0;
-            var isToMo = _mainWindow.IsTechniqueToMo();
-            //var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.FuncSide, _activeTrialRecord.FunctionId);
-            var markerOnFunction = true; // TEMP
-            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
+            var technique = _activeBlock.GetGeneralTechnique();
+            int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
+            var markerOverEnabledFunc = funcIdUnderMarker != -1;
+            var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
 
-            switch (startButtonClicked, isToMo, markerOnFunction, allObjSelected)
+            this.TrialInfo($"StartButtonClicked: {startButtonClicked}");
+
+            switch (startButtonClicked, technique, markerOverEnabledFunc, allFunctionsApplied)
             {
                 case (false, _, _, _): // Start button not clicked, _
                     EndActiveTrial(Result.ERROR); // Pressed on object without Start button clicked
                     break;
-                case (true, true, true, false): // ToMo, marker on function, not all objects selected
-                    // Nothing to do, just log the event
+
+
+                case (true, Technique.TOMO, _, false): // ToMo, _, not all functions applied
+                    
                     break;
-                case (true, true, true, true): // ToMo, marker on function, all objects selected
-                    EndActiveTrial(Experiment.Result.MISS);
-                    return;
-                case (true, true, false, false): // ToMo, marker not on function, not all objects selected
-                    EndActiveTrial(Result.MISS); // Pressed on object without marker on function 
+
+                case (true, Technique.MOUSE, _, false):
+
                     break;
-                case (true, false, _, false): // Mouse, any marker state, not all objects selected
-                    SetObjectAsMarked(1);
-                    //SetFunctionAsEnabled();
-                    break;
-                case (true, false, _, true): // Mouse, any marker state, all objects selected
-                    EndActiveTrial(Experiment.Result.MISS);
-                    return;
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -367,51 +368,58 @@ namespace Multi.Cursor
 
         public override void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            var technique = _mainWindow.IsTechniqueToMo() ? Str.ToMo : Str.Mouse;
-            //var markerOnFunction = _mainWindow.IsMarkerOnButton(_activeTrial.FuncSide, _activeTrialRecord.FunctionId);
-            var markerOnFunction = true; // TEMP
+            LogEvent(Str.OBJ_RELEASE);
+
+            var technique = _activeBlock.GetGeneralTechnique();
+            var objectPressed = GetEventCount(Str.OBJ_PRESS) > 0; // Check if the object was pressed
+            int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
+            var markerOverEnabledFunc = funcIdUnderMarker != -1;
             var functionClicked = GetEventCount(Str.FUNCTION_RELEASE) == 1; // Check if the function was clicked
+            var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
+            var anyFunctionEnabled = _activeTrialRecord.IsAnyFunctionEnabled();
             var functionWindowActivated = _mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide);
 
             // Show the current timestamps
-            this.TrialInfo($"Technique: {technique}, MarkerOnButton: {markerOnFunction}, FunctionClicked: {functionClicked}");
-            switch (technique, markerOnFunction, functionClicked, functionWindowActivated, _objectSelected)
+            this.TrialInfo($"Technique: {technique == Technique.TOMO}, ObjPressed: {objectPressed}, MarkerOnFunction: {markerOverEnabledFunc}, FuncWinActive: {functionWindowActivated}");
+            switch (technique, objectPressed, markerOverEnabledFunc, anyFunctionEnabled, allFunctionsApplied, functionWindowActivated, _objectSelected)
             {
-                case ("tomo", true, _, _, _): // ToMo, marker on function, _, 
-                    LogEvent(Str.OBJ_RELEASE);
-                    SetObjectAsSelected(1);
-                    _nSelectedObjects++;
-                    break;
-                case ("tomo", false, _, false, _): // ToMo, marker not on function, _, function window not activated
-                    SetObjectAsMarked(1);
-                    break;
-                case ("tomo", false, _, true, _): // ToMo, marker not on function, _, function window activated
-                    EndActiveTrial(Result.MISS);
+                case (_, false, _, _, _, _, _): // MOUSE, object not pressed
+                    // Do nothing because the object was not pressed
                     break;
 
-                case ("mouse", _, true, _, _): // Mouse, _, function clicked
-                    EndActiveTrial(Result.HIT);
+                case (Technique.TOMO, true, true, _, _, true, _): // ToMo, object pressed, marker on function, function window activated 
+                    _activeTrialRecord.ApplyFunction(funcIdUnderMarker);
+                    UpdateScene();
                     break;
-                case ("mouse", _, false, _, _): // Mouse, _, function not clicked
-                    //SetFunctionAsEnabled();
-                    SetObjectAsMarked(1);
+                case (Technique.TOMO, _, false, _, _, false, _): // ToMo, marker not on function, _, function window not activated
+                    _activeTrialRecord.EnableObject(1);
+                    UpdateScene();
                     break;
+                case (Technique.TOMO, _, false, _, _, true, _): // ToMo, marker not on function, _, function window activated
+                    EndActiveTrial(Result.MISS);
+                    break;
+                
+                case (Technique.MOUSE, true, _, _, _, _, _): // MOUSE, object correctly pressed
+                    _activeTrialRecord.EnableAllFunctions();
+                    _activeTrialRecord.EnableObject(1);
+                    UpdateScene();
+                    break;
+
                 
                 default:
                     this.TrialInfo($"Unexpected combination of events in Trial#{_activeTrial.Id}");
                     break;
             }
 
-            LogEvent(Str.OBJ_RELEASE);
             e.Handled = true; // Mark the event as handled to prevent further processing
-
         }
 
         public override void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            var technique = _mainWindow.GetActiveTechnique();
-
             LogEvent(Str.FUNCTION_PRESS);
+
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
@@ -419,24 +427,30 @@ namespace Multi.Cursor
         {
             LogEvent(Str.FUNCTION_RELEASE);
 
-            var technique = _mainWindow.GetActiveTechnique();
-            var objectMarked = GetEventCount(Str.OBJ_RELEASE) == 1;
-
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+
+            // Function id is sender's tag as int
+            var functionId = (int)((FrameworkElement)sender).Tag;
+
+            var technique = _activeBlock.GetGeneralTechnique();
+            var objectMarked = GetEventCount(Str.OBJ_RELEASE) > 0;
+
+            this.TrialInfo($"ObjectMarked: {objectMarked};");
 
             switch (technique, objectMarked)
             {
-                case (Technique.Mouse, true): // Mouse, object marked
-                    SetObjectAsSelected(1);
-                    //SetFunctionAsSelected();
-                    _nSelectedObjects++;
-                    break;
-                case (Technique.Mouse, false): // Mouse, object not marked
-                    EndActiveTrial(Experiment.Result.MISS);
-                    break;
-                case (Technique.Auxursor_Tap, _):
+                case (Technique.TOMO, _):
                     // Nothing for now, handled in OnObjectMouseUp
                     break;
+
+                case (Technique.MOUSE, true): // MOUSE, object marked
+                    _activeTrialRecord.ApplyFunction(functionId);
+                    UpdateScene();
+                    break;
+                case (Technique.MOUSE, false): // MOUSE, object not marked
+                    EndActiveTrial(Experiment.Result.MISS);
+                    break;
+                
                 default:
                     this.TrialInfo($"Unexpected combination of events in Trial#{_activeTrial.Id}");
                     break;
@@ -448,17 +462,17 @@ namespace Multi.Cursor
 
         public override void IndexTap()
         {
-            var technique = _mainWindow.GetActiveTechnique();
+            var technique = _activeBlock.GetSpecificTechnique();
 
-            this.TrialInfo($"Technique: {_mainWindow.GetActiveTechnique()}");
+            this.TrialInfo($"Technique: {_activeBlock.GetSpecificTechnique()}");
 
             switch (technique)
             {
-                case Experiment.Technique.Auxursor_Tap:
+                case Experiment.Technique.TOMO_TAP:
                     _mainWindow.ActivateAuxWindowMarker(Side.Top);
                     break;
 
-                case Experiment.Technique.Auxursor_Swipe: // Wrong technique for index tap
+                case Experiment.Technique.TOMO_SWIPE: // Wrong technique for index tap
                     EndActiveTrial(Result.MISS);
                     break;
             }
@@ -466,17 +480,17 @@ namespace Multi.Cursor
 
         public override void ThumbTap()
         {
-            var technique = _mainWindow.GetActiveTechnique();
+            var technique = _activeBlock.GetSpecificTechnique();
 
-            this.TrialInfo($"Technique: {_mainWindow.GetActiveTechnique()}");
+            this.TrialInfo($"Technique: {_activeBlock.GetSpecificTechnique()}");
 
             switch (technique)
             {
-                case Experiment.Technique.Auxursor_Tap:
+                case Experiment.Technique.TOMO_TAP:
                     _mainWindow.ActivateAuxWindowMarker(Side.Left);
                     break;
 
-                case Experiment.Technique.Auxursor_Swipe: // Wrong technique for index tap
+                case Experiment.Technique.TOMO_SWIPE: // Wrong technique for index tap
                     EndActiveTrial(Result.MISS);
                     break;
             }
@@ -484,17 +498,17 @@ namespace Multi.Cursor
 
         public override void MiddleTap()
         {
-            var technique = _mainWindow.GetActiveTechnique();
+            var technique = _activeBlock.GetSpecificTechnique();
 
-            this.TrialInfo($"Technique: {_mainWindow.GetActiveTechnique()}");
+            this.TrialInfo($"Technique: {_activeBlock.GetSpecificTechnique()}");
 
             switch (technique)
             {
-                case Experiment.Technique.Auxursor_Tap:
+                case Experiment.Technique.TOMO_TAP:
                     _mainWindow.ActivateAuxWindowMarker(Side.Right);
                     break;
 
-                case Experiment.Technique.Auxursor_Swipe: // Wrong technique for index tap
+                case Experiment.Technique.TOMO_SWIPE: // Wrong technique for index tap
                     EndActiveTrial(Result.MISS);
                     break;
             }
@@ -507,15 +521,15 @@ namespace Multi.Cursor
 
         public override void ThumbSwipe(Direction dir)
         {
-            var technique = _mainWindow.GetActiveTechnique();
-            this.TrialInfo($"Technique: {_mainWindow.GetActiveTechnique()}, Direction: {dir}");
+            var technique = _activeBlock.GetSpecificTechnique();
+            this.TrialInfo($"Technique: {_activeBlock.GetSpecificTechnique()}, Direction: {dir}");
 
             switch (technique)
             {
-                case Experiment.Technique.Auxursor_Swipe:
+                case Experiment.Technique.TOMO_SWIPE:
                     _mainWindow.ActivateAuxWindowMarker(Utils.DirToSide(dir));
                     break;
-                case Experiment.Technique.Auxursor_Tap: // Wrong technique for thumb swipe
+                case Experiment.Technique.TOMO_TAP: // Wrong technique for thumb swipe
                     EndActiveTrial(Result.MISS);
                     break;
             }

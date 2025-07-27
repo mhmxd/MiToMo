@@ -59,7 +59,7 @@ namespace Multi.Cursor
 
         FingerTracker tracker = new FingerTracker();
 
-        private Experiment.Technique _activeTechnique = Experiment.Technique.Auxursor_Tap; // Set in the constructor
+        private Experiment.Technique _activeTechnique = Experiment.Technique.TOMO_TAP; // Set in the constructor
 
         //--- Class for each frame on the surface
         private class TouchFrame
@@ -458,7 +458,7 @@ namespace Multi.Cursor
                 //--- REMOVED: Only track multiple fingers if multiple fingers are present!
                 // Presence checks are done inside the methods
 
-                if (_activeTechnique == Experiment.Technique.Auxursor_Tap)
+                if (_activeTechnique == Experiment.Technique.TOMO_TAP)
                 {
                     TapTrackThumb();
                     TapTrackIndex();
@@ -467,7 +467,7 @@ namespace Multi.Cursor
                     TapTrackPinky();
                 }
 
-                if (_activeTechnique == Experiment.Technique.Auxursor_Swipe)
+                if (_activeTechnique == Experiment.Technique.TOMO_SWIPE)
                 {
                     SwipeTechTrackThumb();
                     SwipeTechTrackIndex();

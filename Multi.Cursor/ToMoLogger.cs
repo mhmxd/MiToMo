@@ -23,7 +23,7 @@ namespace Multi.Cursor
 
 
         private static int ptcId = 0; // Participant ID
-        private static Experiment.Technique technique = Experiment.Technique.Mouse; // Technique
+        private static Experiment.Technique technique = Experiment.Technique.MOUSE; // Technique
 
         public static void Init(int participantId, Experiment.Technique tech)
         {

@@ -537,6 +537,7 @@ namespace Multi.Cursor
                 _topWindow.Show();
                 _topWinRect = Utils.GetRect(_topWindow);
                 _topWinRectPadded = Utils.GetRect(_topWindow, VERTICAL_PADDING);
+                _topWindow.Owner = this;
 
                 //topWinWidthRatio = topWindow.Width / ((TOMOPAD_LAST_COL - TOMOPAD_SIDE_SIZE) - TOMOPAD_SIDE_SIZE);
                 //topWinHeightRatio = topWindow.Height / TOMOPAD_SIDE_SIZE;
@@ -554,6 +555,7 @@ namespace Multi.Cursor
                 _leftWindow.Show();
                 _leftWinRect = Utils.GetRect(_leftWindow);
                 _lefWinRectPadded = Utils.GetRect(_leftWindow, VERTICAL_PADDING);
+                _leftWindow.Owner = this;
 
                 //leftWinWidthRatio = leftWindow.Width / TOMOPAD_SIDE_SIZE;
                 //leftWinHeightRatio = leftWindow.Height / (TOMOPAD_LAST_ROW - TOMOPAD_SIDE_SIZE);
@@ -571,6 +573,7 @@ namespace Multi.Cursor
                 _rightWindow.Show();
                 _rightWinRect = Utils.GetRect(_rightWindow);
                 _rightWinRectPadded = Utils.GetRect(_rightWindow, VERTICAL_PADDING);
+                _rightWindow.Owner = this;
 
                 //rightWinWidthRatio = rightWindow.Width / TOMOPAD_SIDE_SIZE;
                 //rightWinHeightRatio = rightWindow.Height / (TOMOPAD_LAST_ROW - TOMOPAD_SIDE_SIZE);
@@ -714,8 +717,8 @@ namespace Multi.Cursor
             // Find positions for all blocks
             foreach (Block bl in _experiment.Blocks)
             {
-                this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.BlockType}");
-                if (bl.BlockType >= Block.BLOCK_TYPE.MULTI_OBJ_ONE_FUNC) // Multi-object block
+                this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
+                if (bl.GetObjectType() == Block.BlockType.MULTI_OBJECT) // Multi-object block
                 {
                     this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
                     BlockHandler blockHandler = new MultiObjectBlockHandler(this, bl);
@@ -762,8 +765,8 @@ namespace Multi.Cursor
 
             _stopWatch.Start();
             _blockHandler.BeginActiveBlock();
-            //if (block.BlockType == Block.BLOCK_TYPE.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
-            //else if (block.BlockType == Block.BLOCK_TYPE.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
+            //if (block.BlockType == Block.BlockType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
+            //else if (block.BlockType == Block.BlockType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
 
             //bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
             //if (positionsFound)
@@ -886,8 +889,8 @@ namespace Multi.Cursor
                 _touchSurface.SetGestureReceiver(_blockHandler);
                 _blockHandler.BeginActiveBlock();
 
-                //if (block.BlockType == Block.BLOCK_TYPE.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
-                //else if (block.BlockType == Block.BLOCK_TYPE.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
+                //if (block.BlockType == Block.BlockType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
+                //else if (block.BlockType == Block.BlockType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
 
                 //bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
                 //if (positionsFound) _blockHandler.BeginActiveBlock();
@@ -993,16 +996,16 @@ namespace Multi.Cursor
             canvas.Children.Add(areaRectangle);
         }
 
-        public void ShowObjects(List<BlockHandler.TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
+        public void ShowObjects(List<TrialRecord.TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
         {
             // Create and position the objects
-            foreach (BlockHandler.TObject trObj in trialObjects)
+            foreach (TrialRecord.TObject trObj in trialObjects)
             {
                 ShowObject(trObj, objColor, mouseEvents);
             }
         }
 
-        private void ShowObject(BlockHandler.TObject tObject, Brush color, MouseEvents mouseEvents)
+        private void ShowObject(TrialRecord.TObject tObject, Brush color, MouseEvents mouseEvents)
         {
             // Convert the absolute position to relative position
             Point positionInMain = Utils.Offset(tObject.Position, -this.Left, -this.Top);
@@ -1167,6 +1170,18 @@ namespace Multi.Cursor
             }
         }
 
+        public void MarkMappedObject(int funcId)
+        {
+            _blockHandler.MarkMappedObject(funcId);
+            _blockHandler.UpdateScene();
+        }
+
+        public void SetFunctionAsApplied(int funcId)
+        {
+            _blockHandler.SetFunctionAsApplied(funcId);
+            _blockHandler.UpdateScene();
+        }
+
         public void ResetTargetWindow(Side side)
         {
             if (_targetWindow != null)
@@ -1193,6 +1208,15 @@ namespace Multi.Cursor
             AuxWindow auxWindow = GetAuxWindow(side);
             //auxWindow.ResetButtons();
             auxWindow.FillGridButton(buttonId, color);
+        }
+
+        public void SetAuxButtonsHandlers(Side side, List<int> funcIds,
+            MouseButtonEventHandler mouseDownHandler,
+            MouseButtonEventHandler mouseUpHandler,
+            MouseButtonEventHandler nonFunctionDownHandler)
+        {
+            AuxWindow auxWindow = GetAuxWindow(side);
+            auxWindow.SetGridButtonHandlers(funcIds, mouseDownHandler, mouseUpHandler, nonFunctionDownHandler);
         }
 
         public void SetGridButtonHandlers(Side side, int targetId,
@@ -1229,7 +1253,7 @@ namespace Multi.Cursor
             return (id,  centerPositionAbsolute); 
         }
 
-        public TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
+        public TrialRecord.TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
@@ -1237,15 +1261,15 @@ namespace Multi.Cursor
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
             Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
             
-            return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+            return new TrialRecord.TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
         }
 
-        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
+        public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
         {
-            List<TFunction> functions = new List<TFunction>();
+            List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
             foreach (int widthUnit in widthUnits)
             {
-                TFunction function = FindRandomFunction(side, widthUnit, distRange);
+                TrialRecord.TFunction function = FindRandomFunction(side, widthUnit, distRange);
                 functions.Add(function);
             }
 
@@ -1297,8 +1321,8 @@ namespace Multi.Cursor
 
         public bool IsTechniqueToMo()
         {
-            return _experiment.Active_Technique == Experiment.Technique.Auxursor_Swipe
-                || _experiment.Active_Technique == Experiment.Technique.Auxursor_Tap;
+            return _experiment.Active_Technique == Experiment.Technique.TOMO_SWIPE
+                || _experiment.Active_Technique == Experiment.Technique.TOMO_TAP;
         }
 
         public bool IsAuxWindowActivated(Side side)
@@ -1314,6 +1338,16 @@ namespace Multi.Cursor
                 default:
                     return false; // Invalid side
             }
+        }
+
+        public int FunctionIdUnderMarker(Side side, List<int> ids)
+        {
+            foreach (int id in ids)
+            {
+                if (IsMarkerOnButton(side, id)) return id;
+            }
+
+            return -1;
         }
 
         public bool IsMarkerOnButton(Side side, int buttonId)
@@ -1332,10 +1366,10 @@ namespace Multi.Cursor
             _activeAuxWindow?.StopGridNavigator();
         }
 
-        public Technique GetActiveTechnique()
-        {
-            return _experiment.Active_Technique;
-        }
+        //public Technique GetActiveTechnique()
+        //{
+        //    return _experiment.Active_Technique;
+        //}
 
         public void ShowStartTrialButton(Rect objAreaRect, MouseEvents mouseEvents)
         {
@@ -1422,6 +1456,14 @@ namespace Multi.Cursor
             if (canvas.Children.Contains(_startButton))
             {
                 _startButton.Background = color;
+            }
+        }
+
+        public void RemoveStartTrialButton()
+        {
+            if (_startButton != null && canvas.Children.Contains(_startButton))
+            {
+                canvas.Children.Remove(_startButton);
             }
         }
 

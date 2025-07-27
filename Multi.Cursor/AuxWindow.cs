@@ -236,6 +236,37 @@ namespace Multi.Cursor
         }
 
         public virtual void SetGridButtonHandlers(
+            List<int> funcIds,
+            MouseButtonEventHandler funcMouseDownHandler, MouseButtonEventHandler funcMouseUpHandler,
+            MouseButtonEventHandler nonFuncMouseDownHandler)
+        {
+            // Clear existing handlers for all buttons
+            foreach (int id in _buttonInfos.Keys)
+            {
+                _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, funcMouseDownHandler);
+                _buttonInfos[id].Button.RemoveHandler(UIElement.MouseUpEvent, funcMouseUpHandler);
+                _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, nonFuncMouseDownHandler);
+            }
+
+            // Set new handlers for buttons
+            foreach (int id in _buttonInfos.Keys)
+            {
+                if (funcIds.Contains(id)) // Handling Target
+                {
+                    //this.TrialInfo($"Adding target handler for button #{id}");
+                    _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, funcMouseDownHandler, handledEventsToo: true);
+                    _buttonInfos[id].Button.AddHandler(UIElement.MouseUpEvent, funcMouseUpHandler, handledEventsToo: true);
+                }
+                else // Handling non-Targets
+                {
+                    //this.TrialInfo($"Adding non-target handler for button #{id}");
+                    _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, nonFuncMouseDownHandler, handledEventsToo: true);
+                }
+            }
+
+        }
+
+        public virtual void SetGridButtonHandlers(
             int targetId,
             MouseButtonEventHandler targetMouseDownHandler, MouseButtonEventHandler targetMouseUpHandler,
             MouseButtonEventHandler nonTargetMouseDownHandler)
@@ -372,7 +403,7 @@ namespace Multi.Cursor
             {
                 _buttonInfos[buttonId].ResetButonBorder();
                 _buttonInfos[buttonId].ChangeBackFill();
-                //if (_buttonInfos[buttonId].Button.Background != Config.FUNCTION_MARKED_COLOR 
+                //if (_buttonInfos[buttonId].Button.Background != Config.FUNCTION_ENABLED_COLOR 
                 //    && _buttonInfos[buttonId].Button.Background != Config.FUNCTION_DEFAULT_COLOR)
                 //{
                 //    _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
@@ -397,7 +428,7 @@ namespace Multi.Cursor
         {
             var buttonBgOrangeOrLightGreen =
                 _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_DEFAULT_COLOR) ||
-                _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_MARKED_COLOR);
+                _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_ENABLED_COLOR);
             // Reset the border aof all buttons
             //foreach (var btn in _allButtons.Values)
             //{
@@ -412,7 +443,12 @@ namespace Multi.Cursor
                 // Change the background to selected (green) if orange or light green
                 if (buttonBgOrangeOrLightGreen)
                 {
-                    _buttonInfos[buttonId].Button.Background = Config.FUNCTION_SELECTED_COLOR;
+                    _buttonInfos[buttonId].Button.Background = Config.FUNCTION_APPLIED_COLOR;
+
+
+                    // Tell the MainWindow to mark the mapped object and set function as applied
+                    ((MainWindow)this.Owner).MarkMappedObject(buttonId);
+                    ((MainWindow)this.Owner).SetFunctionAsApplied(buttonId);
                 }
                 else // Other buttons
                 {

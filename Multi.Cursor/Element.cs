@@ -129,7 +129,7 @@ namespace Multi.Cursor
             // For mouse feedback (fill color changes), you'll still modify _visualBorder.Background
         }
 
-        // --- Internal Mouse Event Handlers for Visual Feedback ---
+        // --- Internal MOUSE Event Handlers for Visual Feedback ---
         // Change from VisualRectangle_... to Element_... if attaching to 'this'
         private Brush _originalFillBrush;
 
