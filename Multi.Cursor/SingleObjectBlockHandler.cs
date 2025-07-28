@@ -249,7 +249,8 @@ namespace Multi.Cursor
             {
                 case Experiment.Result.HIT:
                     Sounder.PlayHit();
-                    double trialTime = GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END);
+                    //double trialTime = GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END);
+                    double trialTime = GetDuration(Str.OBJ_RELEASE + "_1", Str.TRIAL_END);
                     _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
                     this.TrialInfo($"Trial time = {trialTime:F2}s");
                     ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial time = {trialTime:F2}s");
@@ -405,7 +406,7 @@ namespace Multi.Cursor
                     UpdateScene();
                     break;
                 case (Technique.TOMO, _, false, _, _, true, _): // ToMo, marker not on function, _, function window activated
-                    EndActiveTrial(Result.MISS);
+                    //EndActiveTrial(Result.MISS);
                     break;
                 
                 case (Technique.MOUSE, true, _, _, _, _, _): // MOUSE, object correctly pressed

@@ -52,14 +52,13 @@ namespace Multi.Cursor
         public static double FAST_SENSITIVITY = 5;    // Controls how quickly gain increases (adjust for balance)
 
         //--- Active
-        public static double VKF_PROCESS_NOISE = NORMAL_VKF_PROCESS_NOISE;
-        public static double VKF_MEASURE_NOISE = NORMAL_VKF_MEASURE_NOISE;
-        public static double BASE_GAIN = NORMAL_BASE_GAIN;
-        public static double SCALE_FACTOR = NORMAL_SCALE_FACTOR;
-        public static double SENSITIVITY = NORMAL_SENSITIVITY;
+        public static double VKF_PROCESS_NOISE = 100;
+        public static double VKF_MEASURE_NOISE = 5;
+        public static double BASE_GAIN = 50;
+        public static double SCALE_FACTOR = 60;
+        public static double SENSITIVITY = 20;
 
         public static double MIN_MOVEMENT_THRESHOLD = 0.5; // Minimum movement to be considered a movement (in px)
-
 
         // Radiusor
         public static double RAD_BEAM_VKF_PROCESS_NOISE_STD = 1.2;
