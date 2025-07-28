@@ -10,7 +10,7 @@ using System.Windows;
 
 namespace Multi.Cursor
 {
-    internal class ToMoLogger
+    internal class ExperiLogger
     {
         // Set for each trial (in constructor)
         //private static string gesturesFilePath = System.IO.Path.Combine(
@@ -31,16 +31,22 @@ namespace Multi.Cursor
             technique = tech;
         }
 
-        public static void StartBlockLog(int blockId)
+        public static void StartBlockLog(int blockId, Block.BlockType blockType)
         {
-            String blockFileName = $"block-{blockId}.txt";
+            String blockFileName = $"block-{blockId}-{blockType}.txt";
             string blockFilePath = System.IO.Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 "Multi.Cursor.Logs", $"{ptcId}-{technique}", blockFileName
             );
+
+            //_blockFileLog = new LoggerConfiguration()
+            //    .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
+            //    outputTemplate: "{Timestamp:HH:mm:ss.fff} {Message:lj}{NewLine}"))
+            //    .CreateLogger();
+
             _blockFileLog = new LoggerConfiguration()
                 .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
-                outputTemplate: "{Timestamp:HH:mm:ss.fff} {Message:lj}{NewLine}"))
+                outputTemplate: "{Message:lj}{NewLine}"))
                 .CreateLogger();
         }
 
@@ -72,7 +78,7 @@ namespace Multi.Cursor
             //_gestureFileLog.Information(message);
         }
 
-        public static void LogTrialEvent(string message)
+        public static void LogTrialMessage(string message)
         {
             _blockFileLog.Information(message);
         }

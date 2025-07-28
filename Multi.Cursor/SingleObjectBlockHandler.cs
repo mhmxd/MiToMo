@@ -190,7 +190,7 @@ namespace Multi.Cursor
             this.TrialInfo($"Showing Trial#{_activeTrial.Id} | Side: {_activeTrial.FuncSide} | W: {_activeTrial.GetFunctionWidths().ToStr()} | Dist: {_activeTrial.DistanceMM:F2}mm");
 
             // Update the main window label
-            _mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
+            //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
 
             // Log the trial show timestamp
             _activeTrialRecord.AddTimestamp(Str.TRIAL_SHOW); 
@@ -235,6 +235,9 @@ namespace Multi.Cursor
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp);
             _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
+
+            // Update info label
+            _mainWindow.UpdateInfoLabel();
         }
 
         public override void EndActiveTrial(Experiment.Result result)
@@ -246,7 +249,10 @@ namespace Multi.Cursor
             {
                 case Experiment.Result.HIT:
                     Sounder.PlayHit();
-                    this.TrialInfo($"Trial time = {GetDuration(Str.OBJ_RELEASE + "_1", Str.TRIAL_END)}s");
+                    double trialTime = GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END);
+                    _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                    this.TrialInfo($"Trial time = {trialTime:F2}s");
+                    ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial time = {trialTime:F2}s");
                     this.TrialInfo(Str.MAJOR_LINE);
                     GoToNextTrial();
                     break;
@@ -286,6 +292,9 @@ namespace Multi.Cursor
             }
             else
             {
+                // Log the avg times
+                LogAverageTimeOnDistances();
+
                 // Show end of block window
                 BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
                 blockEndWindow.Owner = _mainWindow;

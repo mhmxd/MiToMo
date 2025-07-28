@@ -1100,27 +1100,27 @@ namespace Multi.Cursor
         //=========================== Logging =========================
         private void LogDown(string fingerName, long timestamp)
         {
-            ToMoLogger.LogGestureEvent($"{fingerName} Down!");
+            ExperiLogger.LogGestureEvent($"{fingerName} Down!");
         }
 
         private void LogUp(string fingerName, long duration, double dX, double dY)
         {
-            ToMoLogger.LogGestureEvent($"{fingerName} Up! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
+            ExperiLogger.LogGestureEvent($"{fingerName} Up! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
         }
 
         private void LogTap(string fingerName, Side loc, long timestamp)
         {
-            ToMoLogger.LogGestureEvent($"{fingerName} Tapped! Location: {loc}");
+            ExperiLogger.LogGestureEvent($"{fingerName} Tapped! Location: {loc}");
         }
 
         private void LogMove(string fingerName, long duration, double dX, double dY)
         {
-            ToMoLogger.LogGestureEvent($"{fingerName} Moved! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
+            ExperiLogger.LogGestureEvent($"{fingerName} Moved! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
         }
 
         private void LogSwipe(string fingerName, int duration, double dX, double dY)
         {
-            ToMoLogger.LogGestureEvent($"{fingerName} Swiped! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
+            ExperiLogger.LogGestureEvent($"{fingerName} Swiped! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
         }
 
     }

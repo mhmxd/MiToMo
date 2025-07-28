@@ -452,6 +452,12 @@ namespace Multi.Cursor
             else return null;
         }
 
+        public Trial GetTrialById(int trialId)
+        {
+            return _trials.FirstOrDefault(t => t.Id == trialId);
+            
+        }
+
         public int GetNumTrials()
         {
             return _trials.Count();
@@ -486,6 +492,11 @@ namespace Multi.Cursor
                 sb.AppendLine(trial.ToString());
             }
             return sb.ToString();
+        }
+
+        public BlockType GetBlockType()
+        {
+            return _blockType;
         }
 
         public BlockType GetObjectType()

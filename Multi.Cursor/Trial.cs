@@ -210,9 +210,14 @@ namespace Multi.Cursor
         public override string ToString()
         {
             if (_distanceMM == 0)
-                return $"Trial: [Id = {_id}, W = {_functionWidths.ToString()} units, D = {DistRangeMM.Label}, Side = {_funcSide}]";
+                return $"Trial: [Id = {_id}, W = {_functionWidths.ToStr()} units, D = {DistRangeMM.Label}, Side = {_funcSide}]";
             else
-                return $"Trial: [Id = {_id}, W = {_functionWidths.ToString()} units, D = {_distanceMM:F2} mm, Side = {_funcSide}]";
+                return $"Trial: [Id = {_id}, W = {_functionWidths.ToStr()} units, D = {_distanceMM:F2} mm, Side = {_funcSide}]";
+        }
+
+        public string ToStr()
+        {
+            return $"[{_id}; {_funcSide}; {_functionWidths.ToStr()}; {DistRangeMM.Label}]";
         }
 
         public string GetCacheFileName(string cachedDirectory)

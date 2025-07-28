@@ -58,6 +58,7 @@ namespace Multi.Cursor
         public Rect ObjectAreaRect;
         public Dictionary<string, int> EventCounts;
         private List<Timestamp> Timestamps;
+        private Dictionary<string, double> Times;
 
         public TrialRecord()
         {
@@ -67,6 +68,7 @@ namespace Multi.Cursor
             ObjectAreaRect = new Rect();
             EventCounts = new Dictionary<string, int>();
             Timestamps = new List<Timestamp>();
+            Times = new Dictionary<string, double>();
         }
 
         public void MapObjectToFunction(int objectId, int functionId)
@@ -255,7 +257,7 @@ namespace Multi.Cursor
             return Timestamps.Count > 0 ? Timestamps.Last().label : "No timestamps recorded";
         }
 
-        public long GetTime(string label)
+        public long GetTimestamp(string label)
         {
             var timestamp = Timestamps.FirstOrDefault(ts => ts.label == label);
             if (timestamp != null)
@@ -263,6 +265,21 @@ namespace Multi.Cursor
                 return timestamp.time;
             }
             return -1; // Return -1 if the label is not found
+        }
+
+        public double GetTime(string label)
+        {
+            if (Times.Any(t => t.Key == label))
+            {
+                return Times[label];
+            }
+
+            return -1;
+        }
+
+        public bool HasTime(string label)
+        {
+            return Times.Any(t => t.Key == label);
         }
 
         public bool HasTimestamp(string label)
@@ -290,6 +307,11 @@ namespace Multi.Cursor
             this.TrialInfo($"Timestamps: {TimestampsToString()}");
             // Check if timestamps contains Str.OBJ_objId_Str.PRESS
             return Timestamps.Any(ts => ts.label.Contains(Str.Join(Str.OBJ, objId.ToString(), Str.PRESS)));
+        }
+
+        public void AddTime(string label, double time)
+        {
+            Times[label] = time;
         }
     }
 }

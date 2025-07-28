@@ -42,9 +42,12 @@ namespace Multi.Cursor
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
             _activeTrialRecord = _trialRecords[_activeTrial.Id];
 
+            // Start the log
+            ExperiLogger.StartBlockLog(_activeBlock.Id, _activeBlock.GetBlockType());
+
             // Update the main window label
-            this.TrialInfo($"nTrials = {_activeBlock.GetNumTrials()}");
-            _mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
+            //this.TrialInfo($"nTrials = {_activeBlock.GetNumTrials()}");
+            //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
 
             // Show the Start Trial button
             //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
@@ -335,7 +338,7 @@ namespace Multi.Cursor
         {
             if (_activeTrialRecord.HasTimestamp(begin) && _activeTrialRecord.HasTimestamp(end))
             {
-                return (_activeTrialRecord.GetTime(end) - _activeTrialRecord.GetTime(begin)) / 1000.0; // Convert to seconds
+                return (_activeTrialRecord.GetTimestamp(end) - _activeTrialRecord.GetTimestamp(begin)) / 1000.0; // Convert to seconds
             }
 
             return 0;
@@ -366,6 +369,48 @@ namespace Multi.Cursor
                     break;
             }
         }
+
+        public int GetActiveTrialNum()
+        {
+            return _activeTrialNum;
+        }
+
+        public int GetNumTrialsInBlock()
+        {
+            return _activeBlock.GetNumTrials();
+        }
+
+        public void LogAverageTimeOnDistances()
+        {
+            // Find the average trial time from TrialRecord.Times
+            List<double> shortDistTimes = new List<double>();
+            List<double> midDistTimes = new List<double>();
+            List<double> longDistTimes = new List<double>();
+
+            foreach (int trialId in _trialRecords.Keys)
+            {
+                Trial trial = _activeBlock.GetTrialById(trialId);
+                if (trial != null && _trialRecords[trialId].HasTime(Str.TRIAL_TIME))
+                {
+                    if (trial.DistRangeMM.Label == Str.SHORT_DIST)
+                        shortDistTimes.Add(_trialRecords[trialId].GetTime(Str.TRIAL_TIME));
+                    if (trial.DistRangeMM.Label == Str.MID_DIST)
+                        midDistTimes.Add(_trialRecords[trialId].GetTime(Str.TRIAL_TIME));
+                    if (trial.DistRangeMM.Label == Str.LONG_DIST)
+                        longDistTimes.Add(_trialRecords[trialId].GetTime(Str.TRIAL_TIME));
+                }
+            }
+
+            // Log the averages using ExperiLogger
+            double shortDistAvg = shortDistTimes.Avg();
+            double midDistAvg = midDistTimes.Avg();
+            double lonDistAvg = longDistTimes.Avg();
+            ExperiLogger.LogTrialMessage($"Average Time per Distance --- " +
+                $"Short({shortDistTimes.Count}): {shortDistAvg:F2}; " +
+                $"Mid({midDistTimes.Count}): {midDistAvg:F2}; " +
+                $"Long({longDistTimes.Count}): {lonDistAvg:F2}");
+        }
+
     }
 
 }

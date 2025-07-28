@@ -844,6 +844,12 @@ namespace Multi.Cursor
             return Dist(p, closestPoint);
         }
 
+        public static double Avg(this List<double> numbers)
+        {
+            if (numbers == null || numbers.Count == 0) return 0;
+            return numbers.Average();
+        }
+
     }
 
 }

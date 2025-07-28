@@ -73,12 +73,14 @@ namespace Multi.Cursor
         public static string x30 = "30mm";
         public static string _52MM = "52mm";
 
-        public static readonly string SHORT = "Short";
-        public static readonly string MID = "Mid";
-        public static readonly string LONG = "Long";
+        public static readonly string SHORT_DIST = "Short-dist";
+        public static readonly string MID_DIST = "Middle-dist";
+        public static readonly string LONG_DIST = "Long-dist";
 
         public static readonly string ToMo = "tomo";
         public static readonly string Mouse = "mouse";
+
+        public static readonly string TRIAL_TIME = "Trial Time";
 
         public static string Join(params string[] parts)
         {

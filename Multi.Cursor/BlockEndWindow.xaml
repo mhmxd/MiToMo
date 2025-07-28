@@ -9,13 +9,13 @@
     <Grid>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
             <TextBlock x:Name="BlockFinishedText"
-                       FontSize="36"
+                       FontSize="32"
                        FontWeight="Bold"
                        TextAlignment="Center"
                        Text="Block 1 is finished."
                        Foreground="#353535"
                        Margin="0,0,0,20"/>
-            <TextBlock FontSize="42"
+            <TextBlock FontSize="36"
                        FontWeight="ExtraBold"
                        Foreground="#353535"
                        TextAlignment="Center">

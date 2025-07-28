@@ -178,7 +178,7 @@ namespace Multi.Cursor
             return sb.ToString();
         }
 
-        public static string ToStr(List<double> numbers)
+        public static string ToStr(this List<double> numbers)
         {
             if (numbers == null || !numbers.Any())
             {

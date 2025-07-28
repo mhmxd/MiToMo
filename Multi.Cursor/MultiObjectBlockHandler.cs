@@ -219,6 +219,9 @@ namespace Multi.Cursor
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp);
             _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
+
+            // Update info label
+            _mainWindow.UpdateInfoLabel();
         }
 
         public override void EndActiveTrial(Experiment.Result result)
@@ -231,7 +234,10 @@ namespace Multi.Cursor
             {
                 case Experiment.Result.HIT:
                     Sounder.PlayHit();
-                    this.TrialInfo($"Trial time = {GetDuration(Str.OBJ_RELEASE + "_1", Str.TRIAL_END)}s");
+                    double trialTime = GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END);
+                    _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                    this.TrialInfo($"Trial time = {trialTime:F2}s");
+                    ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial time = {trialTime:F2}s");
                     GoToNextTrial();
                     break;
                 case Experiment.Result.MISS:

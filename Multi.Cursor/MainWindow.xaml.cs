@@ -333,7 +333,7 @@ namespace Multi.Cursor
             {
                 // Set the technique mode in Config
                 //_experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
-                ToMoLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique);
+                ExperiLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique);
 
                 BeginTechnique();
             }
@@ -411,7 +411,6 @@ namespace Multi.Cursor
 
                 // Center horizontally
                 Canvas.SetLeft(infoLabel, (canvas.ActualWidth - infoLabel.ActualWidth) / 2);
-                //Canvas.SetLeft(infoLabel, 400);
 
                 if (!canvas.Children.Contains(infoLabel)) canvas.Children.Add(infoLabel);
             }
@@ -424,6 +423,12 @@ namespace Multi.Cursor
 
         private void Window_KeyDown(object sender, SysIput.KeyEventArgs e)
         {
+            // TEMP: for logging purposes
+            if (Keyboard.IsKeyDown(Key.Space))
+            {
+                _blockHandler.LogAverageTimeOnDistances();
+            }
+
             // Exit on Shift + F5
             if (Keyboard.IsKeyDown(Key.LeftShift) && e.Key == Key.F5 ||
             Keyboard.IsKeyDown(Key.RightShift) && e.Key == Key.F5)
@@ -765,6 +770,7 @@ namespace Multi.Cursor
 
             _stopWatch.Start();
             _blockHandler.BeginActiveBlock();
+
             //if (block.BlockType == Block.BlockType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
             //else if (block.BlockType == Block.BlockType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
 
@@ -923,6 +929,14 @@ namespace Multi.Cursor
         {
             if (blockNum == 0) blockNum = _activeBlockNum;
             infoLabel.Text = $"Trial {trialNum}/{nTrials} --- Block {blockNum}/{_experiment.GetNumBlocks()}";
+            UpdateLabelsPosition();
+        }
+
+        public void UpdateInfoLabel()
+        {
+            int trialNum = _blockHandler.GetActiveTrialNum();
+            int nTrials = _blockHandler.GetNumTrialsInBlock();
+            infoLabel.Text = $"Trial {trialNum}/{nTrials} --- Block {_activeBlockNum}/{_experiment.GetNumBlocks()}";
             UpdateLabelsPosition();
         }
 
