@@ -999,13 +999,17 @@ namespace Multi.Cursor
             switch (complexity)
             {
                 case Block.Complexity.SIMPLE:
-                    _topWindow.PlaceGrid(RowFactory.CreateSimpleGrid);
-                    _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid);
-                    _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid);
+                    _topWindow.PlaceGrid(RowFactory.CreateSimpleGrid, 0, 0);
+                    _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 0, 0);
+                    _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 0, 0);
                     break;
                 case Block.Complexity.MODERATE:
+                    _topWindow.PlaceGrid(GridFactory.CreateTopModerateGrid, -1, HORIZONTAL_PADDING);
+                    _leftWindow.PlaceGrid(GridFactory.CreateSideModerateGrid, VERTICAL_PADDING, -1);
+                    _rightWindow.PlaceGrid(GridFactory.CreateSideModerateGrid, VERTICAL_PADDING, -1);
                     break;
                 case Block.Complexity.COMPLEX:
+                    _leftWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1);
                     break;
             }
         }

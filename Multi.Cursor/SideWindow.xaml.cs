@@ -841,7 +841,7 @@ namespace Multi.Cursor
 
         }
 
-        public override void PlaceGrid(Func<Grid> gridCreator)
+        public override void PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
         {
             // Clear any existing columns from the canvas and the list before generating new ones
             canvas.Children.Clear();
@@ -849,23 +849,32 @@ namespace Multi.Cursor
             Grid grid = gridCreator(); // Create the new column Grid
 
             // Set left position on the Canvas (horizontally centered)
-            Output.TrialInfo(this, $"Placing single grid with size {grid.Width} in {this.Width}...");
-            double leftPosition = (this.Width - grid.Width) / 2;
-            Canvas.SetLeft(grid, leftPosition);
+            //Output.TrialInfo(this, $"Placing single grid with size {grid.Width} in {this.Width}...");
+            //double leftPosition = (this.Width - grid.Width) / 2;
+            //Canvas.SetLeft(grid, leftPosition);
 
             // Set top position on the Canvas (from padding)
-            double topPosition = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            Canvas.SetTop(grid, topPosition * 2);
+            Canvas.SetTop(grid, topPadding);
 
             // Add to the Canvas
             canvas.Children.Add(grid);
 
             // Register buttons
-            Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+            // Subscribe to the Loaded event to get the correct width.
+            grid.Loaded += (sender, e) =>
             {
-                RegisterAllButtons(); // Register buttons in all columns after they are created
-                LinkButtonNeighbors();
-            }));
+                // Now ActualWidth has a valid value.
+                double leftPosition = (this.Width - grid.ActualWidth) / 2;
+                Canvas.SetLeft(grid, leftPosition);
+
+                // Register buttons after the grid is loaded and positioned.
+                Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+                {
+                    RegisterAllButtons();
+                    LinkButtonNeighbors();
+                }));
+            };
+
         }
     }
 }

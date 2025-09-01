@@ -72,7 +72,7 @@ namespace Multi.Cursor
 
         //-- Information
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
-        public Block.Complexity Active_Complexity = Block.Complexity.SIMPLE;
+        public Block.Complexity Active_Complexity = Block.Complexity.COMPLEX;
         public int Participant_Number { get; set; } // Set in the info dialog
         
         private List<Block> _blocks = new List<Block>();

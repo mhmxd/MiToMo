@@ -307,6 +307,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ButtonFactory.cs" />
+    <Compile Include="GridFactory.cs" />
     <Compile Include="MouseEvents.cs" />
     <Compile Include="SingleObjectBlockHandler.cs" />
     <Compile Include="App.xaml.cs">

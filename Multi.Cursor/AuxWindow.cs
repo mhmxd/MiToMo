@@ -72,7 +72,7 @@ namespace Multi.Cursor
 
         public abstract void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators);
 
-        public abstract void PlaceGrid(Func<Grid> gridCreator);
+        public abstract void PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding);
 
         protected int FindMiddleButtonId()
         {

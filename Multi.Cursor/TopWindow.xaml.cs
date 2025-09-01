@@ -68,7 +68,7 @@ namespace Multi.Cursor
 
         }
 
-        public override void PlaceGrid(Func<Grid> gridCreator)
+        public override void PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
         {
             // Clear any existing columns from the canvas and the list before generating new ones
             canvas.Children.Clear();
@@ -81,7 +81,7 @@ namespace Multi.Cursor
             Canvas.SetTop(grid, topPosition);
 
             // Set left position on the Canvas (from padding)
-            Canvas.SetLeft(grid, 3 * HORIZONTAL_PADDING);
+            Canvas.SetLeft(grid, leftPadding);
 
             // Add to the Canvas
             canvas.Children.Add(grid);
