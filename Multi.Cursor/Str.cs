@@ -71,6 +71,7 @@ namespace Multi.Cursor
         public static string x18 = "18mm";
         public static string x20 = "20mm";
         public static string x30 = "30mm";
+        public static string x36 = "36mm";
         public static string _52MM = "52mm";
 
         public static readonly string SHORT_DIST = "Short-dist";

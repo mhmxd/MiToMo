@@ -152,8 +152,9 @@ namespace Multi.Cursor
         // --------------------------------------
 
         // --------------- Grid --------------------
-        public static double GRID_INTERGROUP_GUTTER_MM = 0.5; // Space in-between the grid groups
-        public static double GRID_WITHINGROUP_GUTTER_MM = 0.5; // Space in-between the grid elements within a group
+        public static double GUTTER_05MM = 0.5; // Space in-between the grid elements within a group
+        public static double GUTTER_TOP_SIMPLE = 4; // mm
+        public static double GUTTER_SIDE_SIMPLE_MM = 4; // mm
         public static double GRID_MAX_ELEMENT_WIDTH_MM = 45; // Width of the widest element in the grid
         public static double GRID_MIN_ELEMENT_WIDTH_MM = 3; // Width of the narrowest element in the grid
         public static int ELEMENT_BORDER_THICKNESS = 2; // Thickness of the border around the grid elements
@@ -165,9 +166,9 @@ namespace Multi.Cursor
         public static int CELL_HEIGHT_THRESHOLD = 50; // px
         // -----------------------------------------
 
-        public static double SIDE_COL_MAX_WIDTH_MM = 2 * Experiment.BUTTON_MULTIPLES[Str.x15] + GRID_WITHINGROUP_GUTTER_MM;
-        public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * WINDOW_PADDING_MM + GRID_INTERGROUP_GUTTER_MM;
-        public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GRID_WITHINGROUP_GUTTER_MM + 2 * WINDOW_PADDING_MM;
+        public static double SIDE_COL_MAX_WIDTH_MM = 2 * Experiment.BUTTON_MULTIPLES[Str.x15] + GUTTER_05MM;
+        public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * WINDOW_PADDING_MM + GUTTER_05MM;
+        public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GUTTER_05MM + 2 * WINDOW_PADDING_MM;
 
         public static Dimensions TRIAL_START_BUTTON_DIM_MM = new Dimensions(20, 10);
         public static int TRIAL_START_BUTTON_FONT_SIZE = 16;

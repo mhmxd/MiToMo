@@ -31,7 +31,7 @@ namespace Multi.Cursor
             technique = tech;
         }
 
-        public static void StartBlockLog(int blockId, Block.BlockType blockType)
+        public static void StartBlockLog(int blockId, Block.TaskType blockType)
         {
             String blockFileName = $"block-{blockId}-{blockType}.txt";
             string blockFilePath = System.IO.Path.Combine(

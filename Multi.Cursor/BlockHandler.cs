@@ -51,6 +51,14 @@ namespace Multi.Cursor
 
             // Show the Start Trial button
             //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
+            
+            // Clear the main window canvas (to add shapes)
+            _mainWindow.ClearCanvas();
+
+            // Show layout
+            _mainWindow.ShowLayout(_activeBlock.GetComplexity());
+
+            // Show the first trial
             ShowActiveTrial();
         }
         public abstract void ShowActiveTrial();
@@ -361,10 +369,10 @@ namespace Multi.Cursor
         {
             switch (_activeBlock.GetFunctionType())
             {
-                case Block.BlockType.ONE_FUNCTION: // One function => mark all objects
+                case Block.TaskType.ONE_FUNCTION: // One function => mark all objects
                     MarkAllObjects();
                     break;
-                case Block.BlockType.MULTI_FUNCTION: // Multi function => mark the mapped object 
+                case Block.TaskType.MULTI_FUNCTION: // Multi function => mark the mapped object 
                     _activeTrialRecord.MarkMappedObject(funcId);
                     break;
             }

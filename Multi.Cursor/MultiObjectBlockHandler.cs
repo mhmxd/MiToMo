@@ -202,9 +202,6 @@ namespace Multi.Cursor
             // If on ToMo, activate the auxiliary window marker on all sides
             if (_mainWindow.IsTechniqueToMo()) _mainWindow.ShowAllAuxMarkers();
 
-            // Clear the main window canvas (to add shapes)
-            _mainWindow.ClearCanvas();
-
             // Show the area
             MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp);
             _mainWindow.ShowObjectsArea(

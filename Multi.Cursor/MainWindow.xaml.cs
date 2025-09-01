@@ -290,12 +290,15 @@ namespace Multi.Cursor
             };
 
             // Starts placed at the two bottom corners (to set max distance from grid buttons)
-            _topWindow.GenerateGrid(_startConstraintRectAbsolue, colCreators);
+            //_topWindow.GenerateGrid(_startConstraintRectAbsolue, colCreators);
 
-            _leftWindow.GenerateGrid(_startConstraintRectAbsolue, colCreators);
+            //_leftWindow.GenerateGrid(_startConstraintRectAbsolue, colCreators);
+            //_rightWindow.GenerateGrid(_startConstraintRectAbsolue, colCreators);
 
-            _rightWindow.GenerateGrid(_startConstraintRectAbsolue, colCreators);
+            //_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid);
 
+            // Create Top-Simple
+            //_topWindow.PlaceGrid(RowFactory.CreateSimpleGrid);
 
             UpdateLabelsPosition();
 
@@ -313,7 +316,7 @@ namespace Multi.Cursor
             MouseLeftButtonDown += Window_MouseLeftButtonDown;
 
 
-            CreateExperiment(); // Create the experiment
+            CreateExperiment(); // Create the experiment (sets _experiment)
 
             //--- Show the intro dialog (the choices affect the rest)
             IntroDialog introDialog = new IntroDialog() { Owner = this };
@@ -723,7 +726,7 @@ namespace Multi.Cursor
             foreach (Block bl in _experiment.Blocks)
             {
                 this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
-                if (bl.GetObjectType() == Block.BlockType.MULTI_OBJECT) // Multi-object block
+                if (bl.GetObjectType() == Block.TaskType.MULTI_OBJECT) // Multi-object block
                 {
                     this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
                     BlockHandler blockHandler = new MultiObjectBlockHandler(this, bl);
@@ -768,11 +771,14 @@ namespace Multi.Cursor
                 _touchSurface.SetGestureReceiver(_blockHandler);
             }
 
+            // Set the layout based on the block
+
+            
             _stopWatch.Start();
             _blockHandler.BeginActiveBlock();
 
-            //if (block.BlockType == Block.BlockType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
-            //else if (block.BlockType == Block.BlockType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
+            //if (block.TaskType == Block.TaskType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
+            //else if (block.TaskType == Block.TaskType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
 
             //bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
             //if (positionsFound)
@@ -895,8 +901,8 @@ namespace Multi.Cursor
                 _touchSurface.SetGestureReceiver(_blockHandler);
                 _blockHandler.BeginActiveBlock();
 
-                //if (block.BlockType == Block.BlockType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
-                //else if (block.BlockType == Block.BlockType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
+                //if (block.TaskType == Block.TaskType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
+                //else if (block.TaskType == Block.TaskType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
 
                 //bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
                 //if (positionsFound) _blockHandler.BeginActiveBlock();
@@ -986,6 +992,22 @@ namespace Multi.Cursor
         {
             // Clear the canvas
             canvas.Children.Clear();
+        }
+
+        public void ShowLayout(Block.Complexity complexity)
+        {
+            switch (complexity)
+            {
+                case Block.Complexity.SIMPLE:
+                    _topWindow.PlaceGrid(RowFactory.CreateSimpleGrid);
+                    _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid);
+                    _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid);
+                    break;
+                case Block.Complexity.MODERATE:
+                    break;
+                case Block.Complexity.COMPLEX:
+                    break;
+            }
         }
 
         public void ShowObjectsArea(Rect areaRect, Brush areaColor, MouseEvents mouseEvents)

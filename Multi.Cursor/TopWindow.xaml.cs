@@ -26,7 +26,7 @@ namespace Multi.Cursor
     public partial class TopWindow : AuxWindow
     {
         private double HORIZONTAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-        private double InterGroupGutter = Utils.MM2PX(Config.GRID_INTERGROUP_GUTTER_MM);
+        private double InterGroupGutter = Utils.MM2PX(Config.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -65,6 +65,33 @@ namespace Multi.Cursor
             {
                 _widthButtons.TryAdd(wm, new List<SButton>());
             }
+
+        }
+
+        public override void PlaceGrid(Func<Grid> gridCreator)
+        {
+            // Clear any existing columns from the canvas and the list before generating new ones
+            canvas.Children.Clear();
+
+            Grid grid = gridCreator(); // Create the new column Grid
+
+            // Set top position on the Canvas (vertically centered)
+            Output.TrialInfo(this, $"Placing single grid with size {grid.Height} in {this.Height}...");
+            double topPosition = (this.Height - grid.Height) / 2;
+            Canvas.SetTop(grid, topPosition);
+
+            // Set left position on the Canvas (from padding)
+            Canvas.SetLeft(grid, 3 * HORIZONTAL_PADDING);
+
+            // Add to the Canvas
+            canvas.Children.Add(grid);
+
+            // Register buttons
+            Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+            {
+                RegisterAllButtons(); // Register buttons in all columns after they are created
+                LinkButtonNeighbors();
+            }));
 
         }
 

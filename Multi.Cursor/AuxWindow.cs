@@ -72,6 +72,8 @@ namespace Multi.Cursor
 
         public abstract void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators);
 
+        public abstract void PlaceGrid(Func<Grid> gridCreator);
+
         protected int FindMiddleButtonId()
         {
             // Calculate the center of the overall button grid

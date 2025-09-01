@@ -36,9 +36,11 @@ namespace Multi.Cursor
         {
             { Str.x3, 3 },
             { Str.x6, 6 },
+            { Str.x12, 12 },
             { Str.x15, 15 },
             { Str.x18, 18 },
-            { Str.x30, 30 }
+            { Str.x30, 30 },
+            { Str.x36, 36 }
         };
 
         //private static List<double> _distances = new List<double>(); // Generated in constructor
@@ -70,6 +72,7 @@ namespace Multi.Cursor
 
         //-- Information
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
+        public Block.Complexity Active_Complexity = Block.Complexity.SIMPLE;
         public int Participant_Number { get; set; } // Set in the info dialog
         
         private List<Block> _blocks = new List<Block>();
@@ -130,7 +133,7 @@ namespace Multi.Cursor
             for (int i = 0; i < N_BLOCKS; i++)
             {
                 int blockId = Participant_Number * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, blockId, distRanges, targetMultiples, N_FUNC, N_OBJ);
+                Block block = Block.CreateBlock(Active_Technique, blockId, Active_Complexity, distRanges, targetMultiples, N_FUNC, N_OBJ);
                 _blocks.Add(block);
             }
 

@@ -16,114 +16,12 @@ namespace Multi.Cursor
 {
     internal class ColumnFactory : Grid  // Inherits from Grid to use WPF's Grid layout capabilities
     {
-        public static double WithinGroupGutter = Utils.MM2PX(Config.GRID_WITHINGROUP_GUTTER_MM); // Space in-between the grid elements
-        public static double UNIT = Utils.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
-        public static double ROW_HEIGHT = Utils.MM2PX(Config.GRID_ROW_HEIGHT_MM); // Height of each row in pixels
-        
-        public static double MAX_GROUP_WITH = Utils.MM2PX(2 * Experiment.BUTTON_MULTIPLES[Str.x15] + Config.GRID_WITHINGROUP_GUTTER_MM); // Maximum width of the group in pixels
-        public static double COLUMN_HEIGHT = Utils.MM2PX(3 * Config.GRID_ROW_HEIGHT_MM + 2 * Config.GRID_WITHINGROUP_GUTTER_MM);
+        private static double WithinGroupGutter = Utils.MM2PX(Config.GUTTER_05MM); // Space in-between the grid elements
+        private static double UNIT = Utils.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
+        private static double ROW_HEIGHT = Utils.MM2PX(Config.GRID_ROW_HEIGHT_MM); // Height of each row in pixels
 
-        //private class Column
-        //{
-        //    public Point Position = new Point(0, 0); // Top-left position of the column
-        //    public List<Row> Rows = new List<Row>(); // List of rows in this column
-
-        //    public Point GetTopRowPosition()
-        //    {
-        //        return Position;
-        //    }
-
-        //    public Point GetMiddleRowPosition()
-        //    {
-        //        return Position.OffsetPosition(0, Row.ROW_HEIGHT + WithinGroupGutter);
-        //    }
-
-        //}
-
-        //private class Row
-        //{
-        //    public static int ROW_HEIGHT = ROW_HEIGHT; // Height of the row in pixels
-        //    public Point Position = new Point(0, 0); // Top-left position of the row
-        //    public List<Button> Buttons = new List<Button>(); // List of elements in this column
-        //}
-
-        //private class Button
-        //{
-        //    public Point Position
-        //    {
-        //        get { return new Point(_rect.Left, _rect.Top); }
-        //        set { _rect.Side = value; }
-        //    }
-
-        //    public int Right
-        //    {
-        //        get { return (int)_rect.Right; }
-        //    }
-
-        //    public Point TopRight
-        //    {
-        //        get { return new Point(_rect.Right, _rect.Top); }
-        //    }
-
-        //    public int Down
-        //    {
-        //        get { return (int)_rect.Down; }
-        //    }
-
-        //    private Rect _rect = new Rect();
-
-        //    public Button(int widthUnits, int heightUnits)
-        //    {
-        //        Position = new Point(0, 0); // Default position at (0, 0)
-        //        _rect.Width = Utils.MM2PX(Config.GRID_UNIT_MM * widthUnits);
-        //        _rect.Height = Utils.MM2PX(Config.GRID_UNIT_MM * heightUnits);
-        //    }
-
-        //    public Button(Point position, int w, int h)
-        //    {
-        //        Position = position;
-        //        _rect.Width = w;
-        //        _rect.Height = h;
-        //    }
-
-        //    public Button(Point position)
-        //    {
-        //        Position = position;
-        //    }
-
-        //    public void SetSizeUnits(int widthUnits, int heightUnits)
-        //    {
-        //        _rect.Width = Utils.MM2PX(Config.GRID_UNIT_MM * widthUnits);
-        //        _rect.Height = Utils.MM2PX(Config.GRID_UNIT_MM * heightUnits);
-        //    }
-
-        //    public Button ShallowCopy()
-        //    {
-        //        // MemberwiseClone() returns a shallow copy of the current instance.
-        //        // It's a protected method of System.Object, so it must be called from within the class.
-        //        // The result needs to be cast back to your Button type.
-        //        return (Button)this.MemberwiseClone();
-        //    }
-
-        //}
-
-        //private Point _position; // Top-left position of the grid
-        //private Column _column1 = new Column();
-        //private Column _column2 = new Column();
-        //private Column _column3 = new Column();
-
-        //public ColumnFactory(Point pos)
-        //{
-        //    _position = pos; // Set the position
-
-        //    // Create different types of buttons
-        //    Button bigButton = new Button(15, 19); // 60x76px
-        //    Button smallButton = new Button(6, 6); // 24x24px
-        //    Button dropdownButton = new Button(3, 6); // 12x24px
-        //    Button wideButton = new Button(12, 6); // 72x24px
-        //    Button widerButton = new Button(30, 6); // 120x24px
-
-        //}
+        public static double MAX_GROUP_WITH = Utils.MM2PX(2 * Experiment.BUTTON_MULTIPLES[Str.x15] + Config.GUTTER_05MM); // Maximum width of the group in pixels
+        public static double COLUMN_HEIGHT = Utils.MM2PX(3 * Config.GRID_ROW_HEIGHT_MM + 2 * Config.GUTTER_05MM);
 
         private static Rectangle CreateInRowGutter()
         {
@@ -148,6 +46,18 @@ namespace Multi.Cursor
                 //Stroke = Brushes.Green,
                 //StrokeThickness = 0.5,
                 HorizontalAlignment = HorizontalAlignment.Stretch // This should be set in CreateCol1 too
+            };
+        }
+
+        private static Rectangle CreateGutter(double gutterMM)
+        {
+            return new Rectangle
+            {
+                Height = Utils.MM2PX(gutterMM), // Use WithinGroupGutter for width, not a derived UNIT value unless intentional
+                //Fill = Brushes.Orange, // <-- Make it highly visible for debugging
+                //Stroke = Brushes.Black, // Add a stroke
+                //StrokeThickness = 0.5,
+                //HorizontalAlignment = HorizontalAlignment.Stretch // This will stretch the gutter to fill the row height
             };
         }
 
@@ -211,6 +121,37 @@ namespace Multi.Cursor
             return sButton;
         }
 
+        private static SButton CreateWidestButton()
+        {
+            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x36]; // Assuming 4 is the index for wider button width
+            SButton sButton = new SButton
+            {
+                WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
+                Width = Utils.MM2PX(wMultiple * Config.GRID_UNIT_MM),
+                Height = ROW_HEIGHT // Height in pixels
+            };
+            return sButton;
+        }
+
+        public static StackPanel CreateSimpleColumn()
+        {
+            StackPanel stackPanel = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                VerticalAlignment = VerticalAlignment.Stretch,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+            };
+
+            for (int i = 0; i < 9; i++)
+            {
+                stackPanel.Children.Add(CreateWidestButton());
+                stackPanel.Children.Add(CreateGutter(Config.GUTTER_SIDE_SIMPLE_MM));
+            }
+            stackPanel.Children.Add(CreateWidestButton());
+
+            return stackPanel;
+        }
+
         public static StackPanel CreateRowType1()
         {
             StackPanel stackPanel = new StackPanel { 
@@ -269,6 +210,20 @@ namespace Multi.Cursor
             stackPanel.Children.Add(CreateInRowGutter());
             stackPanel.Children.Add(CreateBigButton());
             return stackPanel;
+        }
+
+        public static Grid CreateSimpleGrid()
+        {
+            double columnWidth = Utils.MM2PX(Experiment.BUTTON_MULTIPLES[Str.x36]);
+
+            Grid group = new Grid { UseLayoutRounding = true, Width = columnWidth }; // Ensure UseLayoutRounding is on the Grid
+
+            group.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(columnWidth) });
+            UIElement element = CreateSimpleColumn();
+            Grid.SetColumn(element, 0);
+            group.Children.Add(element);
+
+            return group;
         }
 
         // Helper to represent a "Gutter" in the sequence

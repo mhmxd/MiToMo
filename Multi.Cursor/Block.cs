@@ -13,7 +13,7 @@ namespace Multi.Cursor
     public class Block
     {
         [Flags]
-        public enum BlockType
+        public enum TaskType
         {
             ONE_OBJ_ONE_FUNC = 0, // One object, one function
             ONE_OBJ_MULTI_FUNC = 1, // One object, multiple functions
@@ -23,6 +23,14 @@ namespace Multi.Cursor
             MULTI_OBJ_MULTI_FUNC = 5, // Multiple objects, multiple functions
             MULTI_OBJECT = 6,
             MULTI_FUNCTION = 7
+        }
+
+        [Flags]
+        public enum Complexity
+        {
+            SIMPLE = 0,
+            MODERATE = 1,
+            COMPLEX = 2,
         }
 
         private List<Trial> _trials = new List<Trial>();
@@ -38,7 +46,8 @@ namespace Multi.Cursor
             set => _id = value;
         }
 
-        private BlockType _blockType = BlockType.ONE_OBJ_ONE_FUNC;
+        private TaskType _taskType = TaskType.ONE_OBJ_ONE_FUNC;
+        private Complexity _complexity = Complexity.SIMPLE;
 
         public Experiment.Technique _technique = Experiment.Technique.MOUSE;
 
@@ -48,11 +57,12 @@ namespace Multi.Cursor
             set => _technique = value;
         }
 
-        public Block(Experiment.Technique technique, BlockType type, int id)
+        public Block(Experiment.Technique technique, TaskType type, Complexity complexity, int id)
         {
             this.Id = id;
             _technique = technique;
-            _blockType = type;
+            _taskType = type;
+            _complexity = complexity;
         }
 
         /// <summary>
@@ -98,6 +108,7 @@ namespace Multi.Cursor
         public static Block CreateBlock(
             Experiment.Technique technique,
             int id,
+            Complexity complexity,
             List<Range> distRanges,
             List<int> functionWidthsMX,
             int nFunc,
@@ -105,27 +116,27 @@ namespace Multi.Cursor
         {
 
             // Set the type of the block based on nFunc and nObj
-            BlockType type = BlockType.ONE_OBJ_ONE_FUNC;
+            TaskType type = TaskType.ONE_OBJ_ONE_FUNC;
             switch (nObj, nFunc)
             {
                 case (1, 1):
-                    type = BlockType.ONE_OBJ_ONE_FUNC;
+                    type = TaskType.ONE_OBJ_ONE_FUNC;
                     break;
                 case (1, > 1):
-                    type = BlockType.ONE_OBJ_MULTI_FUNC;
+                    type = TaskType.ONE_OBJ_MULTI_FUNC;
                     break;
                 case (> 1, 1):
-                    type = BlockType.MULTI_OBJ_ONE_FUNC;
+                    type = TaskType.MULTI_OBJ_ONE_FUNC;
                     break;
                 case (> 1, > 1):
-                    type = BlockType.MULTI_OBJ_MULTI_FUNC;
+                    type = TaskType.MULTI_OBJ_MULTI_FUNC;
                     break;
                 default:
                     throw new ArgumentException("Invalid number of functions or objects.");
             }
 
             // Create block
-            Block block = new Block(technique, type, id);
+            Block block = new Block(technique, type, complexity, id);
 
             // Create and add trials to the block
             int trialNum = 1;
@@ -170,7 +181,7 @@ namespace Multi.Cursor
         //    List<int> functionWidthsMX,
         //    List<Range> distRanges)
         //{
-        //    Block block = new Block(BlockType.ONE_OBJ_ONE_FUNC);
+        //    Block block = new Block(TaskType.ONE_OBJ_ONE_FUNC);
         //    block.Id = id;
 
         //    // Create and add trials to the block
@@ -202,7 +213,7 @@ namespace Multi.Cursor
         //    List<int> functionWidthsMX,
         //    List<Range> distRanges)
         //{
-        //    Block block = new Block(BlockType.ONE_OBJ_ONE_FUNC);
+        //    Block block = new Block(TaskType.ONE_OBJ_ONE_FUNC);
         //    block.Id = id;
 
         //    // Create and add trials to the block (For now, we creat 2 three functions using each widthMX)
@@ -237,7 +248,7 @@ namespace Multi.Cursor
         //    List<int> functionWidthsMX,
         //    List<Range> distRanges)
         //{
-        //    Block block = new Block(BlockType.MULTI_OBJ_ONE_FUNC);
+        //    Block block = new Block(TaskType.MULTI_OBJ_ONE_FUNC);
         //    block.Id = id;
 
         //    // Create and add trials to the block
@@ -271,7 +282,7 @@ namespace Multi.Cursor
         //    List<Range> distRanges,
         //    int nPasses)
         //{
-        //    Block block = new Block(BlockType.MULTI_OBJ_ONE_FUNC);
+        //    Block block = new Block(TaskType.MULTI_OBJ_ONE_FUNC);
         //    block.Id = id;
 
         //    // Create and add trials to the block
@@ -313,7 +324,7 @@ namespace Multi.Cursor
         //    List<int> targetMultiples,
         //    List<Range> distRanges)
         //{
-        //    Block block = new Block(BlockType.ONE_OBJ_ONE_FUNC);
+        //    Block block = new Block(TaskType.ONE_OBJ_ONE_FUNC);
         //    block.Id = id;
 
         //    // Create and add trials to the block
@@ -494,25 +505,25 @@ namespace Multi.Cursor
             return sb.ToString();
         }
 
-        public BlockType GetBlockType()
+        public TaskType GetBlockType()
         {
-            return _blockType;
+            return _taskType;
         }
 
-        public BlockType GetObjectType()
+        public TaskType GetObjectType()
         {
-            if (_blockType == BlockType.ONE_OBJ_ONE_FUNC || _blockType == BlockType.ONE_OBJ_MULTI_FUNC)
-                return BlockType.ONE_OBJECT;
+            if (_taskType == TaskType.ONE_OBJ_ONE_FUNC || _taskType == TaskType.ONE_OBJ_MULTI_FUNC)
+                return TaskType.ONE_OBJECT;
             else
-                return BlockType.MULTI_OBJECT;
+                return TaskType.MULTI_OBJECT;
         }
 
-        public BlockType GetFunctionType()
+        public TaskType GetFunctionType()
         {
-            if (_blockType == BlockType.ONE_OBJ_ONE_FUNC || _blockType == BlockType.MULTI_OBJ_ONE_FUNC)
-                return BlockType.ONE_FUNCTION;
+            if (_taskType == TaskType.ONE_OBJ_ONE_FUNC || _taskType == TaskType.MULTI_OBJ_ONE_FUNC)
+                return TaskType.ONE_FUNCTION;
             else
-                return BlockType.MULTI_FUNCTION;
+                return TaskType.MULTI_FUNCTION;
         }
 
         public Experiment.Technique GetSpecificTechnique()
@@ -526,6 +537,11 @@ namespace Multi.Cursor
                 return Experiment.Technique.TOMO;
             else
                 return Experiment.Technique.MOUSE;
+        }
+
+        public Complexity GetComplexity()
+        {
+            return _complexity;
         }
     }
 }
