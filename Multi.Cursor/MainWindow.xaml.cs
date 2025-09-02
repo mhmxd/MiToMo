@@ -1009,7 +1009,9 @@ namespace Multi.Cursor
                     _rightWindow.PlaceGrid(GridFactory.CreateSideModerateGrid, VERTICAL_PADDING, -1);
                     break;
                 case Block.Complexity.COMPLEX:
+                    _topWindow.PlaceGrid(GridFactory.CreateTopComplexGrid, -1, HORIZONTAL_PADDING);
                     _leftWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1);
+                    _rightWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1);
                     break;
             }
         }

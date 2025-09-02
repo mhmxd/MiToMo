@@ -75,23 +75,26 @@ namespace Multi.Cursor
 
             Grid grid = gridCreator(); // Create the new column Grid
 
-            // Set top position on the Canvas (vertically centered)
-            Output.TrialInfo(this, $"Placing single grid with size {grid.Height} in {this.Height}...");
-            double topPosition = (this.Height - grid.Height) / 2;
-            Canvas.SetTop(grid, topPosition);
-
             // Set left position on the Canvas (from padding)
             Canvas.SetLeft(grid, leftPadding);
 
             // Add to the Canvas
             canvas.Children.Add(grid);
 
-            // Register buttons
-            Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+            // Subscribe to the Loaded event to get the correct width.
+            grid.Loaded += (sender, e) =>
             {
-                RegisterAllButtons(); // Register buttons in all columns after they are created
-                LinkButtonNeighbors();
-            }));
+                // Now ActualWidth has a valid value.
+                double topPosition = (this.Height - grid.ActualHeight) / 2;
+                Canvas.SetTop(grid, topPosition);
+
+                // Register buttons after the grid is loaded and positioned.
+                Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+                {
+                    RegisterAllButtons();
+                    LinkButtonNeighbors();
+                }));
+            };
 
         }
 

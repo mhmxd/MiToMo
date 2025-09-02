@@ -859,7 +859,6 @@ namespace Multi.Cursor
             // Add to the Canvas
             canvas.Children.Add(grid);
 
-            // Register buttons
             // Subscribe to the Loaded event to get the correct width.
             grid.Loaded += (sender, e) =>
             {
