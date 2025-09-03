@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static Multi.Cursor.Block;
 
 namespace Multi.Cursor
 {
@@ -23,6 +24,7 @@ namespace Multi.Cursor
         public int ParticipantNumber { get; private set; }
         public string Technique { get; private set; }
         public string SelectedExperiment { get; private set; }
+        public string SelectedComplexity { get; private set; }
 
         private bool _isClosingFromButton = false; // Begin button was pressed to close, not x
 
@@ -36,7 +38,7 @@ namespace Multi.Cursor
             TechniqueComboBox.ItemsSource = new string[] { Str.TOUCH_MOUSE_TAP, Str.TOUCH_MOUSE_SWIPE, Str.MOUSE };
             TechniqueComboBox.SelectedValue = Str.MOUSE;
             ExperimentComboBox.ItemsSource = new string[] { Str.PRACTICE, Str.TEST };
-            ExperimentComboBox.SelectedValue = Str.PRACTICE;  
+            ExperimentComboBox.SelectedValue = Str.PRACTICE;
         }
 
         private async void BeginButton_ClickAsync(object sender, RoutedEventArgs e)
@@ -55,13 +57,15 @@ namespace Multi.Cursor
                     ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
                     Technique = TechniqueComboBox.SelectedItem as string;
                     SelectedExperiment = ExperimentComboBox.SelectedItem as string;
+                    SelectedComplexity = (ComplexityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+                    Complexity complexity = (Complexity)Enum.Parse(typeof(Complexity), SelectedComplexity, true);
 
                     //_experimentSet = true;
 
                     BigButton.Content = "Initializing...";
                     //BigButton.IsEnabled = false;
 
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(ParticipantNumber, Technique.ToString()));
+                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(ParticipantNumber, Technique.ToString(), complexity));
 
                     if (_experimentSet)
                     {

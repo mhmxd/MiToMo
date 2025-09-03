@@ -719,9 +719,11 @@ namespace Multi.Cursor
 
         }
 
-        public bool SetExperiment(int ptc, string tech)
+        public bool SetExperiment(int ptc, string tech, Block.Complexity complexity)
         {
-            _experiment.Init(ptc, tech);
+            // Make the experiment (incl. creating blocks)
+            _experiment.Init(ptc, tech, complexity);
+
             // Find positions for all blocks
             foreach (Block bl in _experiment.Blocks)
             {
@@ -998,17 +1000,17 @@ namespace Multi.Cursor
         {
             switch (complexity)
             {
-                case Block.Complexity.SIMPLE:
+                case Block.Complexity.Simple:
                     _topWindow.PlaceGrid(RowFactory.CreateSimpleGrid, 0, 0);
                     _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 0, 0);
                     _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 0, 0);
                     break;
-                case Block.Complexity.MODERATE:
+                case Block.Complexity.Moderate:
                     _topWindow.PlaceGrid(GridFactory.CreateTopModerateGrid, -1, HORIZONTAL_PADDING);
                     _leftWindow.PlaceGrid(GridFactory.CreateSideModerateGrid, VERTICAL_PADDING, -1);
                     _rightWindow.PlaceGrid(GridFactory.CreateSideModerateGrid, VERTICAL_PADDING, -1);
                     break;
-                case Block.Complexity.COMPLEX:
+                case Block.Complexity.Complex:
                     _topWindow.PlaceGrid(GridFactory.CreateTopComplexGrid, -1, HORIZONTAL_PADDING);
                     _leftWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1);
                     _rightWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1);

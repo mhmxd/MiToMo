@@ -28,9 +28,9 @@ namespace Multi.Cursor
         [Flags]
         public enum Complexity
         {
-            SIMPLE = 0,
-            MODERATE = 1,
-            COMPLEX = 2,
+            Simple = 0,
+            Moderate = 1,
+            Complex = 2,
         }
 
         private List<Trial> _trials = new List<Trial>();
@@ -47,7 +47,7 @@ namespace Multi.Cursor
         }
 
         private TaskType _taskType = TaskType.ONE_OBJ_ONE_FUNC;
-        private Complexity _complexity = Complexity.SIMPLE;
+        private Complexity _complexity = Complexity.Simple;
 
         public Experiment.Technique _technique = Experiment.Technique.MOUSE;
 

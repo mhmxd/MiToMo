@@ -72,7 +72,7 @@ namespace Multi.Cursor
 
         //-- Information
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
-        public Block.Complexity Active_Complexity = Block.Complexity.COMPLEX;
+        public Block.Complexity Active_Complexity = Block.Complexity.Simple;
         public int Participant_Number { get; set; } // Set in the info dialog
         
         private List<Block> _blocks = new List<Block>();
@@ -101,7 +101,7 @@ namespace Multi.Cursor
 
         }
 
-        public void Init(int ptc, string tech)
+        public void Init(int ptc, string tech, Block.Complexity complexity)
         {
             this.TrialInfo($"Participant: {ptc}, Technique: {tech}");
             Participant_Number = ptc;
@@ -120,6 +120,8 @@ namespace Multi.Cursor
                 Active_Technique = Technique.MOUSE;
             }
 
+            Active_Complexity = complexity;
+
             // Create factor levels
             List<Range> distRanges = new List<Range>()
             {
@@ -133,7 +135,7 @@ namespace Multi.Cursor
             for (int i = 0; i < N_BLOCKS; i++)
             {
                 int blockId = Participant_Number * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, blockId, Active_Complexity, distRanges, targetMultiples, N_FUNC, N_OBJ);
+                Block block = Block.CreateBlock(Active_Technique, blockId, complexity, distRanges, targetMultiples, N_FUNC, N_OBJ);
                 _blocks.Add(block);
             }
 
