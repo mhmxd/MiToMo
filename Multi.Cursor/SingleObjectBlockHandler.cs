@@ -67,22 +67,21 @@ namespace Multi.Cursor
             int objAreaW = Utils.MM2PX(OBJ_AREA_WIDTH_MM);
             int objAreaHalfW = objAreaW / 2;
 
-            this.TrialInfo($"Trial#{trial.Id} [Target = {trial.FuncSide.ToString()}, " +
-                $"FunctionWidths = {trial.GetFunctionWidths().ToStr()}, Dist Range (mm) = {trial.DistRangeMM.ToString()}]");
+            //this.TrialInfo(trial.ToStr());
 
             // Ensure TrialRecord exists for this trial
             if (!_trialRecords.ContainsKey(trial.Id))
             {
                 _trialRecords[trial.Id] = new TrialRecord();
             }
-
+            //this.TrialInfo($"Trial function widths: {trial.GetFunctionWidths()}");
             _mainWindow.Dispatcher.Invoke(() => {
                 _trialRecords[trial.Id].Functions.AddRange(
                     _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
                     );
             });
 
-            this.TrialInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().ToStr()}");
+            //this.TrialInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().ToStr()}");
 
             // Find a position for the object area
             Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
@@ -101,12 +100,12 @@ namespace Multi.Cursor
             }
             else
             {
-                this.TrialInfo($"Found object position: {objCenter.ToStr()}");
+                //this.TrialInfo($"Found object position: {objCenter.ToStr()}");
 
                 // Get the top-left corner of the object area rectangle
                 Point objAreaPosition = objCenter.OffsetPosition(-objAreaHalfW);
 
-                this.TrialInfo($"Found object position: {objAreaPosition.ToStr()}");
+                //this.TrialInfo($"Found object area position: {objAreaPosition.ToStr()}");
 
                 _trialRecords[trial.Id].ObjectAreaRect = new Rect(
                         objAreaPosition.X,
@@ -200,8 +199,8 @@ namespace Multi.Cursor
 
             // Color the target button and set the handlers
             this.TrialInfo($"Function Ids: {_activeTrialRecord.GetFunctionIds().ToStr()}");
-            //Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
-            //_mainWindow.FillButtonsInAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), funcDefaultColor);
+            Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
+            _mainWindow.FillButtonsInAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), funcDefaultColor);
             UpdateScene();
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.FuncSide, 
@@ -478,11 +477,11 @@ namespace Multi.Cursor
 
             switch (technique)
             {
-                case Experiment.Technique.TOMO_TAP:
+                case Technique.TOMO_TAP:
                     _mainWindow.ActivateAuxWindowMarker(Side.Top);
                     break;
 
-                case Experiment.Technique.TOMO_SWIPE: // Wrong technique for index tap
+                case Technique.TOMO_SWIPE: // Wrong technique for index tap
                     EndActiveTrial(Result.MISS);
                     break;
             }
@@ -496,11 +495,11 @@ namespace Multi.Cursor
 
             switch (technique)
             {
-                case Experiment.Technique.TOMO_TAP:
+                case Technique.TOMO_TAP:
                     _mainWindow.ActivateAuxWindowMarker(Side.Left);
                     break;
 
-                case Experiment.Technique.TOMO_SWIPE: // Wrong technique for index tap
+                case Technique.TOMO_SWIPE: // Wrong technique for index tap
                     EndActiveTrial(Result.MISS);
                     break;
             }
@@ -514,11 +513,11 @@ namespace Multi.Cursor
 
             switch (technique)
             {
-                case Experiment.Technique.TOMO_TAP:
+                case Technique.TOMO_TAP:
                     _mainWindow.ActivateAuxWindowMarker(Side.Right);
                     break;
 
-                case Experiment.Technique.TOMO_SWIPE: // Wrong technique for index tap
+                case Technique.TOMO_SWIPE: // Wrong technique for index tap
                     EndActiveTrial(Result.MISS);
                     break;
             }
@@ -536,10 +535,10 @@ namespace Multi.Cursor
 
             switch (technique)
             {
-                case Experiment.Technique.TOMO_SWIPE:
+                case Technique.TOMO_SWIPE:
                     _mainWindow.ActivateAuxWindowMarker(Utils.DirToSide(dir));
                     break;
-                case Experiment.Technique.TOMO_TAP: // Wrong technique for thumb swipe
+                case Technique.TOMO_TAP: // Wrong technique for thumb swipe
                     EndActiveTrial(Result.MISS);
                     break;
             }

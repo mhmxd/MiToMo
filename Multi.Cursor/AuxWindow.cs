@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -51,6 +52,7 @@ namespace Multi.Cursor
 
         }
 
+        protected Grid _buttonsGrid; // The grid containing all buttons
         protected List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
         protected Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
         protected Dictionary<int, ButtonInfo> _buttonInfos = new Dictionary<int, ButtonInfo>();
@@ -66,13 +68,88 @@ namespace Multi.Cursor
         protected int _lastHighlightedButtonId = -1; // ID of the currently highlighted button
         protected Point _topLeftButtonPosition = new Point(10000, 10000); // Initialize to a large value to find the top-left button
 
-        protected Rect _startConstraintsRectAbsolute = new Rect();
+        protected Rect _objectConstraintRectAbsolute = new Rect();
 
         private const double Tolerance = 5.0; // A small tolerance for alignment checks (e.g., for slightly misaligned buttons)
 
         public abstract void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators);
 
         public abstract void PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding);
+
+        public void SetObjectConstraintRect(Rect rect)
+        {
+            _objectConstraintRectAbsolute = rect;
+            this.TrialInfo($"Object constraint rect set to: {rect.ToString()}");
+        }
+
+        protected void RegisterAllButtons(DependencyObject parent)
+        {
+            //-- Recursively find all SButton instances in the entire _buttonsGrid
+            // Get the number of children in the current parent object
+            int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
+            
+            // Loop through each child
+            for (int i = 0; i < childrenCount; i++)
+            {
+                // Get the current child object
+                var child = VisualTreeHelper.GetChild(parent, i);
+                
+                // If the child is an SButton, register it
+                if (child is SButton sButton)
+                {
+                    RegisterButton(sButton);
+                }
+
+                // Recursively call the method for the current child to search its children
+                RegisterAllButtons(child);
+            }
+        }
+
+        protected void RegisterButton(SButton button)
+        {
+            //this.TrialInfo($"Registering button {button.ToString()}");
+            _widthButtons.TryAdd(button.WidthMultiple, new List<SButton>());
+            _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
+            _buttonInfos[button.Id] = new ButtonInfo(button);
+            //_allButtons.Add(button.Id, button); // Add to the list of all buttons
+
+            // Add button position to the dictionary
+
+            // Get the transform from the button to the Window (or the root visual)
+            GeneralTransform transformToWindow = button.TransformToVisual(Window.GetWindow(button));
+            // Get the point representing the top-left corner of the button relative to the Window
+            Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
+            _buttonInfos[button.Id].Position = positionInWindow;
+            //_buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
+            //this.TrialInfo($"Button Position: {positionInWindow}");
+
+            Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
+            _buttonInfos[button.Id].Rect = buttonRect;
+            //_buttonRects.Add(button.Id, buttonRect); // Store the rect for later
+
+            // Set possible distance range to the Start positions
+            Point buttonCenterAbsolute =
+                positionInWindow
+                .OffsetPosition(button.ActualWidth / 2, button.ActualHeight / 2)
+                .OffsetPosition(this.Left, this.Top);
+
+            // Correct way of finding min and max dist
+            _buttonInfos[button.Id].DistToStartRange = GetMinMaxDistances(buttonCenterAbsolute, _objectConstraintRectAbsolute);
+
+            // Update min/max X and Y for grid bounds
+            _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
+            _gridMinY = Math.Min(_gridMinY, buttonRect.Top);
+            _gridMaxX = Math.Max(_gridMaxX, buttonRect.Right);
+            _gridMaxY = Math.Max(_gridMaxY, buttonRect.Bottom);
+
+
+            if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
+            {
+                //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
+                _topLeftButtonPosition = positionInWindow; // Update the top-left button position
+                                                           //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+            }
+        }
 
         protected int FindMiddleButtonId()
         {
@@ -183,13 +260,14 @@ namespace Multi.Cursor
 
         public int SelectRandButtonByConstraints(int widthMult, Range distRange)
         {
-            //this.TrialInfo($"Available buttons:");
-            //foreach (int wm in _widthButtons.Keys)
-            //{
-            //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-            //    this.TrialInfo($"WM {wm} -> {ids}");
-            //}
+            //this.TrialInfo($"Available buttons: ");
+            foreach (int wm in _widthButtons.Keys)
+            {
+                string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
+                //this.TrialInfo($"WM {wm} -> {ids}");
+            }
 
+            //this.TrialInfo($"Look for {widthMult}");
             if (_widthButtons[widthMult].Count > 0)
             {
 

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.UI.WebControls;
@@ -12,27 +13,6 @@ namespace Multi.Cursor
     // A block of trials in the experiment
     public class Block
     {
-        [Flags]
-        public enum TaskType
-        {
-            ONE_OBJ_ONE_FUNC = 0, // One object, one function
-            ONE_OBJ_MULTI_FUNC = 1, // One object, multiple functions
-            ONE_OBJECT = 2,
-            ONE_FUNCTION = 3,
-            MULTI_OBJ_ONE_FUNC = 4, // Multiple objects, one function
-            MULTI_OBJ_MULTI_FUNC = 5, // Multiple objects, multiple functions
-            MULTI_OBJECT = 6,
-            MULTI_FUNCTION = 7
-        }
-
-        [Flags]
-        public enum Complexity
-        {
-            Simple = 0,
-            Moderate = 1,
-            Complex = 2,
-        }
-
         private List<Trial> _trials = new List<Trial>();
         public List<Trial> Trials
         {
@@ -49,15 +29,15 @@ namespace Multi.Cursor
         private TaskType _taskType = TaskType.ONE_OBJ_ONE_FUNC;
         private Complexity _complexity = Complexity.Simple;
 
-        public Experiment.Technique _technique = Experiment.Technique.MOUSE;
+        public Technique _technique = Technique.MOUSE;
 
-        public Experiment.Technique Technique
+        public Technique Technique
         {
             get => _technique;
             set => _technique = value;
         }
 
-        public Block(Experiment.Technique technique, TaskType type, Complexity complexity, int id)
+        public Block(Technique technique, TaskType type, Complexity complexity, int id)
         {
             this.Id = id;
             _technique = technique;
@@ -106,15 +86,14 @@ namespace Multi.Cursor
         /// <param name="nObj"></param>
         /// <returns></returns>
         public static Block CreateBlock(
-            Experiment.Technique technique,
+            Technique technique,
             int id,
             Complexity complexity,
             List<Range> distRanges,
-            List<int> functionWidthsMX,
             int nFunc,
             int nObj)
         {
-
+            
             // Set the type of the block based on nFunc and nObj
             TaskType type = TaskType.ONE_OBJ_ONE_FUNC;
             switch (nObj, nFunc)
@@ -144,17 +123,20 @@ namespace Multi.Cursor
             {
                 Side functionSide = (Side)sInd;
 
+                // Get the function widths based on side and complexity
+                List<int> buttonWidths = Experiment.BUTTON_WIDTHS[complexity][functionSide];
+
                 foreach (Range range in distRanges)
                 {
                     // For now. We may later create trials with multiple function Ws
-                    foreach (int funcW in functionWidthsMX)
+                    foreach (int funcW in buttonWidths)
                     {
                         List<int> functionWidths = new List<int>(nFunc);
                         for (int i = 0; i < nFunc; i++)
                         {
                             functionWidths.Add(funcW);
                         }
-
+                        
                         Trial trial = Trial.CreateTrial(
                             id * 100 + trialNum,
                             functionSide,
@@ -526,17 +508,17 @@ namespace Multi.Cursor
                 return TaskType.MULTI_FUNCTION;
         }
 
-        public Experiment.Technique GetSpecificTechnique()
+        public Technique GetSpecificTechnique()
         {
             return _technique;
         }
 
-        public Experiment.Technique GetGeneralTechnique()
+        public Technique GetGeneralTechnique()
         {
-            if (_technique == Experiment.Technique.TOMO_SWIPE || _technique == Experiment.Technique.TOMO_TAP)
-                return Experiment.Technique.TOMO;
+            if (_technique == Technique.TOMO_SWIPE || _technique == Technique.TOMO_TAP)
+                return Technique.TOMO;
             else
-                return Experiment.Technique.MOUSE;
+                return Technique.MOUSE;
         }
 
         public Complexity GetComplexity()

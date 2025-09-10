@@ -43,6 +43,42 @@ namespace Multi.Cursor
             { Str.x36, 36 }
         };
 
+        public static Dictionary<Complexity, Dictionary<Side, List<int>>> BUTTON_WIDTHS = new Dictionary<Complexity, Dictionary<Side, List<int>>>()
+        {
+            {
+                Complexity.Simple, new Dictionary<Side, List<int>>()
+                {
+                    { Side.Top, new List<int>() { 6, 18 } },
+                    { Side.Left, new List<int>() { 36 } },
+                    { Side.Right, new List<int>() { 36 } }
+                }
+            },
+
+            {
+                Complexity.Moderate, new Dictionary<Side, List<int>>()
+                {
+                    { Side.Top, new List<int>() { 3, 6, 18 } },
+                    { Side.Left, new List<int>() { 6, 30 } },
+                    { Side.Right, new List<int>() { 6, 30 } }
+                }
+            },
+            {
+                Complexity.Complex, new Dictionary<Side, List<int>>()
+                {
+                    { Side.Top, new List<int>() { 3, 6, 18, 30 } },
+                    { Side.Left, new List<int>() { 3, 6, 18, 30 } },
+                    { Side.Right, new List<int>() { 3, 6, 18, 30 } }
+                }
+            }
+        };
+
+        //public static Dictionary<Block.Complexity, List<int>> BUTTON_WIDTHS = new Dictionary<Block.Complexity, List<int>>()
+        //{
+        //    { Block.Complexity.Simple, new List<int>() { 6, 18 } }, // Simple: 6, 12
+        //    { Block.Complexity.Moderate, new List<int>() { 3, 6, 12, 15, 18 } }, // Moderate: 3, 6, 12, 15, 18
+        //    { Block.Complexity.Complex, new List<int>() { 3, 6, 12, 15, 18, 30, 36 } } // Complex: 3, 6, 12, 15, 18, 30, 36
+        //};
+
         //private static List<double> _distances = new List<double>(); // Generated in constructor
         private Range _shortDistRangeMM; // Short distances range (mm)
         private Range _midDistRangeMM; // Mid distances range (mm)
@@ -64,15 +100,12 @@ namespace Multi.Cursor
         //private double LONGEST_DIST_MM = 293; // BenQ = 293 mm
         //private double SHORTEST_DIST_MM = 10; // BenQ = 10 mm
 
-        [Flags]
-        public enum Technique { TOMO_SWIPE = 0, TOMO_TAP = 1, TOMO = 2, MOUSE = 3 }
-
         //-- Constants
         public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
 
         //-- Information
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
-        public Block.Complexity Active_Complexity = Block.Complexity.Simple;
+        public Complexity Active_Complexity = Complexity.Simple;
         public int Participant_Number { get; set; } // Set in the info dialog
         
         private List<Block> _blocks = new List<Block>();
@@ -101,7 +134,7 @@ namespace Multi.Cursor
 
         }
 
-        public void Init(int ptc, string tech, Block.Complexity complexity)
+        public void Init(int ptc, string tech, Complexity complexity)
         {
             this.TrialInfo($"Participant: {ptc}, Technique: {tech}");
             Participant_Number = ptc;
@@ -129,13 +162,13 @@ namespace Multi.Cursor
                 _midDistRangeMM,   // Mid distances
                 _longDistRangeMM    // Long distances
             };
-            List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
-
+            
+            //List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
             // Create and add blocks
             for (int i = 0; i < N_BLOCKS; i++)
             {
                 int blockId = Participant_Number * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, blockId, complexity, distRanges, targetMultiples, N_FUNC, N_OBJ);
+                Block block = Block.CreateBlock(Active_Technique, blockId, complexity, distRanges, N_FUNC, N_OBJ);
                 _blocks.Add(block);
             }
 

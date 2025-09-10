@@ -109,6 +109,11 @@ namespace Multi.Cursor
             }
         }
 
+        public string ToString()
+        {
+            return $"SButton(Id={Id}, Width={WidthMultiple}, LeftId={LeftId}, RightId={RightId}, TopId={TopId}, BottomId={BottomId})";
+        }
+
 
     }
 }

@@ -243,7 +243,7 @@ namespace Multi.Cursor
         private AuxWindow _targetWindow;
         private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)
         private BlockHandler _blockHandler;
-        private Rect _startConstraintRectAbsolue;
+        private Rect _objectConstraintRectAbsolue;
         private List<BlockHandler> _blockHandlers = new List<BlockHandler> ();
         private Border _startButton;
 
@@ -263,44 +263,48 @@ namespace Multi.Cursor
             // Initialize windows
             InitializeWindows();
 
-            // Set Start constraint
-            _startConstraintRectAbsolue = new Rect(
+            // Set object constraint rect here and in aux windows
+            _objectConstraintRectAbsolue = new Rect(
                 _mainWinRect.Left + VERTICAL_PADDING + GetStartHalfWidth(),
                 _mainWinRect.Top + VERTICAL_PADDING + GetStartHalfWidth(),
                 _mainWinRect.Width - 2 * VERTICAL_PADDING,
                 _mainWinRect.Height - 2 * VERTICAL_PADDING - _infoLabelHeight
              );
 
+            _topWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
+            _leftWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
+            _rightWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
+
             // Create grid
             //_topWindow.KnollHorizontal(6, 12, Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
-            Func<Grid>[] colCreators = new Func<Grid>[]
-            {
-                () => ColumnFactory.CreateGroupType1(combination: 1),
-                () => ColumnFactory.CreateGroupType2(combination: 2),
-                () => ColumnFactory.CreateGroupType3(),
-                () => ColumnFactory.CreateGroupType1(combination: 3),
-                () => ColumnFactory.CreateGroupType2(combination: 1),
-                () => ColumnFactory.CreateGroupType1(combination: 6),
-                () => ColumnFactory.CreateGroupType3(),
-                () => ColumnFactory.CreateGroupType2(combination: 1),
-                () => ColumnFactory.CreateGroupType1(combination: 5),
-                () => ColumnFactory.CreateGroupType2(combination: 3),
-                () => ColumnFactory.CreateGroupType1(combination: 2),
-                () => ColumnFactory.CreateGroupType1(combination: 4),
-            };
+            //Func<Grid>[] colCreators = new Func<Grid>[]
+            //{
+            //    () => ColumnFactory.CreateGroupType1(combination: 1),
+            //    () => ColumnFactory.CreateGroupType2(combination: 2),
+            //    () => ColumnFactory.CreateGroupType3(),
+            //    () => ColumnFactory.CreateGroupType1(combination: 3),
+            //    () => ColumnFactory.CreateGroupType2(combination: 1),
+            //    () => ColumnFactory.CreateGroupType1(combination: 6),
+            //    () => ColumnFactory.CreateGroupType3(),
+            //    () => ColumnFactory.CreateGroupType2(combination: 1),
+            //    () => ColumnFactory.CreateGroupType1(combination: 5),
+            //    () => ColumnFactory.CreateGroupType2(combination: 3),
+            //    () => ColumnFactory.CreateGroupType1(combination: 2),
+            //    () => ColumnFactory.CreateGroupType1(combination: 4),
+            //};
 
             // Starts placed at the two bottom corners (to set max distance from grid buttons)
-            //_topWindow.GenerateGrid(_startConstraintRectAbsolue, colCreators);
+            //_topWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
 
-            //_leftWindow.GenerateGrid(_startConstraintRectAbsolue, colCreators);
-            //_rightWindow.GenerateGrid(_startConstraintRectAbsolue, colCreators);
+            //_leftWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
+            //_rightWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
 
-            //_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid);
+            //_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleTopGrid);
 
             // Create Top-Simple
-            //_topWindow.PlaceGrid(RowFactory.CreateSimpleGrid);
+            //_topWindow.PlaceGrid(RowFactory.CreateSimpleTopGrid);
 
-            UpdateLabelsPosition();
+            UpdateLabelPosition();
 
             //-- Events
             this.MouseMove += Window_MouseMove;
@@ -314,7 +318,6 @@ namespace Multi.Cursor
             //_topWindow.MouseMove += Window_MouseMove;
 
             MouseLeftButtonDown += Window_MouseLeftButtonDown;
-
 
             CreateExperiment(); // Create the experiment (sets _experiment)
 
@@ -338,6 +341,10 @@ namespace Multi.Cursor
                 //_experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
                 ExperiLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique);
 
+                // Show the layout (incl. placing the grid and finding positions)
+                ShowLayout(_experiment.Active_Complexity);
+
+                // Begin the technique
                 BeginTechnique();
             }
 
@@ -405,7 +412,7 @@ namespace Multi.Cursor
             _experiment = new Experiment(shortestDistMM, longestDistMM);
         }
 
-        private void UpdateLabelsPosition()
+        private void UpdateLabelPosition()
         {
             if (canvas != null && infoLabel != null)
             {
@@ -421,7 +428,7 @@ namespace Multi.Cursor
 
         private void InfoLabel_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            UpdateLabelsPosition(); // Reposition when the label's size changes (due to text update)
+            UpdateLabelPosition(); // Reposition when the label's size changes (due to text update)
         }
 
         private void Window_KeyDown(object sender, SysIput.KeyEventArgs e)
@@ -719,40 +726,40 @@ namespace Multi.Cursor
 
         }
 
-        public bool SetExperiment(int ptc, string tech, Block.Complexity complexity)
+        public bool SetExperiment(int ptc, string tech, Complexity complexity)
         {
             // Make the experiment (incl. creating blocks)
             _experiment.Init(ptc, tech, complexity);
 
-            // Find positions for all blocks
-            foreach (Block bl in _experiment.Blocks)
-            {
-                this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
-                if (bl.GetObjectType() == Block.TaskType.MULTI_OBJECT) // Multi-object block
-                {
-                    this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
-                    BlockHandler blockHandler = new MultiObjectBlockHandler(this, bl);
-                    bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-                    if (positionsFound) _blockHandlers.Add(blockHandler);
-                    else
-                    {
-                        this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-                        return false;
-                    }
-                }
-                else // Single-object block
-                {
-                    this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
-                    BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl);
-                    bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-                    if (positionsFound) _blockHandlers.Add(blockHandler);
-                    else
-                    {
-                        this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-                        return false;
-                    }
-                }
-            }
+            //// Find positions for all blocks
+            //foreach (Block bl in _experiment.Blocks)
+            //{
+            //    this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
+            //    if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
+            //    {
+            //        this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
+            //        BlockHandler blockHandler = new MultiObjectBlockHandler(this, bl);
+            //        bool positionsFound = blockHandler.FindPositionsForActiveBlock();
+            //        if (positionsFound) _blockHandlers.Add(blockHandler);
+            //        else
+            //        {
+            //            this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
+            //            return false;
+            //        }
+            //    }
+            //    else // Single-object block
+            //    {
+            //        this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
+            //        BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl);
+            //        bool positionsFound = blockHandler.FindPositionsForActiveBlock();
+            //        if (positionsFound) _blockHandlers.Add(blockHandler);
+            //        else
+            //        {
+            //            this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
+            //            return false;
+            //        }
+            //    }
+            //}
 
             //bool positionsFound = FindPositionsForAllBlocks();
             return true;
@@ -779,8 +786,8 @@ namespace Multi.Cursor
             _stopWatch.Start();
             _blockHandler.BeginActiveBlock();
 
-            //if (block.TaskType == Block.TaskType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
-            //else if (block.TaskType == Block.TaskType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
+            //if (TaskType == TaskType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
+            //else if (TaskType == TaskType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
 
             //bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
             //if (positionsFound)
@@ -834,7 +841,7 @@ namespace Multi.Cursor
         //    {
         //        // Find a position for the Start
         //        Point startCenter = FindRandPointWithDist(
-        //            _startConstraintRectAbsolue,
+        //            _objectConstraintRectAbsolue,
         //            targetCenterAbsolute,
         //            dist,
         //            trial.FuncSide.GetOpposite());
@@ -903,8 +910,8 @@ namespace Multi.Cursor
                 _touchSurface.SetGestureReceiver(_blockHandler);
                 _blockHandler.BeginActiveBlock();
 
-                //if (block.TaskType == Block.TaskType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
-                //else if (block.TaskType == Block.TaskType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
+                //if (TaskType == TaskType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
+                //else if (TaskType == TaskType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
 
                 //bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
                 //if (positionsFound) _blockHandler.BeginActiveBlock();
@@ -937,7 +944,7 @@ namespace Multi.Cursor
         {
             if (blockNum == 0) blockNum = _activeBlockNum;
             infoLabel.Text = $"Trial {trialNum}/{nTrials} --- Block {blockNum}/{_experiment.GetNumBlocks()}";
-            UpdateLabelsPosition();
+            UpdateLabelPosition();
         }
 
         public void UpdateInfoLabel()
@@ -945,7 +952,7 @@ namespace Multi.Cursor
             int trialNum = _blockHandler.GetActiveTrialNum();
             int nTrials = _blockHandler.GetNumTrialsInBlock();
             infoLabel.Text = $"Trial {trialNum}/{nTrials} --- Block {_activeBlockNum}/{_experiment.GetNumBlocks()}";
-            UpdateLabelsPosition();
+            UpdateLabelPosition();
         }
 
         public void ShowStart(
@@ -996,26 +1003,57 @@ namespace Multi.Cursor
             canvas.Children.Clear();
         }
 
-        public void ShowLayout(Block.Complexity complexity)
+        public void ShowLayout(Complexity complexity)
         {
             switch (complexity)
             {
-                case Block.Complexity.Simple:
-                    _topWindow.PlaceGrid(RowFactory.CreateSimpleGrid, 0, 0);
-                    _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 0, 0);
-                    _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 0, 0);
+                case Complexity.Simple:
+                    _topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING);
+                    _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
+                    _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
                     break;
-                case Block.Complexity.Moderate:
-                    _topWindow.PlaceGrid(GridFactory.CreateTopModerateGrid, -1, HORIZONTAL_PADDING);
-                    _leftWindow.PlaceGrid(GridFactory.CreateSideModerateGrid, VERTICAL_PADDING, -1);
-                    _rightWindow.PlaceGrid(GridFactory.CreateSideModerateGrid, VERTICAL_PADDING, -1);
+                case Complexity.Moderate:
+                    _topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING);
+                    _leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
+                    _rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
                     break;
-                case Block.Complexity.Complex:
+                case Complexity.Complex:
                     _topWindow.PlaceGrid(GridFactory.CreateTopComplexGrid, -1, HORIZONTAL_PADDING);
                     _leftWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1);
                     _rightWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1);
                     break;
             }
+
+            // Find positions for all blocks
+            foreach (Block bl in _experiment.Blocks)
+            {
+                this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
+                if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
+                {
+                    this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
+                    BlockHandler blockHandler = new MultiObjectBlockHandler(this, bl);
+                    bool positionsFound = blockHandler.FindPositionsForActiveBlock();
+                    if (positionsFound) _blockHandlers.Add(blockHandler);
+                    else
+                    {
+                        this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
+                        //return false;
+                    }
+                }
+                else // Single-object block
+                {
+                    this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
+                    BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl);
+                    bool positionsFound = blockHandler.FindPositionsForActiveBlock();
+                    if (positionsFound) _blockHandlers.Add(blockHandler);
+                    else
+                    {
+                        this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
+                        //return false;
+                    }
+                }
+            }
+
         }
 
         public void ShowObjectsArea(Rect areaRect, Brush areaColor, MouseEvents mouseEvents)
@@ -1301,6 +1339,7 @@ namespace Multi.Cursor
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
+
             Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
             Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
@@ -1310,6 +1349,7 @@ namespace Multi.Cursor
 
         public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
         {
+            //this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
             List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
             foreach (int widthUnit in widthUnits)
             {
@@ -1365,8 +1405,8 @@ namespace Multi.Cursor
 
         public bool IsTechniqueToMo()
         {
-            return _experiment.Active_Technique == Experiment.Technique.TOMO_SWIPE
-                || _experiment.Active_Technique == Experiment.Technique.TOMO_TAP;
+            return _experiment.Active_Technique == Technique.TOMO_SWIPE
+                || _experiment.Active_Technique == Technique.TOMO_TAP;
         }
 
         public bool IsAuxWindowActivated(Side side)
@@ -1487,7 +1527,7 @@ namespace Multi.Cursor
 
             //Canvas.SetLeft(startTrialButton, (this.Width - startTrialButton.Width) / 2);
             //Canvas.SetTop(startTrialButton, (this.Height - startTrialButton.Height) / 2);
-            this.TrialInfo($"Area Position: {objAreaRect.ToString()}; Start Trial button position: {startTrialButtonPosition.ToStr()}");
+            //this.TrialInfo($"Area Position: {objAreaRect.ToString()}; Start Trial button position: {startTrialButtonPosition.ToStr()}");
             Canvas.SetLeft(_startButton, startTrialButtonPosition.X);
             Canvas.SetTop(_startButton, startTrialButtonPosition.Y);
 

@@ -94,10 +94,10 @@ namespace Multi.Cursor
             _auxursor = new Auxursor(Config.FRAME_DUR_MS / 1000.0);
             _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
 
-            foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
-            {
-                _widthButtons.TryAdd(wm, new List<SButton>());
-            }
+            //foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
+            //{
+            //    _widthButtons.TryAdd(wm, new List<SButton>());
+            //}
 
             //_cursorTransform = (TranslateTransform)FindResource("CursorTransform");
 
@@ -438,7 +438,7 @@ namespace Multi.Cursor
 
         public override void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] groupCreators)
         {
-            _startConstraintsRectAbsolute = startConstraintsRectAbsolute;
+            _objectConstraintRectAbsolute = startConstraintsRectAbsolute;
 
             // Clear any existing columns from the canvas and the list before generating new ones
             canvas.Children.Clear();
@@ -548,117 +548,117 @@ namespace Multi.Cursor
             //    //Debug.WriteLine($"Added column. Current left: {currentLeftPosition} DIPs. Column width: {newColumnGrid.ActualWidth}");
             //}
 
-            Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-            {
-                RegisterAllButtons(); // Register all buttons after all groups are created
-                LinkButtonNeighbors(); // Link neighbors after all buttons are registered
-            }));
+            //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+            //{
+            //    RegisterAllButtons(); // Register all buttons after all groups are created
+            //    LinkButtonNeighbors(); // Link neighbors after all buttons are registered
+            //}));
         }
 
-        private void RegisterAllButtons()
-        {
-            // Iterate through all groups (Grids) in the window
-            foreach (Grid group in _gridGroups)
-            {
-                RegisterButtons(group); // Register buttons for each group
-            }
-            //this.TrialInfo($"Total buttons registered: {_allButtons.Count}");
+        //private void RegisterAllButtons()
+        //{
+        //    // Iterate through all groups (Grids) in the window
+        //    foreach (Grid group in _gridGroups)
+        //    {
+        //        RegisterButtons(group); // Register buttons for each group
+        //    }
+        //    //this.TrialInfo($"Total buttons registered: {_allButtons.Count}");
 
-            int middleId = FindMiddleButtonId();
-            if (middleId != -1)
-            {
-                _lastHighlightedButtonId = middleId; // Set the last highlighted button to the middle button
-            }
-            else
-            {
-                this.TrialInfo("No middle button found in the grid.");
-            }
-        }
+        //    int middleId = FindMiddleButtonId();
+        //    if (middleId != -1)
+        //    {
+        //        _lastHighlightedButtonId = middleId; // Set the last highlighted button to the middle button
+        //    }
+        //    else
+        //    {
+        //        this.TrialInfo("No middle button found in the grid.");
+        //    }
+        //}
 
-        private void RegisterButtons(Grid group)
-        {
-            //this.TrialInfo($"Registering buttons in group with {group.Children.Count} children...");
+        //private void RegisterButtons(Grid group)
+        //{
+        //    //this.TrialInfo($"Registering buttons in group with {group.Children.Count} children...");
 
-            // Iterate through all direct children of the Grid column
-            foreach (UIElement childOfGroup in group.Children)
-            {
-                // We know our rows are StackPanels
-                if (childOfGroup is StackPanel rowStackPanel)
-                {
-                    // Iterate through all children of the StackPanel (which should be buttons or in-row gutters)
-                    foreach (UIElement childOfRow in rowStackPanel.Children)
-                    {
-                        // Check if the child is an SButton
-                        if (childOfRow is SButton button)
-                        {
-                            _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
-                            _buttonInfos[button.Id] = new ButtonInfo(button);
-                            //_allButtons.Add(button.Id, button); // Add to the list of all buttons
+        //    // Iterate through all direct children of the Grid column
+        //    foreach (UIElement childOfGroup in group.Children)
+        //    {
+        //        // We know our rows are StackPanels
+        //        if (childOfGroup is StackPanel rowStackPanel)
+        //        {
+        //            // Iterate through all children of the StackPanel (which should be buttons or in-row gutters)
+        //            foreach (UIElement childOfRow in rowStackPanel.Children)
+        //            {
+        //                // Check if the child is an SButton
+        //                if (childOfRow is SButton button)
+        //                {
+        //                    _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
+        //                    _buttonInfos[button.Id] = new ButtonInfo(button);
+        //                    //_allButtons.Add(button.Id, button); // Add to the list of all buttons
 
-                            //foreach (int wm in _widthButtons.Keys)
-                            //{
-                            //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-                            //    this.TrialInfo($"WM {wm} -> {ids}");
-                            //}
-                            // Add button position to the dictionary
-                            // Get the transform from the button to the Window (or the root visual)
-                            GeneralTransform transformToWindow = button.TransformToVisual(Window.GetWindow(button));
-                            // Get the point representing the top-left corner of the button relative to the Window
-                            Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
-                            _buttonInfos[button.Id].Position = positionInWindow;
-                            //_buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
-                            //this.TrialInfo($"Button Position: {positionInWindow}");
-                            if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
-                            {
-                                //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
-                                _topLeftButtonPosition = positionInWindow; // Update the top-left button position
-                                //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
-                            }
+        //                    //foreach (int wm in _widthButtons.Keys)
+        //                    //{
+        //                    //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
+        //                    //    this.TrialInfo($"WM {wm} -> {ids}");
+        //                    //}
+        //                    // Add button position to the dictionary
+        //                    // Get the transform from the button to the Window (or the root visual)
+        //                    GeneralTransform transformToWindow = button.TransformToVisual(Window.GetWindow(button));
+        //                    // Get the point representing the top-left corner of the button relative to the Window
+        //                    Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
+        //                    _buttonInfos[button.Id].Position = positionInWindow;
+        //                    //_buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
+        //                    //this.TrialInfo($"Button Position: {positionInWindow}");
+        //                    if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
+        //                    {
+        //                        //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
+        //                        _topLeftButtonPosition = positionInWindow; // Update the top-left button position
+        //                        //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+        //                    }
 
-                            Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
-                            _buttonInfos[button.Id].Rect = buttonRect;
-                            //_buttonRects.Add(button.Id, buttonRect); // Store the rect for later
+        //                    Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
+        //                    _buttonInfos[button.Id].Rect = buttonRect;
+        //                    //_buttonRects.Add(button.Id, buttonRect); // Store the rect for later
 
-                            // Set possible distance range to the Start positions
-                            Point buttonCenterAbsolute =
-                                positionInWindow
-                                .OffsetPosition(button.ActualWidth / 2, button.ActualHeight / 2)
-                                .OffsetPosition(this.Left, this.Top);
+        //                    // Set possible distance range to the Start positions
+        //                    Point buttonCenterAbsolute =
+        //                        positionInWindow
+        //                        .OffsetPosition(button.ActualWidth / 2, button.ActualHeight / 2)
+        //                        .OffsetPosition(this.Left, this.Top);
 
-                            //double distToStartTL = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.TopLeft);
-                            //double distToStartTR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.TopRight);
-                            //double distToStartLL = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomLeft);
-                            //double distToStartLR = Utils.Dist(buttonCenterAbsolute, _startConstraintsRectAbsolute.BottomRight);
+        //                    //double distToStartTL = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopLeft);
+        //                    //double distToStartTR = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopRight);
+        //                    //double distToStartLL = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomLeft);
+        //                    //double distToStartLR = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomRight);
 
-                            //double[] dists = { distToStartTL, distToStartTR, distToStartLL, distToStartLR };
-                            //_buttonInfos[button.Id].DistToStartRange = new Range(dists.Min(), dists.Max());
+        //                    //double[] dists = { distToStartTL, distToStartTR, distToStartLL, distToStartLR };
+        //                    //_buttonInfos[button.Id].DistToStartRange = new Range(dists.Min(), dists.Max());
 
-                            // Correct way of finding min and max dist
-                            _buttonInfos[button.Id].DistToStartRange = GetMinMaxDistances(buttonCenterAbsolute, _startConstraintsRectAbsolute);
+        //                    // Correct way of finding min and max dist
+        //                    _buttonInfos[button.Id].DistToStartRange = GetMinMaxDistances(buttonCenterAbsolute, _objectConstraintRectAbsolute);
 
-                            // Update min/max X and Y for grid bounds
-                            _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
-                            _gridMinY = Math.Min(_gridMinY, buttonRect.Top);
-                            _gridMaxX = Math.Max(_gridMaxX, buttonRect.Right);
-                            _gridMaxY = Math.Max(_gridMaxY, buttonRect.Bottom);
+        //                    // Update min/max X and Y for grid bounds
+        //                    _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
+        //                    _gridMinY = Math.Min(_gridMinY, buttonRect.Top);
+        //                    _gridMaxX = Math.Max(_gridMaxX, buttonRect.Right);
+        //                    _gridMaxY = Math.Max(_gridMaxY, buttonRect.Bottom);
 
-                            if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
-                            {
-                                //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
-                                _topLeftButtonPosition = positionInWindow; // Update the top-left button position
-                                //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
-                            }
+        //                    if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
+        //                    {
+        //                        //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
+        //                        _topLeftButtonPosition = positionInWindow; // Update the top-left button position
+        //                        //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+        //                    }
 
-                            //this.TrialInfo($"Registered button ID#{button.Id}, Wx{button.WidthMultiple} | Position: {positionInWindow}");
-                        }
-                    }
-                }
-            }
+        //                    //this.TrialInfo($"Registered button ID#{button.Id}, Wx{button.WidthMultiple} | Position: {positionInWindow}");
+        //                }
+        //            }
+        //        }
+        //    }
 
-            //this.TrialInfo($"Finished registering buttons in group. Current allButtons count: {_allButtons.Count}");
-            // Set the first button as the highlighted button
-            //_lastHighlightedButtonId = _widthButtons.FirstOrDefault().Value.FirstOrDefault()?.Id ?? -1; // Get the first button ID or -1 if no buttons are present
-        }
+        //    //this.TrialInfo($"Finished registering buttons in group. Current allButtons count: {_allButtons.Count}");
+        //    // Set the first button as the highlighted button
+        //    //_lastHighlightedButtonId = _widthButtons.FirstOrDefault().Value.FirstOrDefault()?.Id ?? -1; // Get the first button ID or -1 if no buttons are present
+        //}
 
         /// <summary>
         /// Calculates and stores the spatial neighbor links for every button
@@ -846,7 +846,7 @@ namespace Multi.Cursor
             // Clear any existing columns from the canvas and the list before generating new ones
             canvas.Children.Clear();
 
-            Grid grid = gridCreator(); // Create the new column Grid
+            _buttonsGrid = gridCreator(); // Create the new column Grid
 
             // Set left position on the Canvas (horizontally centered)
             //Output.TrialInfo(this, $"Placing single grid with size {grid.Width} in {this.Width}...");
@@ -854,24 +854,33 @@ namespace Multi.Cursor
             //Canvas.SetLeft(grid, leftPosition);
 
             // Set top position on the Canvas (from padding)
-            Canvas.SetTop(grid, topPadding);
+            Canvas.SetTop(_buttonsGrid, topPadding);
 
             // Add to the Canvas
-            canvas.Children.Add(grid);
+            canvas.Children.Add(_buttonsGrid);
+
+            //double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
+            //Canvas.SetLeft(_buttonsGrid, leftPosition);
+
+            RegisterAllButtons(_buttonsGrid);
+            LinkButtonNeighbors();
 
             // Subscribe to the Loaded event to get the correct width.
-            grid.Loaded += (sender, e) =>
+            _buttonsGrid.Loaded += (sender, e) =>
             {
                 // Now ActualWidth has a valid value.
-                double leftPosition = (this.Width - grid.ActualWidth) / 2;
-                Canvas.SetLeft(grid, leftPosition);
+                double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
+                Canvas.SetLeft(_buttonsGrid, leftPosition);
+
+                //RegisterAllButtons();
+                //LinkButtonNeighbors();
 
                 // Register buttons after the grid is loaded and positioned.
-                Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-                {
-                    RegisterAllButtons();
-                    LinkButtonNeighbors();
-                }));
+                //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+                //{
+                //    RegisterAllButtons();
+                //    LinkButtonNeighbors();
+                //}));
             };
 
         }

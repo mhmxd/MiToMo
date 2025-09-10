@@ -56,7 +56,7 @@ namespace Multi.Cursor
             _mainWindow.ClearCanvas();
 
             // Show layout
-            _mainWindow.ShowLayout(_activeBlock.GetComplexity());
+            //_mainWindow.ShowLayout(_activeBlock.GetComplexity());
 
             // Show the first trial
             ShowActiveTrial();
@@ -369,10 +369,10 @@ namespace Multi.Cursor
         {
             switch (_activeBlock.GetFunctionType())
             {
-                case Block.TaskType.ONE_FUNCTION: // One function => mark all objects
+                case TaskType.ONE_FUNCTION: // One function => mark all objects
                     MarkAllObjects();
                     break;
-                case Block.TaskType.MULTI_FUNCTION: // Multi function => mark the mapped object 
+                case TaskType.MULTI_FUNCTION: // Multi function => mark the mapped object 
                     _activeTrialRecord.MarkMappedObject(funcId);
                     break;
             }

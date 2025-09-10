@@ -23,15 +23,15 @@ namespace Multi.Cursor
 
 
         private static int ptcId = 0; // Participant ID
-        private static Experiment.Technique technique = Experiment.Technique.MOUSE; // Technique
+        private static Technique technique = Technique.MOUSE; // Technique
 
-        public static void Init(int participantId, Experiment.Technique tech)
+        public static void Init(int participantId, Technique tech)
         {
             ptcId = participantId;
             technique = tech;
         }
 
-        public static void StartBlockLog(int blockId, Block.TaskType blockType)
+        public static void StartBlockLog(int blockId, TaskType blockType)
         {
             String blockFileName = $"block-{blockId}-{blockType}.txt";
             string blockFilePath = System.IO.Path.Combine(

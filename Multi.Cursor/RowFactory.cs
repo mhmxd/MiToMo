@@ -48,7 +48,7 @@ namespace Multi.Cursor
             return sButton;
         }
 
-        private static SButton CreateSmallButton()
+        private static SButton CreateX6Button()
         {
             int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x6];
             SButton sButton = new SButton
@@ -60,7 +60,7 @@ namespace Multi.Cursor
             return sButton;
         }
 
-        private static SButton CreateWideButton()
+        private static SButton CreateX12Button()
         {
             int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x12];
             SButton sButton = new SButton
@@ -72,7 +72,7 @@ namespace Multi.Cursor
             return sButton;
         }
 
-        private static SButton CreateWiderButton()
+        private static SButton CreateX18Button()
         {
             int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x18];
             SButton sButton = new SButton
@@ -84,7 +84,7 @@ namespace Multi.Cursor
             return sButton;
         }
 
-        private static SButton CreateWidestButton()
+        private static SButton CreateX30Button()
         {
             int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x30];
             SButton sButton = new SButton
@@ -96,45 +96,6 @@ namespace Multi.Cursor
             return sButton;
         }
 
-        public static StackPanel CreateSimpleRow()
-        {
-            StackPanel stackPanel = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Stretch
-            };
-
-            stackPanel.Children.Add(CreateWiderButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateSmallButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateSmallButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateSmallButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateWiderButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateSmallButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateWiderButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateWiderButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateWiderButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateSmallButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateWiderButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateSmallButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateSmallButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_TOP_SIMPLE));
-            stackPanel.Children.Add(CreateWiderButton());
-
-            return stackPanel;
-        }
-
         public static StackPanel CreateRowType1()
         {
             StackPanel stackPanel = new StackPanel
@@ -143,16 +104,16 @@ namespace Multi.Cursor
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
 
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateWideButton());
+            stackPanel.Children.Add(CreateX12Button());
             stackPanel.Children.Add(CreateDropdownButton());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
 
             return stackPanel;
 
@@ -166,11 +127,11 @@ namespace Multi.Cursor
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
 
-            stackPanel.Children.Add(CreateWiderButton());
+            stackPanel.Children.Add(CreateX18Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateWideButton());
+            stackPanel.Children.Add(CreateX12Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
 
             return stackPanel;
         }
@@ -183,14 +144,14 @@ namespace Multi.Cursor
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
 
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
             stackPanel.Children.Add(CreateDropdownButton());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateWiderButton());
+            stackPanel.Children.Add(CreateX18Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
 
             return stackPanel;
         }
@@ -204,16 +165,16 @@ namespace Multi.Cursor
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
 
-            stackPanel.Children.Add(CreateWideButton());
+            stackPanel.Children.Add(CreateX12Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
 
             return stackPanel;
         }
@@ -226,7 +187,7 @@ namespace Multi.Cursor
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
 
-            stackPanel.Children.Add(CreateWidestButton());
+            stackPanel.Children.Add(CreateX30Button());
 
             return stackPanel;
         }
@@ -239,25 +200,13 @@ namespace Multi.Cursor
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
 
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateSmallButton());
+            stackPanel.Children.Add(CreateX6Button());
             stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateWiderButton());
+            stackPanel.Children.Add(CreateX18Button());
 
             return stackPanel;
-        }
-
-        public static Grid CreateSimpleGrid()
-        {
-            Grid group = new Grid { UseLayoutRounding = true, Height = ROW_HEIGHT }; // Ensure UseLayoutRounding is on the Grid
-            
-            group.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            UIElement element = CreateSimpleRow();
-            Grid.SetRow(element, 0);
-            group.Children.Add(element);
-
-            return group;
         }
 
         public static Grid CreateGroupType1(int combination) // Renamed from CreateCol1, assuming 'combination' is the parameter

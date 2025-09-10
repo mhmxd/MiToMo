@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathNet.Numerics;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -217,7 +218,8 @@ namespace Multi.Cursor
 
         public string ToStr()
         {
-            return $"[{_id}; {_funcSide}; {_functionWidths.ToStr()}; {DistRangeMM.Label}]";
+            return $"Trial#{Id} [Target = {FuncSide.ToString()}, " +
+                $"FunctionWidths = {GetFunctionWidths().ToStr()}, Dist Range (mm) = {DistRangeMM.ToString()}]";
         }
 
         public string GetCacheFileName(string cachedDirectory)
@@ -225,6 +227,8 @@ namespace Multi.Cursor
             // Create a unique file name based on trial parameters
             return Path.Combine(cachedDirectory, $"Cache_{FuncSide}_{_functionWidths.ToString()}_{DistRangeMM.Label}.json");
         }
+
+
 
 
     }
