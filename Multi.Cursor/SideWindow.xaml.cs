@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -436,124 +437,124 @@ namespace Multi.Cursor
             canvas.Children.Remove(_target);
         }
 
-        public override void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] groupCreators)
-        {
-            _objectConstraintRectAbsolute = startConstraintsRectAbsolute;
+        //public override void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] groupCreators)
+        //{
+        //    _objectConstraintRectAbsolute = startConstraintsRectAbsolute;
 
-            // Clear any existing columns from the canvas and the list before generating new ones
-            canvas.Children.Clear();
-            _gridGroups.Clear();
-            _buttonInfos.Clear();
-            this.TrialInfo($"Generating grid");
-            double currentTopPosition = VerticalPadding; // Start with the initial padding
-            double leftGroupLeft = HorizontalPadding;
-            double rightGroupLeft = HorizontalPadding + ColumnFactory.MAX_GROUP_WITH + InterGroupGutter;
+        //    // Clear any existing columns from the canvas and the list before generating new ones
+        //    canvas.Children.Clear();
+        //    _gridGroups.Clear();
+        //    _buttonInfos.Clear();
+        //    this.TrialInfo($"Generating grid");
+        //    double currentTopPosition = VerticalPadding; // Start with the initial padding
+        //    double leftGroupLeft = HorizontalPadding;
+        //    double rightGroupLeft = HorizontalPadding + ColumnFactory.MAX_GROUP_WITH + InterGroupGutter;
 
-            // Left column
-            foreach (var group in groupCreators)
-            {
-                // Create the row
-                Grid newGroup = group();
-                // Set its position on the Canvas
-                Canvas.SetTop(newGroup, currentTopPosition);
-                Canvas.SetLeft(newGroup, leftGroupLeft);
-                // Add to the Canvas
-                canvas.Children.Add(newGroup);
-                // Add to our internal list for tracking/future reference
-                _gridGroups.Add(newGroup);
-                // Force a layout pass on the newly added column to get its ActualWidth
-                newGroup.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                newGroup.Arrange(new Rect(newGroup.DesiredSize));
-                // Register buttons in this row
-                //RegisterButtons(newGroup);
-                // Update the top position for the next row
-                currentTopPosition += ColumnFactory.COLUMN_HEIGHT + InterGroupGutter;
-            }
+        //    // Left column
+        //    foreach (var group in groupCreators)
+        //    {
+        //        // Create the row
+        //        Grid newGroup = group();
+        //        // Set its position on the Canvas
+        //        Canvas.SetTop(newGroup, currentTopPosition);
+        //        Canvas.SetLeft(newGroup, leftGroupLeft);
+        //        // Add to the Canvas
+        //        canvas.Children.Add(newGroup);
+        //        // Add to our internal list for tracking/future reference
+        //        _gridGroups.Add(newGroup);
+        //        // Force a layout pass on the newly added column to get its ActualWidth
+        //        newGroup.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        //        newGroup.Arrange(new Rect(newGroup.DesiredSize));
+        //        // Register buttons in this row
+        //        //RegisterButtons(newGroup);
+        //        // Update the top position for the next row
+        //        currentTopPosition += ColumnFactory.COLUMN_HEIGHT + InterGroupGutter;
+        //    }
 
-            // Right column
-            currentTopPosition = VerticalPadding; // Reset the top position for the right column
-            groupCreators.ShiftElementsInPlace(2);
-            foreach (var group in groupCreators)
-            {
-                // Create the row
-                Grid newGroup = group();
-                // Set its position on the Canvas
-                Canvas.SetTop(newGroup, currentTopPosition);
-                Canvas.SetLeft(newGroup, rightGroupLeft);
-                // Add to the Canvas
-                canvas.Children.Add(newGroup);
-                // Add to our internal list for tracking/future reference
-                _gridGroups.Add(newGroup);
-                // Force a layout pass on the newly added column to get its ActualWidth
-                newGroup.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                newGroup.Arrange(new Rect(newGroup.DesiredSize));
-                // Register buttons in this row
-                //RegisterButtons(newGroup);
-                // Update the top position for the next row
-                currentTopPosition += ColumnFactory.COLUMN_HEIGHT + InterGroupGutter;
-            }
+        //    // Right column
+        //    currentTopPosition = VerticalPadding; // Reset the top position for the right column
+        //    groupCreators.ShiftElementsInPlace(2);
+        //    foreach (var group in groupCreators)
+        //    {
+        //        // Create the row
+        //        Grid newGroup = group();
+        //        // Set its position on the Canvas
+        //        Canvas.SetTop(newGroup, currentTopPosition);
+        //        Canvas.SetLeft(newGroup, rightGroupLeft);
+        //        // Add to the Canvas
+        //        canvas.Children.Add(newGroup);
+        //        // Add to our internal list for tracking/future reference
+        //        _gridGroups.Add(newGroup);
+        //        // Force a layout pass on the newly added column to get its ActualWidth
+        //        newGroup.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        //        newGroup.Arrange(new Rect(newGroup.DesiredSize));
+        //        // Register buttons in this row
+        //        //RegisterButtons(newGroup);
+        //        // Update the top position for the next row
+        //        currentTopPosition += ColumnFactory.COLUMN_HEIGHT + InterGroupGutter;
+        //    }
 
 
-            //for (int i = 0; i < groupCreators.Count() - 1; i++)
-            //{
-            //    // Create the row
-            //    Grid leftGroup = groupCreators[i]();
-            //    Grid rightGroup = groupCreators[i + 1]();
+        //    //for (int i = 0; i < groupCreators.Count() - 1; i++)
+        //    //{
+        //    //    // Create the row
+        //    //    Grid leftGroup = groupCreators[i]();
+        //    //    Grid rightGroup = groupCreators[i + 1]();
 
-            //    // Set its position on the Canvas
-            //    Canvas.SetTop(leftGroup, currentTopPosition);
-            //    Canvas.SetTop(rightGroup, currentTopPosition);
+        //    //    // Set its position on the Canvas
+        //    //    Canvas.SetTop(leftGroup, currentTopPosition);
+        //    //    Canvas.SetTop(rightGroup, currentTopPosition);
 
-            //    Canvas.SetLeft(leftGroup, leftGroupLeft);
-            //    Canvas.SetLeft(rightGroup, rightGroupLeft);
+        //    //    Canvas.SetLeft(leftGroup, leftGroupLeft);
+        //    //    Canvas.SetLeft(rightGroup, rightGroupLeft);
 
-            //    // Add to the Canvas
-            //    canvas.Children.Add(leftGroup);
-            //    canvas.Children.Add(rightGroup);
+        //    //    // Add to the Canvas
+        //    //    canvas.Children.Add(leftGroup);
+        //    //    canvas.Children.Add(rightGroup);
 
-            //    // Add to our internal list for tracking/future reference
-            //    _gridGroups.Add(leftGroup);
-            //    _gridGroups.Add(rightGroup);
+        //    //    // Add to our internal list for tracking/future reference
+        //    //    _gridGroups.Add(leftGroup);
+        //    //    _gridGroups.Add(rightGroup);
 
-            //    // Update the top position for the next row
-            //    currentTopPosition += ColumnFactory.COLUMN_HEIGHT + InterGroupGutter; 
+        //    //    // Update the top position for the next row
+        //    //    currentTopPosition += ColumnFactory.COLUMN_HEIGHT + InterGroupGutter; 
 
-            //}
+        //    //}
 
-            //foreach (var createGroupFunc in groupCreators)
-            //{
-            //    Grid newGroup = createGroupFunc(); // Create the new group
+        //    //foreach (var createGroupFunc in groupCreators)
+        //    //{
+        //    //    Grid newGroup = createGroupFunc(); // Create the new group
 
-            //    // Set its position on the Canvas
-            //    Canvas.SetTop(newGroup, currentTopPosition);
-            //    Canvas.SetLeft(newGroup, HorizontalPadding); // Assuming all columns start at the same left padding
+        //    //    // Set its position on the Canvas
+        //    //    Canvas.SetTop(newGroup, currentTopPosition);
+        //    //    Canvas.SetLeft(newGroup, HorizontalPadding); // Assuming all columns start at the same left padding
 
-            //    // Add to the Canvas
-            //    canvas.Children.Add(newGroup);
+        //    //    // Add to the Canvas
+        //    //    canvas.Children.Add(newGroup);
 
-            //    // Add to our internal list for tracking/future reference
-            //    _gridGroups.Add(newGroup);
+        //    //    // Add to our internal list for tracking/future reference
+        //    //    _gridGroups.Add(newGroup);
 
-            //    // Force a layout pass on the newly added column to get its ActualWidth
-            //    // This is crucial because the next column's position depends on this one's actual size.
-            //    newGroup.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            //    newGroup.Arrange(new Rect(newGroup.DesiredSize));
+        //    //    // Force a layout pass on the newly added column to get its ActualWidth
+        //    //    // This is crucial because the next column's position depends on this one's actual size.
+        //    //    newGroup.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        //    //    newGroup.Arrange(new Rect(newGroup.DesiredSize));
 
-            //    // Register buttons in this row
-            //    //RegisterButtons(newGroup);
+        //    //    // Register buttons in this row
+        //    //    //RegisterButtons(newGroup);
 
-            //    // Update the currentLeftPosition for the next column, adding the current column's width and the 2*gutter
-            //    currentTopPosition += newGroup.ActualHeight + VerticalPadding;
+        //    //    // Update the currentLeftPosition for the next column, adding the current column's width and the 2*gutter
+        //    //    currentTopPosition += newGroup.ActualHeight + VerticalPadding;
 
-            //    //Debug.WriteLine($"Added column. Current left: {currentLeftPosition} DIPs. Column width: {newColumnGrid.ActualWidth}");
-            //}
+        //    //    //Debug.WriteLine($"Added column. Current left: {currentLeftPosition} DIPs. Column width: {newColumnGrid.ActualWidth}");
+        //    //}
 
-            //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-            //{
-            //    RegisterAllButtons(); // Register all buttons after all groups are created
-            //    LinkButtonNeighbors(); // Link neighbors after all buttons are registered
-            //}));
-        }
+        //    //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+        //    //{
+        //    //    RegisterAllButtons(); // Register all buttons after all groups are created
+        //    //    LinkButtonNeighbors(); // Link neighbors after all buttons are registered
+        //    //}));
+        //}
 
         //private void RegisterAllButtons()
         //{
@@ -841,8 +842,12 @@ namespace Multi.Cursor
 
         }
 
-        public override void PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
+        public override Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
         {
+            // A TaskCompletionSource allows us to create a Task
+            // that we can complete manually later.
+            var tcs = new TaskCompletionSource<bool>();
+
             // Clear any existing columns from the canvas and the list before generating new ones
             canvas.Children.Clear();
 
@@ -862,27 +867,55 @@ namespace Multi.Cursor
             //double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
             //Canvas.SetLeft(_buttonsGrid, leftPosition);
 
-            RegisterAllButtons(_buttonsGrid);
-            LinkButtonNeighbors();
+            
 
             // Subscribe to the Loaded event to get the correct width.
             _buttonsGrid.Loaded += (sender, e) =>
             {
-                // Now ActualWidth has a valid value.
-                double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
-                Canvas.SetLeft(_buttonsGrid, leftPosition);
+                try
+                {
+                    // Now ActualWidth has a valid value.
+                    double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
+                    Canvas.SetLeft(_buttonsGrid, leftPosition);
 
-                //RegisterAllButtons();
-                //LinkButtonNeighbors();
+                    RegisterAllButtons(_buttonsGrid);
+                    LinkButtonNeighbors();
 
-                // Register buttons after the grid is loaded and positioned.
-                //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-                //{
-                //    RegisterAllButtons();
-                //    LinkButtonNeighbors();
-                //}));
+                    FindMiddleButton();
+
+                    // Indicate that the task is successfully completed.
+                    tcs.SetResult(true);
+
+                    // Register buttons after the grid is loaded and positioned.
+                    //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+                    //{
+                    //    RegisterAllButtons();
+                    //    LinkButtonNeighbors();
+                    //}));
+                }
+                catch (Exception ex)
+                {
+                    // If any error occurs, set the exception on the TaskCompletionSource
+                    tcs.SetException(ex);
+                }
             };
 
+            return tcs.Task; // Return the Task to be awaited
+
+        }
+
+        private void FindMiddleButton()
+        {
+            int middleId = FindMiddleButtonId();
+            if (middleId != -1)
+            {
+                this.TrialInfo($"Middle Id = {middleId}");
+                _lastHighlightedButtonId = middleId; // Set the last highlighted button to the middle button
+            }
+            else
+            {
+                this.TrialInfo("No middle button found in the grid.");
+            }
         }
     }
 }

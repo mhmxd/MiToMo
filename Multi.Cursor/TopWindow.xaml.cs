@@ -68,8 +68,12 @@ namespace Multi.Cursor
 
         }
 
-        public override void PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
+        public override Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
         {
+            // A TaskCompletionSource allows us to create a Task
+            // that we can complete manually later.
+            var tcs = new TaskCompletionSource<bool>();
+
             // Clear any existing columns from the canvas and the list before generating new ones
             canvas.Children.Clear();
 
@@ -87,82 +91,91 @@ namespace Multi.Cursor
             //double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
             //Canvas.SetTop(_buttonsGrid, topPosition);
 
-            RegisterAllButtons(_buttonsGrid);
-            LinkButtonNeighbors();
+            //RegisterAllButtons(_buttonsGrid);
+            //LinkButtonNeighbors();
 
             // Subscribe to the Loaded event to get the correct width.
             _buttonsGrid.Loaded += (sender, e) =>
             {
-                //this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
-                // Now ActualWidth has a valid value.
-                double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
-                Canvas.SetTop(_buttonsGrid, topPosition);
+                try
+                {
+                    this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
+                    double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
+                    Canvas.SetTop(_buttonsGrid, topPosition);
 
-                //RegisterAllButtons(_buttonsGrid);
-                //LinkButtonNeighbors();
+                    RegisterAllButtons(_buttonsGrid);
+                    LinkButtonNeighbors();
 
-                // Register buttons after the grid is loaded and positioned.
-                //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-                //{
-                //    RegisterAllButtons(_buttonsGrid);
-                //    LinkButtonNeighbors();
-                //}));
+                    FindMiddleButton();
+
+                    // Indicate that the task is successfully completed.
+                    tcs.SetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    // If any error occurs, set the exception on the TaskCompletionSource
+                    tcs.SetException(ex);
+                }
             };
 
+            return tcs.Task; // Return the task to be awaited
+
         }
 
-        public override void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators)
-        {
-            _objectConstraintRectAbsolute = startConstraintsRectAbsolute;
+        //public override void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators)
+        //{
+        //    _objectConstraintRectAbsolute = startConstraintsRectAbsolute;
 
-            // Clear any existing columns from the canvas and the list before generating new ones
-            canvas.Children.Clear();
-            _gridColumns.Clear();
+        //    // Clear any existing columns from the canvas and the list before generating new ones
+        //    canvas.Children.Clear();
+        //    _gridColumns.Clear();
 
-            double currentLeftPosition = HORIZONTAL_PADDING; // Start with the initial padding
+        //    double currentLeftPosition = HORIZONTAL_PADDING; // Start with the initial padding
 
-            foreach (var createColumnFunc in columnCreators)
-            {
-                Grid newColumnGrid = createColumnFunc(); // Create the new column Grid
-                //newColumnGrid.Background = Brushes.Transparent; // Set background to transparent for visibility
+        //    foreach (var createColumnFunc in columnCreators)
+        //    {
+        //        Grid newColumnGrid = createColumnFunc(); // Create the new column Grid
+        //        //newColumnGrid.Background = Brushes.Transparent; // Set background to transparent for visibility
 
-                // Set its position on the Canvas
-                Canvas.SetLeft(newColumnGrid, currentLeftPosition);
-                Canvas.SetTop(newColumnGrid, HORIZONTAL_PADDING); // Assuming all columns start at the same top padding
+        //        // Set its position on the Canvas
+        //        Canvas.SetLeft(newColumnGrid, currentLeftPosition);
+        //        Canvas.SetTop(newColumnGrid, HORIZONTAL_PADDING); // Assuming all columns start at the same top padding
 
-                // Add to the Canvas
-                canvas.Children.Add(newColumnGrid);
+        //        // Add to the Canvas
+        //        canvas.Children.Add(newColumnGrid);
 
-                // Add to our internal list for tracking/future reference
-                _gridColumns.Add(newColumnGrid);
+        //        // Add to our internal list for tracking/future reference
+        //        _gridColumns.Add(newColumnGrid);
 
-                // Register buttons in this column
-                //RegisterButtons(newColumnGrid);
+        //        // Register buttons in this column
+        //        //RegisterButtons(newColumnGrid);
 
-                // Force a layout pass on the newly added column to get its ActualWidth
-                // This is crucial because the next column's position depends on this one's actual size.
-                newColumnGrid.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                newColumnGrid.Arrange(new Rect(newColumnGrid.DesiredSize));
+        //        // Force a layout pass on the newly added column to get its ActualWidth
+        //        // This is crucial because the next column's position depends on this one's actual size.
+        //        newColumnGrid.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+        //        newColumnGrid.Arrange(new Rect(newColumnGrid.DesiredSize));
 
-                // Update the currentLeftPosition for the next column, adding the current column's width and the gutter
-                currentLeftPosition += newColumnGrid.ActualWidth + InterGroupGutter;
-            }
+        //        // Update the currentLeftPosition for the next column, adding the current column's width and the gutter
+        //        currentLeftPosition += newColumnGrid.ActualWidth + InterGroupGutter;
+        //    }
 
-            RegisterAllButtons(_buttonsGrid); // Register buttons in all columns after they are created
-            LinkButtonNeighbors();
+        //    RegisterAllButtons(_buttonsGrid); // Register buttons in all columns after they are created
+        //    LinkButtonNeighbors();
+            
 
-            //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-            //{
-            //    RegisterAllButtons(_buttonsGrid); // Register buttons in all columns after they are created
-            //    LinkButtonNeighbors();
-            //}));
-        }
+        //    //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+        //    //{
+        //    //    RegisterAllButtons(_buttonsGrid); // Register buttons in all columns after they are created
+        //    //    LinkButtonNeighbors();
+        //    //}));
+        //}
 
         private void FindMiddleButton()
         {
             int middleId = FindMiddleButtonId();
             if (middleId != -1)
             {
+                this.TrialInfo($"Middle Id = {middleId}");
                 _lastHighlightedButtonId = middleId; // Set the last highlighted button to the middle button
             }
             else

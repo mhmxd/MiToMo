@@ -56,13 +56,13 @@ namespace Multi.Cursor
             _mainWindow.ClearCanvas();
 
             // Show layout
-            //_mainWindow.ShowLayout(_activeBlock.GetComplexity());
+            //_mainWindow.SetupLayout(_activeBlock.GetComplexity());
 
             // Show the first trial
             ShowActiveTrial();
         }
         public abstract void ShowActiveTrial();
-        public abstract void EndActiveTrial(Experiment.Result result);
+        public abstract void EndActiveTrial(Result result);
         public abstract void GoToNextTrial();
 
         public abstract void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e);
@@ -72,11 +72,11 @@ namespace Multi.Cursor
         {
             if (GetEventCount(Str.OBJ_RELEASE) == 0) // Not yet clicked on the Object => ERROR
             {
-                EndActiveTrial(Experiment.Result.ERROR);
+                EndActiveTrial(Result.ERROR);
             }
             else // Clicked on the Start => MISS
             {
-                EndActiveTrial(Experiment.Result.MISS);
+                EndActiveTrial(Result.MISS);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -148,7 +148,7 @@ namespace Multi.Cursor
             }
 
             // It's always a miss
-            EndActiveTrial(Experiment.Result.MISS);
+            EndActiveTrial(Result.MISS);
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
@@ -174,7 +174,7 @@ namespace Multi.Cursor
                     _mainWindow.RemoveStartTrialButton();
                     break;
                 case false: // Start button was not pressed => invalid trial
-                    EndActiveTrial(Experiment.Result.MISS);
+                    EndActiveTrial(Result.MISS);
                     break;
             }
 

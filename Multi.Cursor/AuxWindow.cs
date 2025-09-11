@@ -72,9 +72,9 @@ namespace Multi.Cursor
 
         private const double Tolerance = 5.0; // A small tolerance for alignment checks (e.g., for slightly misaligned buttons)
 
-        public abstract void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators);
+        //public abstract void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators);
 
-        public abstract void PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding);
+        public abstract Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding);
 
         public void SetObjectConstraintRect(Rect rect)
         {
@@ -125,6 +125,7 @@ namespace Multi.Cursor
 
             Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
             _buttonInfos[button.Id].Rect = buttonRect;
+            this.TrialInfo($"ButtonRect: {buttonRect}");
             //_buttonRects.Add(button.Id, buttonRect); // Store the rect for later
 
             // Set possible distance range to the Start positions
@@ -165,7 +166,7 @@ namespace Multi.Cursor
             foreach (int buttonId in _buttonInfos.Keys)
             {
                 Rect buttonRect = _buttonInfos[buttonId].Rect;
-
+                this.TrialInfo($"Button#{buttonId} Rect: {buttonRect.ToString()}");
                 // Check which button contains the grid center point
                 if (buttonRect.Contains(gridCenterPoint))
                 {
@@ -176,7 +177,7 @@ namespace Multi.Cursor
                 else // if button doesn't containt the center point, calculate the distance
                 {
                     double dist = Utils.Dist(gridCenterPoint, new Point(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 2));
-
+                    this.TrialInfo($"Dist = {dist:F2}");
                     if (dist < centerDistance)
                     {
                         centerDistance = dist;

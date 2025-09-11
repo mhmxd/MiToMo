@@ -221,7 +221,7 @@ namespace Multi.Cursor
             _mainWindow.UpdateInfoLabel();
         }
 
-        public override void EndActiveTrial(Experiment.Result result)
+        public override void EndActiveTrial(Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
             this.TrialInfo(Str.MAJOR_LINE);
@@ -229,7 +229,7 @@ namespace Multi.Cursor
 
             switch (result)
             {
-                case Experiment.Result.HIT:
+                case Result.HIT:
                     Sounder.PlayHit();
                     double trialTime = GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END);
                     _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
@@ -237,12 +237,12 @@ namespace Multi.Cursor
                     ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial time = {trialTime:F2}s");
                     GoToNextTrial();
                     break;
-                case Experiment.Result.MISS:
+                case Result.MISS:
                     Sounder.PlayTargetMiss();
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
                     GoToNextTrial();
                     break;
-                case Experiment.Result.ERROR:
+                case Result.ERROR:
                     Sounder.PlayStartMiss();
                     // Do nothing, just reset everything
 
@@ -254,6 +254,7 @@ namespace Multi.Cursor
         public override void GoToNextTrial()
         {
             _mainWindow.ResetTargetWindow(_activeTrial.FuncSide); // Reset the target window
+            _mainWindow.ClearCanvas(); // Clear the main canvas
             //_trialEventCounts.Clear(); // Reset the event counts for the trial
             //_trialTimestamps.Clear(); // Reset the timestamps for the trial
             _isTargetAvailable = false; // Reset the target availability
@@ -264,7 +265,7 @@ namespace Multi.Cursor
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
                 //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
-                _mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
+                //_mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
                 _activeTrialRecord.ClearTimestamps();
 
                 _activeTrialNum++;
@@ -571,7 +572,7 @@ namespace Multi.Cursor
                     //SetFunctionAsEnabled();
                     break;
                 case (true, Technique.MOUSE, _, true): // MOUSE, any marker state, all objects selected
-                    EndActiveTrial(Experiment.Result.MISS); // Should not end on object press (should click area)
+                    EndActiveTrial(Result.MISS); // Should not end on object press (should click area)
                     return;
             }
 
@@ -610,7 +611,7 @@ namespace Multi.Cursor
                     UpdateScene();
                     break;
                 case (Technique.MOUSE, true, _, true): // MOUSE, _, all functions applied
-                    EndActiveTrial(Experiment.Result.HIT);
+                    EndActiveTrial(Result.HIT);
                     break;
             }
 

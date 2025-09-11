@@ -26,7 +26,7 @@ namespace Multi.Cursor
             set => _id = value;
         }
 
-        private TaskType _taskType = TaskType.ONE_OBJ_ONE_FUNC;
+        private TaskType _taskType = TaskType.MULTI_OBJ_ONE_FUNC;
         private Complexity _complexity = Complexity.Simple;
 
         public Technique _technique = Technique.MOUSE;

@@ -192,7 +192,6 @@ namespace Multi.Cursor
 
         private int leftSkipTPs = 0;
 
-        private TouchSimulator simulator;
         private Point prevPoint = new Point(-1, -1);
 
         private bool headerWritten;
@@ -242,7 +241,7 @@ namespace Multi.Cursor
         private Rectangle _startRectangle;
         private AuxWindow _targetWindow;
         private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)
-        private BlockHandler _blockHandler;
+        private BlockHandler _activeBlockHandler;
         private Rect _objectConstraintRectAbsolue;
         private List<BlockHandler> _blockHandlers = new List<BlockHandler> ();
         private Border _startButton;
@@ -341,11 +340,7 @@ namespace Multi.Cursor
                 //_experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
                 ExperiLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique);
 
-                // Show the layout (incl. placing the grid and finding positions)
-                ShowLayout(_experiment.Active_Complexity);
-
-                // Begin the technique
-                BeginTechnique();
+                BeginExperiment();
             }
 
         }
@@ -412,6 +407,15 @@ namespace Multi.Cursor
             _experiment = new Experiment(shortestDistMM, longestDistMM);
         }
 
+        private async void BeginExperiment()
+        {
+            // Set the layout (incl. placing the grid and finding positions)
+            await SetupLayout(_experiment.Active_Complexity);
+
+            // Begin the technique
+            BeginBlocks();
+        }
+
         private void UpdateLabelPosition()
         {
             if (canvas != null && infoLabel != null)
@@ -436,7 +440,7 @@ namespace Multi.Cursor
             // TEMP: for logging purposes
             if (Keyboard.IsKeyDown(Key.Space))
             {
-                _blockHandler.LogAverageTimeOnDistances();
+                _activeBlockHandler.LogAverageTimeOnDistances();
             }
 
             // Exit on Shift + F5
@@ -641,19 +645,19 @@ namespace Multi.Cursor
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            _blockHandler.OnMainWindowMouseDown(sender, e);
+            _activeBlockHandler.OnMainWindowMouseDown(sender, e);
         }
 
         private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            _blockHandler.OnMainWindowMouseMove(sender, e);
+            _activeBlockHandler.OnMainWindowMouseMove(sender, e);
 
         }
 
         private void Window_MouseUp(object sender, MouseButtonEventArgs e)
         {
 
-            _blockHandler.OnMainWindowMouseUp(sender, e);
+            _activeBlockHandler.OnMainWindowMouseUp(sender, e);
             
         }
 
@@ -765,35 +769,30 @@ namespace Multi.Cursor
             return true;
         }
 
-        private void BeginTechnique()
+        private void BeginBlocks()
         {
-            simulator = new TouchSimulator();
-
             _activeBlockNum = 1;
             //Block block = _experiment.GetBlock(_activeBlockNum);
-            _blockHandler = _blockHandlers[_activeBlockNum - 1];
+            _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
             this.TrialInfo($"Technique: {_experiment.IsTechAuxCursor()}");
             if (_experiment.IsTechAuxCursor())
             {
                 _isTouchMouseActive = true;
                 if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);
-                _touchSurface.SetGestureReceiver(_blockHandler);
+                _touchSurface.SetGestureReceiver(_activeBlockHandler);
             }
 
-            // Set the layout based on the block
-
-            
             _stopWatch.Start();
-            _blockHandler.BeginActiveBlock();
+            _activeBlockHandler.BeginActiveBlock();
 
-            //if (TaskType == TaskType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
-            //else if (TaskType == TaskType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
+            //if (TaskType == TaskType.REPEATING) _activeBlockHandler = new MultiObjectBlockHandler(this, block);
+            //else if (TaskType == TaskType.ALTERNATING) _activeBlockHandler = new SingleObjectBlockHandler(this, block);
 
-            //bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
+            //bool positionsFound = _activeBlockHandler.FindPositionsForActiveBlock();
             //if (positionsFound)
             //{
             //    UpdateInfoLabel(1, _activeBlockNum);
-            //    _blockHandler.BeginActiveBlock();
+            //    _activeBlockHandler.BeginActiveBlock();
             //}
         }
 
@@ -906,15 +905,15 @@ namespace Multi.Cursor
                 _activeBlockNum++;
                 Block block = _experiment.GetBlock(_activeBlockNum);
 
-                _blockHandler = _blockHandlers[_activeBlockNum - 1];
-                _touchSurface.SetGestureReceiver(_blockHandler);
-                _blockHandler.BeginActiveBlock();
+                _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
+                _touchSurface.SetGestureReceiver(_activeBlockHandler);
+                _activeBlockHandler.BeginActiveBlock();
 
-                //if (TaskType == TaskType.REPEATING) _blockHandler = new MultiObjectBlockHandler(this, block);
-                //else if (TaskType == TaskType.ALTERNATING) _blockHandler = new SingleObjectBlockHandler(this, block);
+                //if (TaskType == TaskType.REPEATING) _activeBlockHandler = new MultiObjectBlockHandler(this, block);
+                //else if (TaskType == TaskType.ALTERNATING) _activeBlockHandler = new SingleObjectBlockHandler(this, block);
 
-                //bool positionsFound = _blockHandler.FindPositionsForActiveBlock();
-                //if (positionsFound) _blockHandler.BeginActiveBlock();
+                //bool positionsFound = _activeBlockHandler.FindPositionsForActiveBlock();
+                //if (positionsFound) _activeBlockHandler.BeginActiveBlock();
             }
             else // All blocks finished
             {
@@ -949,8 +948,8 @@ namespace Multi.Cursor
 
         public void UpdateInfoLabel()
         {
-            int trialNum = _blockHandler.GetActiveTrialNum();
-            int nTrials = _blockHandler.GetNumTrialsInBlock();
+            int trialNum = _activeBlockHandler.GetActiveTrialNum();
+            int nTrials = _activeBlockHandler.GetNumTrialsInBlock();
             infoLabel.Text = $"Trial {trialNum}/{nTrials} --- Block {_activeBlockNum}/{_experiment.GetNumBlocks()}";
             UpdateLabelPosition();
         }
@@ -1003,26 +1002,39 @@ namespace Multi.Cursor
             canvas.Children.Clear();
         }
 
-        public void ShowLayout(Complexity complexity)
+        public async Task<Task<bool>> SetupLayout(Complexity complexity)
         {
+            // Task to return when everything is set up
+            var tcs = new TaskCompletionSource<bool>();
+
+            // Create a list to hold the tasks for placing the grids
+            var placementTasks = new List<Task>();
+
             switch (complexity)
             {
                 case Complexity.Simple:
-                    _topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING);
-                    _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
-                    _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
+                    placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
+                    placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
+                    placementTasks.Add(_rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
                     break;
                 case Complexity.Moderate:
-                    _topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING);
-                    _leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
-                    _rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
+                    placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING));
+                    placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
+                    placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
                     break;
                 case Complexity.Complex:
-                    _topWindow.PlaceGrid(GridFactory.CreateTopComplexGrid, -1, HORIZONTAL_PADDING);
-                    _leftWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1);
-                    _rightWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1);
+                    placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateTopComplexGrid, -1, HORIZONTAL_PADDING));
+                    placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1));
+                    placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1));
                     break;
             }
+
+            // Await all tasks concurrently.
+            // The code will not proceed until all grids have been placed and their Loaded events processed.
+            await Task.WhenAll(placementTasks);
+
+            // Task is a success by default, unless a block fails to find positions
+            tcs.SetResult(true);
 
             // Find positions for all blocks
             foreach (Block bl in _experiment.Blocks)
@@ -1037,7 +1049,7 @@ namespace Multi.Cursor
                     else
                     {
                         this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-                        //return false;
+                        tcs.SetResult(false); // Indicate failure
                     }
                 }
                 else // Single-object block
@@ -1049,10 +1061,12 @@ namespace Multi.Cursor
                     else
                     {
                         this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-                        //return false;
+                        tcs.SetResult(false); // Indicate failure
                     }
                 }
             }
+
+            return tcs.Task;
 
         }
 
@@ -1254,14 +1268,14 @@ namespace Multi.Cursor
 
         public void MarkMappedObject(int funcId)
         {
-            _blockHandler.MarkMappedObject(funcId);
-            _blockHandler.UpdateScene();
+            _activeBlockHandler.MarkMappedObject(funcId);
+            _activeBlockHandler.UpdateScene();
         }
 
         public void SetFunctionAsApplied(int funcId)
         {
-            _blockHandler.SetFunctionAsApplied(funcId);
-            _blockHandler.UpdateScene();
+            _activeBlockHandler.SetFunctionAsApplied(funcId);
+            _activeBlockHandler.UpdateScene();
         }
 
         public void ResetTargetWindow(Side side)
@@ -1349,7 +1363,7 @@ namespace Multi.Cursor
 
         public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
         {
-            //this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
+            this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
             List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
             foreach (int widthUnit in widthUnits)
             {

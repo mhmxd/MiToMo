@@ -45,4 +45,17 @@ namespace Multi.Cursor
         MULTI_OBJECT = 6,
         MULTI_FUNCTION = 7
     }
+
+    public enum Result 
+    { 
+        MISS, 
+        HIT, 
+        ERROR 
+    }
+
+    public enum Trial_Action 
+    { 
+        CONTINUE = 0, 
+        MISS = 1 
+    }
 }

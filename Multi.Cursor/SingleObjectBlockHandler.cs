@@ -198,7 +198,7 @@ namespace Multi.Cursor
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the target button and set the handlers
-            this.TrialInfo($"Function Ids: {_activeTrialRecord.GetFunctionIds().ToStr()}");
+            this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
             Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
             _mainWindow.FillButtonsInAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), funcDefaultColor);
             UpdateScene();
@@ -239,14 +239,14 @@ namespace Multi.Cursor
             _mainWindow.UpdateInfoLabel();
         }
 
-        public override void EndActiveTrial(Experiment.Result result)
+        public override void EndActiveTrial(Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
             _activeTrialRecord.AddTimestamp(Str.TRIAL_END); // Log the trial end timestamp
 
             switch (result)
             {
-                case Experiment.Result.HIT:
+                case Result.HIT:
                     Sounder.PlayHit();
                     //double trialTime = GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END);
                     double trialTime = GetDuration(Str.OBJ_RELEASE + "_1", Str.TRIAL_END);
@@ -256,13 +256,13 @@ namespace Multi.Cursor
                     this.TrialInfo(Str.MAJOR_LINE);
                     GoToNextTrial();
                     break;
-                case Experiment.Result.MISS:
+                case Result.MISS:
                     Sounder.PlayTargetMiss();
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
                     this.TrialInfo(Str.MAJOR_LINE);
                     GoToNextTrial();
                     break;
-                case Experiment.Result.ERROR:
+                case Result.ERROR:
                     Sounder.PlayStartMiss();
                     // Record everything and reset
                     // TODO: Record times
@@ -281,6 +281,7 @@ namespace Multi.Cursor
             {
                 //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
                 _mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
+                _mainWindow.ClearCanvas();
                 _activeTrialRecord.ClearTimestamps();
                 _nSelectedObjects = 0; // Reset the number of selected objects
 
@@ -361,7 +362,6 @@ namespace Multi.Cursor
                 case (false, _, _, _): // Start button not clicked, _
                     EndActiveTrial(Result.ERROR); // Pressed on object without Start button clicked
                     break;
-
 
                 case (true, Technique.TOMO, _, false): // ToMo, _, not all functions applied
                     
@@ -457,7 +457,7 @@ namespace Multi.Cursor
                     UpdateScene();
                     break;
                 case (Technique.MOUSE, false): // MOUSE, object not marked
-                    EndActiveTrial(Experiment.Result.MISS);
+                    EndActiveTrial(Result.MISS);
                     break;
                 
                 default:

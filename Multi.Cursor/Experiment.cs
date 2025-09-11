@@ -12,9 +12,7 @@ namespace Multi.Cursor
 {
     public class Experiment
     {
-        public enum Result { MISS, HIT, ERROR }
-        public enum Trial_Action { CONTINUE = 0, MISS = 1 }
-
+        
         //--- Flags
         public bool MULTI_FUNC_SAME_W = false;
         public Trial_Action OUTSIDE_OBJECT_PRESS = Trial_Action.CONTINUE;
