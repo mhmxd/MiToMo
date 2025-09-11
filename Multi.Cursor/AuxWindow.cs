@@ -166,7 +166,7 @@ namespace Multi.Cursor
             foreach (int buttonId in _buttonInfos.Keys)
             {
                 Rect buttonRect = _buttonInfos[buttonId].Rect;
-                this.TrialInfo($"Button#{buttonId} Rect: {buttonRect.ToString()}");
+                this.TrialInfo($"Button#{buttonId}; Rect: {buttonRect.ToString()}; Btn: {_buttonInfos[buttonId].Button.ToString()}");
                 // Check which button contains the grid center point
                 if (buttonRect.Contains(gridCenterPoint))
                 {
@@ -177,7 +177,7 @@ namespace Multi.Cursor
                 else // if button doesn't containt the center point, calculate the distance
                 {
                     double dist = Utils.Dist(gridCenterPoint, new Point(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 2));
-                    this.TrialInfo($"Dist = {dist:F2}");
+                    //this.TrialInfo($"Dist = {dist:F2}");
                     if (dist < centerDistance)
                     {
                         centerDistance = dist;

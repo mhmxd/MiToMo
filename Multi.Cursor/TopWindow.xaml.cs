@@ -147,6 +147,7 @@ namespace Multi.Cursor
         //        // Add to our internal list for tracking/future reference
         //        _gridColumns.Add(newColumnGrid);
 
+
         //        // Register buttons in this column
         //        //RegisterButtons(newColumnGrid);
 
