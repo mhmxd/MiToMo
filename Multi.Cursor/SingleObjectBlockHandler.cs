@@ -401,7 +401,7 @@ namespace Multi.Cursor
                     UpdateScene();
                     break;
                 case (Technique.TOMO, _, false, _, _, false, _): // ToMo, marker not on function, _, function window not activated
-                    _activeTrialRecord.EnableObject(1);
+                    _activeTrialRecord.MarkObject(1);
                     UpdateScene();
                     break;
                 case (Technique.TOMO, _, false, _, _, true, _): // ToMo, marker not on function, _, function window activated
@@ -410,7 +410,7 @@ namespace Multi.Cursor
                 
                 case (Technique.MOUSE, true, _, _, _, _, _): // MOUSE, object correctly pressed
                     _activeTrialRecord.EnableAllFunctions();
-                    _activeTrialRecord.EnableObject(1);
+                    _activeTrialRecord.MarkObject(1);
                     UpdateScene();
                     break;
 
@@ -466,6 +466,27 @@ namespace Multi.Cursor
             }
 
             
+            e.Handled = true; // Mark the event as handled to prevent further processing
+        }
+
+        public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
+        {
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+
+            var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
+
+            switch (allFunctionsApplied)
+            {
+                case true:
+                    // All objects are selected, so we can end the trial
+                    EndActiveTrial(Result.HIT);
+                    break;
+                case false:
+                    // Not all objects are selected, so we treat it as a miss
+                    EndActiveTrial(Result.MISS);
+                    break;
+            }
+
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 

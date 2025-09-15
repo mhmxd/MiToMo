@@ -566,7 +566,7 @@ namespace Multi.Cursor
                     break;
 
                 case (true, Technique.MOUSE, _, false): // MOUSE, any marker state, not all objects selected
-                    _activeTrialRecord.EnableObject(objId);
+                    _activeTrialRecord.MarkObject(objId);
                     _pressedObjectId = objId;
                     UpdateScene();
                     //SetFunctionAsEnabled();
@@ -597,7 +597,7 @@ namespace Multi.Cursor
             switch (technique, thisObjPressed, markerOverFunction, allObjectsApplied)
             {
                 case (Technique.TOMO, true, true, false): // ToMo, object pressed, marker on function, not all objects applied
-                    _activeTrialRecord.ApplyFunction(funcIdUnderMarker, objId);
+                    _activeTrialRecord.ApplyFunction(funcIdUnderMarker);
                     UpdateScene();
                     break;
                 case (Technique.TOMO, true, false, false): // ToMo, object pressed, marker NOT on function, not all objects applied
@@ -606,7 +606,7 @@ namespace Multi.Cursor
 
 
                 case (Technique.MOUSE, true, _, false): // MOUSE, _, not all functions selected
-                    _activeTrialRecord.EnableObject(objId);
+                    _activeTrialRecord.MarkObject(objId);
                     _activeTrialRecord.MarkFunction(_activeTrialRecord.FindMappedFunctionId(objId));
                     UpdateScene();
                     break;
@@ -618,6 +618,27 @@ namespace Multi.Cursor
             
             e.Handled = true;
 
+        }
+
+        public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
+        {
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+
+            var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
+
+            switch (allObjectsApplied)
+            {
+                case true:
+                    // All objects are selected, so we can end the trial
+                    EndActiveTrial(Result.HIT);
+                    break;
+                case false:
+                    // Not all objects are selected, so we treat it as a miss
+                    EndActiveTrial(Result.MISS);
+                    break;
+            }
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public override void IndexTap()

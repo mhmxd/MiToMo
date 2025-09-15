@@ -1278,6 +1278,17 @@ namespace Multi.Cursor
             _activeBlockHandler.UpdateScene();
         }
 
+        public void SetFunctionAsEnabled(int funcId)
+        {
+            _activeBlockHandler.SetFunctionAsEnabled(funcId);
+            _activeBlockHandler.UpdateScene();
+        }
+
+        public void UpdateScene()
+        {
+            _activeBlockHandler.UpdateScene();
+        }
+
         public void ResetTargetWindow(Side side)
         {
             if (_targetWindow != null)

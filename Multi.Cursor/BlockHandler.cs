@@ -100,26 +100,7 @@ namespace Multi.Cursor
         public abstract void OnObjectMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnObjectMouseUp(Object sender, MouseButtonEventArgs e);
 
-        public void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
-        {
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
-
-            var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
-
-            switch (allFunctionsApplied)
-            {
-                case true:
-                    // All objects are selected, so we can end the trial
-                    EndActiveTrial(Result.HIT);
-                    break;
-                case false:
-                    // Not all objects are selected, so we treat it as a miss
-                    EndActiveTrial(Result.MISS);
-                    break;
-            }
-
-            e.Handled = true; // Mark the event as handled to prevent further processing
-        }
+        public abstract void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e);
 
         public void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)
         {
@@ -188,7 +169,7 @@ namespace Multi.Cursor
 
         }
 
-        protected void SetFunctionAsEnabled(int funcId)
+        public void SetFunctionAsEnabled(int funcId)
         {
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
@@ -196,7 +177,7 @@ namespace Multi.Cursor
                 Config.FUNCTION_ENABLED_COLOR);
         }
 
-        protected void SetFunctionAsDisabled(int funcId)
+        public void SetFunctionAsDisabled(int funcId)
         {
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide, 

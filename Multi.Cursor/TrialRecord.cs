@@ -148,7 +148,7 @@ namespace Multi.Cursor
             return false; // No functions are enabled
         }
 
-        public void EnableObject(int id)
+        public void MarkObject(int id)
         {
             TObject obj = Objects.FirstOrDefault(o => o.Id == id);
             if (obj != null)
@@ -157,7 +157,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void ApplyFunction(int funcId, int markedObjId = -1)
+        public void ApplyFunction(int funcId)
         {
             TFunction func = GetFunctionById(funcId);
             if (func != null)
@@ -168,14 +168,15 @@ namespace Multi.Cursor
             int nFuncs = Functions.Count;
             int nObjs = Objects.Count;
 
-            this.TrialInfo($"nFunc: {nFuncs}; nObj: {nObjs}");
+            //this.TrialInfo($"nFunc: {nFuncs}; nObj: {nObjs}");
 
             switch (nFuncs, nObjs) 
             {
                 case (1, 1): // One function and one object => apply the function to the object
                     ChangeObjectState(1, ButtonState.APPLIED);
                     break;
-                case (1, _): // One function and multiple objects => apply the function to the marked object
+                case (1, _): // One function and multiple objects => apply the function to the marked/enabled object
+                    int markedObjId = Objects.FirstOrDefault(o => o.State == ButtonState.MARKED)?.Id ?? -1;
                     ChangeObjectState(markedObjId, ButtonState.APPLIED);
                     break;
                 case (_, 1): // Multiple functions and one object => apply the function to the single object
@@ -226,9 +227,11 @@ namespace Multi.Cursor
 
         private void ChangeObjectState(int objId, ButtonState newState)
         {
+            this.TrialInfo($"Change Obj#{objId} to {newState}");
             TObject markedObj = Objects.FirstOrDefault(o => o.Id == objId);
             if (markedObj != null)
             {
+                this.TrialInfo($"Changed Obj#{objId} to {newState}");
                 markedObj.State = newState;
             }
         }

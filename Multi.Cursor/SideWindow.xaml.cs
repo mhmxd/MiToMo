@@ -568,7 +568,7 @@ namespace Multi.Cursor
         //    int middleId = FindMiddleButtonId();
         //    if (middleId != -1)
         //    {
-        //        _lastHighlightedButtonId = middleId; // Set the last highlighted button to the middle button
+        //        _lastMarkedButtonId = middleId; // Set the last highlighted button to the middle button
         //    }
         //    else
         //    {
@@ -613,7 +613,7 @@ namespace Multi.Cursor
         //                    {
         //                        //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
         //                        _topLeftButtonPosition = positionInWindow; // Update the top-left button position
-        //                        //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+        //                        //_lastMarkedButtonId = button.Id; // Set the last highlighted button to this one
         //                    }
 
         //                    Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
@@ -647,7 +647,7 @@ namespace Multi.Cursor
         //                    {
         //                        //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
         //                        _topLeftButtonPosition = positionInWindow; // Update the top-left button position
-        //                        //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+        //                        //_lastMarkedButtonId = button.Id; // Set the last highlighted button to this one
         //                    }
 
         //                    //this.TrialInfo($"Registered button ID#{button.Id}, Wx{button.WidthMultiple} | Position: {positionInWindow}");
@@ -658,7 +658,7 @@ namespace Multi.Cursor
 
         //    //this.TrialInfo($"Finished registering buttons in group. Current allButtons count: {_allButtons.Count}");
         //    // Set the first button as the highlighted button
-        //    //_lastHighlightedButtonId = _widthButtons.FirstOrDefault().Value.FirstOrDefault()?.Id ?? -1; // Get the first button ID or -1 if no buttons are present
+        //    //_lastMarkedButtonId = _widthButtons.FirstOrDefault().Value.FirstOrDefault()?.Id ?? -1; // Get the first button ID or -1 if no buttons are present
         //}
 
         /// <summary>
@@ -910,7 +910,7 @@ namespace Multi.Cursor
             if (middleId != -1)
             {
                 this.TrialInfo($"Middle Id = {middleId}");
-                _lastHighlightedButtonId = middleId; // Set the last highlighted button to the middle button
+                _lastMarkedButtonId = middleId; // Set the last highlighted button to the middle button
             }
             else
             {

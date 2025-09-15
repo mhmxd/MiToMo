@@ -177,7 +177,7 @@ namespace Multi.Cursor
             if (middleId != -1)
             {
                 this.TrialInfo($"Middle Id = {middleId}");
-                _lastHighlightedButtonId = middleId; // Set the last highlighted button to the middle button
+                _lastMarkedButtonId = middleId; // Set the last highlighted button to the middle button
             }
             else
             {
@@ -253,7 +253,7 @@ namespace Multi.Cursor
         //    {
         //        //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
         //        _topLeftButtonPosition = positionInWindow; // Update the top-left button position
-        //                                                   //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+        //                                                   //_lastMarkedButtonId = button.Id; // Set the last highlighted button to this one
         //    }
         //}
 
@@ -321,7 +321,7 @@ namespace Multi.Cursor
         //                    {
         //                        //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
         //                        _topLeftButtonPosition = positionInWindow; // Update the top-left button position
-        //                        //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+        //                        //_lastMarkedButtonId = button.Id; // Set the last highlighted button to this one
         //                    }
         //                }
         //            }

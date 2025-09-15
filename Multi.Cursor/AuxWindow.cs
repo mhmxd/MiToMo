@@ -65,7 +65,7 @@ namespace Multi.Cursor
         protected double _gridMaxY = double.MinValue;
 
         protected GridNavigator _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
-        protected int _lastHighlightedButtonId = -1; // ID of the currently highlighted button
+        protected int _lastMarkedButtonId = -1; // ID of the currently highlighted button
         protected Point _topLeftButtonPosition = new Point(10000, 10000); // Initialize to a large value to find the top-left button
 
         protected Rect _objectConstraintRectAbsolute = new Rect();
@@ -148,7 +148,7 @@ namespace Multi.Cursor
             {
                 //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
                 _topLeftButtonPosition = positionInWindow; // Update the top-left button position
-                                                           //_lastHighlightedButtonId = button.Id; // Set the last highlighted button to this one
+                                                           //_lastMarkedButtonId = button.Id; // Set the last highlighted button to this one
             }
         }
 
@@ -308,7 +308,7 @@ namespace Multi.Cursor
                 _buttonInfos[buttonId].ButtonFill = color; // Store the default background color
                 _buttonInfos[buttonId].Button.Background = color; // Change the background color of the button
                 _buttonInfos[buttonId].Button.DisableBackgroundHover = true; // Disable hover fill for this button
-                //this.TrialInfo($"Button with ID {targetId} filled with color {color}.");
+                //this.TrialInfo($"Button {buttonId} filled with color {color}.");
             }
             else
             {
@@ -431,10 +431,10 @@ namespace Multi.Cursor
 
         public void ShowMarker()
         {
-            if (_lastHighlightedButtonId != -1 && _buttonInfos.ContainsKey(_lastHighlightedButtonId))
+            if (_lastMarkedButtonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
             {
-                MarkButton(_lastHighlightedButtonId); // Highlight the last highlighted button
-                this.TrialInfo($"Last highlight = {_lastHighlightedButtonId}");
+                MarkButton(_lastMarkedButtonId); // Highlight the last highlighted button
+                this.TrialInfo($"Last highlight = {_lastMarkedButtonId}");
             }
             else
             {
@@ -444,8 +444,8 @@ namespace Multi.Cursor
 
         public void ActivateMarker()
         {
-            this.TrialInfo($"Last highlight = {_lastHighlightedButtonId}");
-            ActivateMarker(_lastHighlightedButtonId); // Activate the grid navigator with the last highlighted button ID
+            this.TrialInfo($"Last highlight = {_lastMarkedButtonId}");
+            ActivateMarker(_lastMarkedButtonId); // Activate the grid navigator with the last highlighted button ID
         }
 
         public void ActivateMarker(int buttonId)
@@ -465,9 +465,9 @@ namespace Multi.Cursor
         public void DeactivateGridNavigator()
         {
             _gridNavigator.Deactivate(); // Deactivate the grid navigator
-            if (_lastHighlightedButtonId != -1 && _buttonInfos.ContainsKey(_lastHighlightedButtonId))
+            if (_lastMarkedButtonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
             {
-                _buttonInfos[_lastHighlightedButtonId].ChangeBackFill();
+                _buttonInfos[_lastMarkedButtonId].ChangeBackFill();
                 //button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of the last highlighted button
             }
         }
@@ -507,9 +507,13 @@ namespace Multi.Cursor
 
         public void HighlightButton(int buttonId)
         {
-            var buttonBgOrangeOrLightGreen =
-                _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_DEFAULT_COLOR) ||
+            var buttonBgOrange =
+                _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_DEFAULT_COLOR);
+            var buttonBgLightGreen =
                 _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_ENABLED_COLOR);
+            var buttonBgDarkGreen =
+                _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_APPLIED_COLOR);
+            
             // Reset the border aof all buttons
             //foreach (var btn in _allButtons.Values)
             //{
@@ -522,21 +526,24 @@ namespace Multi.Cursor
                 _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
 
                 // Change the background to selected (green) if orange or light green
-                if (buttonBgOrangeOrLightGreen)
+                if (buttonBgOrange || buttonBgLightGreen)
                 {
                     _buttonInfos[buttonId].Button.Background = Config.FUNCTION_APPLIED_COLOR;
-
 
                     // Tell the MainWindow to mark the mapped object and set function as applied
                     ((MainWindow)this.Owner).MarkMappedObject(buttonId);
                     ((MainWindow)this.Owner).SetFunctionAsApplied(buttonId);
                 }
-                else // Other buttons
+                else if (buttonBgDarkGreen) // Don't change if already dark green
+                {
+                    // Do nothing, stay dark green
+                }
+                else // Change to default hover color
                 {
                     _buttonInfos[buttonId].Button.Background = Config.BUTTON_HOVER_FILL_COLOR;
                 }
 
-                _lastHighlightedButtonId = buttonId; // Store the ID of the highlighted button
+                _lastMarkedButtonId = buttonId; // Store the ID of the highlighted button
             }
             else
             {
@@ -549,28 +556,28 @@ namespace Multi.Cursor
             // Update the grid navigator with the current touch point
             var (dGridX, dGridY) = _gridNavigator.Update(tp);
 
-            if ((dGridX == 0 && dGridY == 0) || _lastHighlightedButtonId == -1)
+            if ((dGridX == 0 && dGridY == 0) || _lastMarkedButtonId == -1)
             {
                 return; // No movement needed
             }
 
-            SButton highlightedButton = _buttonInfos[_lastHighlightedButtonId].Button;
+            SButton markedButton = _buttonInfos[_lastMarkedButtonId].Button;
 
             // --- Process Horizontal Movement ---
             if (dGridX > 0) // Move Right
             {
                 for (int i = 0; i < dGridX; i++)
                 {
-                    if (highlightedButton.RightId == -1) break; // Hit the edge
-                    highlightedButton = _buttonInfos[highlightedButton.RightId].Button;
+                    if (markedButton.RightId == -1) break; // Hit the edge
+                    markedButton = _buttonInfos[markedButton.RightId].Button;
                 }
             }
             else // Move Left
             {
                 for (int i = 0; i < -dGridX; i++)
                 {
-                    if (highlightedButton.LeftId == -1) break; // Hit the edge
-                    highlightedButton = _buttonInfos[highlightedButton.LeftId].Button;
+                    if (markedButton.LeftId == -1) break; // Hit the edge
+                    markedButton = _buttonInfos[markedButton.LeftId].Button;
                 }
             }
 
@@ -579,25 +586,77 @@ namespace Multi.Cursor
             {
                 for (int i = 0; i < dGridY; i++)
                 {
-                    if (highlightedButton.BottomId == -1) break; // Hit the edge
-                    highlightedButton = _buttonInfos[highlightedButton.BottomId].Button;
+                    if (markedButton.BottomId == -1) break; // Hit the edge
+                    markedButton = _buttonInfos[markedButton.BottomId].Button;
                 }
             }
             else // Move Up
             {
                 for (int i = 0; i < -dGridY; i++)
                 {
-                    if (highlightedButton.TopId == -1) break; // Hit the edge
-                    highlightedButton = _buttonInfos[highlightedButton.TopId].Button;
+                    if (markedButton.TopId == -1) break; // Hit the edge
+                    markedButton = _buttonInfos[markedButton.TopId].Button;
                 }
             }
 
             // Change the last highlighted button if it has changed
-            if (highlightedButton.Id != _lastHighlightedButtonId)
+            this.TrialInfo($"Marked button ID: {markedButton.Id} | last button ID: {_lastMarkedButtonId}");
+            //if (markedButton.Id != _lastMarkedButtonId)
+            //{
+            //    ResetHighlights(); // Reset highlights for all buttons
+
+            //    // If changed away from a button with applied function, set it back to enabled
+            //    if (_buttonInfos[_lastMarkedButtonId].Button.Background.Equals(Config.FUNCTION_APPLIED_COLOR))
+            //    {
+            //        this.TrialInfo($"Away from applied function");
+            //        _buttonInfos[_lastMarkedButtonId].Button.Background = Config.FUNCTION_ENABLED_COLOR;
+            //        // Tell the MainWindow to mark the mapped object and set function as applied
+            //        ((MainWindow)this.Owner).SetFunctionAsEnabled(_lastMarkedButtonId);
+            //    }
+
+            //    _lastMarkedButtonId = markedButton.Id; // Update the last highlighted button ID
+
+            //    HighlightButton(markedButton.Id); // Highlight the new button
+            //}
+
+            if (markedButton.Id != _lastMarkedButtonId)
             {
-                _lastHighlightedButtonId = highlightedButton.Id; // Update the last highlighted button ID
-                ResetHighlights(); // Reset highlights for all buttons
-                HighlightButton(highlightedButton.Id); // Highlight the new button
+                // STEP 1: Handle the old button's state change
+                if (_lastMarkedButtonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
+                {
+                    var oldButton = _buttonInfos[_lastMarkedButtonId].Button;
+                    oldButton.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR;
+                    markedButton.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR;
+
+                    // Change the old button background based on the previous state
+                    if (oldButton.Background.Equals(Config.BUTTON_HOVER_FILL_COLOR)) // Gray
+                    {
+                        //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
+                        oldButton.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
+                    }
+                    else if (oldButton.Background.Equals(Config.FUNCTION_APPLIED_COLOR))
+                    {
+                        //this.TrialInfo($"Set {_lastMarkedButtonId} to Enabled");
+                        oldButton.Background = Config.FUNCTION_ENABLED_COLOR;
+                    }
+
+                    // Change the new button background based on its previous state
+                    if (markedButton.Background.Equals(Config.BUTTON_DEFAULT_FILL_COLOR))
+                    {
+                        //this.TrialInfo($"Set {markedButton.Id} to Hover Fill");
+                        markedButton.Background = Config.BUTTON_HOVER_FILL_COLOR; // Change to hover color
+                    }
+                    else if (
+                        markedButton.Background.Equals(Config.FUNCTION_ENABLED_COLOR) ||
+                        markedButton.Background.Equals(Config.FUNCTION_DEFAULT_COLOR))
+                    {
+                        //this.TrialInfo($"Set {markedButton.Id} to Applied");
+                        markedButton.Background = Config.FUNCTION_APPLIED_COLOR; // Change to applied color
+                    }
+                }
+
+                // STEP 2: Update the last marked button ID
+                _lastMarkedButtonId = markedButton.Id;
             }
         }
 
@@ -761,7 +820,7 @@ namespace Multi.Cursor
 
         public bool IsNavigatorOnButton(int buttonId)
         {
-            return _lastHighlightedButtonId == buttonId;
+            return _lastMarkedButtonId == buttonId;
         }
 
         /// <summary>
