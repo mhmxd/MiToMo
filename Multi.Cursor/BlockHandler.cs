@@ -145,7 +145,7 @@ namespace Multi.Cursor
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(Str.START_RELEASE);
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+            //this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             var startButtonPressed = GetEventCount(Str.START_PRESS) > 0;
 
@@ -311,6 +311,9 @@ namespace Multi.Cursor
 
             string timeKey = eventName + "_" + _trialRecords[_activeTrial.Id].EventCounts[eventName];
             _activeTrialRecord.AddTimestamp(timeKey);
+
+            // Write to logs
+            
         }
 
         protected int GetEventCount(string eventName)
@@ -394,10 +397,10 @@ namespace Multi.Cursor
             double shortDistAvg = shortDistTimes.Avg();
             double midDistAvg = midDistTimes.Avg();
             double lonDistAvg = longDistTimes.Avg();
-            ExperiLogger.LogTrialMessage($"Average Time per Distance --- " +
-                $"Short({shortDistTimes.Count}): {shortDistAvg:F2}; " +
-                $"Mid({midDistTimes.Count}): {midDistAvg:F2}; " +
-                $"Long({longDistTimes.Count}): {lonDistAvg:F2}");
+            //ExperiLogger.LogTrialMessage($"Average Time per Distance --- " +
+            //    $"Short({shortDistTimes.Count}): {shortDistAvg:F2}; " +
+            //    $"Mid({midDistTimes.Count}): {midDistAvg:F2}; " +
+            //    $"Long({longDistTimes.Count}): {lonDistAvg:F2}");
         }
 
     }

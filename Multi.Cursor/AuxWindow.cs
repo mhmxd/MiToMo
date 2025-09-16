@@ -634,11 +634,6 @@ namespace Multi.Cursor
                         //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
                         oldButton.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
                     }
-                    else if (oldButton.Background.Equals(Config.FUNCTION_APPLIED_COLOR))
-                    {
-                        //this.TrialInfo($"Set {_lastMarkedButtonId} to Enabled");
-                        oldButton.Background = Config.FUNCTION_ENABLED_COLOR;
-                    }
 
                     // Change the new button background based on its previous state
                     if (markedButton.Background.Equals(Config.BUTTON_DEFAULT_FILL_COLOR))
@@ -646,12 +641,10 @@ namespace Multi.Cursor
                         //this.TrialInfo($"Set {markedButton.Id} to Hover Fill");
                         markedButton.Background = Config.BUTTON_HOVER_FILL_COLOR; // Change to hover color
                     }
-                    else if (
-                        markedButton.Background.Equals(Config.FUNCTION_ENABLED_COLOR) ||
-                        markedButton.Background.Equals(Config.FUNCTION_DEFAULT_COLOR))
+                    else if (markedButton.Background.Equals(Config.FUNCTION_DEFAULT_COLOR))
                     {
                         //this.TrialInfo($"Set {markedButton.Id} to Applied");
-                        markedButton.Background = Config.FUNCTION_APPLIED_COLOR; // Change to applied color
+                        markedButton.Background = Config.FUNCTION_ENABLED_COLOR; // Change to applied color
                     }
                 }
 

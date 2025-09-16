@@ -567,7 +567,7 @@ namespace Multi.Cursor
             {
                 TouchPoint touchPoint = currentFrame.GetPointer(finger);
                 Point tpCenter = touchPoint.GetCenter();
-                //GestInfo<TouchSurface>($"Index Pos: {tpCenter.ToStr()}");
+                
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
                     _lastPositions[finger] = tpCenter;
@@ -629,7 +629,6 @@ namespace Multi.Cursor
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
                     _lastPositions[finger] = tpCenter;
-
                 }
                 else // First touch
                 {
@@ -642,15 +641,15 @@ namespace Multi.Cursor
             }
             else // Finger NOT present in the current frame
             {
-                if (_lastPositions.ContainsKey(finger))
+                if (_lastPositions.ContainsKey(finger)) // Finger was active => Lifted up
                 {
                     Point downPosition = _downPositions[finger];
                     Point lastPosition = _lastPositions[finger];
                     if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                     {
-                        //GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
-                        //    $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
-                        //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
+                        GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                            $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
+                            $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                         LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                             Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
                         if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds,

@@ -21,6 +21,7 @@ namespace Multi.Cursor
         private static Logger _gestureFileLog;
         private static Logger _blockFileLog;
 
+        private static Dictionary<string, int> _trialLogs = new Dictionary<string, int>();
 
         private static int ptcId = 0; // Participant ID
         private static Technique technique = Technique.MOUSE; // Technique
@@ -48,6 +49,11 @@ namespace Multi.Cursor
                 .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
                 outputTemplate: "{Message:lj}{NewLine}"))
                 .CreateLogger();
+        }
+
+        public static void StartTrialLog(TrialRecord trialRecord)
+        {
+
         }
 
         public static void StartTrialLogs(int trialNum, int trialId, double targetWidthMM, double distanceMM, Point startPos, Point targetPos)

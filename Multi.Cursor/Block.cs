@@ -458,13 +458,17 @@ namespace Multi.Cursor
 
         public void ShuffleBackTrial(int trialNum)
         {
-            if (trialNum >= 1 && trialNum <= _trials.Count && _trials.Count > 1)
+            if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
             {
                 Trial trialToCopy = _trials[trialNum - 1];
                 Random random = new Random();
                 int insertIndex = random.Next(trialNum + 1, _trials.Count);
 
                 _trials.Insert(insertIndex, trialToCopy);
+            }
+            else if (trialNum == _trials.Count && _trials.Count > 1)
+            {
+                _trials.Insert(trialNum, _trials[trialNum - 1]);
             }
             else if (_trials.Count <= 1)
             {
