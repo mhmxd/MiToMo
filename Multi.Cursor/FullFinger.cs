@@ -7,9 +7,9 @@ using System.Drawing;
 
 namespace Multi.Cursor
 {
-    internal class Finger
+    internal class FullFinger
     {
-        // Finger enum
+        // FullFinger enum
         public enum FingerName
         {
             Thumb,
@@ -41,7 +41,7 @@ namespace Multi.Cursor
         public int ConsecutiveTapCount { get; private set; } = 0;
         public DateTime LastTapTime { get; private set; }
 
-        public Finger(int id, Point position, double pressure, int area)
+        public FullFinger(int id, Point position, double pressure, int area)
         {
             Id = id;
             Position = position;

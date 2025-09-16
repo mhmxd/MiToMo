@@ -517,14 +517,6 @@ namespace Multi.Cursor
             return _technique;
         }
 
-        public Technique GetGeneralTechnique()
-        {
-            if (_technique == Technique.TOMO_SWIPE || _technique == Technique.TOMO_TAP)
-                return Technique.TOMO;
-            else
-                return Technique.MOUSE;
-        }
-
         public Complexity GetComplexity()
         {
             return _complexity;

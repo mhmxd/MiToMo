@@ -22,7 +22,7 @@ namespace Multi.Cursor
         TOMO_SWIPE = 0, 
         TOMO_TAP = 1, 
         TOMO = 2, 
-        MOUSE = 3 
+        MOUSE = 3
     }
 
     [Flags]
@@ -57,5 +57,14 @@ namespace Multi.Cursor
     { 
         CONTINUE = 0, 
         MISS = 1 
+    }
+
+    public enum Finger
+    {
+        Thumb = 1,
+        Index = 2,
+        Middle = 3,
+        Ring = 4,
+        Pinky = 5
     }
 }

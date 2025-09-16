@@ -94,6 +94,11 @@ namespace Multi.Cursor
             _blockFileLog.Information(message);
         }
 
+        public static void LogGestureDuration(string gesture, int duration)
+        {
+
+        }
+
         public static void LogTrialTimes(TrialRecord trialRecord)
         {
             switch (_technique)
@@ -105,6 +110,11 @@ namespace Multi.Cursor
                     _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUNCTION_PRESS)}");
                     _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(Str.FUNCTION_PRESS, Str.FUNCTION_RELEASE)}");
                     _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(Str.FUNCTION_RELEASE, Str.OBJ_AREA_PRESS)}");
+                    break;
+
+                case Technique.TOMO_TAP:
+                    _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDuration(Str.START_RELEASE, Str.DOWN)}");
+                    _blockFileLog.Information($"Tap Down        -> Tap Up:      {trialRecord.GetDuration(Str.DOWN, Str.UP)}");
                     break;
             }
         }

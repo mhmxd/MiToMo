@@ -247,7 +247,7 @@ namespace Multi.Cursor
             
         }
 
-        public abstract void IndexTap();
+        public abstract void IndexTap(long downInstant, long upInstant);
 
         public void IndexMove(double dX, double dY)
         {
@@ -266,7 +266,7 @@ namespace Multi.Cursor
 
         public abstract void ThumbSwipe(Direction dir);
 
-        public abstract void ThumbTap();
+        public abstract void ThumbTap(long downInstant, long upInstant);
 
         public void ThumbMove(TouchPoint thumbPoint)
         {
@@ -303,6 +303,22 @@ namespace Multi.Cursor
 
             //string timeKey = eventName + "_" + _trialRecords[_activeTrial.Id].EventCounts[eventName];
             _activeTrialRecord.AddTimestamp(eventName); // Let them have the same name. We know the count from EventCounts
+
+        }
+
+        protected void LogEvent(string eventName, long eventTime)
+        {
+            if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(eventName))
+            {
+                _trialRecords[_activeTrial.Id].EventCounts[eventName]++;
+            }
+            else
+            {
+                _trialRecords[_activeTrial.Id].EventCounts[eventName] = 1;
+            }
+
+            //string timeKey = eventName + "_" + _trialRecords[_activeTrial.Id].EventCounts[eventName];
+            _activeTrialRecord.AddTimestamp(eventName);
 
         }
 
@@ -393,6 +409,10 @@ namespace Multi.Cursor
             //    $"Long({longDistTimes.Count}): {lonDistAvg:F2}");
         }
 
+        public void RecordGesture(Finger finger, string action)
+        {
+            LogEvent(finger.ToString().ToLower() + "_" + action);
+        }
     }
 
 }

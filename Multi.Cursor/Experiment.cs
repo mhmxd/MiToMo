@@ -211,12 +211,6 @@ namespace Multi.Cursor
             else return null;
         }
 
-        public bool IsTechAuxCursor()
-        {
-            return Active_Technique == Technique.TOMO_SWIPE ||
-                Active_Technique == Technique.TOMO_TAP;
-        }
-
         public static double GetMinTargetWidthMM()
         {
             return TARGET_WIDTHS_MM.First();

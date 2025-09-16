@@ -252,6 +252,13 @@ namespace Multi.Cursor
             this.TrialInfo($"Added timestamp: {timestamp.ToString()}");
         }
 
+        public void AddTimestamp(string label, long time)
+        {
+            TimeStamp timestamp = new TimeStamp(label, time);
+            Timestamps.Add(timestamp);
+            this.TrialInfo($"Added timestamp: {timestamp.ToString()}");
+        }
+
         public string TimestampsToString()
         {
             return string.Join(", ", Timestamps.Select(ts => $"{ts.label}: {ts.time}"));
@@ -274,20 +281,34 @@ namespace Multi.Cursor
 
         public long GetLastTimestamp(string label)
         {
-            var timestamp = Timestamps.LastOrDefault(ts => ts.label == label);
-            if (timestamp != null)
+            // If label is a gesture, return the last timestamp with the label ending in _GESTURE
+            if (Str.IsGesture(label))
             {
-                return timestamp.time;
+                var gestureTimestamps = Timestamps.LastOrDefault(ts => ts.label.EndsWith("_" + label));
+                if (gestureTimestamps != null)
+                {
+                    return gestureTimestamps.time;
+                }
             }
+            else
+            {
+                var timestamp = Timestamps.LastOrDefault(ts => ts.label == label);
+                if (timestamp != null)
+                {
+                    return timestamp.time;
+                }
+            }
+                
             return -1; // Return -1 if the label is not found
         }
 
         public int GetDuration(string startLabel, string endLabel)
         {
+            this.TrialInfo($"Timestamps: {TimestampsToString()}");
             long startTime = GetLastTimestamp(startLabel);
-            this.TrialInfo($"Start: {startTime}");
+            //this.TrialInfo($"{startLabel}: {startTime}");
             long endTime = GetLastTimestamp(endLabel);
-            this.TrialInfo($"End: {endTime}");
+            //this.TrialInfo($"{endLabel}: {endTime}");
             if (startTime != -1 && endTime != -1 && endTime >= startTime)
             {
                 return (int)(endTime - startTime);

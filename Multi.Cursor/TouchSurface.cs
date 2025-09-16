@@ -41,21 +41,13 @@ namespace Multi.Cursor
         };
 
         private Dictionary<Finger, Stopwatch> _touchTimers = new Dictionary<Finger, Stopwatch>();
+        private Dictionary<string, long> _gestureInstants = new Dictionary<string, long>();
         private Dictionary<Finger, Point> _downPositions = new Dictionary<Finger, Point>();
         private Dictionary<Finger, Point> _lastPositions = new Dictionary<Finger, Point>();
         private FixedBuffer<TouchFrame> _thumbGestureFrames = new FixedBuffer<TouchFrame>(100);
         private TouchFrame _thumbGestureStart;
 
         private Stopwatch debugWatch = new Stopwatch();
-
-        public enum Finger
-        {
-            Thumb = 1,
-            Index = 2,
-            Middle = 3,
-            Ring = 4,
-            Pinky = 5
-        }
 
         FingerTracker tracker = new FingerTracker();
 
@@ -315,7 +307,7 @@ namespace Multi.Cursor
             MinimaDetected:
                 if (separated)
                 {
-                    // 6. Calculate Center of Mass and Total Pressure for Each Finger Segment
+                    // 6. Calculate Center of Mass and Total Pressure for Each FullFinger Segment
                     foreach (var kvp in fingerSegments)
                     {
                         int fingerId = kvp.Key;
@@ -492,10 +484,12 @@ namespace Multi.Cursor
             // Get the last frame
             TouchFrame currentFrame = _frames.Last;
             //TouchFrame beforeLastFrame = _frames.BeforeLast;
-            //TouchPoint thumbPoint = currentFrame.GetPointer(Finger.Thumb);
+            //TouchPoint thumbPoint = currentFrame.GetPointer(FullFinger.Thumb);
             Finger finger = Finger.Thumb;
+            string downStr = finger.ToString().ToLower() + Str.DOWN;
+            string upStr = finger.ToString().ToLower() + Str.UP;
 
-            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
             {
                 Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
                 //GestInfo<TouchSurface>($"Thumb Pos: {tpCenter.ToStr()}");
@@ -511,9 +505,10 @@ namespace Multi.Cursor
                     _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
                     _thumbGestureStart = currentFrame;
+                    _gestureReceiver?.RecordGesture(finger, Str.DOWN);
                 }
             }
-            else // Finger NOT present in the current frame
+            else // FullFinger NOT present in the current frame
             {
                 if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                 {
@@ -531,24 +526,33 @@ namespace Multi.Cursor
                         Abs(lastPosition.X - downPosition.X),
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
+
+                        //_gestureInstants[upStr] = _touchTimers[finger].ElapsedMilliseconds;
+                        _gestureReceiver?.RecordGesture(finger, Str.UP);
+
+                        // Perform the tap
+                        _gestureReceiver?.ThumbTap(0, 0);
+
                         // Find the Tap position (Top or Down)
                         if (lastPosition.Y < THUMB_TOP_LOWEST_ROW) // Top
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
                             LogTap(finger.ToString(), Side.Top, currentFrame.Timestamp); // LOG
-                            _gestureReceiver?.ThumbTap(Side.Top);
+                            //_gestureReceiver?.ThumbTap(Side.Top);
                             
                         }
                         else // Down
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Down.");
                             LogTap(finger.ToString(), Side.Down, currentFrame.Timestamp); // LOG
-                            _gestureReceiver?.ThumbTap(Side.Down);
-                            
+                            //_gestureReceiver?.ThumbTap(Side.Down);
                         }
+
+                        // Log
+                        
                     }
 
-                    _gestureReceiver?.ThumbUp();
+                    _gestureReceiver?.RecordGesture(finger, Str.UP);
                     _touchTimers[finger].Stop();
                 }
                 
@@ -562,8 +566,10 @@ namespace Multi.Cursor
         {
             TouchFrame currentFrame = _frames.Last; // Get current frame
             Finger finger = Finger.Index;
+            string downStr = finger.ToString().ToLower() + Str.DOWN;
+            string upStr = finger.ToString().ToLower() + Str.UP;
 
-            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
             {
                 TouchPoint touchPoint = currentFrame.GetPointer(finger);
                 Point tpCenter = touchPoint.GetCenter();
@@ -582,9 +588,10 @@ namespace Multi.Cursor
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
+                    _gestureReceiver?.RecordGesture(finger, Str.DOWN);
                 }
             }
-            else // Finger not present in the current frame
+            else // FullFinger not present in the current frame
             {
                 if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                 {
@@ -595,16 +602,18 @@ namespace Multi.Cursor
                     //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
+
                     if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X),
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
+                        _gestureInstants[upStr] = _touchTimers[finger].ElapsedMilliseconds;
                         LogTap(finger.ToString(), Side.Left, currentFrame.Timestamp); // LOG
-                        _gestureReceiver?.IndexTap();
+                        _gestureReceiver?.IndexTap(0, 0);
                     }
 
-                    _gestureReceiver?.IndexUp();
+                    _gestureReceiver?.RecordGesture(finger, Str.UP);
                     _touchTimers[finger].Stop();
                 }
                 
@@ -619,10 +628,10 @@ namespace Multi.Cursor
         {
             // Get the last frame
             TouchFrame currentFrame = _frames.Last;
-            //TouchPoint middleTouchPoint = lastFrame.GetPointer(Finger.Middle);
+            //TouchPoint middleTouchPoint = lastFrame.GetPointer(FullFinger.Middle);
             Finger finger = Finger.Middle;
 
-            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
             {
                 Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
                 //GestInfo<TouchSurface>($"Middle Pos: {tpCenter.ToStr()}");
@@ -639,9 +648,9 @@ namespace Multi.Cursor
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
-            else // Finger NOT present in the current frame
+            else // FullFinger NOT present in the current frame
             {
-                if (_lastPositions.ContainsKey(finger)) // Finger was active => Lifted up
+                if (_lastPositions.ContainsKey(finger)) // FullFinger was active => Lifted up
                 {
                     Point downPosition = _downPositions[finger];
                     Point lastPosition = _lastPositions[finger];
@@ -676,11 +685,11 @@ namespace Multi.Cursor
 
             // Get the last frame
             TouchFrame currentFrame = _frames.Last;
-            //TouchPoint ringTouchPoint = lastFrame.GetPointer(Finger.Ring);
+            //TouchPoint ringTouchPoint = lastFrame.GetPointer(FullFinger.Ring);
 
             Finger finger = Finger.Ring;
 
-            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
             {
                 Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
                 //GestInfo<TouchSurface>($"Ring Pos: {tpCenter.ToStr()}");
@@ -697,7 +706,7 @@ namespace Multi.Cursor
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
-            else // Finger NOT present in the current frame
+            else // FullFinger NOT present in the current frame
             {
                 if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                 {
@@ -735,11 +744,11 @@ namespace Multi.Cursor
             // Get the last frame
             TouchFrame currentFrame = _frames.Last;
             //TouchFrame beforeLastFrame = _frames.BeforeLast;
-            //TouchPoint littleTouchPoint = lastFrame.GetPointer(Finger.Little);
+            //TouchPoint littleTouchPoint = lastFrame.GetPointer(FullFinger.Little);
 
             Finger finger = Finger.Pinky;
 
-            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
             {
                 Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
                 //GestInfo<TouchSurface>($"Pinky Pos: {tpCenter.ToStr()}");
@@ -757,7 +766,7 @@ namespace Multi.Cursor
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
-            else // Finger NOT present in the current frame
+            else // FullFinger NOT present in the current frame
             {
                 if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                 {
@@ -813,7 +822,7 @@ namespace Multi.Cursor
             TouchFrame currentFrame = _frames.Last; // Get the current frame
             Finger finger = Finger.Thumb;
 
-            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
             {
                 Point center = currentFrame.GetPointer(finger).GetCenter();
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
@@ -874,7 +883,7 @@ namespace Multi.Cursor
                     _thumbGestureStart = currentFrame;
                 }
             }
-            else // Finger NOT present in the current frame
+            else // FullFinger NOT present in the current frame
             {
                 if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                 {
@@ -893,7 +902,7 @@ namespace Multi.Cursor
 
             Finger finger = Finger.Index;
 
-            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
             {
                 TouchPoint touchPoint = currentFrame.GetPointer(finger);
                 Point tpCenter = touchPoint.GetCenter();
@@ -913,7 +922,7 @@ namespace Multi.Cursor
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
-            else // Finger not present in the current frame
+            else // FullFinger not present in the current frame
             {
                 if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                 {
@@ -940,7 +949,7 @@ namespace Multi.Cursor
             TouchFrame currentFrame = _frames.Last; // Get current frame
             Finger finger = Finger.Middle;
 
-            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
             {
                 Point center = currentFrame.GetPointer(finger).GetCenter();
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
@@ -956,7 +965,7 @@ namespace Multi.Cursor
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
-            else // Finger NOT present in the current frame
+            else // FullFinger NOT present in the current frame
             {
                 if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                 {
@@ -974,7 +983,7 @@ namespace Multi.Cursor
             TouchFrame currentFrame = _frames.Last; // Get the current frame
             Finger finger = Finger.Ring;
 
-            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
             {
                 Point center = currentFrame.GetPointer(finger).GetCenter();
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
@@ -989,7 +998,7 @@ namespace Multi.Cursor
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
-            else // Finger NOT present in the current frame
+            else // FullFinger NOT present in the current frame
             {
                 if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                 {
@@ -1007,7 +1016,7 @@ namespace Multi.Cursor
             TouchFrame currentFrame = _frames.Last; // Get the current frame
             Finger finger = Finger.Pinky;
 
-            if (currentFrame.HasTouchPoint(finger)) // Finger present
+            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
             {
                 Point center = currentFrame.GetPointer(finger).GetCenter();
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
@@ -1022,7 +1031,7 @@ namespace Multi.Cursor
                     _touchTimers[finger].Restart(); // Start the timer
                 }
             }
-            else // Finger NOT present in the current frame
+            else // FullFinger NOT present in the current frame
             {
                 if (_touchTimers[finger].IsRunning) // Was active => Lifted up
                 {
@@ -1099,7 +1108,7 @@ namespace Multi.Cursor
         //=========================== Logging =========================
         private void LogDown(string fingerName, long timestamp)
         {
-            ExperiLogger.LogGestureEvent($"{fingerName} Down!");
+            //ExperiLogger.LogGestureEvent($"{fingerName} Down!");
         }
 
         private void LogUp(string fingerName, long duration, double dX, double dY)

@@ -106,7 +106,7 @@ namespace Multi.Cursor
         private const double MaxTrackingDistance = 30;
 
         // Storage for tracked fingers - using array for performance
-        private readonly Finger[] _fingers = new Finger[MaxFingers];
+        private readonly FullFinger[] _fingers = new FullFinger[MaxFingers];
         private readonly bool[] _fingerActive = new bool[MaxFingers];
         private int _activeFingerCount = 0;
 
@@ -114,7 +114,7 @@ namespace Multi.Cursor
         public List<BlobInfo> LastDetectedBlobs { get; private set; } = new List<BlobInfo>();
 
         // Detect and track fingers in the current frame
-        public Finger[] ProcessFrame(Span2D<byte> touchData)
+        public FullFinger[] ProcessFrame(Span2D<byte> touchData)
         {
             // Mark all fingers as inactive for this frame
             for (int i = 0; i < MaxFingers; i++)
@@ -536,7 +536,7 @@ namespace Multi.Cursor
 
                 // Create new finger
                 BlobInfo blob = blobs[i];
-                _fingers[freeIdx] = new Finger(
+                _fingers[freeIdx] = new FullFinger(
                     freeIdx,
                     new Point((int)blob.CenterX, (int)blob.CenterY),
                     blob.AveragePressure,

@@ -605,104 +605,6 @@ namespace Multi.Cursor
             return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
         }
 
-        //public static Point FindRandPointWithDist(this Rect rect, Point src, double dist, Side side)
-        //{
-        //    const int maxAttempts = 5000;
-
-        //    // 1. Get the four corners of the rectangle
-        //    Point topLeft = new Point(rect.Left, rect.Top);
-        //    Point topRight = new Point(rect.Right, rect.Top);
-        //    Point bottomLeft = new Point(rect.Left, rect.Bottom);
-        //    Point bottomRight = new Point(rect.Right, rect.Bottom);
-
-        //    // List of corners
-        //    Point[] corners = { topLeft, topRight, bottomLeft, bottomRight };
-
-        //    // 2. Calculate angles from src to each corner
-        //    List<double> angles = new List<double>();
-        //    foreach (Point corner in corners)
-        //    {
-        //        // Math.Atan2(y, x) returns an angle in radians between -PI and PI.
-        //        // For Y-DOWN pixel coordinates, the standard Atan2 usage (dy, dx) is correct.
-        //        angles.Add(Math.Atan2(corner.Y - src.Y, corner.X - src.X));
-        //    }
-
-        //    // 3. Find the minimum and maximum angles that define the sector.
-        //    // This is the most critical part, handling angle wrap-around (e.g., from -170 deg to +170 deg).
-        //    // Normalize angles to a 0 to 2*PI range temporarily for easier sorting and span calculation.
-        //    List<double> normalizedAngles = angles.Select(a => a < 0 ? a + 2 * Math.PI : a).ToList();
-        //    normalizedAngles.Sort();
-
-        //    double minSearchRad = 0;
-        //    double maxSearchRad = 0;
-        //    double maxGap = 0;
-        //    int maxGapIndex = -1;
-
-        //    // Find the largest angular gap between sorted angles. This gap represents the "empty" space
-        //    // from the perspective of the source point, meaning the rectangle does not occupy this sector.
-        //    for (int i = 0; i < normalizedAngles.Count; i++)
-        //    {
-        //        double currentAngle = normalizedAngles[i];
-        //        double nextAngle = normalizedAngles[(i + 1) % normalizedAngles.Count]; // Wrap around for the last vs first angle
-
-        //        double gap;
-        //        if (nextAngle < currentAngle) // This means wrap-around happened (e.g., last angle 350, first 10)
-        //        {
-        //            gap = (nextAngle + 2 * Math.PI) - currentAngle;
-        //        }
-        //        else
-        //        {
-        //            gap = nextAngle - currentAngle;
-        //        }
-
-        //        if (gap > maxGap)
-        //        {
-        //            maxGap = gap;
-        //            maxGapIndex = i;
-        //        }
-        //    }
-
-        //    // The search range is the one *opposite* the largest gap.
-        //    // minSearchRad starts after the largest gap.
-        //    minSearchRad = normalizedAngles[(maxGapIndex + 1) % normalizedAngles.Count];
-        //    // maxSearchRad is the angle before the largest gap, potentially adjusted for wrap-around.
-        //    maxSearchRad = normalizedAngles[maxGapIndex];
-
-        //    // Ensure maxSearchRad is always greater than minSearchRad (by adding 2*PI if needed)
-        //    // This forms a continuous range for random generation.
-        //    if (maxSearchRad < minSearchRad)
-        //    {
-        //        maxSearchRad += 2 * Math.PI;
-        //    }
-
-        //    // The 'side' parameter can be used to bias the search if desired, but for finding *any* point,
-        //    // the calculated minSearchRad and maxSearchRad based on the rectangle's corners are sufficient.
-        //    // If you specifically need to find a point *only* accessible from a certain side,
-        //    // you would need more complex logic to intersect the calculated angular range with the side's base angle + spread.
-        //    // For this fix, we prioritize finding any point within the rectangle's angular projection.
-
-        //    for (int i = 0; i < maxAttempts; i++)
-        //    {
-        //        // Generate a random angle within our calculated search sector
-        //        double randomRad = minSearchRad + _random.NextDouble() * (maxSearchRad - minSearchRad);
-
-        //        // Calculate candidate point coordinates
-        //        double candidateX = src.X + dist * Math.Cos(randomRad);
-        //        double candidateY = src.Y + dist * Math.Sin(randomRad);
-        //        Point candidate = new Point(candidateX, candidateY);
-
-        //        // Check if the candidate point is within the target rectangle
-        //        if (rect.Contains(candidate))
-        //        {
-        //            return candidate;
-        //        }
-        //    }
-
-        //    // No valid point found within maxAttempts
-        //    return new Point(-1, -1); // Indicate failure
-        //}
-
-
         public static Side GetOpposite(this Side side)
         {
             return side switch
@@ -848,6 +750,11 @@ namespace Multi.Cursor
         {
             if (numbers == null || numbers.Count == 0) return 0;
             return numbers.Average();
+        }
+
+        public static Technique Device(this Technique tech)
+        {
+            return tech == Technique.TOMO_SWIPE || tech == Technique.TOMO_TAP ? Technique.TOMO : Technique.MOUSE;
         }
 
     }

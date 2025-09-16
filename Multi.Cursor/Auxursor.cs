@@ -58,7 +58,7 @@ namespace Multi.Cursor
         }
 
         /// <summary>
-        /// Finger lifted up or auxursor deactivated
+        /// FullFinger lifted up or auxursor deactivated
         /// </summary>
         public void Stop()
         {

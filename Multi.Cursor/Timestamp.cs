@@ -17,6 +17,12 @@ namespace Multi.Cursor
             this.time = Timer.GetCurrentMillis();
         }
 
+        public TimeStamp(string label, long time)
+        {
+            this.label = label;
+            this.time = time;
+        }
+
         public string ToString()
         {
             return $"{label}: {time} ms";

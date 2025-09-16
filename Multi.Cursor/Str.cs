@@ -92,9 +92,28 @@ namespace Multi.Cursor
 
         public static readonly string TRIAL_TIME = "Trial Time";
 
+        // Fingers
+        public static readonly string INDEX = "index";
+        public static readonly string MIDDLE = "middle";
+        public static readonly string RING = "ring";
+        public static readonly string PINKY = "pinky";
+        public static readonly string THUMB = "thumb";
+
+        // Gestures
+        public static readonly string DOWN = "down";
+        public static readonly string UP = "up";
+        public static readonly string MOVE_START = "move_start";
+        public static readonly string MOVE_END = "move_end";
+
+
         public static string Join(params string[] parts)
         {
             return string.Join("_", parts);
+        }
+
+        public static bool IsGesture(string str)
+        {
+            return str == DOWN || str == UP || str == MOVE_START || str == MOVE_END;
         }
 
     }

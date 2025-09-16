@@ -774,8 +774,8 @@ namespace Multi.Cursor
             _activeBlockNum = 1;
             //Block block = _experiment.GetBlock(_activeBlockNum);
             _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
-            this.TrialInfo($"Technique: {_experiment.IsTechAuxCursor()}");
-            if (_experiment.IsTechAuxCursor())
+
+            if (Utils.Device(_experiment.Active_Technique) == Technique.TOMO)
             {
                 _isTouchMouseActive = true;
                 if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);

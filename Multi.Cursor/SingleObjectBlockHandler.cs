@@ -352,14 +352,14 @@ namespace Multi.Cursor
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             var startButtonClicked = GetEventCount(Str.START_RELEASE) > 0;
-            var technique = _activeBlock.GetGeneralTechnique();
+            var device = Utils.Device(_activeBlock.Technique);
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             var markerOverEnabledFunc = funcIdUnderMarker != -1;
             var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
 
             this.TrialInfo($"StartButtonClicked: {startButtonClicked}");
 
-            switch (startButtonClicked, technique, markerOverEnabledFunc, allFunctionsApplied)
+            switch (startButtonClicked, device, markerOverEnabledFunc, allFunctionsApplied)
             {
                 case (false, _, _, _): // Start button not clicked, _
                     EndActiveTrial(Result.ERROR); // Pressed on object without Start button clicked
@@ -381,7 +381,7 @@ namespace Multi.Cursor
         {
             LogEvent(Str.OBJ_RELEASE);
 
-            var technique = _activeBlock.GetGeneralTechnique();
+            var device = Utils.Device(_activeBlock.Technique);
             var objectPressed = GetEventCount(Str.OBJ_PRESS) > 0; // Check if the object was pressed
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             var markerOverEnabledFunc = funcIdUnderMarker != -1;
@@ -391,8 +391,8 @@ namespace Multi.Cursor
             var functionWindowActivated = _mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide);
 
             // Show the current timestamps
-            this.TrialInfo($"Technique: {technique == Technique.TOMO}, ObjPressed: {objectPressed}, MarkerOnFunction: {markerOverEnabledFunc}, FuncWinActive: {functionWindowActivated}");
-            switch (technique, objectPressed, markerOverEnabledFunc, anyFunctionEnabled, allFunctionsApplied, functionWindowActivated, _objectSelected)
+            this.TrialInfo($"Technique: {device == Technique.TOMO}, ObjPressed: {objectPressed}, MarkerOnFunction: {markerOverEnabledFunc}, FuncWinActive: {functionWindowActivated}");
+            switch (device, objectPressed, markerOverEnabledFunc, anyFunctionEnabled, allFunctionsApplied, functionWindowActivated, _objectSelected)
             {
                 case (_, false, _, _, _, _, _): // MOUSE, object not pressed
                     // Do nothing because the object was not pressed
@@ -443,12 +443,12 @@ namespace Multi.Cursor
             // Function id is sender's tag as int
             var functionId = (int)((FrameworkElement)sender).Tag;
 
-            var technique = _activeBlock.GetGeneralTechnique();
+            var device = Utils.Device(_activeBlock.Technique);
             var objectMarked = GetEventCount(Str.OBJ_RELEASE) > 0;
 
             this.TrialInfo($"ObjectMarked: {objectMarked};");
 
-            switch (technique, objectMarked)
+            switch (device, objectMarked)
             {
                 case (Technique.TOMO, _):
                     // Nothing for now, handled in OnObjectMouseUp
@@ -493,11 +493,15 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public override void IndexTap()
+        public override void IndexTap(long downInstant, long upInstant)
         {
             var technique = _activeBlock.GetSpecificTechnique();
 
             this.TrialInfo($"Technique: {_activeBlock.GetSpecificTechnique()}");
+
+            // Log
+            //LogEvent(Str.Join(Str.INDEX, Str.DOWN), downInstant);
+            //LogEvent(Str.Join(Str.INDEX, Str.UP), upInstant);
 
             switch (technique)
             {
@@ -511,11 +515,15 @@ namespace Multi.Cursor
             }
         }
 
-        public override void ThumbTap()
+        public override void ThumbTap(long downInstant, long upInstant)
         {
             var technique = _activeBlock.GetSpecificTechnique();
 
             this.TrialInfo($"Technique: {_activeBlock.GetSpecificTechnique()}");
+
+            // Log
+            //LogEvent(Str.Join(Str.THUMB, Str.DOWN), downInstant);
+            //LogEvent(Str.Join(Str.THUMB, Str.UP), upInstant);
 
             switch (technique)
             {
@@ -549,7 +557,7 @@ namespace Multi.Cursor
 
         public override void ThumbTap(Side side)
         {
-            ThumbTap();
+            //ThumbTap();
         }
 
         public override void ThumbSwipe(Direction dir)

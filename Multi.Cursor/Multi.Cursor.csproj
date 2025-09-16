@@ -331,7 +331,7 @@
       <DependentUpon>CursorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Experiment.cs" />
-    <Compile Include="Finger.cs" />
+    <Compile Include="FullFinger.cs" />
     <Compile Include="FingerTracker.cs" />
     <Compile Include="GestureTimesLogRow.cs" />
     <Compile Include="ColumnFactory.cs" />
@@ -349,7 +349,6 @@
     </Compile>
     <Compile Include="TouchFinger.cs" />
     <Compile Include="Filog.cs" />
-    <Compile Include="GestureDetector.cs" />
     <Compile Include="FixedBuffer.cs" />
     <Compile Include="KalmanVeloFilter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

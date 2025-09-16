@@ -310,11 +310,11 @@ namespace Multi.Cursor
         public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
             var funcId = (int)((FrameworkElement)sender).Tag;
-            var technique = _activeBlock.GetGeneralTechnique();
-            
+            var device = Utils.Device(_activeBlock.Technique);
+
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
-            switch (technique)
+            switch (device)
             {
                 case Technique.MOUSE:
                     _activeTrialRecord.ApplyFunction(funcId);
@@ -548,15 +548,15 @@ namespace Multi.Cursor
             LogEvent(Str.Join(Str.OBJ, objId.ToString(), Str.PRESS));
 
             var startButtonClicked = GetEventCount(Str.START_RELEASE) > 0;
-            var technique = _activeBlock.GetGeneralTechnique();
+            var device = Utils.Device(_activeBlock.Technique);
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             var markerOverFunction = funcIdUnderMarker != -1;
             var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
 
-            this.TrialInfo($"StartButtonClicked: {startButtonClicked}; Technique: {technique}; " +
+            this.TrialInfo($"StartButtonClicked: {startButtonClicked}; Technique: {device}; " +
                 $"MarkerOnFunction: {markerOverFunction}; AllObjApplied: {allObjectsApplied}");
 
-            switch (startButtonClicked, technique, markerOverFunction, allObjectsApplied)
+            switch (startButtonClicked, device, markerOverFunction, allObjectsApplied)
             {
                 case (false, _, _, _): // Start button not clicked, _
                     //EndActiveTrial(Result.ERROR); // Pressed on object without Start button clicked
@@ -585,16 +585,16 @@ namespace Multi.Cursor
             var objId = (int)((FrameworkElement)sender).Tag;
             LogEvent(string.Join("_", Str.OBJ, objId.ToString(), Str.RELEASE));
 
-            var technique = _activeBlock.GetGeneralTechnique();
+            var device = Utils.Device(_activeBlock.Technique);
             var thisObjPressed = _activeTrialRecord.IsObjectPressed(objId);
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             var markerOverFunction = funcIdUnderMarker != -1;
             var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
 
             // Show all the flags
-            this.TrialInfo($"Technique: {technique}, ThisObjPressed: {thisObjPressed}; MarkerOnFunction: {markerOverFunction}, AllObjSelected: {allObjectsApplied}");
+            this.TrialInfo($"Technique: {device}, ThisObjPressed: {thisObjPressed}; MarkerOnFunction: {markerOverFunction}, AllObjSelected: {allObjectsApplied}");
 
-            switch (technique, thisObjPressed, markerOverFunction, allObjectsApplied)
+            switch (device, thisObjPressed, markerOverFunction, allObjectsApplied)
             {
                 case (Technique.TOMO, true, true, false): // ToMo, object pressed, marker on function, not all objects applied
                     _activeTrialRecord.ApplyFunction(funcIdUnderMarker);
@@ -641,14 +641,14 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public override void IndexTap()
+        public override void IndexTap(long downInstant, long upInstant)
         {
             var technique = _activeBlock.GetSpecificTechnique();
             var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
             Side correspondingSide = Side.Top;
             var funcOnCorrespondingSide = _activeTrial.FuncSide == correspondingSide;
 
-            this.TrialInfo($"Technique: {_activeBlock.GetGeneralTechnique()}");
+            this.TrialInfo($"Technique: {Utils.Device(_activeBlock.Technique)}");
 
             switch (technique, allObjSelected, funcOnCorrespondingSide)
             {
@@ -671,7 +671,7 @@ namespace Multi.Cursor
             }
         }
 
-        public override void ThumbTap()
+        public override void ThumbTap(long downInstant, long upInstant)
         {
             var technique = _activeBlock.GetSpecificTechnique();
             var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
@@ -733,7 +733,7 @@ namespace Multi.Cursor
 
         public override void ThumbTap(Side side)
         {
-            ThumbTap();
+            //ThumbTap();
         }
 
         public override void ThumbSwipe(Direction dir)
