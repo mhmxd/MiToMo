@@ -665,7 +665,7 @@ namespace Multi.Cursor
                     EndActiveTrial(Result.MISS);
                     break;
 
-                case (Technique.TOMO_SWIPE, _, _): // Wrong technique for index tap
+                case (Technique.TOMO_SWIPE, _, _): // Wrong _technique for index tap
                     EndActiveTrial(Result.MISS);
                     break;
             }
@@ -695,7 +695,7 @@ namespace Multi.Cursor
                     EndActiveTrial(Result.MISS);
                     break;
 
-                case (Technique.TOMO_SWIPE, _, _): // Wrong technique for index tap
+                case (Technique.TOMO_SWIPE, _, _): // Wrong _technique for index tap
                     EndActiveTrial(Result.MISS);
                     break;
             }
@@ -725,7 +725,7 @@ namespace Multi.Cursor
                     EndActiveTrial(Result.MISS);
                     break;
 
-                case (Technique.TOMO_SWIPE, _, _): // Wrong technique for index tap
+                case (Technique.TOMO_SWIPE, _, _): // Wrong _technique for index tap
                     EndActiveTrial(Result.MISS);
                     break;
             }
@@ -773,7 +773,7 @@ namespace Multi.Cursor
                     EndActiveTrial(Result.MISS);
                     break;
 
-                case (Technique.TOMO_TAP, _, _, _): // Wrong technique for swipe
+                case (Technique.TOMO_TAP, _, _, _): // Wrong _technique for swipe
                     EndActiveTrial(Result.MISS);
                     break;
 

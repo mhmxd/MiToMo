@@ -57,7 +57,7 @@ namespace Multi.Cursor
 
         public Rect ObjectAreaRect;
         public Dictionary<string, int> EventCounts;
-        private List<Timestamp> Timestamps;
+        private List<TimeStamp> Timestamps;
         private Dictionary<string, double> Times;
 
         public TrialRecord()
@@ -67,7 +67,7 @@ namespace Multi.Cursor
             ObjFuncMap = new List<Pair>();
             ObjectAreaRect = new Rect();
             EventCounts = new Dictionary<string, int>();
-            Timestamps = new List<Timestamp>();
+            Timestamps = new List<TimeStamp>();
             Times = new Dictionary<string, double>();
         }
 
@@ -247,7 +247,9 @@ namespace Multi.Cursor
 
         public void AddTimestamp(string label)
         {
-            Timestamps.Add(new Timestamp(label));
+            TimeStamp timestamp = new TimeStamp(label);
+            Timestamps.Add(timestamp);
+            this.TrialInfo($"Added timestamp: {timestamp.ToString()}");
         }
 
         public string TimestampsToString()
@@ -260,7 +262,7 @@ namespace Multi.Cursor
             return Timestamps.Count > 0 ? Timestamps.Last().label : "No timestamps recorded";
         }
 
-        public long GetTimestamp(string label)
+        public long GetFirstTimestamp(string label)
         {
             var timestamp = Timestamps.FirstOrDefault(ts => ts.label == label);
             if (timestamp != null)
@@ -268,6 +270,29 @@ namespace Multi.Cursor
                 return timestamp.time;
             }
             return -1; // Return -1 if the label is not found
+        }
+
+        public long GetLastTimestamp(string label)
+        {
+            var timestamp = Timestamps.LastOrDefault(ts => ts.label == label);
+            if (timestamp != null)
+            {
+                return timestamp.time;
+            }
+            return -1; // Return -1 if the label is not found
+        }
+
+        public int GetDuration(string startLabel, string endLabel)
+        {
+            long startTime = GetLastTimestamp(startLabel);
+            this.TrialInfo($"Start: {startTime}");
+            long endTime = GetLastTimestamp(endLabel);
+            this.TrialInfo($"End: {endTime}");
+            if (startTime != -1 && endTime != -1 && endTime >= startTime)
+            {
+                return (int)(endTime - startTime);
+            }
+            return -1; // Return -1 if timestamps are not found or invalid
         }
 
         public double GetTime(string label)

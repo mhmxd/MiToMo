@@ -91,11 +91,11 @@ namespace Multi.Cursor
         }
         public void OnObjectMouseEnter(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.START_ENTER);
+            LogEvent(Str.OBJ_ENTER);
         }
         public void OnObjectMouseLeave(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.START_LEAVE);
+            LogEvent(Str.OBJ_EXIT);
         }
         public abstract void OnObjectMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnObjectMouseUp(Object sender, MouseButtonEventArgs e);
@@ -104,17 +104,9 @@ namespace Multi.Cursor
 
         public void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            // Nothing for now
+            LogEvent(Str.OBJ_AREA_RELEASE);
         }
 
-        public void OnTargetMouseEnter(Object sender, MouseEventArgs e)
-        {
-            LogEvent(Str.TARGET_ENTER);
-        }
-        public void OnTargetMouseLeave(Object sender, MouseEventArgs e)
-        {
-            LogEvent(Str.TARGET_LEAVE);
-        }
         public abstract void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e);
         public void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
@@ -309,11 +301,9 @@ namespace Multi.Cursor
                 _trialRecords[_activeTrial.Id].EventCounts[eventName] = 1;
             }
 
-            string timeKey = eventName + "_" + _trialRecords[_activeTrial.Id].EventCounts[eventName];
-            _activeTrialRecord.AddTimestamp(timeKey);
+            //string timeKey = eventName + "_" + _trialRecords[_activeTrial.Id].EventCounts[eventName];
+            _activeTrialRecord.AddTimestamp(eventName); // Let them have the same name. We know the count from EventCounts
 
-            // Write to logs
-            
         }
 
         protected int GetEventCount(string eventName)
@@ -330,7 +320,7 @@ namespace Multi.Cursor
         {
             if (_activeTrialRecord.HasTimestamp(begin) && _activeTrialRecord.HasTimestamp(end))
             {
-                return (_activeTrialRecord.GetTimestamp(end) - _activeTrialRecord.GetTimestamp(begin)) / 1000.0; // Convert to seconds
+                return (_activeTrialRecord.GetFirstTimestamp(end) - _activeTrialRecord.GetFirstTimestamp(begin)) / 1000.0; // Convert to seconds
             }
 
             return 0;

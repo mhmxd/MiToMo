@@ -1,12 +1,14 @@
-﻿using System;
+﻿using MathNet.Numerics;
+using Serilog;
+using Serilog.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Serilog;
-using ILogger = Serilog.ILogger;
-using Serilog.Core;
 using System.Windows;
+using ILogger = Serilog.ILogger;
 
 namespace Multi.Cursor
 {
@@ -23,37 +25,40 @@ namespace Multi.Cursor
 
         private static Dictionary<string, int> _trialLogs = new Dictionary<string, int>();
 
-        private static int ptcId = 0; // Participant ID
-        private static Technique technique = Technique.MOUSE; // Technique
+        private static int _ptcId = 0; // Participant ID
+        private static Technique _technique = Technique.MOUSE; // Technique
 
         public static void Init(int participantId, Technique tech)
         {
-            ptcId = participantId;
-            technique = tech;
+            _ptcId = participantId;
+            _technique = tech;
         }
 
         public static void StartBlockLog(int blockId, TaskType blockType)
         {
-            String blockFileName = $"block-{blockId}-{blockType}.txt";
+            String blockFileName = $"Block-{blockId}-{blockType}.txt";
             string blockFilePath = System.IO.Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "Multi.Cursor.Logs", $"{ptcId}-{technique}", blockFileName
+                "Multi.Cursor.Logs", $"{_ptcId}-{_technique}", blockFileName
             );
 
             //_blockFileLog = new LoggerConfiguration()
             //    .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
-            //    outputTemplate: "{Timestamp:HH:mm:ss.fff} {Message:lj}{NewLine}"))
+            //    outputTemplate: "{TimeStamp:HH:mm:ss.fff} {Message:lj}{NewLine}"))
             //    .CreateLogger();
 
             _blockFileLog = new LoggerConfiguration()
                 .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
                 outputTemplate: "{Message:lj}{NewLine}"))
                 .CreateLogger();
+
+            _blockFileLog.Information($"--- Technique: {_technique} - Block#{blockId} - Type: {blockType} ---");
         }
 
-        public static void StartTrialLog(TrialRecord trialRecord)
+        public static void StartTrialLog(Trial trial)
         {
-
+            _blockFileLog.Information($"{trial.ToString()}");
+            //_blockFileLog.Information($"----------------------------------------------------------------------------------");
         }
 
         public static void StartTrialLogs(int trialNum, int trialId, double targetWidthMM, double distanceMM, Point startPos, Point targetPos)
@@ -63,7 +68,7 @@ namespace Multi.Cursor
 
             string gesturesFilePath = System.IO.Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "Multi.Cursor.Logs", $"{ptcId}-{technique}", gestureFileName
+                "Multi.Cursor.Logs", $"{_ptcId}-{_technique}", gestureFileName
             );
 
             
@@ -88,6 +93,23 @@ namespace Multi.Cursor
         {
             _blockFileLog.Information(message);
         }
+
+        public static void LogTrialTimes(TrialRecord trialRecord)
+        {
+            switch (_technique)
+            {
+                case Technique.MOUSE:
+                    _blockFileLog.Information($"Start Release   -> Obj Enter:   {trialRecord.GetDuration(Str.START_RELEASE, Str.OBJ_ENTER)}");
+                    _blockFileLog.Information($"Obj Enter       -> Obj Press:   {trialRecord.GetDuration(Str.OBJ_ENTER, Str.OBJ_PRESS)}");
+                    _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
+                    _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUNCTION_PRESS)}");
+                    _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(Str.FUNCTION_PRESS, Str.FUNCTION_RELEASE)}");
+                    _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(Str.FUNCTION_RELEASE, Str.OBJ_AREA_PRESS)}");
+                    break;
+            }
+        }
+
+
 
     }
 }

@@ -505,7 +505,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
+                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.TimeStamp}");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
@@ -577,7 +577,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
+                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.TimeStamp}");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
@@ -906,7 +906,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
+                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.TimeStamp}");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;

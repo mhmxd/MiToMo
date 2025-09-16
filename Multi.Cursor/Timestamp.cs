@@ -6,15 +6,20 @@ using System.Threading.Tasks;
 
 namespace Multi.Cursor
 {
-    public class Timestamp
+    public class TimeStamp
     {
         public string label;
         public long time;
 
-        public Timestamp(string label)
+        public TimeStamp(string label)
         {
             this.label = label;
             this.time = Timer.GetCurrentMillis();
+        }
+
+        public string ToString()
+        {
+            return $"{label}: {time} ms";
         }
     }
 }

@@ -187,6 +187,7 @@ namespace Multi.Cursor
         public override void ShowActiveTrial()
         {
             this.TrialInfo($"Showing Trial#{_activeTrial.Id} | Side: {_activeTrial.FuncSide} | W: {_activeTrial.GetFunctionWidths().ToStr()} | Dist: {_activeTrial.DistanceMM:F2}mm");
+            ExperiLogger.StartTrialLog(_activeTrial);
 
             // Update the main window label
             //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
@@ -251,7 +252,8 @@ namespace Multi.Cursor
                     //double trialTime = GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END);
                     double trialTime = GetDuration(Str.OBJ_RELEASE + "_1", Str.TRIAL_END);
                     _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
-                    this.TrialInfo($"Trial time = {trialTime:F2}s");
+                    ExperiLogger.LogTrialTimes(_activeTrialRecord);
+                    //this.TrialInfo($"Trial time = {trialTime:F2}s");
                     //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial time = {trialTime:F2}s");
                     this.TrialInfo(Str.MAJOR_LINE);
                     GoToNextTrial();
@@ -471,7 +473,8 @@ namespace Multi.Cursor
 
         public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+            //this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+            LogEvent(Str.OBJ_AREA_PRESS);
 
             var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
 
@@ -502,7 +505,7 @@ namespace Multi.Cursor
                     _mainWindow.ActivateAuxWindowMarker(Side.Top);
                     break;
 
-                case Technique.TOMO_SWIPE: // Wrong technique for index tap
+                case Technique.TOMO_SWIPE: // Wrong _technique for index tap
                     EndActiveTrial(Result.MISS);
                     break;
             }
@@ -520,7 +523,7 @@ namespace Multi.Cursor
                     _mainWindow.ActivateAuxWindowMarker(Side.Left);
                     break;
 
-                case Technique.TOMO_SWIPE: // Wrong technique for index tap
+                case Technique.TOMO_SWIPE: // Wrong _technique for index tap
                     EndActiveTrial(Result.MISS);
                     break;
             }
@@ -538,7 +541,7 @@ namespace Multi.Cursor
                     _mainWindow.ActivateAuxWindowMarker(Side.Right);
                     break;
 
-                case Technique.TOMO_SWIPE: // Wrong technique for index tap
+                case Technique.TOMO_SWIPE: // Wrong _technique for index tap
                     EndActiveTrial(Result.MISS);
                     break;
             }
@@ -559,7 +562,7 @@ namespace Multi.Cursor
                 case Technique.TOMO_SWIPE:
                     _mainWindow.ActivateAuxWindowMarker(Utils.DirToSide(dir));
                     break;
-                case Technique.TOMO_TAP: // Wrong technique for thumb swipe
+                case Technique.TOMO_TAP: // Wrong _technique for thumb swipe
                     EndActiveTrial(Result.MISS);
                     break;
             }

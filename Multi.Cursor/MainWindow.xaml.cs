@@ -336,7 +336,7 @@ namespace Multi.Cursor
             // Set the info from the dialog
             if (result == true)
             {
-                // Set the technique mode in Config
+                // Set the _technique mode in Config
                 //_experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
                 ExperiLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique);
 
@@ -412,7 +412,7 @@ namespace Multi.Cursor
             // Set the layout (incl. placing the grid and finding positions)
             await SetupLayout(_experiment.Active_Complexity);
 
-            // Begin the technique
+            // Begin the _technique
             BeginBlocks();
         }
 
@@ -1120,8 +1120,10 @@ namespace Multi.Cursor
             Canvas.SetTop(objRectangle, positionInMain.Y);
 
             // Assign event handlers
+            objRectangle.MouseEnter += mouseEvents.MouseEnter;
             objRectangle.MouseDown += mouseEvents.MouseDown;
             objRectangle.MouseUp += mouseEvents.MouseUp;
+            objRectangle.MouseLeave += mouseEvents.MouseLeave;
 
             // Add the rectangle to the Canvas
             canvas.Children.Add(objRectangle);

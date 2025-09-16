@@ -22,20 +22,29 @@ namespace Multi.Cursor
         public static string PRESS = "press";
         public static string RELEASE = "release";
 
+        public static string OBJ_ENTER = "obj_enter";
         public static string OBJ_PRESS = "obj_press";
         public static string OBJ_RELEASE = "obj_release";
+        public static string OBJ_EXIT = "obj_exit";
 
+        public static string FUNCTION_ENTER = "function_enter";
         public static string FUNCTION_PRESS = "function_press";
         public static string FUNCTION_RELEASE = "function_release";
+        public static string FUNCTION_EXIT = "function_exit";
 
         public static string START_ENTER = "start_enter";
         //public static string START1_LAST_ENTRY = "start1_last_entry";
         //public static string START2_LAST_ENTRY = "start2_last_entry";
         //public static string START1_LAST_EXIT = "start1_last_entry";
         //public static string START2_LAST_EXIT = "start2_last_entry";
-        public static string START_LEAVE = "start_leave";
+        public static string START_EXIT = "start_exit";
         public static string START_PRESS = "start_press";
         public static string START_RELEASE = "start_release";
+
+        public static string OBJ_AREA_ENTER = "area_enter";
+        public static string OBJ_AREA_PRESS = "area_press";
+        public static string OBJ_AREA_RELEASE = "area_release";
+        public static string OBJ_AREA_EXIT = "area_exit";
 
         //public static string START_PRESS_ONE = "start1_press";
         //public static string START_RELEASE_ONE = "start1_release";
