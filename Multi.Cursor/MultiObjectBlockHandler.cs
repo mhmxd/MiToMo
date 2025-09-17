@@ -641,7 +641,7 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public override void IndexTap(long downInstant, long upInstant)
+        public override void IndexTap()
         {
             var technique = _activeBlock.GetSpecificTechnique();
             var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;

@@ -57,7 +57,7 @@ namespace Multi.Cursor
 
         public Rect ObjectAreaRect;
         public Dictionary<string, int> EventCounts;
-        private List<TimeStamp> Timestamps;
+        private List<Timestamp> Timestamps;
         private Dictionary<string, double> Times;
 
         public TrialRecord()
@@ -67,7 +67,7 @@ namespace Multi.Cursor
             ObjFuncMap = new List<Pair>();
             ObjectAreaRect = new Rect();
             EventCounts = new Dictionary<string, int>();
-            Timestamps = new List<TimeStamp>();
+            Timestamps = new List<Timestamp>();
             Times = new Dictionary<string, double>();
         }
 
@@ -245,16 +245,31 @@ namespace Multi.Cursor
             }
         }
 
+        /// <summary>
+        /// If the time stamp is gesture end, rename the previous one to match 
+        /// e.g. TAP_UP -> change DOWN to TAP_DOWN 
+        /// </summary>
+        /// <param name="label"></param>
         public void AddTimestamp(string label)
         {
-            TimeStamp timestamp = new TimeStamp(label);
+            Timestamp timestamp = new Timestamp(label);
             Timestamps.Add(timestamp);
             this.TrialInfo($"Added timestamp: {timestamp.ToString()}");
+            if (label.EndsWith("_tap_up"))
+            {
+                long endTime = GetLastFingerActionTime(label);
+                this.TrialInfo($"End time: {endTime}");
+                var gestureStartTimestamp = Timestamps.LastOrDefault(ts => ts.label.EndsWith(Str.DOWN) && ts.time < endTime);
+                if (gestureStartTimestamp != null)
+                {
+                    gestureStartTimestamp.label = gestureStartTimestamp.label.Replace(Str.DOWN, Str.TAP_DOWN);
+                }
+            }
         }
 
         public void AddTimestamp(string label, long time)
         {
-            TimeStamp timestamp = new TimeStamp(label, time);
+            Timestamp timestamp = new Timestamp(label, time);
             Timestamps.Add(timestamp);
             this.TrialInfo($"Added timestamp: {timestamp.ToString()}");
         }
@@ -279,41 +294,79 @@ namespace Multi.Cursor
             return -1; // Return -1 if the label is not found
         }
 
-        public long GetLastTimestamp(string label)
+        public long GetLastTime(string label)
         {
-            // If label is a gesture, return the last timestamp with the label ending in _GESTURE
-            if (Str.IsGesture(label))
+            var timestamp = Timestamps.LastOrDefault(ts => ts.label == label);
+            if (timestamp != null)
             {
-                var gestureTimestamps = Timestamps.LastOrDefault(ts => ts.label.EndsWith("_" + label));
-                if (gestureTimestamps != null)
-                {
-                    return gestureTimestamps.time;
-                }
+                return timestamp.time;
             }
-            else
-            {
-                var timestamp = Timestamps.LastOrDefault(ts => ts.label == label);
-                if (timestamp != null)
-                {
-                    return timestamp.time;
-                }
-            }
-                
+
             return -1; // Return -1 if the label is not found
+        }
+
+        public long GetLastFingerActionTime(string action)
+        {
+            var timestamp = Timestamps.LastOrDefault(ts => ts.label.EndsWith(action));
+            if (timestamp != null)
+            {
+                return timestamp.time;
+            }
+
+            return -1; // Return -1 if the label is not found
+        }
+
+        public long GetFingerTimeBefore(string label, long endTime)
+        {
+            // Return the last timestamp with label before the endLabel
+            var timestamp = Timestamps.LastOrDefault(ts => ts.label.EndsWith(label) && ts.time < endTime);
+            if (timestamp != null)
+            {
+                return timestamp.time;
+            }
+
+            return -1; // Return -1 if the label is not found
+
         }
 
         public int GetDuration(string startLabel, string endLabel)
         {
-            this.TrialInfo($"Timestamps: {TimestampsToString()}");
-            long startTime = GetLastTimestamp(startLabel);
+            
+            long startTime = GetLastTime(startLabel);
             //this.TrialInfo($"{startLabel}: {startTime}");
-            long endTime = GetLastTimestamp(endLabel);
+            long endTime = GetLastTime(endLabel);
             //this.TrialInfo($"{endLabel}: {endTime}");
-            if (startTime != -1 && endTime != -1 && endTime >= startTime)
+            return Utils.GetDuration(startTime, endTime);
+        }
+
+        public int GetDurationToFingerAction(string startLabel, string action)
+        {
+            this.TrialInfo($"Timestamps: {TimestampsToString()}");
+            long startTime = GetLastTime(startLabel);
+            long endTime = GetLastFingerActionTime(action);
+            return Utils.GetDuration(startTime, endTime);
+        }
+
+        public int GetDurationFromFingerAction(string action, string endLabel)
+        {
+            this.TrialInfo($"Timestamps: {TimestampsToString()}");
+            long startTime = GetLastFingerActionTime(action);
+            long endTime = GetLastTime(endLabel);
+            return Utils.GetDuration(startTime, endTime);
+        }
+
+        public int GetGestureDuration(Technique gesture)
+        {
+            switch (gesture)
             {
-                return (int)(endTime - startTime);
+                case Technique.TOMO_TAP:
+                    long endTime = GetLastFingerActionTime(Str.TAP_UP);
+                    long startTime = GetFingerTimeBefore(Str.DOWN, endTime);
+                    return Utils.GetDuration(startTime, endTime);
+                    break;
             }
-            return -1; // Return -1 if timestamps are not found or invalid
+
+            return -1;
         }
 
         public double GetTime(string label)
@@ -353,7 +406,7 @@ namespace Multi.Cursor
 
         public bool IsObjectPressed(int objId)
         {
-            this.TrialInfo($"Timestamps: {TimestampsToString()}");
+            //this.TrialInfo($"Timestamps: {TimestampsToString()}");
             // Check if timestamps contains Str.OBJ_objId_Str.PRESS
             return Timestamps.Any(ts => ts.label.Contains(Str.Join(Str.OBJ, objId.ToString(), Str.PRESS)));
         }

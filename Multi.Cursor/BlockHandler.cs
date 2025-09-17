@@ -247,7 +247,7 @@ namespace Multi.Cursor
             
         }
 
-        public abstract void IndexTap(long downInstant, long upInstant);
+        public abstract void IndexTap();
 
         public void IndexMove(double dX, double dY)
         {
@@ -262,6 +262,7 @@ namespace Multi.Cursor
         public void IndexUp()
         {
             _mainWindow.StopAuxNavigator();
+            LogEvent("index_up");
         }
 
         public abstract void ThumbSwipe(Direction dir);
@@ -409,7 +410,7 @@ namespace Multi.Cursor
             //    $"Long({longDistTimes.Count}): {lonDistAvg:F2}");
         }
 
-        public void RecordGesture(Finger finger, string action)
+        public void RecordToMoAction(Finger finger, string action)
         {
             LogEvent(finger.ToString().ToLower() + "_" + action);
         }

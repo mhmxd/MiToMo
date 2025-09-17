@@ -44,7 +44,7 @@ namespace Multi.Cursor
 
             //_blockFileLog = new LoggerConfiguration()
             //    .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
-            //    outputTemplate: "{TimeStamp:HH:mm:ss.fff} {Message:lj}{NewLine}"))
+            //    outputTemplate: "{Timestamp:HH:mm:ss.fff} {Message:lj}{NewLine}"))
             //    .CreateLogger();
 
             _blockFileLog = new LoggerConfiguration()
@@ -113,8 +113,12 @@ namespace Multi.Cursor
                     break;
 
                 case Technique.TOMO_TAP:
-                    _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDuration(Str.START_RELEASE, Str.DOWN)}");
-                    _blockFileLog.Information($"Tap Down        -> Tap Up:      {trialRecord.GetDuration(Str.DOWN, Str.UP)}");
+                    _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDurationToFingerAction(Str.START_RELEASE, Str.TAP_DOWN)}");
+                    _blockFileLog.Information($"Tap Down        -> Tap Up:      {trialRecord.GetGestureDuration(Technique.TOMO_TAP)}");
+                    _blockFileLog.Information($"Tap Up          -> Obj Press:   {trialRecord.GetDurationFromFingerAction(Str.TAP_UP, Str.OBJ_PRESS)}");
+                    _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
+                    _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT)}");
+                    _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(Str.OBJ_EXIT, Str.OBJ_AREA_PRESS)}");
                     break;
             }
         }

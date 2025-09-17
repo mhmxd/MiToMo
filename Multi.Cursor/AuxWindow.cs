@@ -600,7 +600,7 @@ namespace Multi.Cursor
             }
 
             // Change the last highlighted button if it has changed
-            this.TrialInfo($"Marked button ID: {markedButton.Id} | last button ID: {_lastMarkedButtonId}");
+            //this.TrialInfo($"Marked button ID: {markedButton.Id} | last button ID: {_lastMarkedButtonId}");
             //if (markedButton.Id != _lastMarkedButtonId)
             //{
             //    ResetHighlights(); // Reset highlights for all buttons

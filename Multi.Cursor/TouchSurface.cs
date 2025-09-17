@@ -499,13 +499,13 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.TimeStamp}");
+                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
                     _thumbGestureStart = currentFrame;
-                    _gestureReceiver?.RecordGesture(finger, Str.DOWN);
+                    _gestureReceiver?.RecordToMoAction(finger, Str.DOWN);
                 }
             }
             else // FullFinger NOT present in the current frame
@@ -528,7 +528,7 @@ namespace Multi.Cursor
                     {
 
                         //_gestureInstants[upStr] = _touchTimers[finger].ElapsedMilliseconds;
-                        _gestureReceiver?.RecordGesture(finger, Str.UP);
+                        _gestureReceiver?.RecordToMoAction(finger, Str.TAP_UP);
 
                         // Perform the tap
                         _gestureReceiver?.ThumbTap(0, 0);
@@ -552,7 +552,7 @@ namespace Multi.Cursor
                         
                     }
 
-                    _gestureReceiver?.RecordGesture(finger, Str.UP);
+                    _gestureReceiver?.RecordToMoAction(finger, Str.UP);
                     _touchTimers[finger].Stop();
                 }
                 
@@ -583,12 +583,12 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.TimeStamp}");
+                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
-                    _gestureReceiver?.RecordGesture(finger, Str.DOWN);
+                    _gestureReceiver?.RecordToMoAction(finger, Str.DOWN);
                 }
             }
             else // FullFinger not present in the current frame
@@ -610,10 +610,11 @@ namespace Multi.Cursor
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
                         _gestureInstants[upStr] = _touchTimers[finger].ElapsedMilliseconds;
                         LogTap(finger.ToString(), Side.Left, currentFrame.Timestamp); // LOG
-                        _gestureReceiver?.IndexTap(0, 0);
+                        _gestureReceiver?.RecordToMoAction(finger, Str.TAP_UP);
+                        _gestureReceiver?.IndexTap();
                     }
 
-                    _gestureReceiver?.RecordGesture(finger, Str.UP);
+                    _gestureReceiver?.IndexUp();
                     _touchTimers[finger].Stop();
                 }
                 
@@ -915,7 +916,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.TimeStamp}");
+                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;

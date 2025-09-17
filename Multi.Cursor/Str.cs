@@ -100,6 +100,9 @@ namespace Multi.Cursor
         public static readonly string THUMB = "thumb";
 
         // Gestures
+        public static readonly string TAP = "tap";
+        public static readonly string TAP_DOWN = "tap_down";
+        public static readonly string TAP_UP = "tap_up";
         public static readonly string DOWN = "down";
         public static readonly string UP = "up";
         public static readonly string MOVE_START = "move_start";
@@ -113,7 +116,7 @@ namespace Multi.Cursor
 
         public static bool IsGesture(string str)
         {
-            return str == DOWN || str == UP || str == MOVE_START || str == MOVE_END;
+            return str == TAP_DOWN || str == TAP_UP || str == MOVE_START || str == MOVE_END;
         }
 
     }

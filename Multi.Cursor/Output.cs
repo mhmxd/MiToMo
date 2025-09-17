@@ -86,7 +86,7 @@ namespace Multi.Cursor
         {
             // GetType() is called on the 'source' object at RUNTIME.
             var className = source.GetType().Name;
-            CONSOUT_NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Warning(mssg);
+            CONSOUT_NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
         }
 
         public static void Print(string output)

@@ -20,7 +20,7 @@ namespace Multi.Cursor
         void LeftMove(double dX, double dY);
 
         void IndexDown(TouchPoint indPoint);
-        void IndexTap(long downInstant, long upInstant);
+        void IndexTap();
         void IndexMove(double dX, double dY);
         void IndexMove(TouchPoint indPoint);
         void IndexUp();
@@ -36,6 +36,6 @@ namespace Multi.Cursor
 
         void PinkyTap(Side side);
 
-        void RecordGesture(Finger finger, string action);
+        void RecordToMoAction(Finger finger, string action);
     }
 }
