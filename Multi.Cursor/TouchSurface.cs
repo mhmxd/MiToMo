@@ -461,7 +461,7 @@ namespace Multi.Cursor
 
                 if (_activeTechnique == Technique.TOMO_SWIPE)
                 {
-                    SwipeTechTrackThumb();
+                    TrackThumbSwipe();
                     SwipeTechTrackIndex();
                     //SwipeTechTrackMiddle();
                     //SwipeTechTrackRing();
@@ -818,7 +818,7 @@ namespace Multi.Cursor
         /// <summary>
         /// Tracking of the thumb finger
         /// </summary>
-        private void SwipeTechTrackThumb()
+        private void TrackThumbSwipe()
         {
             TouchFrame currentFrame = _frames.Last; // Get the current frame
             Finger finger = Finger.Thumb;
@@ -849,6 +849,7 @@ namespace Multi.Cursor
                             {
                                 // Swipe along X
                                 _gestureReceiver?.ThumbSwipe(dX > 0 ? Direction.Right : Direction.Left);
+                                _gestureReceiver?.RecordToMoAction(Finger.Thumb, Str.SWIPE_END);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
                                 //GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
@@ -862,6 +863,7 @@ namespace Multi.Cursor
                             {
                                 // Swipe along Y
                                 _gestureReceiver?.ThumbSwipe(dY > 0 ? Direction.Down : Direction.Up);
+                                _gestureReceiver?.RecordToMoAction(Finger.Thumb, Str.SWIPE_END);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
                                 //GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
@@ -873,6 +875,7 @@ namespace Multi.Cursor
                     else // (Probably) gesture time expired => start over
                     {
                         _thumbGestureStart = currentFrame;
+                        _gestureReceiver?.RecordToMoAction(Finger.Thumb, Str.SWIPE_START);
                     }
 
                 }
@@ -882,6 +885,7 @@ namespace Multi.Cursor
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
                     _thumbGestureStart = currentFrame;
+                    _gestureReceiver?.RecordToMoAction(Finger.Thumb, Str.SWIPE_START);
                 }
             }
             else // FullFinger NOT present in the current frame

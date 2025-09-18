@@ -252,7 +252,8 @@ namespace Multi.Cursor
                     //double trialTime = GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END);
                     double trialTime = GetDuration(Str.OBJ_RELEASE + "_1", Str.TRIAL_END);
                     _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
-                    ExperiLogger.LogTrialTimes(_activeTrialRecord);
+                    
+                    ExperiLogger.LogSingleObjTrialTimes(_activeTrialRecord);
                     //this.TrialInfo($"Trial time = {trialTime:F2}s");
                     //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial time = {trialTime:F2}s");
                     this.TrialInfo(Str.MAJOR_LINE);

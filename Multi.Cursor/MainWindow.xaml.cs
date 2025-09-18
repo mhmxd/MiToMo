@@ -36,11 +36,9 @@ using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Markup;
-//using static Tensorflow.tensorflow;
 using System.Windows.Media;
+//using static Tensorflow.tensorflow;
 using System.Windows.Media.Animation;
-
-//using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;

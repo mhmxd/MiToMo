@@ -233,7 +233,7 @@ namespace Multi.Cursor
                     Sounder.PlayHit();
                     double trialTime = GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END);
                     _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
-                    this.TrialInfo($"Trial time = {trialTime:F2}s");
+                    ExperiLogger.LogMultipleObjTrialTimes(_activeTrialRecord);
                     //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial time = {trialTime:F2}s");
                     GoToNextTrial();
                     break;
@@ -545,7 +545,7 @@ namespace Multi.Cursor
         public override void OnObjectMouseDown(object sender, MouseButtonEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.Join(Str.OBJ, objId.ToString(), Str.PRESS));
+            LogEvent(Str.OBJ_AREA_PRESS);
 
             var startButtonClicked = GetEventCount(Str.START_RELEASE) > 0;
             var device = Utils.Device(_activeBlock.Technique);
@@ -553,8 +553,8 @@ namespace Multi.Cursor
             var markerOverFunction = funcIdUnderMarker != -1;
             var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
 
-            this.TrialInfo($"StartButtonClicked: {startButtonClicked}; Technique: {device}; " +
-                $"MarkerOnFunction: {markerOverFunction}; AllObjApplied: {allObjectsApplied}");
+            //this.TrialInfo($"StartButtonClicked: {startButtonClicked}; Technique: {device}; " +
+            //    $"MarkerOnFunction: {markerOverFunction}; AllObjApplied: {allObjectsApplied}");
 
             switch (startButtonClicked, device, markerOverFunction, allObjectsApplied)
             {

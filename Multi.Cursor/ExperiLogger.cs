@@ -34,7 +34,7 @@ namespace Multi.Cursor
             _technique = tech;
         }
 
-        public static void StartBlockLog(int blockId, TaskType blockType)
+        public static void StartBlockLog(int blockId, TaskType blockType, Complexity blockComplexity)
         {
             String blockFileName = $"Block-{blockId}-{blockType}.txt";
             string blockFilePath = System.IO.Path.Combine(
@@ -52,7 +52,7 @@ namespace Multi.Cursor
                 outputTemplate: "{Message:lj}{NewLine}"))
                 .CreateLogger();
 
-            _blockFileLog.Information($"--- Technique: {_technique} - Block#{blockId} - Type: {blockType} ---");
+            _blockFileLog.Information($"--- Technique: {_technique} | Block#: {blockId} | Type: {blockType} | Complexity: {blockComplexity} ---");
         }
 
         public static void StartTrialLog(Trial trial)
@@ -99,30 +99,55 @@ namespace Multi.Cursor
 
         }
 
-        public static void LogTrialTimes(TrialRecord trialRecord)
+        public static void LogSingleObjTrialTimes(TrialRecord trialRecord)
         {
-            switch (_technique)
-            {
-                case Technique.MOUSE:
-                    _blockFileLog.Information($"Start Release   -> Obj Enter:   {trialRecord.GetDuration(Str.START_RELEASE, Str.OBJ_ENTER)}");
-                    _blockFileLog.Information($"Obj Enter       -> Obj Press:   {trialRecord.GetDuration(Str.OBJ_ENTER, Str.OBJ_PRESS)}");
-                    _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
-                    _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUNCTION_PRESS)}");
-                    _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(Str.FUNCTION_PRESS, Str.FUNCTION_RELEASE)}");
-                    _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(Str.FUNCTION_RELEASE, Str.OBJ_AREA_PRESS)}");
-                    break;
+            int nFunctions = trialRecord.Functions.Count;
 
-                case Technique.TOMO_TAP:
-                    _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDurationToFingerAction(Str.START_RELEASE, Str.TAP_DOWN)}");
-                    _blockFileLog.Information($"Tap Down        -> Tap Up:      {trialRecord.GetGestureDuration(Technique.TOMO_TAP)}");
-                    _blockFileLog.Information($"Tap Up          -> Obj Press:   {trialRecord.GetDurationFromFingerAction(Str.TAP_UP, Str.OBJ_PRESS)}");
-                    _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
-                    _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT)}");
-                    _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(Str.OBJ_EXIT, Str.OBJ_AREA_PRESS)}");
-                    break;
+            if (nFunctions == 1)
+            {
+                switch (_technique)
+                {
+                    case Technique.MOUSE:
+                        _blockFileLog.Information($"Start Release   -> Obj Enter:   {trialRecord.GetDuration(Str.START_RELEASE, Str.OBJ_ENTER)}");
+                        _blockFileLog.Information($"Obj Enter       -> Obj Press:   {trialRecord.GetDuration(Str.OBJ_ENTER, Str.OBJ_PRESS)}");
+                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
+                        _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUNCTION_PRESS)}");
+                        _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(Str.FUNCTION_PRESS, Str.FUNCTION_RELEASE)}");
+                        _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(Str.FUNCTION_RELEASE, Str.OBJ_AREA_PRESS)}");
+                        break;
+
+                    case Technique.TOMO_TAP:
+                        _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDurationToFingerAction(Str.START_RELEASE, Str.TAP_DOWN)}");
+                        _blockFileLog.Information($"Tap Down        -> Tap Up:      {trialRecord.GetGestureDuration(Technique.TOMO_TAP)}");
+                        _blockFileLog.Information($"Tap Up          -> Obj Press:   {trialRecord.GetDurationFromFingerAction(Str.TAP_UP, Str.OBJ_PRESS)}");
+                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
+                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT)}");
+                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(Str.OBJ_EXIT, Str.OBJ_AREA_PRESS)}");
+                        break;
+
+                    case Technique.TOMO_SWIPE:
+                        _blockFileLog.Information($"Start Release   -> Swipe Start: {trialRecord.GetDurationToFingerAction(Str.START_RELEASE, Str.SWIPE_START)}");
+                        _blockFileLog.Information($"Swipe Start     -> Swipe End:   {trialRecord.GetGestureDuration(Technique.TOMO_SWIPE)}");
+                        _blockFileLog.Information($"Swipe End       -> Obj Press:   {trialRecord.GetDurationFromFingerAction(Str.SWIPE_END, Str.OBJ_PRESS)}");
+                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
+                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT)}");
+                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(Str.OBJ_EXIT, Str.OBJ_AREA_PRESS)}");
+                        break;
+                }
             }
+            else
+            {
+                // For now. Later we put detailed log
+                _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(Str.START_RELEASE, Str.OBJ_AREA_PRESS)}");
+            }
+            
         }
 
+        public static void LogMultipleObjTrialTimes(TrialRecord trialRecord)
+        {
+            // For now. Later we put detailed log
+            _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(Str.START_RELEASE, Str.OBJ_AREA_PRESS)}");
+        }
 
 
     }

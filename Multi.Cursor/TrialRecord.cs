@@ -331,11 +331,10 @@ namespace Multi.Cursor
 
         public int GetDuration(string startLabel, string endLabel)
         {
-            
             long startTime = GetLastTime(startLabel);
-            //this.TrialInfo($"{startLabel}: {startTime}");
+            //this.TrialInfo($"{startLabel}: {tapStartTime}");
             long endTime = GetLastTime(endLabel);
-            //this.TrialInfo($"{endLabel}: {endTime}");
+            //this.TrialInfo($"{endLabel}: {tapEndTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
@@ -343,7 +342,9 @@ namespace Multi.Cursor
         {
             this.TrialInfo($"Timestamps: {TimestampsToString()}");
             long startTime = GetLastTime(startLabel);
+            this.TrialInfo($"startTime: {startTime}");
             long endTime = GetLastFingerActionTime(action);
+            this.TrialInfo($"endTime: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
@@ -360,9 +361,15 @@ namespace Multi.Cursor
             switch (gesture)
             {
                 case Technique.TOMO_TAP:
-                    long endTime = GetLastFingerActionTime(Str.TAP_UP);
-                    long startTime = GetFingerTimeBefore(Str.DOWN, endTime);
-                    return Utils.GetDuration(startTime, endTime);
+                    long tapEndTime = GetLastFingerActionTime(Str.TAP_UP);
+                    long tapStartTime = GetFingerTimeBefore(Str.DOWN, tapEndTime);
+                    return Utils.GetDuration(tapStartTime, tapEndTime);
+                    break;
+                
+                case Technique.TOMO_SWIPE:
+                    long swipeEndTime = GetLastFingerActionTime(Str.SWIPE_END);
+                    long swipeStartTime = GetFingerTimeBefore(Str.SWIPE_START, swipeEndTime);
+                    return Utils.GetDuration(swipeStartTime, swipeEndTime);
                     break;
             }
 
