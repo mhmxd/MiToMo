@@ -766,6 +766,12 @@ namespace Multi.Cursor
             return -1; // Return -1 if timestamps are not found or invalid
         }
 
+        public static string MStoSec(int ms)
+        {
+            // Convert milliseconds to seconds with 2 decimal places
+            return (ms / 1000.0).ToString("F2");
+        }
+
     }
 
 }

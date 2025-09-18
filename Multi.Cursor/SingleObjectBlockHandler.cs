@@ -496,9 +496,11 @@ namespace Multi.Cursor
 
         public override void IndexTap()
         {
+            this.TrialInfo($"Index tap detected.");
+
             var technique = _activeBlock.GetSpecificTechnique();
 
-            this.TrialInfo($"Technique: {_activeBlock.GetSpecificTechnique()}");
+            //this.TrialInfo($"Technique: {_activeBlock.GetSpecificTechnique()}");
 
             // Log
             //LogEvent(Str.Join(Str.INDEX, Str.DOWN), downInstant);

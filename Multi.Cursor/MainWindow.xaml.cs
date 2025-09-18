@@ -777,7 +777,8 @@ namespace Multi.Cursor
             {
                 _isTouchMouseActive = true;
                 if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);
-                _touchSurface.SetGestureReceiver(_activeBlockHandler);
+                _touchSurface.SetGestureHandler(_activeBlockHandler);
+                this.TrialInfo($"TouchSurface Initiated");
             }
 
             _stopWatch.Start();
@@ -904,7 +905,8 @@ namespace Multi.Cursor
                 Block block = _experiment.GetBlock(_activeBlockNum);
 
                 _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
-                _touchSurface.SetGestureReceiver(_activeBlockHandler);
+                if (Utils.Device(_experiment.Active_Technique) == Technique.TOMO) _touchSurface.SetGestureHandler(_activeBlockHandler);
+                
                 _activeBlockHandler.BeginActiveBlock();
 
                 //if (TaskType == TaskType.REPEATING) _activeBlockHandler = new MultiObjectBlockHandler(this, block);

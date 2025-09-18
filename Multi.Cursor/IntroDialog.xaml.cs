@@ -34,7 +34,7 @@ namespace Multi.Cursor
         {
             InitializeComponent();
 
-            ParticipantNumberTextBox.Text = "100";
+            ParticipantNumberTextBox.Text = Experiment.DEFAULT_PTC.ToString();
             TechniqueComboBox.ItemsSource = new string[] { Str.TOUCH_MOUSE_TAP, Str.TOUCH_MOUSE_SWIPE, Str.MOUSE };
             TechniqueComboBox.SelectedValue = Str.MOUSE;
             ExperimentComboBox.ItemsSource = new string[] { Str.PRACTICE, Str.TEST };

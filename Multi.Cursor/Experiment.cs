@@ -19,10 +19,13 @@ namespace Multi.Cursor
         public Trial_Action OUTSIDE_AREA_PRESS = Trial_Action.CONTINUE;
         public Trial_Action MARKER_NOT_ON_FUNCTION_OBJECT_PRESS = Trial_Action.CONTINUE;
 
-        //--- Numbers
-        private int N_FUNC = 2;
+        //--- Setting
+        private int N_FUNC = 1;
         private int N_OBJ = 1;
-        private int N_BLOCKS = 1;
+        private int N_BLOCKS = 3;
+        public static int DEFAULT_PTC = 1000;
+        public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
+        public Complexity Active_Complexity = Complexity.Simple;
 
         //--- Variables
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
@@ -102,8 +105,7 @@ namespace Multi.Cursor
         public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
 
         //-- Information
-        public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
-        public Complexity Active_Complexity = Complexity.Simple;
+        
         public int Participant_Number { get; set; } // Set in the info dialog
         
         private List<Block> _blocks = new List<Block>();
@@ -111,7 +113,7 @@ namespace Multi.Cursor
 
         public Experiment(double shortDistMM, double longDistMM)
         {
-            Participant_Number = 100; // Default
+            Participant_Number = DEFAULT_PTC; // Default
             Shortest_Dist_MM = shortDistMM;
             Longest_Dist_MM = longDistMM;
 

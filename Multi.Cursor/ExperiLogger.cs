@@ -114,6 +114,9 @@ namespace Multi.Cursor
                         _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUNCTION_PRESS)}");
                         _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(Str.FUNCTION_PRESS, Str.FUNCTION_RELEASE)}");
                         _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(Str.FUNCTION_RELEASE, Str.OBJ_AREA_PRESS)}");
+                        _blockFileLog.Information($"--------------------------------");
+                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(Str.START_RELEASE, Str.OBJ_AREA_PRESS))}");
+                        _blockFileLog.Information($"==============================================================================================================");
                         break;
 
                     case Technique.TOMO_TAP:
@@ -123,6 +126,9 @@ namespace Multi.Cursor
                         _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
                         _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT)}");
                         _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(Str.OBJ_EXIT, Str.OBJ_AREA_PRESS)}");
+                        _blockFileLog.Information($"--------------------------------");
+                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(Str.START_RELEASE, Str.OBJ_AREA_PRESS))}");
+                        _blockFileLog.Information($"==============================================================================================================");
                         break;
 
                     case Technique.TOMO_SWIPE:
@@ -132,6 +138,9 @@ namespace Multi.Cursor
                         _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
                         _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT)}");
                         _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(Str.OBJ_EXIT, Str.OBJ_AREA_PRESS)}");
+                        _blockFileLog.Information($"--------------------------------");
+                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(Str.START_RELEASE, Str.OBJ_AREA_PRESS))}");
+                        _blockFileLog.Information($"==============================================================================================================");
                         break;
                 }
             }
