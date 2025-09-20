@@ -73,13 +73,6 @@ namespace Multi.Cursor
             }
         };
 
-        //public static Dictionary<Block.Complexity, List<int>> BUTTON_WIDTHS = new Dictionary<Block.Complexity, List<int>>()
-        //{
-        //    { Block.Complexity.Simple, new List<int>() { 6, 18 } }, // Simple: 6, 12
-        //    { Block.Complexity.Moderate, new List<int>() { 3, 6, 12, 15, 18 } }, // Moderate: 3, 6, 12, 15, 18
-        //    { Block.Complexity.Complex, new List<int>() { 3, 6, 12, 15, 18, 30, 36 } } // Complex: 3, 6, 12, 15, 18, 30, 36
-        //};
-
         //private static List<double> _distances = new List<double>(); // Generated in constructor
         private Range _shortDistRangeMM; // Short distances range (mm)
         private Range _midDistRangeMM; // Mid distances range (mm)
@@ -176,31 +169,6 @@ namespace Multi.Cursor
             //CreateAltBlocks(1, targetMultiples, distRanges);
             //CreateRepBlocks(1, targetMultiples, distRanges);
         }
-
-        //private void CreateAltBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
-        //{
-        //    // Create n alternating blocks
-        //    for (int i = 0; i < n; i++)
-        //    {
-        //        int blockId = Participant_Number * 100 + i + 1;
-        //        Block block = Block.CreateAltBlock(blockId, targetMultiples, distRanges);
-        //        this.TrialInfo($"Created block #{block.Id} with {block.Trials.Count} trials.");
-        //        _blocks.Add(block);
-        //    }
-
-        //}
-
-        //public void CreateRepBlocks(int n, List<int> targetMultiples, List<Range> distRanges)
-        //{
-        //    // Create n repeating blocks
-        //    for (int i = 0; i < n; i++)
-        //    {
-        //        int blockId = Participant_Number * 100 + i + 1;
-        //        Block block = Block.CreateRepBlock(blockId, targetMultiples, distRanges, REP_TRIAL_NUM_PASS);
-        //        this.TrialInfo($"Created block #{block.Id} with {block.Trials.Count} trials.");
-        //        _blocks.Add(block);
-        //    }
-        //}
 
         public int GetNumBlocks()
         {

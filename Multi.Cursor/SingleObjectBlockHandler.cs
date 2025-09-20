@@ -39,23 +39,29 @@ namespace Multi.Cursor
             }
 
             // If consecutive trials have the same FunctionId, re-order them
-            while (IsTargetRepeated())
+            if (_activeBlock.GetBlockType() == TaskType.ONE_OBJ_ONE_FUNC)
             {
-                _activeBlock.Trials.Shuffle();
+                while (IsFunctionRepeated())
+                {
+                    _activeBlock.Trials.Shuffle();
+                }
             }
+            
 
             return true;
         }
 
-        private bool IsTargetRepeated()
+        private bool IsFunctionRepeated()
         {
-            //for (int i = 0; i < _activeBlock.Trials.Count - 1; i++)
-            //{
-            //    if (_trialRecords[_activeBlock.Trials[i].Id]?.FunctionId == _trialRecords[_activeBlock.Trials[i + 1].Id]?.FunctionId)
-            //    {
-            //        return true;
-            //    }
-            //}
+            for (int i = 0; i < _activeBlock.Trials.Count - 1; i++)
+            {
+                int thisTrialFunctionId = (int)(_trialRecords[_activeBlock.Trials[i].Id]?.GetFunctionIds()[0]);
+                int nextTrialFunctionId = (int)(_trialRecords[_activeBlock.Trials[i + 1].Id]?.GetFunctionIds()[0]);
+                if (thisTrialFunctionId == nextTrialFunctionId)
+                {
+                    return true;
+                }
+            }
 
             return false;
         }

@@ -55,7 +55,7 @@ namespace Multi.Cursor
             }
 
             // If consecutive trials have the same FunctionId, re-order them
-            //while (IsTargetRepeated())
+            //while (IsFunctionRepeated())
             //{
             //    _activeBlock.Trials.Shuffle();
             //}
