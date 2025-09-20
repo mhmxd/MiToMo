@@ -193,51 +193,52 @@ namespace Multi.Cursor
             //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
 
             // Log the trial show timestamp
-            _activeTrialRecord.AddTimestamp(Str.TRIAL_SHOW); 
-
+            _activeTrialRecord.AddTimestamp(Str.TRIAL_SHOW);
+            this.TrialInfo($"Trial Id: {_activeTrial.Id}");
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the target button and set the handlers
             this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
             Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
-            _mainWindow.FillButtonsInAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), funcDefaultColor);
+            //_mainWindow.FillButtonsI nAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), funcDefaultColor);
             UpdateScene();
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.FuncSide, 
             //    _activeTrialRecord.FunctionId, 
             //    funcDefaultColor);
-
+            this.TrialInfo($"Function Ids: {_activeTrialRecord.GetFunctionIds().ToStr()}");
             _mainWindow.SetAuxButtonsHandlers(
                 _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
-                OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
-
+                this.OnFunctionMouseDown, this.OnFunctionMouseUp, this.OnNonTargetMouseDown);
+            this.TrialInfo($"Trial Id: {_activeTrial.Id}");
             // If on ToMo, activate the auxiliary window marker on all sides
             if (_mainWindow.IsTechniqueToMo()) _mainWindow.ShowAllAuxMarkers();
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
-
+            this.TrialInfo($"Trial Id: {_activeTrial.Id}");
             // Show the area
             MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp);
             _mainWindow.ShowObjectsArea(
                 _activeTrialRecord.ObjectAreaRect, 
                 Config.OBJ_AREA_BG_COLOR, 
                 objAreaEvents);
-
+            this.TrialInfo($"Trial Id: {_activeTrial.Id}");
             // Show objects
             Brush objDefaultColor = Config.OBJ_DEFAULT_COLOR;
             MouseEvents objectEvents = new MouseEvents(
                 OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
             _mainWindow.ShowObjects(
                 _activeTrialRecord.Objects, objDefaultColor, objectEvents);
-
+            this.TrialInfo($"Trial Id: {_activeTrial.Id}");
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp);
             _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
 
             // Update info label
             _mainWindow.UpdateInfoLabel();
+            this.TrialInfo($"Trial Id: {_activeTrial.Id}");
         }
 
         public override void EndActiveTrial(Result result)
@@ -381,7 +382,7 @@ namespace Multi.Cursor
         public override void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(Str.OBJ_RELEASE);
-
+            this.TrialInfo($"Trial Id: {_activeTrial.Id} | Obj: {this.GetHashCode()}");
             var device = Utils.Device(_activeBlock.Technique);
             var objectPressed = GetEventCount(Str.OBJ_PRESS) > 0; // Check if the object was pressed
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
@@ -429,7 +430,7 @@ namespace Multi.Cursor
         public override void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(Str.FUNCTION_PRESS);
-
+            this.TrialInfo($"Trial Id: {_activeTrial.Id} | Obj: {this.GetHashCode()}");
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -443,7 +444,7 @@ namespace Multi.Cursor
 
             // Function id is sender's tag as int
             var functionId = (int)((FrameworkElement)sender).Tag;
-
+            
             var device = Utils.Device(_activeBlock.Technique);
             var objectMarked = GetEventCount(Str.OBJ_RELEASE) > 0;
 
@@ -469,6 +470,26 @@ namespace Multi.Cursor
             }
 
             
+            e.Handled = true; // Mark the event as handled to prevent further processing
+        }
+
+        public override void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
+        {
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+            SButton clickedButton = sender as SButton;
+            var functionId = (int)((FrameworkElement)sender).Tag;
+            this.TrialInfo($"Non-function id: {functionId}");
+            this.TrialInfo($"Trial Id: {_activeTrial.Id} | Obj: {this.GetHashCode()}");
+            if (clickedButton != null && clickedButton.Tag is Dictionary<string, int>)
+            {
+                // Show neighbor IDs
+                Dictionary<string, int> tag = clickedButton.Tag as Dictionary<string, int>;
+                this.TrialInfo($"Clicked button ID: {clickedButton.Id}, Left: {tag["LeftId"]}, Right: {tag["RightId"]}, Top: {tag["TopId"]}, Bottom: {tag["BottomId"]}");
+            }
+
+            // It's always a miss
+            EndActiveTrial(Result.MISS);
+
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 

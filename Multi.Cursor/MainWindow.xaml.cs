@@ -991,11 +991,6 @@ namespace Multi.Cursor
         }
 
 
-        private void ClearStart()
-        {
-            canvas.Children.Remove(_startRectangle);
-        }
-
         public void ClearCanvas()
         {
             // Clear the canvas
@@ -1302,6 +1297,13 @@ namespace Multi.Cursor
             {
                 this.TrialInfo("Target window is null, cannot reset it.");
             }
+        }
+
+        public void ResetAllAuxWindows()
+        {
+            _leftWindow.ResetButtons();
+            _rightWindow.ResetButtons();
+            _topWindow.ResetButtons();
         }
 
         public void FillButtonsInAuxWindow(Side side, List<int> buttonIds, Brush color)

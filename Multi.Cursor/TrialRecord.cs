@@ -159,6 +159,7 @@ namespace Multi.Cursor
 
         public void ApplyFunction(int funcId)
         {
+            this.TrialInfo($"FuncId: {funcId}");
             TFunction func = GetFunctionById(funcId);
             if (func != null)
             {

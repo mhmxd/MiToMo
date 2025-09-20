@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -71,6 +72,10 @@ namespace Multi.Cursor
         protected Rect _objectConstraintRectAbsolute = new Rect();
 
         private const double Tolerance = 5.0; // A small tolerance for alignment checks (e.g., for slightly misaligned buttons)
+
+        private MouseButtonEventHandler _currentFuncMouseDownHandler;
+        private MouseButtonEventHandler _currentFuncMouseUpHandler;
+        private MouseButtonEventHandler _currentNonFuncMouseDownHandler;
 
         //public abstract void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators);
 
@@ -308,7 +313,7 @@ namespace Multi.Cursor
                 _buttonInfos[buttonId].ButtonFill = color; // Store the default background color
                 _buttonInfos[buttonId].Button.Background = color; // Change the background color of the button
                 _buttonInfos[buttonId].Button.DisableBackgroundHover = true; // Disable hover fill for this button
-                //this.TrialInfo($"Button {buttonId} filled with color {color}.");
+                this.TrialInfo($"Button {buttonId} filled with color {color}.");
             }
             else
             {
@@ -316,35 +321,52 @@ namespace Multi.Cursor
             }
         }
 
-        public virtual void SetGridButtonHandlers(
-            List<int> funcIds,
-            MouseButtonEventHandler funcMouseDownHandler, MouseButtonEventHandler funcMouseUpHandler,
-            MouseButtonEventHandler nonFuncMouseDownHandler)
+        public void ClearAllEventHandlers(UIElement element)
         {
-            // Clear existing handlers for all buttons
-            foreach (int id in _buttonInfos.Keys)
+            var eventHandlersStoreField = typeof(UIElement).GetField("_eventHandlersStore",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+
+            if (eventHandlersStoreField?.GetValue(element) != null)
             {
-                _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, funcMouseDownHandler);
-                _buttonInfos[id].Button.RemoveHandler(UIElement.MouseUpEvent, funcMouseUpHandler);
-                _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, nonFuncMouseDownHandler);
+                eventHandlersStoreField.SetValue(element, null);
+            }
+        }
+
+        public virtual void SetGridButtonHandlers(
+        List<int> funcIds,
+        MouseButtonEventHandler funcMouseDownHandler,
+        MouseButtonEventHandler funcMouseUpHandler,
+        MouseButtonEventHandler nonFuncMouseDownHandler)
+        {
+            // Remove OLD handlers (using stored references)
+            if (_currentFuncMouseDownHandler != null)
+            {
+                foreach (int id in _buttonInfos.Keys)
+                {
+                    _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, _currentFuncMouseDownHandler);
+                    _buttonInfos[id].Button.RemoveHandler(UIElement.MouseUpEvent, _currentFuncMouseUpHandler);
+                    _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, _currentNonFuncMouseDownHandler);
+                }
             }
 
-            // Set new handlers for buttons
+            // Store NEW handlers
+            _currentFuncMouseDownHandler = funcMouseDownHandler;
+            _currentFuncMouseUpHandler = funcMouseUpHandler;
+            _currentNonFuncMouseDownHandler = nonFuncMouseDownHandler;
+
+            // Add NEW handlers
             foreach (int id in _buttonInfos.Keys)
             {
-                if (funcIds.Contains(id)) // Handling Target
+                if (funcIds.Contains(id))
                 {
-                    //this.TrialInfo($"Adding target handler for button #{id}");
-                    _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, funcMouseDownHandler, handledEventsToo: true);
-                    _buttonInfos[id].Button.AddHandler(UIElement.MouseUpEvent, funcMouseUpHandler, handledEventsToo: true);
+                    _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, _currentFuncMouseDownHandler, handledEventsToo: true);
+                    _buttonInfos[id].Button.AddHandler(UIElement.MouseUpEvent, _currentFuncMouseUpHandler, handledEventsToo: true);
                 }
-                else // Handling non-Targets
+                else
                 {
-                    //this.TrialInfo($"Adding non-target handler for button #{id}");
-                    _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, nonFuncMouseDownHandler, handledEventsToo: true);
+                    _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, _currentNonFuncMouseDownHandler, handledEventsToo: true);
                 }
             }
-
         }
 
         public virtual void SetGridButtonHandlers(

@@ -327,6 +327,25 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
+        public override void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
+        {
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+            SButton clickedButton = sender as SButton;
+            var functionId = (int)((FrameworkElement)sender).Tag;
+            this.TrialInfo($"Non-function id: {functionId}");
+
+            if (clickedButton != null && clickedButton.Tag is Dictionary<string, int>)
+            {
+                // Show neighbor IDs
+                Dictionary<string, int> tag = clickedButton.Tag as Dictionary<string, int>;
+                this.TrialInfo($"Clicked button ID: {clickedButton.Id}, Left: {tag["LeftId"]}, Right: {tag["RightId"]}, Top: {tag["TopId"]}, Bottom: {tag["BottomId"]}");
+            }
+
+            // It's always a miss
+            EndActiveTrial(Result.MISS);
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
+        }
 
         private void ObjectPress()
         {

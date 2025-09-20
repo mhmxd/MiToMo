@@ -102,7 +102,8 @@ namespace Multi.Cursor
         //private double SHORTEST_DIST_MM = 10; // BenQ = 10 mm
 
         //-- Constants
-        public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
+        //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
+        public static double OBJ_WIDTH_MM = 8; // Arbitrary
 
         //-- Information
         
