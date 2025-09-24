@@ -11,11 +11,6 @@ namespace Multi.Cursor
 {
     public class TrialRecord
     {
-        // Classes
-        public enum ButtonState
-        {
-            DEFAULT = 0, MARKED = 1, APPLIED = 2
-        }
 
         public class TObject
         {
@@ -181,7 +176,7 @@ namespace Multi.Cursor
                     ChangeObjectState(markedObjId, ButtonState.APPLIED);
                     break;
                 case (_, 1): // Multiple functions and one object => apply the function to the single object
-                    ChangeObjectState(1, ButtonState.APPLIED);
+                    //ChangeObjectState(1, ButtonState.APPLIED);
                     break;
                 default: // Multiple functions and multiple objects => apply the function to the object mapped to the function
                     int mappedObjId = FindMappedObjectId(funcId);
@@ -226,7 +221,7 @@ namespace Multi.Cursor
             }
         }
 
-        private void ChangeObjectState(int objId, ButtonState newState)
+        public void ChangeObjectState(int objId, ButtonState newState)
         {
             this.TrialInfo($"Change Obj#{objId} to {newState}");
             TObject markedObj = Objects.FirstOrDefault(o => o.Id == objId);

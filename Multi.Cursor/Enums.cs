@@ -67,4 +67,9 @@ namespace Multi.Cursor
         Ring = 4,
         Pinky = 5
     }
+
+    public enum ButtonState
+    {
+        DEFAULT = 0, MARKED = 1, APPLIED = 2
+    }
 }

@@ -28,8 +28,6 @@ namespace Multi.Cursor
         private static int _ptcId = 0; // Participant ID
         private static Technique _technique = Technique.MOUSE; // Technique
 
-        private static double _avgTime; 
-
         public static void Init(int participantId, Technique tech)
         {
             _ptcId = participantId;

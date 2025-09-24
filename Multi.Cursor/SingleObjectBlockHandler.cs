@@ -450,7 +450,6 @@ namespace Multi.Cursor
 
             // Function id is sender's tag as int
             var functionId = (int)((FrameworkElement)sender).Tag;
-            
             var device = Utils.Device(_activeBlock.Technique);
             var objectMarked = GetEventCount(Str.OBJ_RELEASE) > 0;
 
@@ -464,6 +463,11 @@ namespace Multi.Cursor
 
                 case (Technique.MOUSE, true): // MOUSE, object marked
                     _activeTrialRecord.ApplyFunction(functionId);
+                    // Change obj's color only if all functions are selected
+                    if (_activeTrialRecord.AreAllFunctionsApplied())
+                    {
+                        _activeTrialRecord.ChangeObjectState(1, ButtonState.APPLIED);
+                    }
                     UpdateScene();
                     break;
                 case (Technique.MOUSE, false): // MOUSE, object not marked
