@@ -227,6 +227,7 @@ namespace Multi.Cursor
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
             this.TrialInfo(Str.MAJOR_LINE);
             LogEvent(Str.TRIAL_END); // Log the trial end timestamp
+            _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
 
             switch (result)
             {

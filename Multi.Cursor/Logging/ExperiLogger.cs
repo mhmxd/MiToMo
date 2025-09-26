@@ -219,7 +219,8 @@ namespace Multi.Cursor
                 case Technique.TOMO:
                     log.strrl_gstst = trialRecord.GetDurationToGestureStart(Str.START_RELEASE, trial.Technique);
                     log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
-                    /// Flick logs
+                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
+                    log.fstfl_funmk = trialRecord.GetDuration(Str.FLICK, Str.FUNCTION_MARKED);
                     log.funmk_obant = trialRecord.GetDuration(Str.FUNCTION_MARKED, Str.OBJ_AREA_ENTER);
                     log.obant_objnt = trialRecord.GetDuration(Str.OBJ_AREA_ENTER, Str.OBJ_ENTER);
                 break;

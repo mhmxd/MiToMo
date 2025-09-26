@@ -363,53 +363,6 @@ namespace Multi.Cursor
 
 
         /// <summary>
-        /// Fill active touches
-        /// </summary>
-        /// <param name="shotSpan"></param>
-        /// <returns></returns>
-        private TouchFrame FillActiveTouches(Span2D<Byte> shotSpan)
-        {
-            // Reset the dictionary
-            //_activeFrame.Clear();
-            //Output.PrintSpan(shotSpan);
-            //FILOG.Debug(Output.ToStr(shotSpan));
-
-            // Result
-            TouchFrame activeFrame = new TouchFrame();
-
-            //-- Process each finger partition and add data
-            for (int f = 0; f < _fingers.Length; f++)
-            {
-                TouchFinger tf = _fingers[f];
-                TouchPoint touchPoint = new TouchPoint();
-                for (int x = tf.MinCol; x <= tf.MaxCol; x++)
-                {
-                    for (int y = 0; y < 13; y++)
-                    {
-                        if (shotSpan[y, x] > Config.MIN_PRESSURE)
-                        {
-                            touchPoint.AddTouchData(x, y, shotSpan[y, x]);
-                        }
-                    }
-                }
-
-                // If total pressure was above 2 X MIN_PRESSURE => finger active
-                GestInfo<TouchSurface>($"Finger {f + 1} Pressure = {touchPoint.GetTotalPressure()}");
-                if (touchPoint.GetTotalPressure() > Config.MIN_TOTAL_PRESSURE)
-                {
-                    //FILOG.Debug($"Pressure #{f + 1} = {touchPoint.GetTotalPressure()}");
-                    touchPoint.Id = f + 1;
-                    activeFrame.AddPointer(touchPoint.Id, touchPoint);
-                }
-            }
-
-            //FILOG.Debug(Output.GetKeys(activeFrame.Pointers));
-            //GestInfo<TouchSurface>(Output.GetKeys(activeFrame.Pointers));
-
-            return activeFrame;
-        }
-
-        /// <summary>
         /// Track touches using the shots
         /// </summary>
         /// <param name="shotSpan"></param>
@@ -463,7 +416,7 @@ namespace Multi.Cursor
                 if (_activeTechnique == Technique.TOMO_SWIPE)
                 {
                     TrackThumbSwipe();
-                    SwipeTechTrackIndex();
+                    TrackIndexSwipe();
                     //SwipeTechTrackMiddle();
                     //SwipeTechTrackRing();
                     //SwipeTechTrackLittle();
@@ -904,7 +857,7 @@ namespace Multi.Cursor
         /// <summary>
         /// Tracking the index finger
         /// </summary>
-        private void SwipeTechTrackIndex()
+        private void TrackIndexSwipe()
         {
             TouchFrame currentFrame = _frames.Last; // Get the current frame
 

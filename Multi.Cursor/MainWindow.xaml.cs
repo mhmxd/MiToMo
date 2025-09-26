@@ -1145,13 +1145,6 @@ namespace Multi.Cursor
             canvas.Children.Add(objRectangle);
         }
 
-        private void HideAuxursors()
-        {
-            //_leftWindow.HideCursor();
-            ////_topWindow.HideCursor();
-            //_rightWindow.HideCursor();
-        }
-
         public void ActivateAuxWindowMarker(Side window)
         {
             this.TrialInfo($"Activating aux window: {window}");
@@ -1177,43 +1170,17 @@ namespace Multi.Cursor
             }
         }
 
+        public void DeactivateAuxWindow()
+        {
+            _activeAuxWindow = null;
+        }
+
         public void ShowAllAuxMarkers()
         {
             // Show all aux markers (without activation)
             _leftWindow.ShowMarker();
             _topWindow.ShowMarker();
             _rightWindow.ShowMarker();
-        }
-
-        private void ActivateAuxWindow(Side window, Side tapLoc)
-        {
-            switch (window)
-            {
-                case Side.Left:
-                    _activeAuxWindow = _leftWindow;
-                    HideAuxursors();
-                    //_leftWindow.ShowCursor(tapLoc);
-                    //_leftWindow.ActivateCursor();
-                    //_topWindow.DeactivateCursor();
-                    //_rightWindow.DeactivateCursor();
-                    break;
-                case Side.Top:
-                    _activeAuxWindow = _topWindow;
-                    HideAuxursors();
-                    //_topWindow.ShowCursor(tapLoc);
-                    //_topWindow.ActivateMarker();
-                    //_leftWindow.DeactivateCursor();
-                    //_rightWindow.DeactivateCursor();
-                    break;
-                case Side.Right:
-                    _activeAuxWindow = _rightWindow;
-                    HideAuxursors();
-                    //_rightWindow.ShowCursor(tapLoc);
-                    //_rightWindow.ActivateCursor();
-                    //_leftWindow.DeactivateCursor();
-                    //_topWindow.DeactivateCursor();
-                    break;
-            }
         }
 
         public void SetTargetWindow(Side side,
@@ -1500,6 +1467,7 @@ namespace Multi.Cursor
         public void MoveMarker(TouchPoint touchPoint, Func<bool> OnFunctionMarked)
         {
             _activeAuxWindow?.MoveMarker(touchPoint, OnFunctionMarked);
+
         }
 
         public void StopAuxNavigator()

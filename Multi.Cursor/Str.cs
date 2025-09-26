@@ -112,6 +112,7 @@ namespace Multi.Cursor
         public static readonly string UP = "up";
         public static readonly string SWIPE_START = "swipe_start";
         public static readonly string SWIPE_END = "swipe_end";
+        public static readonly string FLICK = "flick";
 
         // Task type abbreviations
         public static Dictionary<TaskType, string> TASKTYPE_ABBR = new Dictionary<TaskType, string>

@@ -117,7 +117,8 @@ namespace Multi.Cursor
         //---- Object area
         public void OnObjectAreaMouseEnter(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.OBJ_AREA_ENTER);
+            // Only log if entered from outside (NOT from the object)
+            if (_activeTrialRecord.GetLastTimestamp() != Str.OBJ_EXIT) LogEvent(Str.OBJ_AREA_ENTER);
         }
 
         public abstract void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e);
@@ -294,7 +295,12 @@ namespace Multi.Cursor
 
         public void IndexMove(TouchPoint indPoint)
         {
-            _mainWindow?.MoveMarker(indPoint, OnFunctionMarked);
+            if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
+            {
+                LogFirstEvent(Str.FLICK); // First flick after activation
+                _mainWindow?.MoveMarker(indPoint, OnFunctionMarked);
+            }
+            
         }
 
         public void IndexUp()

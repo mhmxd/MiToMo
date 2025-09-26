@@ -331,9 +331,9 @@ namespace Multi.Cursor
         public int GetDuration(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            //this.TrialInfo($"{startLabel}: {tapStartTime}");
+            this.TrialInfo($"Start time of {startLabel}: {startTime}");
             long endTime = GetLastTime(endLabel);
-            //this.TrialInfo($"{endLabel}: {tapEndTime}");
+            this.TrialInfo($"End time of {endLabel}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
@@ -349,8 +349,11 @@ namespace Multi.Cursor
 
         public int GetDurationFromGestureEnd(Technique technique, string endLabel)
         {
+            this.TrialInfo($"Timestamps: {TimestampsToString()}");
             long startTime = GetGestureEndTimestamp(technique);
+            this.TrialInfo($"startTime: {startTime}");
             long endTime = GetLastTime(endLabel);
+            this.TrialInfo($"endTime: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
@@ -411,10 +414,10 @@ namespace Multi.Cursor
             switch (technique)
             {
                 case Technique.TOMO_TAP:
-                    return GetLastTime(Str.TAP_UP);
+                    return GetLastFingerActionTime(Str.TAP_UP);
 
                 case Technique.TOMO_SWIPE:
-                    return GetLastTime(Str.SWIPE_END);
+                    return GetLastFingerActionTime(Str.SWIPE_END);
             }
 
             return -1;
