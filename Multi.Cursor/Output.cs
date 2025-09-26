@@ -57,9 +57,9 @@ namespace Multi.Cursor
         public static void Conlog<T>(string mssg, [CallerMemberName] string memberName = "")
         {
             var className = typeof(T).Name;
-            //CONSOUT_NOTIME.ForContext("ClassName", className)
-            //    .ForContext("MethodName", memberName)
-            //    .Information(mssg);
+            CONSOUT_NOTIME.ForContext("ClassName", className)
+                .ForContext("MethodName", memberName)
+                .Information(mssg);
 
         }
 

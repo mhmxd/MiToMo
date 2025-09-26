@@ -37,9 +37,12 @@ namespace Multi.Cursor
             set => _technique = value;
         }
 
-        public Block(Technique technique, TaskType type, Complexity complexity, int id)
+        public int PtcNum { get; set; }
+
+        public Block(int ptcNum, Technique technique, TaskType type, Complexity complexity, int id)
         {
             this.Id = id;
+            PtcNum = ptcNum;
             _technique = technique;
             _taskType = type;
             _complexity = complexity;
@@ -87,6 +90,7 @@ namespace Multi.Cursor
         /// <returns></returns>
         public static Block CreateBlock(
             Technique technique,
+            int ptc,
             int id,
             Complexity complexity,
             List<Range> distRanges,
@@ -115,7 +119,7 @@ namespace Multi.Cursor
             }
 
             // Create block
-            Block block = new Block(technique, type, complexity, id);
+            Block block = new Block(ptc, technique, type, complexity, id);
 
             // Create and add trials to the block
             int trialNum = 1;
@@ -128,7 +132,7 @@ namespace Multi.Cursor
 
                 foreach (Range range in distRanges)
                 {
-                    // For now. We may later create trials with multiple function Ws
+                    // For now all function Ws are the same. We may later create trials with multiple function Ws
                     foreach (int funcW in buttonWidths)
                     {
                         List<int> functionWidths = new List<int>(nFunc);
@@ -139,6 +143,10 @@ namespace Multi.Cursor
                         
                         Trial trial = Trial.CreateTrial(
                             id * 100 + trialNum,
+                            technique,
+                            ptc,
+                            type,
+                            complexity,
                             functionSide,
                             range,
                             nObj,

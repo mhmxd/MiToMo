@@ -309,6 +309,7 @@
     </ApplicationDefinition>
     <Compile Include="ButtonFactory.cs" />
     <Compile Include="GridFactory.cs" />
+    <Compile Include="Logging\TrialLog.cs" />
     <Compile Include="MouseEvents.cs" />
     <Compile Include="SingleObjectBlockHandler.cs" />
     <Compile Include="App.xaml.cs">
@@ -343,7 +344,7 @@
     <Compile Include="Sounder.cs" />
     <Compile Include="Timer.cs" />
     <Compile Include="Timestamp.cs" />
-    <Compile Include="ExperiLogger.cs" />
+    <Compile Include="Logging\ExperiLogger.cs" />
     <Compile Include="TopWindow.xaml.cs">
       <DependentUpon>TopWindow.xaml</DependentUpon>
     </Compile>

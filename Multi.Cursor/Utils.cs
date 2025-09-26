@@ -752,10 +752,12 @@ namespace Multi.Cursor
             return numbers.Average();
         }
 
-        public static Technique Device(this Technique tech)
+        public static Technique GetDevice(this Technique tech)
         {
             return tech == Technique.TOMO_SWIPE || tech == Technique.TOMO_TAP ? Technique.TOMO : Technique.MOUSE;
         }
+
+        
 
         public static int GetDuration(long start, long end)
         {
@@ -770,6 +772,22 @@ namespace Multi.Cursor
         {
             // Convert milliseconds to seconds with 2 decimal places
             return (ms / 1000.0).ToString("F2");
+        }
+
+        public static string[] GetPropertyValues<T>(T obj)
+        {
+            return typeof(T).GetProperties()
+                .Where(p => p.CanRead)
+                .Select(p => p.GetValue(obj)?.ToString() ?? "")
+                .ToArray();
+        }
+
+        public static string[] GetPropertyNames<T>(T obj)
+        {
+            return typeof(T).GetProperties()
+                .Where(p => p.CanRead)
+                .Select(p => p.Name)
+                .ToArray();
         }
 
     }

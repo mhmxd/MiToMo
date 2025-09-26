@@ -37,5 +37,7 @@ namespace Multi.Cursor
         void PinkyTap(Side side);
 
         void RecordToMoAction(Finger finger, string action);
+
+        //void RecordToMoAction(string action);
     }
 }

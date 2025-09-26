@@ -182,7 +182,7 @@ namespace Multi.Cursor
             _activeTrialRecord.AddTimestamp(Str.TRIAL_SHOW);
 
             // Set the target window based on the trial's target side
-            _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
+            _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the function button and set the handlers
             
@@ -197,7 +197,8 @@ namespace Multi.Cursor
             UpdateScene();
             _mainWindow.SetAuxButtonsHandlers(
                 _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
-                OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
+                OnFunctionMouseEnter, OnFunctionMouseDown, OnFunctionMouseUp, 
+                OnFunctionMouseExit, OnNonTargetMouseDown);
 
             // If on ToMo, activate the auxiliary window marker on all sides
             if (_mainWindow.IsTechniqueToMo()) _mainWindow.ShowAllAuxMarkers();
@@ -310,7 +311,7 @@ namespace Multi.Cursor
         public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
             var funcId = (int)((FrameworkElement)sender).Tag;
-            var device = Utils.Device(_activeBlock.Technique);
+            var device = Utils.GetDevice(_activeBlock.Technique);
 
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
@@ -500,7 +501,7 @@ namespace Multi.Cursor
                     // 2. Check for overlaps with already placed objects
                     if (!HasOverlap(topLeft, objW, placedObjects))
                     {
-                        TrialRecord.TObject trialObject = new TrialRecord.TObject(i + 1, topLeft);
+                        TrialRecord.TObject trialObject = new TrialRecord.TObject(i + 1, topLeft, potentialCenter);
 
                         placedObjects.Add(trialObject);
                         placed = true;
@@ -567,7 +568,7 @@ namespace Multi.Cursor
             LogEvent(Str.OBJ_AREA_PRESS);
 
             var startButtonClicked = GetEventCount(Str.START_RELEASE) > 0;
-            var device = Utils.Device(_activeBlock.Technique);
+            var device = Utils.GetDevice(_activeBlock.Technique);
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             var markerOverFunction = funcIdUnderMarker != -1;
             var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
@@ -604,7 +605,7 @@ namespace Multi.Cursor
             var objId = (int)((FrameworkElement)sender).Tag;
             LogEvent(string.Join("_", Str.OBJ, objId.ToString(), Str.RELEASE));
 
-            var device = Utils.Device(_activeBlock.Technique);
+            var device = Utils.GetDevice(_activeBlock.Technique);
             var thisObjPressed = _activeTrialRecord.IsObjectPressed(objId);
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             var markerOverFunction = funcIdUnderMarker != -1;
@@ -667,7 +668,7 @@ namespace Multi.Cursor
             Side correspondingSide = Side.Top;
             var funcOnCorrespondingSide = _activeTrial.FuncSide == correspondingSide;
 
-            this.TrialInfo($"Technique: {Utils.Device(_activeBlock.Technique)}");
+            this.TrialInfo($"Technique: {Utils.GetDevice(_activeBlock.Technique)}");
 
             switch (technique, allObjSelected, funcOnCorrespondingSide)
             {

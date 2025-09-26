@@ -25,6 +25,7 @@ namespace Multi.Cursor
         protected Dictionary<int, TrialRecord> _trialRecords = new Dictionary<int, TrialRecord>();
         protected MainWindow _mainWindow;
         protected Block _activeBlock;
+        protected int _activeBlockNum;
         protected Trial _activeTrial;
         protected int _activeTrialNum = 0;
         protected TrialRecord _activeTrialRecord;
@@ -82,6 +83,12 @@ namespace Multi.Cursor
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
+
+        public void OnAuxWindowMouseEnter(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.AUX_ENTER);
+        }
+
         public void OnAuxWindowMouseMove(Object sender, MouseEventArgs e)
         {
             // Nothing for now
@@ -90,6 +97,12 @@ namespace Multi.Cursor
         {
             // Nothing for now
         }
+
+        public void OnAuxWindowMouseExit(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.AUX_EXIT);
+        }
+
         public void OnObjectMouseEnter(Object sender, MouseEventArgs e)
         {
             LogEvent(Str.OBJ_ENTER);
@@ -101,6 +114,12 @@ namespace Multi.Cursor
         public abstract void OnObjectMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnObjectMouseUp(Object sender, MouseButtonEventArgs e);
 
+        //---- Object area
+        public void OnObjectAreaMouseEnter(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.OBJ_AREA_ENTER);
+        }
+
         public abstract void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e);
 
         public void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)
@@ -108,9 +127,31 @@ namespace Multi.Cursor
             LogEvent(Str.OBJ_AREA_RELEASE);
         }
 
+        public void OnObjectAreaMouseExit(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.OBJ_AREA_EXIT);
+        }
+
+        //---- Function
+        public void OnFunctionMouseEnter(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.FUNCTION_ENTER);
+        }
+
         public abstract void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e);
+
+        public void OnFunctionMouseExit(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.FUNCTION_EXIT);
+        }
+
         public abstract void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e);
+
+        public void OnStartButtonMouseEnter(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.START_ENTER);
+        }
 
         public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
         {
@@ -145,6 +186,17 @@ namespace Multi.Cursor
 
             //ShowActiveTrial();
 
+        }
+
+        public void OnStartButtonMouseExit(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.START_EXIT);
+        }
+
+        public bool OnFunctionMarked()
+        {
+            LogEvent(Str.FUNCTION_MARKED);
+            return true;
         }
 
         public void SetFunctionAsEnabled(int funcId)
@@ -242,7 +294,7 @@ namespace Multi.Cursor
 
         public void IndexMove(TouchPoint indPoint)
         {
-            _mainWindow?.MoveMarker(indPoint);
+            _mainWindow?.MoveMarker(indPoint, OnFunctionMarked);
         }
 
         public void IndexUp()
@@ -307,6 +359,11 @@ namespace Multi.Cursor
             //string timeKey = eventName + "_" + _trialRecords[_activeTrial.Id].EventCounts[eventName];
             _activeTrialRecord.AddTimestamp(eventName);
 
+        }
+
+        protected void LogFirstEvent(string eventName)
+        {
+            if (!_activeTrialRecord.HasTimestamp(eventName)) _activeTrialRecord.AddTimestamp(eventName); 
         }
 
         protected int GetEventCount(string eventName)
@@ -400,6 +457,11 @@ namespace Multi.Cursor
         {
             LogEvent(finger.ToString().ToLower() + "_" + action);
         }
+
+        //public void RecordToMoAction(string action)
+        //{
+        //    LogEvent(action);
+        //}
     }
 
 }

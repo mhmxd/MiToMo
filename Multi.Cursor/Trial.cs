@@ -20,6 +20,12 @@ namespace Multi.Cursor
             set => _id = value;
         }
 
+        public Technique Technique { get; set; }
+        public int PtcNum { get; set; }
+
+        public TaskType TaskType { get; set; }
+        public Complexity Complexity { get; set; }
+
         // Target circle diameter
         private double _targetWidthMM;
         public double TargetWidthMM 
@@ -106,9 +112,15 @@ namespace Multi.Cursor
         /// <param name="nObj"></param>
         /// <param name="functionWidthsMX"></param>
         /// <returns></returns>
-        public static Trial CreateTrial(int id, Side side, Range distRangeMM, int nObj, List<int> functionWidthsMX)
+        public static Trial CreateTrial(
+            int id, Technique tech, int ptc, TaskType type, Complexity complexity, 
+            Side side, Range distRangeMM, int nObj, List<int> functionWidthsMX)
         {
             Trial trial = new Trial(id);
+            trial.Technique = tech;
+            trial.PtcNum = ptc;
+            trial.TaskType = type;
+            trial.Complexity = complexity;
             trial.FuncSide = side;
             trial.DistRangeMM = distRangeMM;
             trial.AddFunctionWidths(functionWidthsMX);
@@ -135,6 +147,16 @@ namespace Multi.Cursor
             return _functionWidths;
         }
 
+        public int GetFunctionWidthMM()
+        {
+            return _functionWidths[0] * 4; // Width is in MX (1 MX = 4 mm)
+        }
+
+        public int GetNumFunctions()
+        {
+            return _functionWidths.Count;
+        }
+
         public override string ToString()
         {
             if (_distanceMM == 0)
@@ -154,8 +176,6 @@ namespace Multi.Cursor
             // Create a unique file name based on trial parameters
             return Path.Combine(cachedDirectory, $"Cache_{FuncSide}_{_functionWidths.ToString()}_{DistRangeMM.Label}.json");
         }
-
-
 
 
     }

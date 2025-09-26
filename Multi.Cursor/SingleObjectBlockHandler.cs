@@ -21,10 +21,11 @@ namespace Multi.Cursor
     {
         private bool _objectSelected = false; // Is object selected?
 
-        public SingleObjectBlockHandler(MainWindow mainWindow, Block activeBlock)
+        public SingleObjectBlockHandler(MainWindow mainWindow, Block activeBlock, int blockNum)
         {
             _mainWindow = mainWindow;
             _activeBlock = activeBlock;
+            _activeBlockNum = blockNum;
         }
 
         public override bool FindPositionsForActiveBlock()
@@ -121,73 +122,11 @@ namespace Multi.Cursor
 
                 // Put the object at the center
                 Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
-                TrialRecord.TObject obj = new TrialRecord.TObject(1, objPosition); // Object is always 1 in this case
+                TrialRecord.TObject obj = new TrialRecord.TObject(1, objPosition, objCenter); // Object is always 1 in this case
                 _trialRecords[trial.Id].Objects.Add(obj);
 
                 return true;
             }
-
-            // Find a random target id for the active trial
-            //int targetId = FindRandomTargetIdForTrial(trial); // Was checking for unique target ids, which couldn't work
-            //(int targetId, Point targetCenterAbsolute) = _mainWindow.Dispatcher.Invoke(() =>
-            //{
-            //    return _mainWindow.GetRadomTarget(trial.FuncSide, trial.TargetMultiple, trial.DistancePX);
-            //});
-
-
-            //if (targetId != -1)
-            //{
-            //    _trialRecords[trial.Id].FunctionId = targetId;
-            //    this.TrialInfo($"Found Target Id: {targetId} for Trial#{trial.Id}");
-            //    //_mainWindow.Dispatcher.Invoke(() =>
-            //    //{
-            //    //    _mainWindow.FillButtonInAuxWindow(
-            //    //        trial.FuncSide,
-            //    //        targetId,
-            //    //        Config.DARK_ORANGE);
-            //    //});
-
-            //}
-            //else
-            //{
-            //    this.TrialInfo($"Failed to find a random target id for Trial#{trial.Id}");
-            //    return false;
-            //}
-
-            // Get the absolute position of the target center
-            //Point targetCenterAbsolute = _mainWindow.GetCenterAbsolutePosition(trial.FuncSide, targetId);
-
-
-
-
-            //Point objCenter = objectAreaConstraintRect.FindRandPointWithDist(targetCenterAbsolute, trial.DistancePX, trial.FuncSide.GetOpposite());
-
-            //this.TrialInfo($"Target: {targetCenterAbsolute}; Object Area Rect: {objectAreaConstraintRect.ToString()}");
-            //if (objCenter.X == -1 && objCenter.Y == -1) // Failed to find a valid position
-            //{
-            //    this.TrialInfo($"No valid position found for object!");
-            //    return false;
-            //}
-            //else // Valid position found
-            //{
-            //    // Get the top-left corner of the object area rectangle
-            //    Point objAreaPosition = objCenter.OffsetPosition(-objAreaHalfW);
-
-            //    this.TrialInfo($"Found object position: {objAreaPosition.ToStr()}");
-
-            //    _trialRecords[trial.Id].ObjectAreaRect = new Rect(
-            //            objAreaPosition.X,
-            //            objAreaPosition.Y,
-            //            objAreaW,
-            //            objAreaW);
-
-            //    // Put the object at the center
-            //    Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
-            //    TObject obj = new TObject(1, objPosition); // Object is always 1 in this case
-            //    _trialRecords[trial.Id].Objects.Add(obj);
-            //}
-
-            //return true;
         }
 
         public override void ShowActiveTrial()
@@ -202,12 +141,11 @@ namespace Multi.Cursor
             _activeTrialRecord.AddTimestamp(Str.TRIAL_SHOW);
             this.TrialInfo($"Trial Id: {_activeTrial.Id}");
             // Set the target window based on the trial's target side
-            _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
+            _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the target button and set the handlers
             this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
             Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
-            //_mainWindow.FillButtonsI nAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), funcDefaultColor);
             UpdateScene();
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.FuncSide, 
@@ -216,7 +154,8 @@ namespace Multi.Cursor
             this.TrialInfo($"Function Ids: {_activeTrialRecord.GetFunctionIds().ToStr()}");
             _mainWindow.SetAuxButtonsHandlers(
                 _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
-                this.OnFunctionMouseDown, this.OnFunctionMouseUp, this.OnNonTargetMouseDown);
+                OnFunctionMouseEnter, this.OnFunctionMouseDown, this.OnFunctionMouseUp, 
+                OnFunctionMouseExit, this.OnNonTargetMouseDown);
             this.TrialInfo($"Trial Id: {_activeTrial.Id}");
             // If on ToMo, activate the auxiliary window marker on all sides
             if (_mainWindow.IsTechniqueToMo()) _mainWindow.ShowAllAuxMarkers();
@@ -225,7 +164,7 @@ namespace Multi.Cursor
             _mainWindow.ClearCanvas();
             this.TrialInfo($"Trial Id: {_activeTrial.Id}");
             // Show the area
-            MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp);
+            MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
                 _activeTrialRecord.ObjectAreaRect, 
                 Config.OBJ_AREA_BG_COLOR, 
@@ -239,7 +178,8 @@ namespace Multi.Cursor
                 _activeTrialRecord.Objects, objDefaultColor, objectEvents);
             this.TrialInfo($"Trial Id: {_activeTrial.Id}");
             // Show Start Trial button
-            MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp);
+            MouseEvents startButtonEvents = new MouseEvents(
+                OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
 
             // Update info label
@@ -260,7 +200,8 @@ namespace Multi.Cursor
                     double trialTime = GetDuration(Str.OBJ_RELEASE + "_1", Str.TRIAL_END);
                     _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
                     
-                    ExperiLogger.LogSingleObjTrialTimes(_activeTrialRecord);
+                    //ExperiLogger.LogSingleObjTrialTimes(_activeTrialRecord);
+                    ExperiLogger.LogTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
                     //this.TrialInfo($"Trial time = {trialTime:F2}s");
                     //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial time = {trialTime:F2}s");
                     this.TrialInfo(Str.MAJOR_LINE);
@@ -336,6 +277,8 @@ namespace Multi.Cursor
 
         public override void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
         {
+            LogFirstEvent(Str.FIRST_MOVE); // Will manage the 'first'
+
             if (_mainWindow.IsTechniqueToMo()) //-- ToMo
             {
                 // Nothing for now
@@ -360,7 +303,7 @@ namespace Multi.Cursor
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             var startButtonClicked = GetEventCount(Str.START_RELEASE) > 0;
-            var device = Utils.Device(_activeBlock.Technique);
+            var device = Utils.GetDevice(_activeBlock.Technique);
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             var markerOverEnabledFunc = funcIdUnderMarker != -1;
             var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
@@ -389,7 +332,7 @@ namespace Multi.Cursor
         {
             LogEvent(Str.OBJ_RELEASE);
             this.TrialInfo($"Trial Id: {_activeTrial.Id} | Obj: {this.GetHashCode()}");
-            var device = Utils.Device(_activeBlock.Technique);
+            var device = Utils.GetDevice(_activeBlock.Technique);
             var objectPressed = GetEventCount(Str.OBJ_PRESS) > 0; // Check if the object was pressed
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             var markerOverEnabledFunc = funcIdUnderMarker != -1;
@@ -450,7 +393,7 @@ namespace Multi.Cursor
 
             // Function id is sender's tag as int
             var functionId = (int)((FrameworkElement)sender).Tag;
-            var device = Utils.Device(_activeBlock.Technique);
+            var device = Utils.GetDevice(_activeBlock.Technique);
             var objectMarked = GetEventCount(Str.OBJ_RELEASE) > 0;
 
             this.TrialInfo($"ObjectMarked: {objectMarked};");

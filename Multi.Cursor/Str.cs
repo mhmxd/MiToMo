@@ -11,7 +11,7 @@ namespace Multi.Cursor
         public static string START = "start";
 
         public static string TRIAL_SHOW = "trial_show";
-        public static string FIRST_MOVE = "first_move";
+        public static string FIRST_MOVE = "move";
 
         //public static string START_PRESS = "start_press";
         //public static string START_RELEASE = "start_release";
@@ -46,6 +46,9 @@ namespace Multi.Cursor
         public static string OBJ_AREA_RELEASE = "area_release";
         public static string OBJ_AREA_EXIT = "area_exit";
 
+        public static string AUX_ENTER = "aux_enter";
+        public static string AUX_EXIT = "aux_exit";
+
         //public static string START_PRESS_ONE = "start1_press";
         //public static string START_RELEASE_ONE = "start1_release";
 
@@ -57,6 +60,8 @@ namespace Multi.Cursor
         public static string TARGET_PRESS = "target_press";
         public static string TARGET_RELEASE = "target_release";
         public static string TARGET_LEAVE = "target_leave";
+
+        public static string FUNCTION_MARKED = "function_marked";
 
         public static string MAIN_WIN_PRESS = "main_win_press";
         public static string MAIN_WIN_RELEASE = "main_win_release";
@@ -107,6 +112,15 @@ namespace Multi.Cursor
         public static readonly string UP = "up";
         public static readonly string SWIPE_START = "swipe_start";
         public static readonly string SWIPE_END = "swipe_end";
+
+        // Task type abbreviations
+        public static Dictionary<TaskType, string> TASKTYPE_ABBR = new Dictionary<TaskType, string>
+        {
+            {TaskType.ONE_OBJ_ONE_FUNC, "sosf" },
+            {TaskType.ONE_OBJ_MULTI_FUNC, "somf" },
+            {TaskType.MULTI_OBJ_ONE_FUNC, "mosf" },
+            {TaskType.MULTI_OBJ_MULTI_FUNC, "momf" },
+        };
 
 
         public static string Join(params string[] parts)

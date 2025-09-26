@@ -16,14 +16,17 @@ namespace Multi.Cursor
         {
             public int Id { get; set; }
             public Point Position { get; set; }
+            public Point Center { get; set; }
             public ButtonState State { get; set; }
 
-            public TObject(int id, Point position)
+            public TObject(int id, Point position, Point center)
             {
                 Id = id;
                 Position = position;
+                Center = center;
                 State = ButtonState.DEFAULT;
             }
+
         }
 
         public class TFunction
@@ -334,6 +337,23 @@ namespace Multi.Cursor
             return Utils.GetDuration(startTime, endTime);
         }
 
+        public int GetDurationToGestureStart(string startLabel, Technique technique)
+        {
+            this.TrialInfo($"Timestamps: {TimestampsToString()}");
+            long startTime = GetLastTime(startLabel);
+            this.TrialInfo($"startTime: {startTime}");
+            long endTime = GetGestureStartTimestamp(technique);
+            this.TrialInfo($"endTime: {endTime}");
+            return Utils.GetDuration(startTime, endTime);
+        }
+
+        public int GetDurationFromGestureEnd(Technique technique, string endLabel)
+        {
+            long startTime = GetGestureEndTimestamp(technique);
+            long endTime = GetLastTime(endLabel);
+            return Utils.GetDuration(startTime, endTime);
+        }
+
         public int GetDurationToFingerAction(string startLabel, string action)
         {
             this.TrialInfo($"Timestamps: {TimestampsToString()}");
@@ -372,6 +392,34 @@ namespace Multi.Cursor
             return -1;
         }
 
+        public long GetGestureStartTimestamp(Technique technique)
+        {
+            switch (technique)
+            {
+                case Technique.TOMO_TAP:
+                    return GetLastFingerActionTime(Str.TAP_DOWN);
+
+                case Technique.TOMO_SWIPE:
+                    return GetLastFingerActionTime(Str.SWIPE_START);
+            }
+
+            return -1;
+        }
+
+        public long GetGestureEndTimestamp(Technique technique)
+        {
+            switch (technique)
+            {
+                case Technique.TOMO_TAP:
+                    return GetLastTime(Str.TAP_UP);
+
+                case Technique.TOMO_SWIPE:
+                    return GetLastTime(Str.SWIPE_END);
+            }
+
+            return -1;
+        }
+
         public double GetTime(string label)
         {
             if (Times.Any(t => t.Key == label))
@@ -405,6 +453,11 @@ namespace Multi.Cursor
         public List<Point> GetFunctionCenters()
         {
             return Functions.Select(f => f.Center).ToList();
+        }
+
+        public double GetDistMM()
+        {
+            return Utils.PX2MM(Functions[0].Center.DistanceTo(Objects[0].Center));
         }
 
         public bool IsObjectPressed(int objId)

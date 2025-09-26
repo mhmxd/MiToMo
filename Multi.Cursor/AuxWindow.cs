@@ -73,8 +73,10 @@ namespace Multi.Cursor
 
         private const double Tolerance = 5.0; // A small tolerance for alignment checks (e.g., for slightly misaligned buttons)
 
+        private MouseEventHandler _currentFuncMouseEnterHandler;
         private MouseButtonEventHandler _currentFuncMouseDownHandler;
         private MouseButtonEventHandler _currentFuncMouseUpHandler;
+        private MouseEventHandler _currentFuncMouseExitHandler;
         private MouseButtonEventHandler _currentNonFuncMouseDownHandler;
 
         //public abstract void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators);
@@ -267,11 +269,11 @@ namespace Multi.Cursor
         public int SelectRandButtonByConstraints(int widthMult, Range distRange)
         {
             //this.TrialInfo($"Available buttons: ");
-            foreach (int wm in _widthButtons.Keys)
-            {
-                string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-                //this.TrialInfo($"WM {wm} -> {ids}");
-            }
+            //foreach (int wm in _widthButtons.Keys)
+            //{
+            //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
+            //    this.TrialInfo($"WM {wm} -> {ids}");
+            //}
 
             //this.TrialInfo($"Look for {widthMult}");
             if (_widthButtons[widthMult].Count > 0)
@@ -334,8 +336,10 @@ namespace Multi.Cursor
 
         public virtual void SetGridButtonHandlers(
         List<int> funcIds,
+        MouseEventHandler funcMouseEnterHandler,
         MouseButtonEventHandler funcMouseDownHandler,
         MouseButtonEventHandler funcMouseUpHandler,
+        MouseEventHandler funcMouseExitHandler,
         MouseButtonEventHandler nonFuncMouseDownHandler)
         {
             // Remove OLD handlers (using stored references)
@@ -343,15 +347,19 @@ namespace Multi.Cursor
             {
                 foreach (int id in _buttonInfos.Keys)
                 {
+                    _buttonInfos[id].Button.RemoveHandler(UIElement.MouseEnterEvent, _currentFuncMouseEnterHandler);
                     _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, _currentFuncMouseDownHandler);
                     _buttonInfos[id].Button.RemoveHandler(UIElement.MouseUpEvent, _currentFuncMouseUpHandler);
+                    _buttonInfos[id].Button.RemoveHandler(UIElement.MouseLeaveEvent, _currentFuncMouseExitHandler);
                     _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, _currentNonFuncMouseDownHandler);
                 }
             }
 
             // Store NEW handlers
+            _currentFuncMouseEnterHandler = funcMouseEnterHandler;
             _currentFuncMouseDownHandler = funcMouseDownHandler;
             _currentFuncMouseUpHandler = funcMouseUpHandler;
+            _currentFuncMouseExitHandler = funcMouseExitHandler;
             _currentNonFuncMouseDownHandler = nonFuncMouseDownHandler;
 
             // Add NEW handlers
@@ -359,8 +367,10 @@ namespace Multi.Cursor
             {
                 if (funcIds.Contains(id))
                 {
+                    _buttonInfos[id].Button.AddHandler(UIElement.MouseEnterEvent, _currentFuncMouseEnterHandler, handledEventsToo: true);
                     _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, _currentFuncMouseDownHandler, handledEventsToo: true);
                     _buttonInfos[id].Button.AddHandler(UIElement.MouseUpEvent, _currentFuncMouseUpHandler, handledEventsToo: true);
+                    _buttonInfos[id].Button.AddHandler(UIElement.MouseLeaveEvent, _currentFuncMouseExitHandler, handledEventsToo: true);
                 }
                 else
                 {
@@ -573,7 +583,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void MoveMarker(TouchPoint tp)
+        public void MoveMarker(TouchPoint tp, Func<bool> OnFunctionMarked)
         {
             // Update the grid navigator with the current touch point
             var (dGridX, dGridY) = _gridNavigator.Update(tp);
@@ -621,26 +631,6 @@ namespace Multi.Cursor
                 }
             }
 
-            // Change the last highlighted button if it has changed
-            //this.TrialInfo($"Marked button ID: {markedButton.Id} | last button ID: {_lastMarkedButtonId}");
-            //if (markedButton.Id != _lastMarkedButtonId)
-            //{
-            //    ResetHighlights(); // Reset highlights for all buttons
-
-            //    // If changed away from a button with applied function, set it back to enabled
-            //    if (_buttonInfos[_lastMarkedButtonId].Button.Background.Equals(Config.FUNCTION_APPLIED_COLOR))
-            //    {
-            //        this.TrialInfo($"Away from applied function");
-            //        _buttonInfos[_lastMarkedButtonId].Button.Background = Config.FUNCTION_ENABLED_COLOR;
-            //        // Tell the MainWindow to mark the mapped object and set function as applied
-            //        ((MainWindow)this.Owner).SetFunctionAsEnabled(_lastMarkedButtonId);
-            //    }
-
-            //    _lastMarkedButtonId = markedButton.Id; // Update the last highlighted button ID
-
-            //    HighlightButton(markedButton.Id); // Highlight the new button
-            //}
-
             if (markedButton.Id != _lastMarkedButtonId)
             {
                 // STEP 1: Handle the old button's state change
@@ -667,6 +657,9 @@ namespace Multi.Cursor
                     {
                         //this.TrialInfo($"Set {markedButton.Id} to Applied");
                         markedButton.Background = Config.FUNCTION_ENABLED_COLOR; // Change to applied color
+                        // Call the event
+                        OnFunctionMarked();
+
                     }
                 }
 

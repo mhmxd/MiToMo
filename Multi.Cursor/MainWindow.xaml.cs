@@ -549,6 +549,8 @@ namespace Multi.Cursor
                 _topWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _topWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
                 _topWindow.Top = Config.ACTIVE_SCREEN.WorkingArea.Top;
+                //_topWindow.MouseEnter += AuxWindow_MouseEnter;
+                //_topWindow.MouseLeave += AuxWindow_MouseExit;
                 //_topWindow.MouseDown += SideWindow_MouseDown;
                 //_topWindow.MouseUp += SideWindow_MouseUp;
                 _topWindow.Show();
@@ -567,6 +569,8 @@ namespace Multi.Cursor
                 _leftWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _leftWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
                 _leftWindow.Top = this.Top;
+                //_leftWindow.MouseEnter += AuxWindow_MouseEnter;
+                //_leftWindow.MouseLeave += AuxWindow_MouseExit;
                 //_leftWindow.MouseDown += SideWindow_MouseDown;
                 //_leftWindow.MouseUp += SideWindow_MouseUp;
                 _leftWindow.Show();
@@ -585,6 +589,8 @@ namespace Multi.Cursor
                 _rightWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _rightWindow.Left = this.Left + this.Width;
                 _rightWindow.Top = this.Top;
+                //_rightWindow.MouseEnter += AuxWindow_MouseEnter;
+                //_rightWindow.MouseLeave += AuxWindow_MouseExit;
                 //_rightWindow.MouseDown += SideWindow_MouseDown;
                 //_rightWindow.MouseUp += SideWindow_MouseUp;
                 _rightWindow.Show();
@@ -657,6 +663,18 @@ namespace Multi.Cursor
 
             _activeBlockHandler.OnMainWindowMouseUp(sender, e);
             
+        }
+
+        private void AuxWindow_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            _activeBlockHandler.OnAuxWindowMouseEnter(sender, e);
+
+        }
+
+        private void AuxWindow_MouseExit(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            _activeBlockHandler.OnAuxWindowMouseExit(sender, e);
+
         }
 
         private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -773,7 +791,7 @@ namespace Multi.Cursor
             //Block block = _experiment.GetBlock(_activeBlockNum);
             _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
-            if (Utils.Device(_experiment.Active_Technique) == Technique.TOMO)
+            if (Utils.GetDevice(_experiment.Active_Technique) == Technique.TOMO)
             {
                 _isTouchMouseActive = true;
                 if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);
@@ -905,7 +923,7 @@ namespace Multi.Cursor
                 Block block = _experiment.GetBlock(_activeBlockNum);
 
                 _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
-                if (Utils.Device(_experiment.Active_Technique) == Technique.TOMO) _touchSurface.SetGestureHandler(_activeBlockHandler);
+                if (Utils.GetDevice(_experiment.Active_Technique) == Technique.TOMO) _touchSurface.SetGestureHandler(_activeBlockHandler);
                 
                 _activeBlockHandler.BeginActiveBlock();
 
@@ -1032,8 +1050,9 @@ namespace Multi.Cursor
             tcs.SetResult(true);
 
             // Find positions for all blocks
-            foreach (Block bl in _experiment.Blocks)
+            for (int b = 1; b <= _experiment.Blocks.Count; b++)
             {
+                Block bl = _experiment.Blocks[b - 1];
                 this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
                 if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
                 {
@@ -1050,7 +1069,7 @@ namespace Multi.Cursor
                 else // Single-object block
                 {
                     this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
-                    BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl);
+                    BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl, b);
                     bool positionsFound = blockHandler.FindPositionsForActiveBlock();
                     if (positionsFound) _blockHandlers.Add(blockHandler);
                     else
@@ -1080,8 +1099,10 @@ namespace Multi.Cursor
             Canvas.SetTop(areaRectangle, areaRect.Top - this.Top);
 
             // Add the event handler
+            areaRectangle.MouseEnter += mouseEvents.MouseEnter;
             areaRectangle.MouseDown += mouseEvents.MouseDown;
             areaRectangle.MouseUp += mouseEvents.MouseUp;
+            areaRectangle.MouseLeave += mouseEvents.MouseLeave;
 
             // Add the rectangle to the Canvas
             canvas.Children.Add(areaRectangle);
@@ -1195,7 +1216,8 @@ namespace Multi.Cursor
             }
         }
 
-        public void SetTargetWindow(Side side, 
+        public void SetTargetWindow(Side side,
+            SysIput.MouseEventHandler windowMouseEnterHandler, SysIput.MouseEventHandler windowMouseExitHandler,
             MouseButtonEventHandler windowMouseDownHandler, MouseButtonEventHandler windowMouseUpHandler)
         {
             switch (side)
@@ -1214,12 +1236,14 @@ namespace Multi.Cursor
             }
 
             // All aux windows are treated the same (for now)
-            _leftWindow.MouseDown += windowMouseDownHandler;
-            _leftWindow.MouseUp += windowMouseUpHandler;
-            _rightWindow.MouseDown += windowMouseDownHandler;
-            _rightWindow.MouseUp += windowMouseUpHandler;
-            _topWindow.MouseDown += windowMouseDownHandler;
-            _topWindow.MouseUp += windowMouseUpHandler;
+            _targetWindow.MouseEnter += windowMouseEnterHandler;
+            _targetWindow.MouseLeave += windowMouseExitHandler;
+            //_leftWindow.MouseDown += windowMouseDownHandler;
+            //_leftWindow.MouseUp += windowMouseUpHandler;
+            //_rightWindow.MouseDown += windowMouseDownHandler;
+            //_rightWindow.MouseUp += windowMouseUpHandler;
+            //_topWindow.MouseDown += windowMouseDownHandler;
+            //_topWindow.MouseUp += windowMouseUpHandler;
 
         }
 
@@ -1322,12 +1346,16 @@ namespace Multi.Cursor
         }
 
         public void SetAuxButtonsHandlers(Side side, List<int> funcIds,
+            SysIput.MouseEventHandler mouseEnterHandler,
             MouseButtonEventHandler mouseDownHandler,
             MouseButtonEventHandler mouseUpHandler,
+            SysIput.MouseEventHandler mouseExitHandler,
             MouseButtonEventHandler nonFunctionDownHandler)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.SetGridButtonHandlers(funcIds, mouseDownHandler, mouseUpHandler, nonFunctionDownHandler);
+            auxWindow.SetGridButtonHandlers(funcIds, 
+                mouseEnterHandler, mouseDownHandler, mouseUpHandler, 
+                mouseExitHandler, nonFunctionDownHandler);
         }
 
         public void SetGridButtonHandlers(Side side, int targetId,
@@ -1469,9 +1497,9 @@ namespace Multi.Cursor
             return auxWindow.IsNavigatorOnButton(buttonId);
         }
 
-        public void MoveMarker(TouchPoint touchPoint)
+        public void MoveMarker(TouchPoint touchPoint, Func<bool> OnFunctionMarked)
         {
-            _activeAuxWindow?.MoveMarker(touchPoint);
+            _activeAuxWindow?.MoveMarker(touchPoint, OnFunctionMarked);
         }
 
         public void StopAuxNavigator()
@@ -1514,8 +1542,10 @@ namespace Multi.Cursor
             _startButton.Child = label;
 
             // Add event handlers
+            _startButton.MouseEnter += mouseEvents.MouseEnter;
             _startButton.MouseDown += mouseEvents.MouseDown;
             _startButton.MouseUp += mouseEvents.MouseUp;
+            _startButton.MouseLeave += mouseEvents.MouseLeave;
 
             // Button is centered-align to the obj area
             Point startTrialButtonPosition = new Point(0, 0);
