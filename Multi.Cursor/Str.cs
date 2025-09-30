@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Multi.Cursor
 {
@@ -17,7 +13,7 @@ namespace Multi.Cursor
         //public static string START_RELEASE = "start_release";
 
         public static string OBJ = "obj";
-        public static string FUNCTION = "function";
+        public static string FUN = "fun";
 
         public static string PRESS = "press";
         public static string RELEASE = "release";
@@ -27,10 +23,10 @@ namespace Multi.Cursor
         public static string OBJ_RELEASE = "obj_release";
         public static string OBJ_EXIT = "obj_exit";
 
-        public static string FUNCTION_ENTER = "function_enter";
-        public static string FUNCTION_PRESS = "function_press";
-        public static string FUNCTION_RELEASE = "function_release";
-        public static string FUNCTION_EXIT = "function_exit";
+        public static string FUN_ENTER = "fun_enter";
+        public static string FUN_PRESS = "fun_press";
+        public static string FUN_RELEASE = "fun_release";
+        public static string FUN_EXIT = "fun_exit";
 
         public static string START_ENTER = "start_enter";
         //public static string START1_LAST_ENTRY = "start1_last_entry";
@@ -41,13 +37,13 @@ namespace Multi.Cursor
         public static string START_PRESS = "start_press";
         public static string START_RELEASE = "start_release";
 
-        public static string OBJ_AREA_ENTER = "area_enter";
-        public static string OBJ_AREA_PRESS = "area_press";
-        public static string OBJ_AREA_RELEASE = "area_release";
-        public static string OBJ_AREA_EXIT = "area_exit";
+        public static string ARA_ENTER = "ara_enter";
+        public static string ARA_PRESS = "ara_press";
+        public static string ARA_RELEASE = "ara_release";
+        public static string ARA_EXIT = "ara_exit";
 
-        public static string AUX_ENTER = "aux_enter";
-        public static string AUX_EXIT = "aux_exit";
+        public static string PNL_ENTER = "pnl_enter";
+        public static string PNL_EXIT = "pnl_exit";
 
         //public static string START_PRESS_ONE = "start1_press";
         //public static string START_RELEASE_ONE = "start1_release";
@@ -55,13 +51,13 @@ namespace Multi.Cursor
         //public static string START_PRESS_TWO = "start2_press";
         //public static string START_RELEASE_TWO = "start2_release";
 
-        public static string TARGET_ENTER = "target_enter";
+        //public static string FUN_ENTER = "fun_enter";
         //public static string TARGET_LAST_ENTRY = "target_last_entry";
-        public static string TARGET_PRESS = "target_press";
-        public static string TARGET_RELEASE = "target_release";
-        public static string TARGET_LEAVE = "target_leave";
+        //public static string TARGET_PRESS = "target_press";
+        //public static string TARGET_RELEASE = "target_release";
+        //public static string TARGET_LEAVE = "target_leave";
 
-        public static string FUNCTION_MARKED = "function_marked";
+        public static string FUNCTION_MARKED = "fun_marked";
 
         public static string MAIN_WIN_PRESS = "main_win_press";
         public static string MAIN_WIN_RELEASE = "main_win_release";
@@ -132,6 +128,11 @@ namespace Multi.Cursor
         public static bool IsGesture(string str)
         {
             return str == TAP_DOWN || str == TAP_UP || str == SWIPE_START || str == SWIPE_END;
+        }
+
+        public static string GetNumberedStr(string str, int num)
+        {
+            return str.Insert(3, num.ToString());
         }
 
     }

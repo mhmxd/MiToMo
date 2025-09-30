@@ -31,6 +31,9 @@ namespace Multi.Cursor
         protected TrialRecord _activeTrialRecord;
         protected int _nSelectedObjects = 0; // Number of clicked objects in the current trial
 
+        protected List<int> _functionsVisitMap = new List<int>();
+        protected List<int> _objectsVisitMap = new List<int>();
+
         protected Random _random = new Random();
 
         public abstract bool FindPositionsForActiveBlock();
@@ -84,10 +87,7 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public void OnAuxWindowMouseEnter(Object sender, MouseEventArgs e)
-        {
-            LogEvent(Str.AUX_ENTER);
-        }
+        public abstract void OnAuxWindowMouseEnter(Object sender, MouseEventArgs e);
 
         public void OnAuxWindowMouseMove(Object sender, MouseEventArgs e)
         {
@@ -98,54 +98,29 @@ namespace Multi.Cursor
             // Nothing for now
         }
 
-        public void OnAuxWindowMouseExit(Object sender, MouseEventArgs e)
-        {
-            LogEvent(Str.AUX_EXIT);
-        }
+        public abstract void OnAuxWindowMouseExit(Object sender, MouseEventArgs e);
 
-        public void OnObjectMouseEnter(Object sender, MouseEventArgs e)
-        {
-            LogEvent(Str.OBJ_ENTER);
-        }
-        public void OnObjectMouseLeave(Object sender, MouseEventArgs e)
-        {
-            LogEvent(Str.OBJ_EXIT);
-        }
+        public abstract void OnObjectMouseEnter(Object sender, MouseEventArgs e);
+        public abstract void OnObjectMouseLeave(Object sender, MouseEventArgs e);
         public abstract void OnObjectMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnObjectMouseUp(Object sender, MouseButtonEventArgs e);
 
         //---- Object area
-        public void OnObjectAreaMouseEnter(Object sender, MouseEventArgs e)
-        {
-            // Only log if entered from outside (NOT from the object)
-            if (_activeTrialRecord.GetLastTimestamp() != Str.OBJ_EXIT) LogEvent(Str.OBJ_AREA_ENTER);
-        }
+        public abstract void OnObjectAreaMouseEnter(Object sender, MouseEventArgs e);
 
         public abstract void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e);
 
-        public void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)
-        {
-            LogEvent(Str.OBJ_AREA_RELEASE);
-        }
+        public abstract void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e);
 
-        public void OnObjectAreaMouseExit(Object sender, MouseEventArgs e)
-        {
-            LogEvent(Str.OBJ_AREA_EXIT);
-        }
+        public abstract void OnObjectAreaMouseExit(Object sender, MouseEventArgs e);
 
         //---- Function
-        public void OnFunctionMouseEnter(Object sender, MouseEventArgs e)
-        {
-            LogEvent(Str.FUNCTION_ENTER);
-        }
+        public abstract void OnFunctionMouseEnter(Object sender, MouseEventArgs e);
 
         public abstract void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e);
 
-        public void OnFunctionMouseExit(Object sender, MouseEventArgs e)
-        {
-            LogEvent(Str.FUNCTION_EXIT);
-        }
+        public abstract void OnFunctionMouseExit(Object sender, MouseEventArgs e);
 
         public abstract void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e);
 
@@ -367,6 +342,52 @@ namespace Multi.Cursor
 
         }
 
+        protected void LogEventConseq(string eventName, int id)
+        {
+            string what = eventName.Split('_')[0];
+            this.TrialInfo($"What: {what}");
+            if (what == Str.FUN)
+            {
+                // Check the Id in the visited list. If visited, log the event.
+                int visitIndex = _functionsVisitMap.IndexOf(id);
+                if (visitIndex == -1) // Function NOT visited before
+                {
+                    this.TrialInfo($"ERROR: Function#{id} not entered!");
+                    return;
+                }
+
+                LogEvent(Str.GetNumberedStr(eventName, visitIndex + 1)); // Use 1-based indexing
+            }
+
+            if (what == Str.OBJ)
+            {
+                // Check the Id in the visited list. If visited, log the event.
+                int visitIndex = _objectsVisitMap.IndexOf(id);
+                if (visitIndex == -1) // Object NOT visited before
+                {
+                    this.TrialInfo($"ERROR: Object#{id} not entered!");
+                    return;
+                }
+
+                LogEvent(Str.GetNumberedStr(eventName, visitIndex + 1)); // Use 1-based indexing
+            }
+        }
+
+        protected void LogEventWithCount(string eventName)
+        {
+            if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(eventName))
+            {
+                _trialRecords[_activeTrial.Id].EventCounts[eventName]++;
+            }
+            else
+            {
+                _trialRecords[_activeTrial.Id].EventCounts[eventName] = 1;
+            }
+
+            string logStr = Str.GetNumberedStr(eventName, _trialRecords[_activeTrial.Id].EventCounts[eventName]);
+            _activeTrialRecord.AddTimestamp(logStr); // Let them have the same name. We know the count from EventCounts
+        }
+
         protected void LogFirstEvent(string eventName)
         {
             if (!_activeTrialRecord.HasTimestamp(eventName)) _activeTrialRecord.AddTimestamp(eventName); 
@@ -426,6 +447,11 @@ namespace Multi.Cursor
         public int GetNumTrialsInBlock()
         {
             return _activeBlock.GetNumTrials();
+        }
+
+        public TaskType GetBlockType()
+        {
+            return _activeBlock.GetBlockType();
         }
 
         public void LogAverageTimeOnDistances()

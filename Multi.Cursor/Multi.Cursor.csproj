@@ -309,6 +309,10 @@
     </ApplicationDefinition>
     <Compile Include="ButtonFactory.cs" />
     <Compile Include="GridFactory.cs" />
+    <Compile Include="Logging\MOMFTrialLong.cs" />
+    <Compile Include="Logging\MOSFTrialLog.cs" />
+    <Compile Include="Logging\SOMFTrialLog.cs" />
+    <Compile Include="Logging\SOSFTrialLog.cs" />
     <Compile Include="Logging\TrialLog.cs" />
     <Compile Include="MouseEvents.cs" />
     <Compile Include="SingleObjectBlockHandler.cs" />

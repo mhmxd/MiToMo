@@ -88,6 +88,16 @@ namespace Multi.Cursor
             return null;
         }
 
+        public int FindFunctionIndex(int funId)
+        {
+            for (int i = 0; i < Functions.Count; i++)
+            {
+                if (Functions[i].Id == funId) return i;
+            }
+
+            return -1;
+        }
+
         public int FindMappedFunctionId(int objectId)
         {
             // Find the first function that is mapped to the given object funcId
@@ -293,6 +303,37 @@ namespace Multi.Cursor
             return -1; // Return -1 if the label is not found
         }
 
+        public long GetFirstAfterLast(string beforeLabel, string label)
+        {
+            if (Timestamps == null || Timestamps.Count == 0)
+                return -1;
+
+            var before = Timestamps.LastOrDefault(t => t.label == beforeLabel);
+            if (before == null)
+                return -1;
+
+            var after = Timestamps
+                .Where(t => t.label == label && t.time > before.time)
+                .OrderBy(t => t.time)
+                .FirstOrDefault();
+
+            return after == null ? -1 : after.time;
+        }
+
+        public long GetImmediateBeforeLast(string afterLabel)
+        {
+            if (Timestamps == null || Timestamps.Count == 0)
+                return -1;
+
+            int afterIndex = Timestamps.FindLastIndex(t => t.label == afterLabel);
+            if (afterIndex > 0)
+            {
+                return Timestamps[afterIndex - 1].time;
+            }
+
+            return -1; // not found or nothing before it
+        }
+
         public long GetLastTime(string label)
         {
             var timestamp = Timestamps.LastOrDefault(ts => ts.label == label);
@@ -335,6 +376,67 @@ namespace Multi.Cursor
             long endTime = GetLastTime(endLabel);
             this.TrialInfo($"End time of {endLabel}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
+        }
+
+        public int GetDurtionToFirstAfter(string startLabel, string endLabel)
+        {
+            long startTime = GetLastTime(startLabel);
+            this.TrialInfo($"Start time of {startLabel}: {startTime}");
+            long endTime = GetFirstAfterLast(startLabel, endLabel);
+            this.TrialInfo($"End time of {endLabel}: {endTime}");
+            return Utils.GetDuration(startTime, endTime);
+        }
+
+        public int GetFirstSeqDuration(string startLabel, string endLabel)
+        {
+            if (Timestamps == null || Timestamps.Count == 0)
+                return -1;
+
+            for (int i = 0; i < Timestamps.Count; i++)
+            {
+                if (Timestamps[i].label == startLabel)
+                {
+                    // found the start, look forward for the end
+                    for (int j = i + 1; j < Timestamps.Count; j++)
+                    {
+                        if (Timestamps[j].label == endLabel)
+                        {
+                            return Utils.GetDuration(Timestamps[i].time, Timestamps[j].time);
+                        }
+                    }
+                }
+            }
+
+            return -1; // not found
+        }
+
+        public int GetLastSeqDuration(string startLabel, string endLabel)
+        {
+            this.TrialInfo($"From {startLabel} to {endLabel}");
+            if (Timestamps == null || Timestamps.Count == 0)
+                return -1;
+
+            // find the last occurrence of endLabel
+            int afterIndex = Timestamps.FindLastIndex(t => t.label == endLabel);
+            this.TrialInfo($"Index of {endLabel}: {afterIndex}");
+            if (afterIndex < 0)
+                return -1;
+            
+            // scan backwards from that point to find the last startLabel
+            for (int i = afterIndex - 1; i >= 0; i--)
+            {
+                if (Timestamps[i].label == startLabel)
+                {
+                    this.TrialInfo($"Start time of {startLabel}: {Timestamps[i].time}");
+                    this.TrialInfo($"End time of {endLabel}: {Timestamps[afterIndex].time}");
+                    return Utils.GetDuration(
+                        Timestamps[i].time,
+                        Timestamps[afterIndex].time
+                    );
+                }
+            }
+
+            return -1; // not found
         }
 
         public int GetDurationToGestureStart(string startLabel, Technique technique)

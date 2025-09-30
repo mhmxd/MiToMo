@@ -204,7 +204,7 @@ namespace Multi.Cursor
             if (_mainWindow.IsTechniqueToMo()) _mainWindow.ShowAllAuxMarkers();
 
             // Show the area
-            MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp);
+            MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseEnter, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
                 _activeTrialRecord.ObjectAreaRect, Config.OBJ_AREA_BG_COLOR,
                 objAreaEvents);
@@ -215,7 +215,7 @@ namespace Multi.Cursor
             _mainWindow.ShowObjects(_activeTrialRecord.Objects, Config.OBJ_DEFAULT_COLOR, objectEvents);
 
             // Show Start Trial button
-            MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp);
+            MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseEnter, OnStartButtonMouseExit);
             _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
 
             // Update info label
@@ -235,7 +235,7 @@ namespace Multi.Cursor
                     Sounder.PlayHit();
                     double trialTime = GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END);
                     _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
-                    ExperiLogger.LogMultipleObjTrialTimes(_activeTrialRecord);
+                    if (_activeTrial.GetNumFunctions() == 1) ExperiLogger.LogMOSFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
                     //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial time = {trialTime:F2}s");
                     GoToNextTrial();
                     break;
@@ -286,6 +286,16 @@ namespace Multi.Cursor
 
         }
 
+        public override void OnAuxWindowMouseEnter(object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.PNL_ENTER);
+        }
+
+        public override void OnAuxWindowMouseExit(object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.PNL_EXIT);
+        }
+
         public override void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
@@ -301,11 +311,15 @@ namespace Multi.Cursor
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
         }
 
+        public override void OnFunctionMouseEnter(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.FUN_ENTER);
+        }
+
         public override void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
-
-
+            //this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+            LogEvent(Str.FUN_PRESS);
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
@@ -314,7 +328,7 @@ namespace Multi.Cursor
             var funcId = (int)((FrameworkElement)sender).Tag;
             var device = Utils.GetDevice(_activeBlock.Technique);
 
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+            //this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             switch (device)
             {
@@ -325,8 +339,13 @@ namespace Multi.Cursor
             }
 
 
-            LogEvent(Str.FUNCTION_RELEASE);
+            LogEvent(Str.FUN_RELEASE);
             e.Handled = true; // Mark the event as handled to prevent further processing
+        }
+
+        public override void OnFunctionMouseExit(Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.FUN_EXIT);
         }
 
         public override void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
@@ -361,7 +380,7 @@ namespace Multi.Cursor
 
         private void OnFunctionRelease()
         {
-            //LogEvent(string.Join("_", Str.FUNCTION, Str.RELEASE));
+            //LogEvent(string.Join("_", Str.FUN, Str.RELEASE));
             _isFunctionClicked = true;
 
         }
@@ -563,10 +582,22 @@ namespace Multi.Cursor
             return false; // No overlap with any existing object
         }
 
+        public override void OnObjectMouseEnter(object sender, MouseEventArgs e)
+        {
+            int objId = (int)((FrameworkElement)sender).Tag;
+            LogEvent(Str.GetNumberedStr(Str.OBJ_ENTER, objId));
+        }
+
+        public override void OnObjectMouseLeave(object sender, MouseEventArgs e)
+        {
+            int objId = (int)((FrameworkElement)sender).Tag;
+            LogEvent(Str.GetNumberedStr(Str.OBJ_EXIT, objId));
+        }
+
         public override void OnObjectMouseDown(object sender, MouseButtonEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_AREA_PRESS);
+            LogEvent(Str.GetNumberedStr(Str.OBJ_PRESS, objId));
 
             var startButtonClicked = GetEventCount(Str.START_RELEASE) > 0;
             var device = Utils.GetDevice(_activeBlock.Technique);
@@ -604,7 +635,7 @@ namespace Multi.Cursor
         public override void OnObjectMouseUp(object sender, MouseButtonEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(string.Join("_", Str.OBJ, objId.ToString(), Str.RELEASE));
+            LogEvent(Str.GetNumberedStr(Str.OBJ_RELEASE, objId));
 
             var device = Utils.GetDevice(_activeBlock.Technique);
             var thisObjPressed = _activeTrialRecord.IsObjectPressed(objId);
@@ -640,6 +671,11 @@ namespace Multi.Cursor
             e.Handled = true;
 
         }
+        public override void OnObjectAreaMouseEnter(object sender, MouseEventArgs e)
+        {
+            // Only log if entered from outside (NOT from the object)
+            if (_activeTrialRecord.GetLastTimestamp() != Str.OBJ_EXIT) LogEvent(Str.ARA_ENTER);
+        }
 
         public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
         {
@@ -660,6 +696,17 @@ namespace Multi.Cursor
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
+
+        }
+
+        public override void OnObjectAreaMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            LogEvent(Str.ARA_RELEASE);
+        }
+
+        public override void OnObjectAreaMouseExit(object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.ARA_EXIT);
         }
 
         public override void IndexTap()
@@ -800,5 +847,7 @@ namespace Multi.Cursor
 
             }
         }
+
+        
     }
 }

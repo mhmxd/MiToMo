@@ -336,7 +336,7 @@ namespace Multi.Cursor
             {
                 // Set the _technique mode in Config
                 //_experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
-                ExperiLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique);
+                
 
                 BeginExperiment();
             }
@@ -790,6 +790,8 @@ namespace Multi.Cursor
             _activeBlockNum = 1;
             //Block block = _experiment.GetBlock(_activeBlockNum);
             _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
+
+            ExperiLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique, _activeBlockHandler.GetBlockType());
 
             if (Utils.GetDevice(_experiment.Active_Technique) == Technique.TOMO)
             {
