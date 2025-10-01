@@ -307,7 +307,7 @@ namespace Multi.Cursor
 
         public override void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
         {
-            
+            LogEventOnce(Str.FIRST_MOVE);
         }
 
         public override void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
@@ -665,7 +665,7 @@ namespace Multi.Cursor
             LogEventWithIndex(Str.OBJ_RELEASE, objId);
 
             var device = Utils.GetDevice(_activeBlock.Technique);
-            var thisObjPressed = _activeTrialRecord.IsObjectPressed(objId);
+            var thisObjPressed = _pressedObjectId == objId;
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             var markerOverFunction = funcIdUnderMarker != -1;
             var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();

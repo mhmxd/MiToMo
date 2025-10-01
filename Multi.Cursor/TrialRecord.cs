@@ -202,6 +202,7 @@ namespace Multi.Cursor
         public void MarkFunction(int id)
         {
             ChangeFunctionState(id, ButtonState.MARKED);
+            this.TrialInfo($"Function#{id} marked.");
         }
 
         public void EnableAllFunctions()

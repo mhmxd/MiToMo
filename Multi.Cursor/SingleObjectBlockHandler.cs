@@ -288,16 +288,7 @@ namespace Multi.Cursor
 
         public override void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
         {
-            LogFirstEvent(Str.FIRST_MOVE); // Will manage the 'first'
-
-            if (_mainWindow.IsTechniqueToMo()) //-- ToMo
-            {
-                // Nothing for now
-            }
-            else //-- MOUSE
-            {
-                // Nothing for now
-            }
+            LogEventOnce(Str.FIRST_MOVE); // Will manage the 'first'
         }
 
         public override void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)

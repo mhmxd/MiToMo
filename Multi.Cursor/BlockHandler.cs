@@ -206,6 +206,7 @@ namespace Multi.Cursor
             foreach (var func in _activeTrialRecord.Functions)
             {
                 Brush funcColor = Config.FUNCTION_DEFAULT_COLOR;
+                this.TrialInfo($"Function#{func.Id} state: {func.State}");
                 switch (func.State)
                 {
                     case ButtonState.MARKED:
@@ -272,7 +273,7 @@ namespace Multi.Cursor
         {
             if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
             {
-                LogFirstEvent(Str.FLICK); // First flick after activation
+                LogEventOnce(Str.FLICK); // First flick after activation
                 _mainWindow?.MoveMarker(indPoint, OnFunctionMarked);
             }
             
@@ -388,7 +389,7 @@ namespace Multi.Cursor
             _activeTrialRecord.AddTimestamp(logStr); // Let them have the same name. We know the count from EventCounts
         }
 
-        protected void LogFirstEvent(string eventName)
+        protected void LogEventOnce(string eventName)
         {
             if (!_activeTrialRecord.HasTimestamp(eventName)) _activeTrialRecord.AddTimestamp(eventName); 
         }
