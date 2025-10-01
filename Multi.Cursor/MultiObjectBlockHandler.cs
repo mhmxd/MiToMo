@@ -235,9 +235,11 @@ namespace Multi.Cursor
                     Sounder.PlayHit();
                     double trialTime = GetDuration(Str.START_RELEASE + "_1", Str.TRIAL_END);
                     _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                    // -- Log
                     if (_activeTrial.GetNumFunctions() == 1) ExperiLogger.LogMOSFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
-                    //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial time = {trialTime:F2}s");
-                    GoToNextTrial();
+                    else ExperiLogger.LogMOMFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+                        //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial time = {trialTime:F2}s");
+                        GoToNextTrial();
                     break;
                 case Result.MISS:
                     Sounder.PlayTargetMiss();
@@ -269,6 +271,8 @@ namespace Multi.Cursor
                 //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
                 //_mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
                 _activeTrialRecord.ClearTimestamps();
+                _functionsVisitMap.Clear();
+                _objectsVisitMap.Clear();
 
                 _activeTrialNum++;
                 _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
@@ -313,39 +317,53 @@ namespace Multi.Cursor
 
         public override void OnFunctionMouseEnter(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.FUN_ENTER);
+            // Add the id to the list of visited if not already there (will use the index for the order of visit)
+            int funId = (int)((FrameworkElement)sender).Tag;
+
+            int visitIndex = _functionsVisitMap.IndexOf(funId);
+            if (visitIndex == -1) // Function NOT visited before
+            {
+                _functionsVisitMap.Add(funId);
+                visitIndex = _functionsVisitMap.Count - 1;
+            }
+
+            LogEvent(Str.GetNumberedStr(Str.FUN_ENTER, visitIndex + 1)); // Use 1-based indexing
         }
 
         public override void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
         {
             //this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
-            LogEvent(Str.FUN_PRESS);
+            int funId = (int)((FrameworkElement)sender).Tag;
+            LogEventWithIndex(Str.FUN_PRESS, funId);
+
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            var funcId = (int)((FrameworkElement)sender).Tag;
+            var funId = (int)((FrameworkElement)sender).Tag;
             var device = Utils.GetDevice(_activeBlock.Technique);
+
+            LogEventWithIndex(Str.FUN_RELEASE, funId);
 
             //this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             switch (device)
             {
                 case Technique.MOUSE:
-                    _activeTrialRecord.ApplyFunction(funcId);
+                    _activeTrialRecord.ApplyFunction(funId);
                     UpdateScene();
                     break;
             }
 
 
-            LogEvent(Str.FUN_RELEASE);
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public override void OnFunctionMouseExit(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.FUN_EXIT);
+            int funId = (int)((FrameworkElement)sender).Tag;
+            LogEventWithIndex(Str.FUN_EXIT, funId);
         }
 
         public override void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
@@ -584,20 +602,29 @@ namespace Multi.Cursor
 
         public override void OnObjectMouseEnter(object sender, MouseEventArgs e)
         {
+            // Add the id to the list of visited if not already there (will use the index for the order of visit)
             int objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.GetNumberedStr(Str.OBJ_ENTER, objId));
+
+            int visitIndex = _objectsVisitMap.IndexOf(objId);
+            if (visitIndex == -1) // Function NOT visited before
+            {
+                _objectsVisitMap.Add(objId);
+                visitIndex = _objectsVisitMap.Count - 1;
+            }
+
+            LogEvent(Str.GetNumberedStr(Str.OBJ_ENTER, visitIndex + 1)); // Use 1-based indexing
         }
 
         public override void OnObjectMouseLeave(object sender, MouseEventArgs e)
         {
             int objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.GetNumberedStr(Str.OBJ_EXIT, objId));
+            LogEventWithIndex(Str.OBJ_EXIT, objId);
         }
 
         public override void OnObjectMouseDown(object sender, MouseButtonEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.GetNumberedStr(Str.OBJ_PRESS, objId));
+            LogEventWithIndex(Str.OBJ_PRESS, objId);
 
             var startButtonClicked = GetEventCount(Str.START_RELEASE) > 0;
             var device = Utils.GetDevice(_activeBlock.Technique);
@@ -635,7 +662,7 @@ namespace Multi.Cursor
         public override void OnObjectMouseUp(object sender, MouseButtonEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.GetNumberedStr(Str.OBJ_RELEASE, objId));
+            LogEventWithIndex(Str.OBJ_RELEASE, objId);
 
             var device = Utils.GetDevice(_activeBlock.Technique);
             var thisObjPressed = _activeTrialRecord.IsObjectPressed(objId);
@@ -680,6 +707,7 @@ namespace Multi.Cursor
         public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
         {
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+            LogEvent(Str.ARA_PRESS);
 
             var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
 

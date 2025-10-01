@@ -244,6 +244,8 @@ namespace Multi.Cursor
                 _mainWindow.ClearCanvas();
                 _activeTrialRecord.ClearTimestamps();
                 _nSelectedObjects = 0; // Reset the number of selected objects
+                _functionsVisitMap.Clear();
+                _objectsVisitMap.Clear();
 
                 _activeTrialNum++;
                 _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
@@ -389,7 +391,7 @@ namespace Multi.Cursor
         {
             // Check the Id in the visited list. If visited, log the event.
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEventConseq(Str.FUN_PRESS, funId);
+            LogEventWithIndex(Str.FUN_PRESS, funId);
 
             //this.TrialInfo($"Trial Id: {_activeTrial.Id} | Obj: {this.GetHashCode()}");
             //this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
@@ -401,7 +403,7 @@ namespace Multi.Cursor
         {
             // Check the Id in the visited list. If visited, log the event.
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEventConseq(Str.FUN_RELEASE, funId);
+            LogEventWithIndex(Str.FUN_RELEASE, funId);
 
             //this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
@@ -584,7 +586,7 @@ namespace Multi.Cursor
 
         public override void OnAuxWindowMouseExit(object sender, MouseEventArgs e)
         {
-            LogEvent(Str.PNL_EXIT);
+            LogEventWithCount(Str.PNL_EXIT);
         }
 
         public override void OnFunctionMouseEnter(object sender, MouseEventArgs e)
@@ -606,7 +608,7 @@ namespace Multi.Cursor
         {
             // Check the Id in the visited list. If visited, log the event.
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEventConseq(Str.FUN_EXIT, funId);
+            LogEventWithIndex(Str.FUN_EXIT, funId);
         }
 
         public override void OnObjectAreaMouseEnter(object sender, MouseEventArgs e)

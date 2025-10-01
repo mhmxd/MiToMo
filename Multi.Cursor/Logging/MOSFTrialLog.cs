@@ -100,6 +100,6 @@ namespace Multi.Cursor.Logging
         public int obj3xt_obj4nt;    // object3 exit -\ object4 enter
         public int obj4xt_obj5nt;    // object4 exit -\ object5 enter
         
-        public int obj5xt_obapr;    // object5 exit -\ object area press (trial end)
+        public int objNxt_obapr;    // object5 exit -\ object area press (trial end)
     }
 }

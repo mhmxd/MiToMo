@@ -342,7 +342,7 @@ namespace Multi.Cursor
 
         }
 
-        protected void LogEventConseq(string eventName, int id)
+        protected void LogEventWithIndex(string eventName, int id)
         {
             string what = eventName.Split('_')[0];
             this.TrialInfo($"What: {what}");

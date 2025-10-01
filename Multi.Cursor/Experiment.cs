@@ -21,7 +21,7 @@ namespace Multi.Cursor
 
         //--- Setting
         private int N_FUNC = 2;
-        private int N_OBJ = 1;
+        private int N_OBJ = 2;
         private int N_BLOCKS = 3;
         public static int DEFAULT_PTC = 1000;
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
