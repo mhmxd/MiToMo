@@ -264,11 +264,11 @@ namespace Multi.Cursor
         {
             Timestamp timestamp = new Timestamp(label);
             Timestamps.Add(timestamp);
-            this.TrialInfo($"Added timestamp: {timestamp.ToString()}");
+            this.TrialInfo($"[+] {timestamp.ToString()}");
             if (label.EndsWith("_tap_up"))
             {
                 long endTime = GetLastFingerActionTime(label);
-                this.TrialInfo($"End time: {endTime}");
+                //this.TrialInfo($"End time: {endTime}");
                 var gestureStartTimestamp = Timestamps.LastOrDefault(ts => ts.label.EndsWith(Str.DOWN) && ts.time < endTime);
                 if (gestureStartTimestamp != null)
                 {
@@ -373,18 +373,18 @@ namespace Multi.Cursor
         public int GetDuration(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"Start time of {startLabel}: {startTime}");
+            this.TrialInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time of {endLabel}: {endTime}");
+            this.TrialInfo($"End time ({endLabel}): {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
         public int GetDurtionToFirstAfter(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"Start time of {startLabel}: {startTime}");
+            this.TrialInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetFirstAfterLast(startLabel, endLabel);
-            this.TrialInfo($"End time of {endLabel}: {endTime}");
+            this.TrialInfo($"End time ({endLabel}): {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 

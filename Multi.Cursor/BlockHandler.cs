@@ -41,6 +41,7 @@ namespace Multi.Cursor
         public void BeginActiveBlock()
         {
             this.TrialInfo("------------------- Beginning block ----------------------------");
+            this.TrialInfo(Str.MINOR_LINE);
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
@@ -140,7 +141,7 @@ namespace Multi.Cursor
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(Str.START_RELEASE);
-            //this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
             var startButtonPressed = GetEventCount(Str.START_PRESS) > 0;
 
@@ -206,7 +207,7 @@ namespace Multi.Cursor
             foreach (var func in _activeTrialRecord.Functions)
             {
                 Brush funcColor = Config.FUNCTION_DEFAULT_COLOR;
-                this.TrialInfo($"Function#{func.Id} state: {func.State}");
+                //this.TrialInfo($"Function#{func.Id} state: {func.State}");
                 switch (func.State)
                 {
                     case ButtonState.MARKED:

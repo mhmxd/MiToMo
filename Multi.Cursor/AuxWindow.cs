@@ -315,11 +315,11 @@ namespace Multi.Cursor
                 _buttonInfos[buttonId].ButtonFill = color; // Store the default background color
                 _buttonInfos[buttonId].Button.Background = color; // Change the background color of the button
                 _buttonInfos[buttonId].Button.DisableBackgroundHover = true; // Disable hover fill for this button
-                this.TrialInfo($"Button {buttonId} filled with color {color}.");
+                //this.TrialInfo($"Button {buttonId} filled with color {color}.");
             }
             else
             {
-                this.TrialInfo($"Button with ID {buttonId} not found.");
+                //this.TrialInfo($"Button with ID {buttonId} not found.");
             }
         }
 

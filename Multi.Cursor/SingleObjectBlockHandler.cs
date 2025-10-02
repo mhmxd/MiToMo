@@ -131,6 +131,7 @@ namespace Multi.Cursor
 
         public override void ShowActiveTrial()
         {
+            this.TrialInfo(Str.MINOR_LINE);
             this.TrialInfo($"Showing Trial#{_activeTrial.Id} | Side: {_activeTrial.FuncSide} | W: {_activeTrial.GetFunctionWidths().ToStr()} | Dist: {_activeTrial.DistanceMM:F2}mm");
             ExperiLogger.StartTrialLog(_activeTrial);
 
@@ -138,8 +139,8 @@ namespace Multi.Cursor
             //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
 
             // Log the trial show timestamp
-            _activeTrialRecord.AddTimestamp(Str.TRIAL_SHOW);
-            this.TrialInfo($"Trial Id: {_activeTrial.Id}");
+            //_activeTrialRecord.AddTimestamp(Str.TRIAL_SHOW);
+            LogEvent(Str.TRIAL_SHOW);
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
@@ -151,32 +152,32 @@ namespace Multi.Cursor
             //    _activeTrial.FuncSide, 
             //    _activeTrialRecord.FunctionId, 
             //    funcDefaultColor);
-            this.TrialInfo($"Function Ids: {_activeTrialRecord.GetFunctionIds().ToStr()}");
+
             _mainWindow.SetAuxButtonsHandlers(
                 _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
                 OnFunctionMouseEnter, this.OnFunctionMouseDown, this.OnFunctionMouseUp, 
                 OnFunctionMouseExit, this.OnNonTargetMouseDown);
-            this.TrialInfo($"Trial Id: {_activeTrial.Id}");
+            
             // If on ToMo, activate the auxiliary window marker on all sides
             if (_mainWindow.IsTechniqueToMo()) _mainWindow.ShowAllAuxMarkers();
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
-            this.TrialInfo($"Trial Id: {_activeTrial.Id}");
+            
             // Show the area
             MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
                 _activeTrialRecord.ObjectAreaRect, 
                 Config.OBJ_AREA_BG_COLOR, 
                 objAreaEvents);
-            this.TrialInfo($"Trial Id: {_activeTrial.Id}");
+            
             // Show objects
             Brush objDefaultColor = Config.OBJ_DEFAULT_COLOR;
             MouseEvents objectEvents = new MouseEvents(
                 OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
             _mainWindow.ShowObjects(
                 _activeTrialRecord.Objects, objDefaultColor, objectEvents);
-            this.TrialInfo($"Trial Id: {_activeTrial.Id}");
+            
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
@@ -184,7 +185,7 @@ namespace Multi.Cursor
 
             // Update info label
             _mainWindow.UpdateInfoLabel();
-            this.TrialInfo($"Trial Id: {_activeTrial.Id}");
+            
         }
 
         public override void EndActiveTrial(Result result)
@@ -304,7 +305,7 @@ namespace Multi.Cursor
 
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
 
-            var startButtonClicked = GetEventCount(Str.START_RELEASE) > 0;
+            var startButtonClicked = (GetEventCount(Str.START_RELEASE) > 0);
             var device = Utils.GetDevice(_activeBlock.Technique);
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             var markerOverEnabledFunc = funcIdUnderMarker != -1;
@@ -577,7 +578,7 @@ namespace Multi.Cursor
 
         public override void OnAuxWindowMouseExit(object sender, MouseEventArgs e)
         {
-            LogEventWithCount(Str.PNL_EXIT);
+            LogEvent(Str.PNL_EXIT);
         }
 
         public override void OnFunctionMouseEnter(object sender, MouseEventArgs e)
@@ -604,7 +605,8 @@ namespace Multi.Cursor
 
         public override void OnObjectAreaMouseEnter(object sender, MouseEventArgs e)
         {
-            LogEvent(Str.ARA_ENTER);
+            // Only log if entered from outside (NOT from the object)
+            if (_activeTrialRecord.GetLastTimestamp() != Str.OBJ_EXIT) LogEvent(Str.ARA_ENTER);
         }
 
         public override void OnObjectAreaMouseUp(object sender, MouseButtonEventArgs e)

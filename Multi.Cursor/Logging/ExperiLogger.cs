@@ -267,23 +267,22 @@ namespace Multi.Cursor
 
             // Times
             log.trlsh_fstmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.fstmv_strnt = trialRecord.GetDuration(Str.FIRST_MOVE, Str.START_ENTER);
-            log.strnt_strpr = trialRecord.GetDuration(Str.START_ENTER, Str.START_PRESS);
+            log.fstmv_strnt = trialRecord.GetFirstSeqDuration(Str.FIRST_MOVE, Str.START_ENTER);
+            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.START_ENTER, Str.START_PRESS);
             log.strpr_strrl = trialRecord.GetDuration(Str.START_PRESS, Str.START_RELEASE);
 
             switch (trial.Technique.GetDevice())
             {
                 case Technique.MOUSE:
-                    log.strrl_strxt = trialRecord.GetDuration(Str.START_RELEASE, Str.START_EXIT);
                     log.strxt_objnt = trialRecord.GetDuration(Str.START_EXIT, Str.OBJ_ENTER);
-                    log.objxt_obaxt = trialRecord.GetDuration(Str.OBJ_EXIT, Str.ARA_EXIT);
-                    log.obaxt_pnlnt = trialRecord.GetDuration(Str.ARA_EXIT, Str.PNL_ENTER);
-                    log.pnlnt_funnt = trialRecord.GetDuration(Str.PNL_ENTER, Str.FUN_ENTER);
-                    log.funnt_funpr = trialRecord.GetDuration(Str.FUN_ENTER, Str.FUN_PRESS);
-                    log.funpr_funrl = trialRecord.GetDuration(Str.FUN_PRESS, Str.FUN_RELEASE);
-                    log.funrl_funxt = trialRecord.GetDuration(Str.FUN_RELEASE, Str.FUN_EXIT);
-                    log.funxt_pnlxt = trialRecord.GetDuration(Str.FUN_EXIT, Str.PNL_EXIT);
-                    log.pnlxt_obant = trialRecord.GetDuration(Str.PNL_EXIT, Str.ARA_ENTER);
+                    log.objxt_araxt = trialRecord.GetDuration(Str.OBJ_EXIT, Str.ARA_EXIT);
+                    log.araxt_pnlnt = trialRecord.GetDuration(Str.ARA_EXIT, Str.PNL_ENTER);
+                    log.pnlnt_funnt = trialRecord.GetLastSeqDuration(Str.PNL_ENTER, Str.GetNumberedStr(Str.FUN_ENTER, 1));
+                    log.funnt_funpr = trialRecord.GetLastSeqDuration(Str.GetNumberedStr(Str.FUN_ENTER, 1), Str.GetNumberedStr(Str.FUN_PRESS, 1));
+                    log.funpr_funrl = trialRecord.GetDuration(Str.GetNumberedStr(Str.FUN_PRESS, 1), Str.GetNumberedStr(Str.FUN_RELEASE, 1));
+                    log.funrl_funxt = trialRecord.GetDuration(Str.GetNumberedStr(Str.FUN_RELEASE, 1), Str.GetNumberedStr(Str.FUN_EXIT, 1));
+                    log.funxt_pnlxt = trialRecord.GetLastSeqDuration(Str.GetNumberedStr(Str.FUN_EXIT, 1), Str.PNL_EXIT);
+                    log.pnlxt_arant = trialRecord.GetLastSeqDuration(Str.PNL_EXIT, Str.ARA_ENTER);
                     
                 break;
 
@@ -293,17 +292,19 @@ namespace Multi.Cursor
                     log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
                     log.fstfl_funmk = trialRecord.GetDuration(Str.FLICK, Str.FUNCTION_MARKED);
                     log.funmk_obant = trialRecord.GetDuration(Str.FUNCTION_MARKED, Str.ARA_ENTER);
-                    log.obant_objnt = trialRecord.GetDuration(Str.ARA_ENTER, Str.OBJ_ENTER);
+                    log.arant_objnt = trialRecord.GetDuration(Str.ARA_ENTER, Str.OBJ_ENTER);
                 break;
             }
 
-            log.objnt_objpr = trialRecord.GetDuration(Str.OBJ_ENTER, Str.OBJ_PRESS);
-            log.objpr_objrl = trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE);
-            log.objrl_objxt = trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT);
+            log.objnt_objpr = trialRecord.GetLastSeqDuration(Str.OBJ_ENTER, Str.OBJ_PRESS);
+            log.objpr_objrl = trialRecord.GetLastSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE);
+            log.objrl_objxt = trialRecord.GetLastSeqDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT);
 
-            log.obant_obapr = trialRecord.GetDuration(Str.ARA_ENTER, Str.ARA_PRESS);
+            log.arant_obapr = trialRecord.GetLastSeqDuration(Str.ARA_ENTER, Str.ARA_PRESS);
 
-            Output.Conlog<ExperiLogger>(log.tech);
+            // Testing
+            Output.Conlog<ExperiLogger>(trialRecord.TimestampsToString());
+            Output.Conlog<ExperiLogger>(log.ToString());
 
             WriteTrialLog(log);
             //_trialLogWriter?.Dispose();
