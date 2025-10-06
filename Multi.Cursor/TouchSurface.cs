@@ -372,7 +372,7 @@ namespace Multi.Cursor
             if (debugWatch.IsRunning)
             {
                 debugWatch.Stop();
-                //GestInfo<TouchSurface>($"Track time = {debugWatch.ElapsedMilliseconds} ms");
+                //GestInfo<TouchSurface>($"Track Time = {debugWatch.ElapsedMilliseconds} ms");
             }
             else
             {
@@ -453,7 +453,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
+                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.TrialEvent}");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
@@ -469,7 +469,7 @@ namespace Multi.Cursor
                     Point downPosition = _downPositions[finger];
                     Point lastPosition = _lastPositions[finger];
 
-                    // Check Tap time and movement conditions
+                    // Check Tap Time and movement conditions
                     //GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                     //    $" | dX = {Abs(lastPosition.X - downPosition.X):F2}" +
                     //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F2}");
@@ -501,8 +501,6 @@ namespace Multi.Cursor
                             LogTap(finger.ToString(), Side.Down, currentFrame.Timestamp); // LOG
                             //_gestureReceiver?.ThumbTap(Side.Down);
                         }
-
-                        // Log
                         
                     }
 
@@ -537,7 +535,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
+                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.TrialEvent}");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
@@ -551,9 +549,9 @@ namespace Multi.Cursor
                 {
                     Point downPosition = _downPositions[finger];
                     Point lastPosition = _lastPositions[finger];
-                    GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
-                        $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
-                        $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
+                    //GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
+                    //    $" | dX = {Abs(lastPosition.X - downPosition.X):F3}" +
+                    //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F3}");
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
 
@@ -561,11 +559,11 @@ namespace Multi.Cursor
                         Abs(lastPosition.X - downPosition.X),
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
-                        GestInfo<TouchSurface>($"{finger} Tapped!");
+                        //GestInfo<TouchSurface>($"{finger} Tapped!");
                         _gestureInstants[upStr] = _touchTimers[finger].ElapsedMilliseconds;
                         LogTap(finger.ToString(), Side.Left, currentFrame.Timestamp); // LOG
                         _gestureHandler?.RecordToMoAction(finger, Str.TAP_UP);
-                        this.TrialInfo($"_gestureHandler: {_gestureHandler}");
+                        //this.TrialInfo($"_gestureHandler: {_gestureHandler}");
                         _gestureHandler?.IndexTap();
                     }
 
@@ -729,7 +727,7 @@ namespace Multi.Cursor
                     Point downPosition = _downPositions[finger];
                     Point lastPosition = _lastPositions[finger];
 
-                    // Check Tap time and movement conditions
+                    // Check Tap Time and movement conditions
                     //GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                     //    $" | dX = {Abs(lastPosition.X - downPosition.X):F2}" +
                     //    $" | dY = {Abs(lastPosition.Y - downPosition.Y):F2}");
@@ -827,7 +825,7 @@ namespace Multi.Cursor
                         }
 
                     }
-                    else // (Probably) gesture time expired => start over
+                    else // (Probably) gesture Time expired => start over
                     {
                         _thumbGestureStart = currentFrame;
                         _gestureHandler?.RecordToMoAction(Finger.Thumb, Str.SWIPE_START);
@@ -876,7 +874,7 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.Timestamp}");
+                    //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.TrialEvent}");
                     LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;

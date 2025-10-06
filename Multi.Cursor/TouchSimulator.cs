@@ -24,7 +24,7 @@ namespace Multi.Cursor
             public uint dwID;           // Contact ID
             public uint dwFlags;        // Touch event flags
             public uint dwMask;         // Touch data mask
-            public uint dwTime;         // Timestamp for the event
+            public uint dwTime;         // TrialEvent for the event
             public IntPtr dwExtraInfo;  // Extra information (not used)
             public uint cxContact;      // Width of the contact area
             public uint cyContact;      // Height of the contact area

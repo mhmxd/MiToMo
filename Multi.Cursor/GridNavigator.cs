@@ -81,7 +81,7 @@ namespace Multi.Cursor
             // Handle dT being zero or very small to avoid division by zero/NaN
             if (dT < 1e-9) // Using a small epsilon instead of just 0
             {
-                // If no time has passed or negligible, just skip velocity calculation
+                // If no Time has passed or negligible, just skip velocity calculation
                 // The Kalman filter will maintain its last state, and we won't accumulate displacement
                 return (0, 0);
             }

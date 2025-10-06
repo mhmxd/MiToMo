@@ -81,10 +81,11 @@ namespace Multi.Cursor
         //private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
         //private Grid _gridCol1, _gridCol2, _gridCol3; // Grid columns
 
-        public SideWindow(string title, Point relPos)
+        public SideWindow(Side side, Point relPos)
         {
             InitializeComponent();
-            WindowTitle = title;
+            //WindowTitle = title;
+            Side = side;
             this.DataContext = this; // Set DataContext for data binding
 
             EnableMouseInPointer(true);

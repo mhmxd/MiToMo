@@ -49,7 +49,7 @@ namespace Multi.Cursor
 
             //FILOG = new LoggerConfiguration()
             //    .WriteTo.Async(a => a.File(LOG_PATH,
-            //    outputTemplate: "[{Level:u3}] [{Timestamp:HH:mm:ss.fff}] {Message:lj}{NewLine}"))
+            //    outputTemplate: "[{Level:u3}] [{TrialEvent:HH:mm:ss.fff}] {Message:lj}{NewLine}"))
             //    .MinimumLevel.Information()
             //    .CreateLogger();
         }

@@ -70,6 +70,8 @@ namespace Multi.Cursor
             set => _nObjects = value;
         }
 
+        public int NFunctions => _functionWidths.Count;
+
         //private int _targetMultiple; // Multiples of the target width (ref. the Experiment.TARGET_WIDTHS_MM list)
         //public int TargetMultiple
         //{

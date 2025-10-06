@@ -9,8 +9,8 @@ namespace Multi.Cursor
         public static string TRIAL_SHOW = "trial_show";
         public static string FIRST_MOVE = "move";
 
-        //public static string START_PRESS = "start_press";
-        //public static string START_RELEASE = "start_release";
+        //public static string STR_PRESS = "start_press";
+        //public static string STR_RELEASE = "start_release";
 
         public static string OBJ = "obj";
         public static string FUN = "fun";
@@ -28,14 +28,14 @@ namespace Multi.Cursor
         public static string FUN_RELEASE = "fun_release";
         public static string FUN_EXIT = "fun_exit";
 
-        public static string START_ENTER = "start_enter";
+        public static string STR_ENTER = "start_enter";
         //public static string START1_LAST_ENTRY = "start1_last_entry";
         //public static string START2_LAST_ENTRY = "start2_last_entry";
         //public static string START1_LAST_EXIT = "start1_last_entry";
         //public static string START2_LAST_EXIT = "start2_last_entry";
-        public static string START_EXIT = "start_exit";
-        public static string START_PRESS = "start_press";
-        public static string START_RELEASE = "start_release";
+        public static string STR_EXIT = "str_exit";
+        public static string STR_PRESS = "str_press";
+        public static string STR_RELEASE = "str_release";
 
         public static string ARA_ENTER = "ara_enter";
         public static string ARA_PRESS = "ara_press";
@@ -57,7 +57,7 @@ namespace Multi.Cursor
         //public static string TARGET_RELEASE = "target_release";
         //public static string TARGET_LEAVE = "target_leave";
 
-        public static string FUNCTION_MARKED = "fun_marked";
+        public static string FUN_MARKED = "fun_marked";
 
         public static string MAIN_WIN_PRESS = "main_win_press";
         public static string MAIN_WIN_RELEASE = "main_win_release";
@@ -130,9 +130,14 @@ namespace Multi.Cursor
             return str == TAP_DOWN || str == TAP_UP || str == SWIPE_START || str == SWIPE_END;
         }
 
-        public static string GetNumberedStr(string str, int num)
+        public static string GetIndexedStr(string str, int num)
         {
             return str.Insert(3, num.ToString());
+        }
+
+        public static string GetCountedStr(string str, int count)
+        {
+            return str + count.ToString();
         }
 
     }

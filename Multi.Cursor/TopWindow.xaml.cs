@@ -54,6 +54,7 @@ namespace Multi.Cursor
         public TopWindow()
         {
             InitializeComponent();
+            Side = Side.Top;
             //this.DataContext = this; // Set DataContext for data binding
 
             EnableMouseInPointer(true);

@@ -549,8 +549,8 @@ namespace Multi.Cursor
                 _topWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _topWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
                 _topWindow.Top = Config.ACTIVE_SCREEN.WorkingArea.Top;
-                //_topWindow.MouseEnter += AuxWindow_MouseEnter;
-                //_topWindow.MouseLeave += AuxWindow_MouseExit;
+                _topWindow.MouseEnter += AuxWindow_MouseEnter;
+                _topWindow.MouseLeave += AuxWindow_MouseExit;
                 //_topWindow.MouseDown += SideWindow_MouseDown;
                 //_topWindow.MouseUp += SideWindow_MouseUp;
                 _topWindow.Show();
@@ -562,15 +562,15 @@ namespace Multi.Cursor
                 //topWinHeightRatio = topWindow.Height / TOMOPAD_SIDE_SIZE;
 
                 // Create left window
-                _leftWindow = new SideWindow("Left Window", new Point(0, SideWindowWidth));
+                _leftWindow = new SideWindow(Side.Left, new Point(0, SideWindowWidth));
                 _leftWindow.Background = Config.GRAY_F3F3F3;
                 _leftWindow.Width = SideWindowWidth;
                 _leftWindow.Height = this.Height;
                 _leftWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _leftWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
                 _leftWindow.Top = this.Top;
-                //_leftWindow.MouseEnter += AuxWindow_MouseEnter;
-                //_leftWindow.MouseLeave += AuxWindow_MouseExit;
+                _leftWindow.MouseEnter += AuxWindow_MouseEnter;
+                _leftWindow.MouseLeave += AuxWindow_MouseExit;
                 //_leftWindow.MouseDown += SideWindow_MouseDown;
                 //_leftWindow.MouseUp += SideWindow_MouseUp;
                 _leftWindow.Show();
@@ -582,15 +582,15 @@ namespace Multi.Cursor
                 //leftWinHeightRatio = leftWindow.Height / (TOMOPAD_LAST_ROW - TOMOPAD_SIDE_SIZE);
 
                 // Create right window
-                _rightWindow = new SideWindow("Right Window", new Point(SideWindowWidth + this.Width, SideWindowWidth));
+                _rightWindow = new SideWindow(Side.Right, new Point(SideWindowWidth + this.Width, SideWindowWidth));
                 _rightWindow.Background = Config.GRAY_F3F3F3;
                 _rightWindow.Width = SideWindowWidth;
                 _rightWindow.Height = this.Height;
                 _rightWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _rightWindow.Left = this.Left + this.Width;
                 _rightWindow.Top = this.Top;
-                //_rightWindow.MouseEnter += AuxWindow_MouseEnter;
-                //_rightWindow.MouseLeave += AuxWindow_MouseExit;
+                _rightWindow.MouseEnter += AuxWindow_MouseEnter;
+                _rightWindow.MouseLeave += AuxWindow_MouseExit;
                 //_rightWindow.MouseDown += SideWindow_MouseDown;
                 //_rightWindow.MouseUp += SideWindow_MouseUp;
                 _rightWindow.Show();
@@ -667,13 +667,22 @@ namespace Multi.Cursor
 
         private void AuxWindow_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            _activeBlockHandler.OnAuxWindowMouseEnter(sender, e);
+            if (sender is AuxWindow window)
+            {
+                Side side = window.Side;
+                _activeBlockHandler.OnAuxWindowMouseEnter(side, e);
+            }
+            
 
         }
 
         private void AuxWindow_MouseExit(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            _activeBlockHandler.OnAuxWindowMouseExit(sender, e);
+            if (sender is AuxWindow window)
+            {
+                Side side = window.Side;
+                _activeBlockHandler.OnAuxWindowMouseExit(side, e);
+            }
 
         }
 
@@ -716,7 +725,7 @@ namespace Multi.Cursor
         /// <param name="e"></param>
         private void TrackTouch(TouchMouseSensorEventArgs e)
         {
-            // Start frameWatch the first time
+            // Start frameWatch the first Time
             if (framesWatch == null)
             {
                 seqFrames = new Dictionary<long, List<(double x, double y)>>();
@@ -1466,7 +1475,7 @@ namespace Multi.Cursor
             return auxWindow.IsNavigatorOnButton(buttonId);
         }
 
-        public void MoveMarker(TouchPoint touchPoint, Func<bool> OnFunctionMarked)
+        public void MoveMarker(TouchPoint touchPoint, Action<int> OnFunctionMarked)
         {
             _activeAuxWindow?.MoveMarker(touchPoint, OnFunctionMarked);
 

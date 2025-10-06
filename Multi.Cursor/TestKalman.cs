@@ -103,7 +103,7 @@ namespace Multi.Cursor
                 // Wait for the timer to finish
                 while (timer.Enabled)
                 {
-                    Thread.Sleep(10); // Adjust the sleep time as needed
+                    Thread.Sleep(10); // Adjust the sleep Time as needed
                 }
             }
 

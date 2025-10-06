@@ -53,6 +53,8 @@ namespace Multi.Cursor
 
         }
 
+        public Side Side { get; set; } // Side of the window (left, right, top)
+                                       // 
         protected Grid _buttonsGrid; // The grid containing all buttons
         protected List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
         protected Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
@@ -583,7 +585,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void MoveMarker(TouchPoint tp, Func<bool> OnFunctionMarked)
+        public void MoveMarker(TouchPoint tp, Action<int> OnFunctionMarked)
         {
             // Update the grid navigator with the current touch point
             var (dGridX, dGridY) = _gridNavigator.Update(tp);
@@ -655,10 +657,10 @@ namespace Multi.Cursor
                     }
                     else if (markedButton.Background.Equals(Config.FUNCTION_DEFAULT_COLOR))
                     {
-                        //this.TrialInfo($"Set {markedButton.Id} to Applied");
-                        markedButton.Background = Config.FUNCTION_ENABLED_COLOR; // Change to applied color
+                        this.TrialInfo($"Set {markedButton.Id} to Enabled");
+                        markedButton.Background = Config.FUNCTION_ENABLED_COLOR; // Change to enabled color
                         // Call the event
-                        OnFunctionMarked();
+                        OnFunctionMarked(markedButton.Id);
 
                     }
                 }

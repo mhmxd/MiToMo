@@ -23,11 +23,18 @@ namespace Multi.Cursor.Logging
         public int araxt_pnlnt;     // object exit -\ panel enter
         public int pnlnt_fun1nt;    // panel enter -\ function1 enter
 
+        public int fstfl_fun1mk;    // first flick -\ marker on function1
+
         // ---------------- Function 1 ----------------
         public int fun1nt_fun1pr;   // function1 enter -\ function1 press
         public int fun1pr_fun1rl;   // function1 press -\ function1 release
         public int fun1rl_fun1xt;   // function1 release -\ function1 exit
         public int fun1xt_fun2nt;   // function1 exit -\ function2 enter
+
+        //public int fun1mk_obj1nt;   // function1 marker on -\ object enter
+        public int fun1mk_obj1pr;   // object enter -\ object press
+        public int objpr1_objrl1;   // object press -\ object release
+        public int objrl1_fun2mk;   // object release -\ function2 marker on
 
         // ---------------- Function 2 ----------------
         public int fun2nt_fun2pr;   // function2 enter -\ function2 press
@@ -35,11 +42,21 @@ namespace Multi.Cursor.Logging
         public int fun2rl_fun2xt;   // function2 release -\ function2 exit
         public int fun2xt_fun3nt;   // function2 exit -\ function3 enter
 
+        //public int fun2mk_obj2nt;   // function2 marker on -\ object enter
+        public int fun2mk_objpr2;   // object enter -\ object press
+        public int objpr2_objrl2;   // object press -\ object release
+        public int objrl2_fun3mk;   // object release -\ function3 marker on
+
         // ---------------- Function 3 ----------------
         public int fun3nt_fun3pr;   // function3 enter -\ function3 press
         public int fun3pr_fun3rl;   // function3 press -\ function3 release
         public int fun3rl_fun3xt;   // function3 release -\ function3 exit
         public int fun3xt_fun4nt;   // function3 exit -\ function4 enter
+
+        //public int fun3mk_obj3nt;   // function3 marker on -\ object enter
+        public int fun3mk_objpr3;   // object enter -\ object press
+        public int objpr3_objrl3;   // object press -\ object release
+        public int objrl3_fun4mk;   // object release -\ function4 marker on
 
         // ---------------- Function 4 ----------------
         public int fun4nt_fun4pr;   // function4 enter -\ function4 press
@@ -47,10 +64,22 @@ namespace Multi.Cursor.Logging
         public int fun4rl_fun4xt;   // function4 release -\ function4 exit
         public int fun4xt_fun5nt;   // function4 exit -\ function5 enter
 
+        //public int fun4mk_obj4nt;   // function4 marker on -\ object enter
+        public int fun4mk_obj4pr;   // object enter -\ object press
+        public int objpr4_objrl4;   // object press -\ object release
+        public int objrl4_fun5mk;   // object release -\ function5 marker on
+
         // ---------------- Function 5 ----------------
         public int fun5nt_fun5pr;   // function5 enter -\ function5 press
         public int fun5pr_fun5rl;   // function5 press -\ function5 release
         public int fun5rl_fun5xt;   // function5 release -\ function5 exit
+
+        //public int fun5mk_obj5nt;   // function4 marker on -\ object enter
+        public int fun5mk_objpr5;   // object enter -\ object press
+        public int objpr5_objrl5;   // object press -\ object release
+
+        public int objrlN_objxt;   // last object release -\ last object exit
+        public int objxt_arapr;    // last object exit -\ object area press
 
         public int funNxt_pnlxt;    // functionN (last function) exit -\ panel exit
 
@@ -60,10 +89,10 @@ namespace Multi.Cursor.Logging
         public int strrl_gstst;     // start release -\ gesture start (tap: down, swipe: start)
         public int gstst_gstnd;     // gesture start -\ gesture end (tap: up, swipe: end)
         public int gstnd_fstfl;     // gesture end -\ first flick (moving the finger over surface)
-        public int fstfl_funmk;     // first flick -\ marker on function
-        public int funmk_obant;     // marker on function -\ object area enter
-        public int obant_objnt;     // object area enter -\ object enter
-        public int objrl_obant;     // object release -\ object area enter
+        
+        //public int funmk_arant;     // marker on function -\ object area enter
+        //public int arant_objnt;     // object area enter -\ object enter
+        //public int objrl_arant;     // object release -\ object area enter
 
         public SOMFTrialLog()
         {

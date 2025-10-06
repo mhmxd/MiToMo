@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.OpenGL;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using static Multi.Cursor.BlockHandler;
 using static Multi.Cursor.Utils;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Multi.Cursor
 {
@@ -54,8 +56,8 @@ namespace Multi.Cursor
         public List<Pair> ObjFuncMap;
 
         public Rect ObjectAreaRect;
-        public Dictionary<string, int> EventCounts;
-        private List<Timestamp> Timestamps;
+        //public Dictionary<string, int> EventCounts;
+        private List<TrialEvent> Events;
         private Dictionary<string, double> Times;
 
         public TrialRecord()
@@ -64,8 +66,8 @@ namespace Multi.Cursor
             Objects = new List<TObject>();
             ObjFuncMap = new List<Pair>();
             ObjectAreaRect = new Rect();
-            EventCounts = new Dictionary<string, int>();
-            Timestamps = new List<Timestamp>();
+            //EventCounts = new Dictionary<string, int>();
+            Events = new List<TrialEvent>();
             Times = new Dictionary<string, double>();
         }
 
@@ -256,117 +258,111 @@ namespace Multi.Cursor
         }
 
         /// <summary>
-        /// If the time stamp is gesture end, rename the previous one to match 
+        /// If the Time stamp is gesture end, rename the previous one to match 
         /// e.g. TAP_UP -> change DOWN to TAP_DOWN 
         /// </summary>
         /// <param name="label"></param>
-        public void AddTimestamp(string label)
+        public void RecordEvent(string type, string id)
         {
-            Timestamp timestamp = new Timestamp(label);
-            Timestamps.Add(timestamp);
-            this.TrialInfo($"[+] {timestamp.ToString()}");
-            if (label.EndsWith("_tap_up"))
+            TrialEvent trialEvent = new TrialEvent(type, id);
+            Events.Add(trialEvent);
+            this.TrialInfo($"[+] {trialEvent.ToString()}");
+
+            if (type == Str.TAP_UP)
             {
-                long endTime = GetLastFingerActionTime(label);
-                //this.TrialInfo($"End time: {endTime}");
-                var gestureStartTimestamp = Timestamps.LastOrDefault(ts => ts.label.EndsWith(Str.DOWN) && ts.time < endTime);
+                long endTime = GetLastFingerActionTime(type);
+                this.TrialInfo($"End Time: {endTime}");
+                var gestureStartTimestamp = Events.LastOrDefault(ts => ts.Type == Str.DOWN && ts.Time < endTime);
                 if (gestureStartTimestamp != null)
                 {
-                    gestureStartTimestamp.label = gestureStartTimestamp.label.Replace(Str.DOWN, Str.TAP_DOWN);
+                    gestureStartTimestamp.Type = Str.TAP_DOWN;
                 }
             }
         }
 
-        public void AddTimestamp(string label, long time)
+        public string TrialEventsToString()
         {
-            Timestamp timestamp = new Timestamp(label, time);
-            Timestamps.Add(timestamp);
-            this.TrialInfo($"Added timestamp: {timestamp.ToString()}");
+            return string.Join(", ", Events.Select(ts => $"{ts.Type}: {ts.Time}"));
         }
 
-        public string TimestampsToString()
+        public string GetLastTrialEventType()
         {
-            return string.Join(", ", Timestamps.Select(ts => $"{ts.label}: {ts.time}"));
+            return Events.Count > 0 ? Events.Last().Type : "No timestamps recorded";
         }
 
-        public string GetLastTimestamp()
+        public long GetFirstTime(string type)
         {
-            return Timestamps.Count > 0 ? Timestamps.Last().label : "No timestamps recorded";
-        }
-
-        public long GetFirstTimestamp(string label)
-        {
-            var timestamp = Timestamps.FirstOrDefault(ts => ts.label == label);
+            var timestamp = Events.FirstOrDefault(ts => ts.Type == type);
             if (timestamp != null)
             {
-                return timestamp.time;
+                return timestamp.Time;
             }
-            return -1; // Return -1 if the label is not found
+            return -1; // Return -1 if the type is not found
         }
 
-        public long GetFirstAfterLast(string beforeLabel, string label)
+        public long GetFirstAfterLast(string beforeType, string type)
         {
-            if (Timestamps == null || Timestamps.Count == 0)
+            if (Events == null || Events.Count == 0)
                 return -1;
 
-            var before = Timestamps.LastOrDefault(t => t.label == beforeLabel);
+            var before = Events.LastOrDefault(t => t.Type == beforeType);
             if (before == null)
                 return -1;
 
-            var after = Timestamps
-                .Where(t => t.label == label && t.time > before.time)
-                .OrderBy(t => t.time)
+            var after = Events
+                .Where(t => t.Type == type && t.Time > before.Time)
+                .OrderBy(t => t.Time)
                 .FirstOrDefault();
 
-            return after == null ? -1 : after.time;
+            return after == null ? -1 : after.Time;
         }
 
         public long GetImmediateBeforeLast(string afterLabel)
         {
-            if (Timestamps == null || Timestamps.Count == 0)
+            if (Events == null || Events.Count == 0)
                 return -1;
 
-            int afterIndex = Timestamps.FindLastIndex(t => t.label == afterLabel);
+            int afterIndex = Events.FindLastIndex(t => t.Type == afterLabel);
             if (afterIndex > 0)
             {
-                return Timestamps[afterIndex - 1].time;
+                return Events[afterIndex - 1].Time;
             }
 
             return -1; // not found or nothing before it
         }
 
-        public long GetLastTime(string label)
+        public long GetLastTime(string type)
         {
-            var timestamp = Timestamps.LastOrDefault(ts => ts.label == label);
-            if (timestamp != null)
+            var trialEvent = Events.LastOrDefault(ts => ts.Type == type);
+            if (trialEvent != null)
             {
-                return timestamp.time;
+                return trialEvent.Time;
             }
 
-            return -1; // Return -1 if the label is not found
+            return -1; // Return -1 if the type is not found
         }
 
         public long GetLastFingerActionTime(string action)
         {
-            var timestamp = Timestamps.LastOrDefault(ts => ts.label.EndsWith(action));
-            if (timestamp != null)
+            var trialEvent = Events.LastOrDefault(ts => ts.Type == action);
+            if (trialEvent != null)
             {
-                return timestamp.time;
+                return trialEvent.Time;
             }
 
-            return -1; // Return -1 if the label is not found
+            return -1; // Return -1 if the type is not found
         }
 
-        public long GetFingerTimeBefore(string label, long endTime)
+        public long GetFingerTimeBefore(string type, long endTime)
         {
-            // Return the last timestamp with label before the endLabel
-            var timestamp = Timestamps.LastOrDefault(ts => ts.label.EndsWith(label) && ts.time < endTime);
+            // Return the last trialEvent with type before the endType
+            var timestamp = Events.LastOrDefault(ts => ts.Type == type && ts.Time < endTime);
             if (timestamp != null)
             {
-                return timestamp.time;
+                return timestamp.Time;
             }
 
-            return -1; // Return -1 if the label is not found
+            return -1; // Return -1 if the type is not found
 
         }
 
@@ -388,21 +384,21 @@ namespace Multi.Cursor
             return Utils.GetDuration(startTime, endTime);
         }
 
-        public int GetFirstSeqDuration(string startLabel, string endLabel)
+        public int GetFirstSeqDuration(string startType, string endType)
         {
-            if (Timestamps == null || Timestamps.Count == 0)
+            if (Events == null || Events.Count == 0)
                 return -1;
 
-            for (int i = 0; i < Timestamps.Count; i++)
+            for (int i = 0; i < Events.Count; i++)
             {
-                if (Timestamps[i].label == startLabel)
+                if (Events[i].Type == startType)
                 {
                     // found the start, look forward for the end
-                    for (int j = i + 1; j < Timestamps.Count; j++)
+                    for (int j = i + 1; j < Events.Count; j++)
                     {
-                        if (Timestamps[j].label == endLabel)
+                        if (Events[j].Type == endType)
                         {
-                            return Utils.GetDuration(Timestamps[i].time, Timestamps[j].time);
+                            return Utils.GetDuration(Events[i].Time, Events[j].Time);
                         }
                     }
                 }
@@ -414,25 +410,25 @@ namespace Multi.Cursor
         public int GetLastSeqDuration(string startLabel, string endLabel)
         {
             this.TrialInfo($"From {startLabel} to {endLabel}");
-            if (Timestamps == null || Timestamps.Count == 0)
+            if (Events == null || Events.Count == 0)
                 return -1;
 
-            // find the last occurrence of endLabel
-            int afterIndex = Timestamps.FindLastIndex(t => t.label == endLabel);
+            // find the last occurrence of endType
+            int afterIndex = Events.FindLastIndex(t => t.Type == endLabel);
             this.TrialInfo($"Index of {endLabel}: {afterIndex}");
             if (afterIndex < 0)
                 return -1;
             
-            // scan backwards from that point to find the last startLabel
+            // scan backwards from that point to find the last startType
             for (int i = afterIndex - 1; i >= 0; i--)
             {
-                if (Timestamps[i].label == startLabel)
+                if (Events[i].Type == startLabel)
                 {
-                    this.TrialInfo($"Start time of {startLabel}: {Timestamps[i].time}");
-                    this.TrialInfo($"End time of {endLabel}: {Timestamps[afterIndex].time}");
+                    this.TrialInfo($"Start time {startLabel}: {Events[i].Time}");
+                    this.TrialInfo($"End time {endLabel}: {Events[afterIndex].Time}");
                     return Utils.GetDuration(
-                        Timestamps[i].time,
-                        Timestamps[afterIndex].time
+                        Events[i].Time,
+                        Events[afterIndex].Time
                     );
                 }
             }
@@ -442,39 +438,37 @@ namespace Multi.Cursor
 
         public int GetDurationToGestureStart(string startLabel, Technique technique)
         {
-            this.TrialInfo($"Timestamps: {TimestampsToString()}");
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"startTime: {startTime}");
-            long endTime = GetGestureStartTimestamp(technique);
-            this.TrialInfo($"endTime: {endTime}");
+            this.TrialInfo($"StartTime {startLabel}: {startTime}");
+            long endTime = GetGestureStartTime(technique);
+            this.TrialInfo($"End time {technique}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromGestureEnd(Technique technique, string endLabel)
         {
-            this.TrialInfo($"Timestamps: {TimestampsToString()}");
             long startTime = GetGestureEndTimestamp(technique);
-            this.TrialInfo($"startTime: {startTime}");
+            this.TrialInfo($"Start time {technique}: {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"endTime: {endTime}");
+            this.TrialInfo($"End time {endLabel}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
-        public int GetDurationToFingerAction(string startLabel, string action)
+        public int GetDurationToFingerAction(string type, string action)
         {
-            this.TrialInfo($"Timestamps: {TimestampsToString()}");
-            long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"startTime: {startTime}");
-            long endTime = GetLastFingerActionTime(action);
-            this.TrialInfo($"endTime: {endTime}");
+            long startTime = GetLastTime(type);
+            this.TrialInfo($"Start time {type}: {startTime}");
+            long endTime = GetFirstAfterLast(type, action);
+            this.TrialInfo($"End time {action}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromFingerAction(string action, string endLabel)
         {
-            this.TrialInfo($"Timestamps: {TimestampsToString()}");
             long startTime = GetLastFingerActionTime(action);
+            this.TrialInfo($"Start time {action}: {startTime}");
             long endTime = GetLastTime(endLabel);
+            this.TrialInfo($"End time {endLabel}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
@@ -483,22 +477,24 @@ namespace Multi.Cursor
             switch (gesture)
             {
                 case Technique.TOMO_TAP:
-                    long tapEndTime = GetLastFingerActionTime(Str.TAP_UP);
-                    long tapStartTime = GetFingerTimeBefore(Str.DOWN, tapEndTime);
-                    return Utils.GetDuration(tapStartTime, tapEndTime);
+                    //long tapEndTime = GetLastFingerActionTime(Str.TAP_UP);
+                    //long tapStartTime = GetFingerTimeBefore(Str.DOWN, tapEndTime);
+                    //return Utils.GetDuration(tapStartTime, tapEndTime);
+                    return GetLastSeqDuration(Str.TAP_DOWN, Str.TAP_UP);
                     break;
                 
                 case Technique.TOMO_SWIPE:
-                    long swipeEndTime = GetLastFingerActionTime(Str.SWIPE_END);
-                    long swipeStartTime = GetFingerTimeBefore(Str.SWIPE_START, swipeEndTime);
-                    return Utils.GetDuration(swipeStartTime, swipeEndTime);
+                    //long swipeEndTime = GetLastFingerActionTime(Str.SWIPE_END);
+                    //long swipeStartTime = GetFingerTimeBefore(Str.SWIPE_START, swipeEndTime);
+                    //return Utils.GetDuration(swipeStartTime, swipeEndTime);
+                    return GetLastSeqDuration(Str.SWIPE_START, Str.SWIPE_END);
                     break;
             }
 
             return -1;
         }
 
-        public long GetGestureStartTimestamp(Technique technique)
+        public long GetGestureStartTime(Technique technique)
         {
             switch (technique)
             {
@@ -543,12 +539,12 @@ namespace Multi.Cursor
 
         public bool HasTimestamp(string label)
         {
-            return Timestamps.Any(ts => ts.label == label);
+            return Events.Any(ts => ts.Type == label);
         }
 
         public void ClearTimestamps()
         {
-            Timestamps.Clear();
+            Events.Clear();
         }
 
         public List<int> GetFunctionIds()
@@ -566,16 +562,19 @@ namespace Multi.Cursor
             return Utils.PX2MM(Functions[0].Center.DistanceTo(Objects[0].Center));
         }
 
-        public bool IsObjectPressed(int objId)
-        {
-            //this.TrialInfo($"Timestamps: {TimestampsToString()}");
-            // Check if timestamps contains Str.OBJ_objId_Str.PRESS
-            return Timestamps.Any(ts => ts.label.Contains(Str.Join(Str.OBJ, objId.ToString(), Str.PRESS)));
-        }
-
         public void AddTime(string label, double time)
         {
             Times[label] = time;
+        }
+
+        internal void RemoveLastTimestamp()
+        {
+            Events.RemoveAt(Events.Count - 1);
+        }
+
+        public int CountEvent(string type)
+        {
+            return Events.Count(ts => ts.Type == type);
         }
     }
 }

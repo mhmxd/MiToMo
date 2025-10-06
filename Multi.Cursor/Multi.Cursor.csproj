@@ -347,7 +347,7 @@
     <Compile Include="SButton.cs" />
     <Compile Include="Sounder.cs" />
     <Compile Include="Timer.cs" />
-    <Compile Include="Timestamp.cs" />
+    <Compile Include="TrialEvent.cs" />
     <Compile Include="Logging\ExperiLogger.cs" />
     <Compile Include="TopWindow.xaml.cs">
       <DependentUpon>TopWindow.xaml</DependentUpon>

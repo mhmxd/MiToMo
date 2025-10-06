@@ -88,7 +88,11 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public abstract void OnAuxWindowMouseEnter(Object sender, MouseEventArgs e);
+        public void OnAuxWindowMouseEnter(Object sender, MouseEventArgs e)
+        {
+            // Sender must be of the type Side
+            LogEvent(Str.PNL_ENTER, sender.ToString());
+        }
 
         public void OnAuxWindowMouseMove(Object sender, MouseEventArgs e)
         {
@@ -99,7 +103,11 @@ namespace Multi.Cursor
             // Nothing for now
         }
 
-        public abstract void OnAuxWindowMouseExit(Object sender, MouseEventArgs e);
+        public void OnAuxWindowMouseExit(Object sender, MouseEventArgs e)
+        {
+            // Sender must be of the type Side
+            LogEvent(Str.PNL_EXIT, sender.ToString());
+        }
 
         public abstract void OnObjectMouseEnter(Object sender, MouseEventArgs e);
         public abstract void OnObjectMouseLeave(Object sender, MouseEventArgs e);
@@ -127,23 +135,23 @@ namespace Multi.Cursor
 
         public void OnStartButtonMouseEnter(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.START_ENTER);
+            LogEvent(Str.STR_ENTER);
         }
 
         public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.START_PRESS);
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+            LogEvent(Str.STR_PRESS);
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.START_RELEASE);
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TimestampsToString()}");
+            LogEvent(Str.STR_RELEASE);
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
-            var startButtonPressed = GetEventCount(Str.START_PRESS) > 0;
+            var startButtonPressed = GetEventCount(Str.STR_PRESS) > 0;
 
             switch (startButtonPressed)
             {
@@ -167,13 +175,12 @@ namespace Multi.Cursor
 
         public void OnStartButtonMouseExit(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.START_EXIT);
+            LogEvent(Str.STR_EXIT);
         }
 
-        public bool OnFunctionMarked()
+        public void OnFunctionMarked(int funId)
         {
-            LogEvent(Str.FUNCTION_MARKED);
-            return true;
+            LogEvent(Str.FUN_MARKED, funId.ToString());
         }
 
         public void SetFunctionAsEnabled(int funcId)
@@ -283,7 +290,7 @@ namespace Multi.Cursor
         public void IndexUp()
         {
             _mainWindow.StopAuxNavigator();
-            LogEvent("index_up");
+            LogEvent(Str.Join(Str.INDEX, Str.UP));
         }
 
         public abstract void ThumbSwipe(Direction dir);
@@ -312,104 +319,117 @@ namespace Multi.Cursor
             
         }
 
-        protected void LogEvent(string eventName)
+        protected void LogEvent(string type, string id)
         {
-            if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(eventName))
-            {
-                _trialRecords[_activeTrial.Id].EventCounts[eventName]++;
-            }
-            else
-            {
-                _trialRecords[_activeTrial.Id].EventCounts[eventName] = 1;
-            }
+            //if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(type))
+            //{
+            //    _trialRecords[_activeTrial.Id].EventCounts[type]++;
+            //}
+            //else
+            //{
+            //    _trialRecords[_activeTrial.Id].EventCounts[type] = 1;
+            //}
 
-            //string timeKey = eventName + "_" + _trialRecords[_activeTrial.Id].EventCounts[eventName];
-            _activeTrialRecord.AddTimestamp(eventName); // Let them have the same name. We know the count from EventCounts
+            //string timeKey = type + "_" + _trialRecords[_activeTrial.Id].EventCounts[type];
+            _activeTrialRecord.RecordEvent(type, id); // Let them have the same name. We know the count from EventCounts
 
         }
 
-        protected void LogEvent(string eventName, long eventTime)
+        protected void LogEvent(string type, int id)
         {
-            if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(eventName))
-            {
-                _trialRecords[_activeTrial.Id].EventCounts[eventName]++;
-            }
-            else
-            {
-                _trialRecords[_activeTrial.Id].EventCounts[eventName] = 1;
-            }
-
-            //string timeKey = eventName + "_" + _trialRecords[_activeTrial.Id].EventCounts[eventName];
-            _activeTrialRecord.AddTimestamp(eventName);
-
+            LogEvent(type, id.ToString());
         }
 
-        protected void LogEventWithIndex(string eventName, int id)
+        protected void LogEvent(string type)
         {
-            string what = eventName.Split('_')[0];
-            this.TrialInfo($"What: {what}");
-            if (what == Str.FUN)
+            LogEvent(type, "");
+        }
+
+        //protected void LogEvent(string type, long eventTime)
+        //{
+        //    //if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(type))
+        //    //{
+        //    //    _trialRecords[_activeTrial.Id].EventCounts[type]++;
+        //    //}
+        //    //else
+        //    //{
+        //    //    _trialRecords[_activeTrial.Id].EventCounts[type] = 1;
+        //    //}
+
+        //    //string timeKey = type + "_" + _trialRecords[_activeTrial.Id].EventCounts[type];
+        //    _activeTrialRecord.RecordEvent(type);
+
+        //}
+
+        //protected void LogEventWithIndex(string type, int id)
+        //{
+        //    string what = type.Split('_')[0];
+        //    this.TrialInfo($"What: {what}");
+        //    if (what == Str.FUN)
+        //    {
+        //        // Check the Id in the visited list. If visited, log the event.
+        //        if (!_functionsVisitMap.Contains(id)) // Function NOT visited before
+        //        {
+        //            _functionsVisitMap.Add(id);
+        //        }
+
+        //        int visitIndex = _functionsVisitMap.IndexOf(id);
+        //        LogEvent(Str.GetIndexedStr(type, visitIndex + 1)); // Use 1-based indexing
+        //    }
+
+        //    if (what == Str.OBJ)
+        //    {
+        //        // Check the Id in the visited list. If visited, log the event.
+        //        if (!_objectsVisitMap.Contains(id)) // Function NOT visited before
+        //        {
+        //            _objectsVisitMap.Add(id);
+        //        }
+
+        //        int visitIndex = _objectsVisitMap.IndexOf(id);
+        //        LogEvent(Str.GetIndexedStr(type, visitIndex + 1)); // Use 1-based indexing
+        //    }
+        //}
+
+        //protected void LogEventWithCount(string type)
+        //{
+        //    if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(type))
+        //    {
+        //        _trialRecords[_activeTrial.Id].EventCounts[type]++;
+        //    }
+        //    else
+        //    {
+        //        _trialRecords[_activeTrial.Id].EventCounts[type] = 1;
+        //    }
+
+        //    string logStr = Str.GetCountedStr(type, _trialRecords[_activeTrial.Id].EventCounts[type]);
+        //    _activeTrialRecord.RecordEvent(logStr); // Let them have the same name. We know the count from EventCounts
+        //}
+
+        protected void LogEventOnce(string type)
+        {
+            if (GetEventCount(type) == 0) // Not yet logged
             {
-                // Check the Id in the visited list. If visited, log the event.
-                int visitIndex = _functionsVisitMap.IndexOf(id);
-                if (visitIndex == -1) // Function NOT visited before
-                {
-                    this.TrialInfo($"ERROR: Function#{id} not entered!");
-                    return;
-                }
-
-                LogEvent(Str.GetNumberedStr(eventName, visitIndex + 1)); // Use 1-based indexing
-            }
-
-            if (what == Str.OBJ)
-            {
-                // Check the Id in the visited list. If visited, log the event.
-                int visitIndex = _objectsVisitMap.IndexOf(id);
-                if (visitIndex == -1) // Object NOT visited before
-                {
-                    this.TrialInfo($"ERROR: Object#{id} not entered!");
-                    return;
-                }
-
-                LogEvent(Str.GetNumberedStr(eventName, visitIndex + 1)); // Use 1-based indexing
+                LogEvent(type);
             }
         }
 
-        protected void LogEventWithCount(string eventName)
+        protected int GetEventCount(string type)
         {
-            if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(eventName))
-            {
-                _trialRecords[_activeTrial.Id].EventCounts[eventName]++;
-            }
-            else
-            {
-                _trialRecords[_activeTrial.Id].EventCounts[eventName] = 1;
-            }
+            //if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(type))
+            //{
+            //    return _trialRecords[_activeTrial.Id].EventCounts[type];
+            //}
+            //return 0; // TrialEvent has not occurred
 
-            string logStr = Str.GetNumberedStr(eventName, _trialRecords[_activeTrial.Id].EventCounts[eventName]);
-            _activeTrialRecord.AddTimestamp(logStr); // Let them have the same name. We know the count from EventCounts
-        }
-
-        protected void LogEventOnce(string eventName)
-        {
-            if (!_activeTrialRecord.HasTimestamp(eventName)) _activeTrialRecord.AddTimestamp(eventName); 
-        }
-
-        protected int GetEventCount(string eventName)
-        {
-            if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(eventName))
-            {
-                return _trialRecords[_activeTrial.Id].EventCounts[eventName];
-            }
-
-            return 0; // Event has not occurred
+            return _activeTrialRecord.CountEvent(type);
+            
         }
 
         protected double GetDuration(string begin, string end)
         {
             if (_activeTrialRecord.HasTimestamp(begin) && _activeTrialRecord.HasTimestamp(end))
             {
-                return (_activeTrialRecord.GetFirstTimestamp(end) - _activeTrialRecord.GetFirstTimestamp(begin)) / 1000.0; // Convert to seconds
+                return (_activeTrialRecord.GetFirstTime(end) - _activeTrialRecord.GetFirstTime(begin)) / 1000.0; // Convert to seconds
             }
 
             return 0;
@@ -458,7 +478,7 @@ namespace Multi.Cursor
 
         public void LogAverageTimeOnDistances()
         {
-            // Find the average trial time from TrialRecord.Times
+            // Find the average trial Time from TrialRecord.Times
             List<double> shortDistTimes = new List<double>();
             List<double> midDistTimes = new List<double>();
             List<double> longDistTimes = new List<double>();
@@ -489,7 +509,7 @@ namespace Multi.Cursor
 
         public void RecordToMoAction(Finger finger, string action)
         {
-            LogEvent(finger.ToString().ToLower() + "_" + action);
+            LogEvent(action, finger.ToString().ToLower());
         }
 
         //public void RecordToMoAction(string action)

@@ -67,7 +67,7 @@ namespace Multi.Cursor
             Area = area;
             LastUpdated = DateTime.Now;
 
-            // Only update velocity and movement time if it moved significantly
+            // Only update velocity and movement Time if it moved significantly
             if (distanceMoved > 0.5)
             {
                 VelocityX = deltaX;
