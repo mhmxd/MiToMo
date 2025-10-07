@@ -282,12 +282,17 @@ namespace Multi.Cursor
 
         public string TrialEventsToString()
         {
-            return string.Join(", ", Events.Select(ts => $"{ts.Type}: {ts.Time}"));
+            return string.Join("; ", Events.Select(ts => $"{ts.Type}-{ts.Id}: {ts.Time}"));
         }
 
         public string GetLastTrialEventType()
         {
             return Events.Count > 0 ? Events.Last().Type : "No timestamps recorded";
+        }
+
+        public TrialEvent GetLastTrialEvent()
+        {
+            return Events.Count > 0 ? Events.Last() : null;
         }
 
         public long GetFirstTime(string type)
@@ -407,6 +412,62 @@ namespace Multi.Cursor
             return -1; // not found
         }
 
+        /// <summary>
+        /// Calculates the duration between the N-th occurrence of a startType event 
+        /// and the first subsequent endType event.
+        /// </summary>
+        /// <param name="startType">The type of the starting event (e.g., "Pressed").</param>
+        /// <param name="endType">The type of the ending event (e.g., "Released").</param>
+        /// <param name="n">The 1-based index (occurrence) to find (e.g., 3 for the third time).</param>
+        /// <returns>The duration in a suitable unit (depending on Utils.GetDuration), or -1 if the N-th sequence is not found.</returns>
+        public int GetNthSeqDuration(string startType, string endType, int n)
+        {
+            // 1. Handle edge cases for empty list or invalid index
+            if (Events == null || Events.Count == 0 || n <= 0)
+                return -1;
+
+            int occurrenceCount = 0;
+
+            // Iterate through all events to find the N-th start event
+            for (int i = 0; i < Events.Count; i++)
+            {
+                // Check for the desired start event type
+                if (Events[i].Type == startType)
+                {
+                    occurrenceCount++;
+                    this.TrialInfo($"nOccurences of {startType}: {occurrenceCount}");
+                    // 2. Check if this is the N-th occurrence we are looking for
+                    if (occurrenceCount == n)
+                    {
+                        var startTime = Events[i].Time; // Capture the start time
+                        this.TrialInfo($"Start time of {n}th {startType}: {startTime}");
+
+                        // 3. Found the N-th start. Now, look *forward* for the first end event
+                        for (int j = i + 1; j < Events.Count; j++)
+                        {
+                            if (Events[j].Type == endType)
+                            {
+                                // Found the corresponding end event
+                                var endTime = Events[j].Time;
+                                this.TrialInfo($"End time of {n}th {endType}: {endTime}");
+                                // 4. Return the calculated duration
+                                return Utils.GetDuration(startTime, endTime);
+                            }
+                            // Optimization: If the sequence is [Press, Press, Release], 
+                            // we are only looking for the *first* Release after the N-th Press.
+                        }
+
+                        // If the loop finishes without finding an endType, the sequence is incomplete.
+                        // Since we found the N-th start, we immediately stop and return -1.
+                        return -1;
+                    }
+                }
+            }
+
+            // 5. If the main loop finishes, the N-th start event was never found.
+            return -1; // N-th occurrence of startType not found
+        }
+
         public int GetLastSeqDuration(string startLabel, string endLabel)
         {
             this.TrialInfo($"From {startLabel} to {endLabel}");
@@ -481,14 +542,12 @@ namespace Multi.Cursor
                     //long tapStartTime = GetFingerTimeBefore(Str.DOWN, tapEndTime);
                     //return Utils.GetDuration(tapStartTime, tapEndTime);
                     return GetLastSeqDuration(Str.TAP_DOWN, Str.TAP_UP);
-                    break;
                 
                 case Technique.TOMO_SWIPE:
                     //long swipeEndTime = GetLastFingerActionTime(Str.SWIPE_END);
                     //long swipeStartTime = GetFingerTimeBefore(Str.SWIPE_START, swipeEndTime);
                     //return Utils.GetDuration(swipeStartTime, swipeEndTime);
                     return GetLastSeqDuration(Str.SWIPE_START, Str.SWIPE_END);
-                    break;
             }
 
             return -1;
@@ -576,5 +635,7 @@ namespace Multi.Cursor
         {
             return Events.Count(ts => ts.Type == type);
         }
+
+
     }
 }

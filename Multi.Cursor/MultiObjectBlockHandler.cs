@@ -306,6 +306,21 @@ namespace Multi.Cursor
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
         }
 
+        public override void OnFunctionMarked(int funId)
+        {
+            LogEvent(Str.FUN_MARKED, funId.ToString());
+
+            // Enable the function and the corresponding objects
+            if (_activeTrial.NFunctions > 1)
+            {
+                _activeTrialRecord.MarkFunction(funId);
+                int objId = _activeTrialRecord.FindMappedObjectId(funId);
+                _activeTrialRecord.MarkObject(objId);
+                UpdateScene();
+            }
+
+        }
+
         public override void OnFunctionMouseEnter(Object sender, MouseEventArgs e)
         {
             // Add the id to the list of visited if not already there (will use the index for the order of visit)
@@ -595,8 +610,8 @@ namespace Multi.Cursor
             var markerOverFunction = funcIdUnderMarker != -1;
             var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
 
-            //this.TrialInfo($"StartButtonClicked: {startButtonClicked}; Technique: {device}; " +
-            //    $"MarkerOnFunction: {markerOverFunction}; AllObjApplied: {allObjectsApplied}");
+            this.TrialInfo($"StartButtonClicked: {startButtonClicked}; Technique: {device}; " +
+                $"MarkerOnFunction: {markerOverFunction}; AllObjApplied: {allObjectsApplied}");
 
             switch (startButtonClicked, device, markerOverFunction, allObjectsApplied)
             {
@@ -605,6 +620,8 @@ namespace Multi.Cursor
                     break;
 
                 case (true, Technique.TOMO, true, false): // ToMo, marker over function, not all objects applied
+                    _activeTrialRecord.MarkObject(objId);
+                    //UpdateScene();
                     break;
 
                 case (true, Technique.MOUSE, _, false): // MOUSE, any marker state, not all objects selected
@@ -625,9 +642,10 @@ namespace Multi.Cursor
         public override void OnObjectMouseUp(object sender, MouseButtonEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
+            TrialEvent lastTrialEvent = _activeTrialRecord.GetLastTrialEvent();
 
             var device = Utils.GetDevice(_activeBlock.Technique);
-            var thisObjPressed = _activeTrialRecord.GetLastTrialEventType() == Str.GetIndexedStr(Str.OBJ_PRESS, objId);
+            var thisObjPressed = lastTrialEvent.Type == Str.OBJ_PRESS && lastTrialEvent.Id == objId.ToString();
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             var markerOverFunction = funcIdUnderMarker != -1;
             var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();

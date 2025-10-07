@@ -178,10 +178,7 @@ namespace Multi.Cursor
             LogEvent(Str.STR_EXIT);
         }
 
-        public void OnFunctionMarked(int funId)
-        {
-            LogEvent(Str.FUN_MARKED, funId.ToString());
-        }
+        public abstract void OnFunctionMarked(int funId);
 
         public void SetFunctionAsEnabled(int funcId)
         {

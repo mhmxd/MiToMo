@@ -381,6 +381,11 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
+        public override void OnFunctionMarked(int funId)
+        {
+            LogEvent(Str.FUN_MARKED, funId.ToString());
+        }
+
         public override void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;

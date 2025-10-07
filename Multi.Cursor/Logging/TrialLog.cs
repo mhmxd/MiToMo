@@ -24,6 +24,11 @@ namespace Multi.Cursor.Logging
         public string dist_lvl; // s, m, l
         public string dist;     // mm
 
+        public int trlsh_curmv;    // trial show -\ first move
+        public int curmv_strnt;   // first move -\ start entered *Last* (before press)
+        public int strnt_strpr;    // start enter -\ start press
+        public int strpr_strrl;     // start press -\ start release
+
         public override string ToString()
         {
             // Use reflection to get the values of all fields declared in this class.
