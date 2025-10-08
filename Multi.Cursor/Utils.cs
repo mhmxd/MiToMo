@@ -790,6 +790,19 @@ namespace Multi.Cursor
                 .ToArray();
         }
 
+        public static bool HasDuplicates<T>(this IEnumerable<T> list)
+        {
+            HashSet<T> set = new HashSet<T>();
+            foreach (T item in list)
+            {
+                if (!set.Add(item))
+                {
+                    return true; // Duplicate found
+                }
+            }
+            return false; // No duplicates
+        }
+
     }
 
 }

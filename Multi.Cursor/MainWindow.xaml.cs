@@ -1386,11 +1386,25 @@ namespace Multi.Cursor
         {
             this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
             List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
-            foreach (int widthUnit in widthUnits)
+            List<int> foundIds = new List<int>();
+            // Find a UNIQUE function for each width
+            int maxTries = 100;
+            int tries = 1;
+            do
             {
-                TrialRecord.TFunction function = FindRandomFunction(side, widthUnit, distRange);
-                functions.Add(function);
-            }
+                tries++;
+                functions.Clear();
+                foundIds.Clear();
+                this.TrialInfo($"Num. of Tries: {tries}");
+                foreach (int widthUnit in widthUnits)
+                {
+                    TrialRecord.TFunction function = FindRandomFunction(side, widthUnit, distRange);
+                    this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
+                    functions.Add(function);
+                    foundIds.Add(function.Id);
+                }
+
+            } while (foundIds.HasDuplicates() && tries < maxTries);
 
             return functions;
         }
@@ -1404,17 +1418,6 @@ namespace Multi.Cursor
                 centerPositionInAuxWindow.Y + auxWindow.Top);
         }
 
-        //public Rect GetStartConstraintRect()
-        //{
-        //    double startHalfW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM / 2.0);
-        //    return new Rect(
-        //        this.Left + VERTICAL_PADDING + startHalfW,
-        //        this.Top + VERTICAL_PADDING + startHalfW,
-        //        this.Width - 2 * (VERTICAL_PADDING + startHalfW),
-        //        this.Height - 2 * (VERTICAL_PADDING + startHalfW) - _infoLabelHeight
-        //        );
-        //}
-
         public Rect GetObjAreaCenterConstraintRect()
         {
             // Square
@@ -1427,15 +1430,6 @@ namespace Multi.Cursor
                 this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
             );
 
-
-
-            //double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM + Experiment.OBJ_WIDTH_MM/2);
-            //return new Rect(
-            //    this.Left + padding + objAreaRadius,
-            //    this.Top + padding + objAreaRadius,
-            //    this.Width - 2 * (padding + objAreaRadius),
-            //    this.Height - 2 * (padding + objAreaRadius) - _infoLabelHeight
-            //);
         }
 
         public bool IsTechniqueToMo()
