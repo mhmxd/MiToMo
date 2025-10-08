@@ -25,7 +25,7 @@ namespace Multi.Cursor
         private int N_BLOCKS = 3;
         public static int DEFAULT_PTC = 1000;
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
-        public Complexity Active_Complexity = Complexity.Simple;
+        public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
 
         //--- Variables
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
