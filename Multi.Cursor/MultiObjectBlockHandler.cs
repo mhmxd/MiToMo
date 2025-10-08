@@ -54,14 +54,21 @@ namespace Multi.Cursor
                 }
             }
 
-            // If consecutive trials have the same FunctionId, re-order them
-            //while (IsFunctionRepeated())
-            //{
-            //    _activeBlock.Trials.Shuffle();
-            //}
+            // If consecutive trials have the same function Ids, re-order them (so marker doesn't stay on the same function)
+            int maxAttempts = 100;
+            int attempt = 0;
+            while (attempt < maxAttempts && AreFunctionsRepeated())
+            {
+                _activeBlock.Trials.Shuffle();
+                attempt++;
+            }
 
-            // Show all the target ids for the trials
-            //this.TrialInfo($"Target IDs: {string.Join(", ", _activeBlock.Trials.Select(t => $"{_trialRecords[t.Id].FunctionId}"))}");
+            if (attempt == maxAttempts)
+            {
+                this.TrialInfo($"Warning: Could not eliminate repeated functions in consecutive trials after {maxAttempts} attempts.");
+                return false;
+            }
+
             return true;
         }
 

@@ -905,18 +905,5 @@ namespace Multi.Cursor
 
         }
 
-        private void FindMiddleButton()
-        {
-            int middleId = FindMiddleButtonId();
-            if (middleId != -1)
-            {
-                this.TrialInfo($"Middle Id = {middleId}");
-                _lastMarkedButtonId = middleId; // Set the last highlighted button to the middle button
-            }
-            else
-            {
-                this.TrialInfo("No middle button found in the grid.");
-            }
-        }
     }
 }

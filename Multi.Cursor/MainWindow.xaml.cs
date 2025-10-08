@@ -27,6 +27,7 @@ using System.Runtime.CompilerServices;
 //using Tensorflow;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.UI.WebControls;
@@ -1583,14 +1584,10 @@ namespace Multi.Cursor
             }
         }
 
-        //private void StartTrialButton_MouseDown1(object sender, MouseButtonEventArgs e)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        //private void StartTrialButton_MouseDown(object sender, MouseButtonEventArgs e)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public int GetMiddleButtonId(Side side)
+        {
+            AuxWindow auxWindow = GetAuxWindow(side);
+            return auxWindow.GetMiddleButtonId();
+        }
     }
 }

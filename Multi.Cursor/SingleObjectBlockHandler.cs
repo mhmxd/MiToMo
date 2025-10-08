@@ -39,32 +39,24 @@ namespace Multi.Cursor
                 }
             }
 
-            // If consecutive trials have the same FunctionId, re-order them
-            if (_activeBlock.GetBlockType() == TaskType.ONE_OBJ_ONE_FUNC)
+
+            // If consecutive trials have the same function Ids or first trial's functions are over the middle button,
+            // re-order them (so marker doesn't stay on the same function)
+            int maxAttempts = 100;
+            int attempt = 0;
+            while (attempt < maxAttempts && AreFunctionsRepeated() && DoesFirstTrialsFunInclMidBtn())
             {
-                while (IsFunctionRepeated())
-                {
-                    _activeBlock.Trials.Shuffle();
-                }
+                _activeBlock.Trials.Shuffle();
+                attempt++;
             }
-            
+
+            if (attempt == maxAttempts)
+            {
+                this.TrialInfo($"Warning: Could not eliminate repeated functions in consecutive trials after {maxAttempts} attempts.");
+                return false;
+            }
 
             return true;
-        }
-
-        private bool IsFunctionRepeated()
-        {
-            for (int i = 0; i < _activeBlock.Trials.Count - 1; i++)
-            {
-                int thisTrialFunctionId = (int)(_trialRecords[_activeBlock.Trials[i].Id]?.GetFunctionIds()[0]);
-                int nextTrialFunctionId = (int)(_trialRecords[_activeBlock.Trials[i + 1].Id]?.GetFunctionIds()[0]);
-                if (thisTrialFunctionId == nextTrialFunctionId)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         public override bool FindPositionsForTrial(Trial trial)

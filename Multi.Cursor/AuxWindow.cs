@@ -70,6 +70,7 @@ namespace Multi.Cursor
         protected GridNavigator _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
         protected int _lastMarkedButtonId = -1; // ID of the currently highlighted button
         protected Point _topLeftButtonPosition = new Point(10000, 10000); // Initialize to a large value to find the top-left button
+        protected int _middleButtonId = -1; // ID of the middle button in the grid
 
         protected Rect _objectConstraintRectAbsolute = new Rect();
 
@@ -161,6 +162,21 @@ namespace Multi.Cursor
             }
         }
 
+        protected void FindMiddleButton()
+        {
+            int middleId = FindMiddleButtonId();
+            if (middleId != -1)
+            {
+                this.TrialInfo($"Middle Id = {middleId}");
+                _lastMarkedButtonId = middleId; // Set the last highlighted button to the middle button
+                _middleButtonId = middleId;
+            }
+            else
+            {
+                this.TrialInfo("No middle button found in the grid.");
+            }
+        }
+
         protected int FindMiddleButtonId()
         {
             // Calculate the center of the overall button grid
@@ -197,6 +213,11 @@ namespace Multi.Cursor
 
             return closestButtonId;
 
+        }
+
+        public int GetMiddleButtonId()
+        {
+            return _middleButtonId;
         }
 
         public int SelectRandButtonByConstraints(int widthMult, Rect objConstraintRect, int dist)

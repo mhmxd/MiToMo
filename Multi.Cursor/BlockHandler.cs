@@ -71,6 +71,58 @@ namespace Multi.Cursor
         public abstract void EndActiveTrial(Result result);
         public abstract void GoToNextTrial();
 
+        protected bool AreFunctionsRepeated()
+        {
+            List<int> functionIds = new List<int>();
+            for (int i = 0; i < _activeBlock.Trials.Count - 1; i++)
+            {
+                functionIds = _trialRecords[_activeBlock.Trials[i].Id]?.GetFunctionIds();
+                foreach (int id in _trialRecords[_activeBlock.Trials[i + 1].Id]?.GetFunctionIds())
+                {
+                    if (functionIds.Contains(id)) return true;
+                }
+            }
+
+            return false;
+        }
+
+        protected bool DoesFirstTrialsFunInclMidBtn()
+        {
+            // Get the function Ids of first trial of each side
+            bool leftChecked = false;
+            bool rightChecked = false;
+            bool topChecked = false;
+            foreach (Trial trial in _activeBlock.Trials)
+            {
+                if (trial.FuncSide == Side.Left && !leftChecked)
+                {
+                    leftChecked = true;
+                    List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
+                    int midBtnId = _mainWindow.GetMiddleButtonId(Side.Left);
+                    if (functionIds.Contains(midBtnId)) return true;
+                }
+
+                if (trial.FuncSide == Side.Right && !rightChecked)
+                {
+                    rightChecked = true;
+                    List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
+                    int midBtnId = _mainWindow.GetMiddleButtonId(Side.Right);
+                    if (functionIds.Contains(midBtnId)) return true;
+                }
+
+                if (trial.FuncSide == Side.Top && !topChecked)
+                {
+                    topChecked = true;
+                    List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
+                    int midBtnId = _mainWindow.GetMiddleButtonId(Side.Top);
+                    if (functionIds.Contains(midBtnId)) return true;
+                }
+            }
+
+            return false;
+
+        }
+
         public abstract void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e);
         public abstract void OnMainWindowMouseMove(Object sender, MouseEventArgs e);
         public abstract void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e);
