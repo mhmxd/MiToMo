@@ -348,6 +348,10 @@ namespace Multi.Cursor
 
                 case (Technique.TOMO, true, true, _, _, true, _): // ToMo, object pressed, marker on function, function window activated 
                     _activeTrialRecord.ApplyFunction(funcIdUnderMarker);
+                    if (_activeTrialRecord.AreAllFunctionsApplied())
+                    {
+                        _activeTrialRecord.ChangeObjectState(1, ButtonState.APPLIED);
+                    }
                     UpdateScene();
                     break;
                 case (Technique.TOMO, _, false, _, _, false, _): // ToMo, marker not on function, _, function window not activated

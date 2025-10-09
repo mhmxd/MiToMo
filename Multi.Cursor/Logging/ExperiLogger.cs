@@ -48,21 +48,21 @@ namespace Multi.Cursor
         private static StreamWriter _trialLogWriter;
         private static bool _headerWritten = false;
 
-        public static void Init(int participantId, Technique tech)
-        {
-            _ptcId = participantId;
-            _technique = tech;
+        //public static void Init(int participantId, Technique tech)
+        //{
+        //    _ptcId = participantId;
+        //    _technique = tech;
 
-            bool fileExists = File.Exists(_sosfTrialLogFilePath);
-            bool fileIsEmpty = !fileExists || new FileInfo(_sosfTrialLogFilePath).Length == 0;
+        //    bool fileExists = File.Exists(_sosfTrialLogFilePath);
+        //    bool fileIsEmpty = !fileExists || new FileInfo(_sosfTrialLogFilePath).Length == 0;
 
-            _trialLogWriter = new StreamWriter(_sosfTrialLogFilePath, append: true, Encoding.UTF8);
+        //    _trialLogWriter = new StreamWriter(_sosfTrialLogFilePath, append: true, Encoding.UTF8);
 
-            if (fileIsEmpty)
-            {
-                WriteHeader<TrialLog>();
-            }
-        }
+        //    if (fileIsEmpty)
+        //    {
+        //        WriteHeader<TrialLog>();
+        //    }
+        //}
 
         public static void Init(int participantId, Technique tech, TaskType taskType)
         {
@@ -110,7 +110,7 @@ namespace Multi.Cursor
 
                         if (fileIsEmpty)
                         {
-                            WriteHeader<SOMFTrialLog>();
+                            WriteHeader<MOSFTrialLog>();
                         }
                     }
                     break;
@@ -124,7 +124,7 @@ namespace Multi.Cursor
 
                         if (fileIsEmpty)
                         {
-                            WriteHeader<SOMFTrialLog>();
+                            WriteHeader<MOMFTrialLong>();
                         }
                     }
                     break;
@@ -465,6 +465,8 @@ namespace Multi.Cursor
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             Output.Conlog<ExperiLogger>(log.ToString());
 
+            WriteTrialLog(log);
+
         }
 
         public static void LogMOMFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -582,15 +584,60 @@ namespace Multi.Cursor
 
         private static void WriteHeader<T>()
         {
-            var fields = typeof(T).GetFields();
-            var headers = fields.Select(f => f.Name);
+            //var fields = typeof(T).GetFields();
+            //var headers = fields.Select(f => f.Name);
+            //_trialLogWriter.WriteLine(string.Join(";", headers));
+
+            // Writing first the parent class fields, then the child class fields
+            var type = typeof(T);
+            var baseType = type.BaseType;
+
+            // 1. Get fields from the base class (parent)
+            // BindingFlags.DeclaredOnly ensures we only get fields directly defined in the base class,
+            // not its own base classes, or the derived class's fields.
+            var parentFields = baseType != null && baseType != typeof(object)
+                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                : Enumerable.Empty<FieldInfo>();
+
+            // 2. Get fields from the derived class (child)
+            // BindingFlags.DeclaredOnly ensures we only get fields directly defined in the derived class.
+            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+            // 3. Combine them: Parent fields first, then Child fields.
+            var allFields = parentFields.Concat(childFields);
+
+            // 4. Extract names and write to the file.
+            var headers = allFields.Select(f => f.Name);
             _trialLogWriter.WriteLine(string.Join(";", headers));
         }
 
         private static void WriteTrialLog<T>(T trialLog)
         {
-            var fields = typeof(T).GetFields();
-            var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
+            //var fields = typeof(T).GetFields();
+            //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
+            //_trialLogWriter.WriteLine(string.Join(";", values));
+            //_trialLogWriter.Flush();
+
+            var type = typeof(T);
+            var baseType = type.BaseType;
+
+            // 1. Get fields from the base class (parent)
+            // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
+            var parentFields = baseType != null && baseType != typeof(object)
+                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                : Enumerable.Empty<FieldInfo>();
+
+            // 2. Get fields from the derived class (child)
+            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+            // 3. Combine them: Parent fields first, then Child fields.
+            var orderedFields = parentFields.Concat(childFields);
+
+            // 4. Get values in the same order.
+            var values = orderedFields
+                .Select(f => f.GetValue(trialLog)?.ToString() ?? "");
+
+            // 5. Write the values.
             _trialLogWriter.WriteLine(string.Join(";", values));
             _trialLogWriter.Flush();
         }
