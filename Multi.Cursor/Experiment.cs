@@ -81,7 +81,7 @@ namespace Multi.Cursor
         //public static int REP_TRIAL_NUM_PASS = 5; // Trial ends on Start
         public static double REP_TRIAL_MAX_DIST_STARTS_MM = Config.EXCEL_CELL_W; // Max distance between Starts in a repeating trial (mm)
         public static double REP_TRIAL_OBJ_AREA_RADIUS_MM = Config.EXCEL_CELL_W; // Radius of the object area in repeating trials (mm)
-        public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 2; // Width of the *square* object area (mm)
+        public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
 
         private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
 
@@ -96,10 +96,11 @@ namespace Multi.Cursor
 
         //-- Constants
         //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
-        public static double OBJ_WIDTH_MM = 8; // Arbitrary
+        public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
+        public static double START_WIDTH_MM = OBJ_WIDTH_MM;
 
         //-- Information
-        
+
         public int Participant_Number { get; set; } // Set in the info dialog
         
         private List<Block> _blocks = new List<Block>();

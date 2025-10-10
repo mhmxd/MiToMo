@@ -1000,8 +1000,8 @@ namespace Multi.Cursor
             // Create the square
             _startRectangle = new Rectangle
             {
-                Width = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
+                Width = Utils.MM2PX(Experiment.START_WIDTH_MM),
+                Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
                 Fill = color
             };
 
