@@ -48,7 +48,7 @@ namespace Multi.Cursor
             _activeTrialRecord = _trialRecords[_activeTrial.Id];
             this.TrialInfo($"Active block id: {_activeBlock.Id}");
             // Start the log
-            ExperiLogger.StartBlockLog(_activeBlock.Id, _activeBlock.GetBlockType(), _activeBlock.GetComplexity());
+            //ExperiLogger.StartBlockLog(_activeBlock.Id, _activeBlock.GetBlockType(), _activeBlock.GetComplexity());
 
             // Update the main window label
             //this.TrialInfo($"nTrials = {_activeBlock.GetNumTrials()}");

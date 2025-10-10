@@ -27,7 +27,18 @@ namespace Multi.Cursor
         }
 
         private TaskType _taskType = TaskType.MULTI_OBJ_ONE_FUNC;
+        public TaskType TaskType
+        {
+            get => _taskType;
+            set => _taskType = value;
+        }
+
         private Complexity _complexity = Complexity.Simple;
+        public Complexity Complexity
+        {
+            get => _complexity;
+            set => _complexity = value;
+        }
 
         public Technique _technique = Technique.MOUSE;
 
@@ -37,9 +48,11 @@ namespace Multi.Cursor
             set => _technique = value;
         }
 
+        public int NFunctions, NObjects;
+
         public int PtcNum { get; set; }
 
-        public Block(int ptcNum, Technique technique, TaskType type, Complexity complexity, int id)
+        public Block(int ptcNum, Technique technique, TaskType type, int nFunc, int nObj, Complexity complexity, int id)
         {
             this.Id = id;
             PtcNum = ptcNum;
@@ -94,13 +107,13 @@ namespace Multi.Cursor
             int id,
             Complexity complexity,
             List<Range> distRanges,
-            int nFunc,
+            int nFun,
             int nObj)
         {
             
-            // Set the type of the block based on nFunc and nObj
+            // Set the type of the block based on nFun and nObj
             TaskType type = TaskType.ONE_OBJ_ONE_FUNC;
-            switch (nObj, nFunc)
+            switch (nObj, nFun)
             {
                 case (1, 1):
                     type = TaskType.ONE_OBJ_ONE_FUNC;
@@ -119,7 +132,7 @@ namespace Multi.Cursor
             }
 
             // Create block
-            Block block = new Block(ptc, technique, type, complexity, id);
+            Block block = new Block(ptc, technique, type, nFun, nObj, complexity, id);
 
             // Create and add trials to the block
             int trialNum = 1;
@@ -135,8 +148,8 @@ namespace Multi.Cursor
                     // For now all function Ws are the same. We may later create trials with multiple function Ws
                     foreach (int funcW in buttonWidths)
                     {
-                        List<int> functionWidths = new List<int>(nFunc);
-                        for (int i = 0; i < nFunc; i++)
+                        List<int> functionWidths = new List<int>(nFun);
+                        for (int i = 0; i < nFun; i++)
                         {
                             functionWidths.Add(funcW);
                         }

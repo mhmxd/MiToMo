@@ -125,7 +125,7 @@ namespace Multi.Cursor
         {
             this.TrialInfo(Str.MINOR_LINE);
             this.TrialInfo($"Showing Trial#{_activeTrial.Id} | Side: {_activeTrial.FuncSide} | W: {_activeTrial.GetFunctionWidths().ToStr()} | Dist: {_activeTrial.DistanceMM:F2}mm");
-            ExperiLogger.StartTrialLog(_activeTrial);
+            //ExperiLogger.StartTrialLog(_activeTrial);
 
             // Update the main window label
             //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
@@ -246,10 +246,13 @@ namespace Multi.Cursor
 
                 ShowActiveTrial();
             }
-            else
+            else // Last trial of the block
             {
                 // Log the avg times
                 LogAverageTimeOnDistances();
+
+                // Log block time
+                ExperiLogger.LogBlockTime(_activeBlock);
 
                 // Show end of block window
                 BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);

@@ -9,6 +9,11 @@ namespace Multi.Cursor.Logging
 {
     internal class SOMFTrialLog : TrialLog
     {
+        public int trlsh_curmv;    // trial show -\ first move
+        public int curmv_strnt;   // first move -\ start entered *Last* (before press)
+        public int strnt_strpr;    // start enter -\ start press
+        public int strpr_strrl;     // start press -\ start release
+
         public int strrl_objnt;    // start exit -\ object1 entered *Last* (before press)
 
         public int objnt_objpr;     // object enter -\ object press

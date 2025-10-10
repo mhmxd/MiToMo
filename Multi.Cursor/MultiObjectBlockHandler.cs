@@ -290,6 +290,9 @@ namespace Multi.Cursor
             }
             else
             {
+                // Log block time
+                ExperiLogger.LogBlockTime(_activeBlock);
+
                 // Show end of block window
                 BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
                 blockEndWindow.Owner = _mainWindow;

@@ -8,6 +8,11 @@ namespace Multi.Cursor.Logging
 {
     internal class MOMFTrialLong : TrialLog
     {
+        public int trlsh_curmv;    // trial show -\ first move
+        public int curmv_strnt;   // first move -\ start entered *Last* (before press)
+        public int strnt_strpr;    // start enter -\ start press
+        public int strpr_strrl;     // start press -\ start release
+
         public int strrl_obj1pr;    // start exit -\ object1 pressed
 
         // --- Object 1 Cycle ---

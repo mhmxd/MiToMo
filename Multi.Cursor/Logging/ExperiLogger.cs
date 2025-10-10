@@ -36,17 +36,30 @@ namespace Multi.Cursor
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             "Multi.Cursor.Logs", "momf_trial_log.csv"
         );
+        private static string _totalLogFilePath = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            "Multi.Cursor.Logs", "total_trial_log.csv"
+        );
+        private static string _blockLogFilePath = System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+            "Multi.Cursor.Logs", "block_log.csv"
+        );
 
         private static Logger _gestureFileLog;
         private static Logger _blockFileLog;
+
+        private static StreamWriter _trialLogWriter;
+        private static StreamWriter _totalTrialLogWriter;
+        private static StreamWriter _blockLogWriter;
 
         private static Dictionary<string, int> _trialLogs = new Dictionary<string, int>();
 
         private static int _ptcId = 0; // Participant ID
         private static Technique _technique = Technique.MOUSE; // Technique
 
-        private static StreamWriter _trialLogWriter;
         private static bool _headerWritten = false;
+
+        private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
 
         //public static void Init(int participantId, Technique tech)
         //{
@@ -69,7 +82,7 @@ namespace Multi.Cursor
             _ptcId = participantId;
             _technique = tech;
 
-             // Default (will set based on the task type)
+            // Default (will set based on the task type)
             switch (taskType)
             {
                 case TaskType.ONE_OBJ_ONE_FUNC:
@@ -82,9 +95,9 @@ namespace Multi.Cursor
 
                         if (fileIsEmpty)
                         {
-                            WriteHeader<SOSFTrialLog>();
+                            WriteHeader<SOSFTrialLog>(_trialLogWriter);
                         }
-                    }   
+                    }
                     break;
                 case TaskType.ONE_OBJ_MULTI_FUNC:
                     {
@@ -93,10 +106,10 @@ namespace Multi.Cursor
                         bool fileIsEmpty = !fileExists || new FileInfo(logFilePath).Length == 0;
 
                         _trialLogWriter = new StreamWriter(logFilePath, append: true, Encoding.UTF8);
-
+                        
                         if (fileIsEmpty)
                         {
-                            WriteHeader<SOMFTrialLog>();
+                            WriteHeader<SOMFTrialLog>(_trialLogWriter);
                         }
                     }
                     break;
@@ -110,7 +123,7 @@ namespace Multi.Cursor
 
                         if (fileIsEmpty)
                         {
-                            WriteHeader<MOSFTrialLog>();
+                            WriteHeader<MOSFTrialLog>(_trialLogWriter);
                         }
                     }
                     break;
@@ -124,39 +137,59 @@ namespace Multi.Cursor
 
                         if (fileIsEmpty)
                         {
-                            WriteHeader<MOMFTrialLong>();
+                            WriteHeader<MOMFTrialLong>(_trialLogWriter);
                         }
                     }
                     break;
             }
 
-            
+            _trialLogWriter.AutoFlush = true;
+
+            // Create total log if not exists
+            bool totalFileExists = File.Exists(_totalLogFilePath);
+            bool totalFileIsEmpty = !totalFileExists || new FileInfo(_totalLogFilePath).Length == 0;
+            _totalTrialLogWriter = new StreamWriter(_totalLogFilePath, append: true, Encoding.UTF8);
+            _totalTrialLogWriter.AutoFlush = true;
+            if (totalFileIsEmpty)
+            {
+                WriteHeader<TotalTrialLog>(_totalTrialLogWriter);
+            }
+
+            // Create block log if not exists
+            bool blockFileExists = File.Exists(_blockLogFilePath);
+            bool blockFileIsEmpty = !blockFileExists || new FileInfo(_blockLogFilePath).Length == 0;
+            _blockLogWriter = new StreamWriter(_blockLogFilePath, append: true, Encoding.UTF8);
+            _blockLogWriter.AutoFlush = true;
+            if (blockFileIsEmpty)
+            {
+                WriteHeader<BlockLog>(_blockLogWriter);
+            }
         }
 
-        public static void StartBlockLog(int blockId, TaskType blockType, Complexity blockComplexity)
-        {
-            String blockFileName = $"Block-{blockId}-{blockType}.txt";
-            string blockFilePath = System.IO.Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "Multi.Cursor.Logs", $"{_ptcId}-{_technique}", blockFileName
-            );
+        //public static void StartBlockLog(int blockId, TaskType blockType, Complexity blockComplexity)
+        //{
+        //    String blockFileName = $"Block-{blockId}-{blockType}.txt";
+        //    string blockFilePath = System.IO.Path.Combine(
+        //        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+        //        "Multi.Cursor.Logs", $"{_ptcId}-{_technique}", blockFileName
+        //    );
 
-            //_blockFileLog = new LoggerConfiguration()
-            //    .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
-            //    outputTemplate: "{TrialEvent:HH:mm:ss.fff} {Message:lj}{NewLine}"))
-            //    .CreateLogger();
+        //    //_blockFileLog = new LoggerConfiguration()
+        //    //    .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
+        //    //    outputTemplate: "{TrialEvent:HH:mm:ss.fff} {Message:lj}{NewLine}"))
+        //    //    .CreateLogger();
 
-            _blockFileLog = new LoggerConfiguration()
-                .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
-                outputTemplate: "{Message:lj}{NewLine}"))
-                .CreateLogger();
+        //    _blockFileLog = new LoggerConfiguration()
+        //        .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
+        //        outputTemplate: "{Message:lj}{NewLine}"))
+        //        .CreateLogger();
 
-            _blockFileLog.Information($"--- Technique: {_technique} | Block#: {blockId} | Type: {blockType} | Complexity: {blockComplexity} ---");
-        }
+        //    _blockFileLog.Information($"--- Technique: {_technique} | Block#: {blockId} | Type: {blockType} | Complexity: {blockComplexity} ---");
+        //}
 
         public static void StartTrialLog(Trial trial)
         {
-            _blockFileLog.Information($"{trial.ToString()}");
+            //_blockFileLog.Information($"{trial.ToString()}");
             //_blockFileLog.Information($"----------------------------------------------------------------------------------");
         }
 
@@ -259,6 +292,8 @@ namespace Multi.Cursor
 
         public static void LogSOSFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
+            LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
+
             Output.Conlog<ExperiLogger>("Logging Trial");
             SOSFTrialLog log = new SOSFTrialLog();
 
@@ -266,7 +301,10 @@ namespace Multi.Cursor
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log start events
-            LogStartEvents(log, trialRecord);
+            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
+            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
 
             // Log the rest of the times
             switch (trial.Technique.GetDevice())
@@ -300,8 +338,10 @@ namespace Multi.Cursor
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             Output.Conlog<ExperiLogger>(log.ToString());
 
-            WriteTrialLog(log);
+            WriteTrialLog(log, _trialLogWriter);
             //_trialLogWriter?.Dispose();
+
+
         }
 
         public static void LogMOSFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -313,7 +353,10 @@ namespace Multi.Cursor
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log start events
-            LogStartEvents(log, trialRecord);
+            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
+            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
 
             // Log the rest of the times
             switch (trial.Technique.GetDevice())
@@ -380,8 +423,10 @@ namespace Multi.Cursor
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             Output.Conlog<ExperiLogger>(log.ToString());
 
-            WriteTrialLog(log);
+            WriteTrialLog(log, _trialLogWriter);
             //_trialLogWriter?.Dispose();
+
+            LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
         }
 
         public static void LogSOMFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -393,7 +438,10 @@ namespace Multi.Cursor
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log start events
-            LogStartEvents(log, trialRecord);
+            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
+            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
 
             // Log the rest of the times
             switch (trial.Technique.GetDevice())
@@ -465,8 +513,9 @@ namespace Multi.Cursor
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             Output.Conlog<ExperiLogger>(log.ToString());
 
-            WriteTrialLog(log);
+            WriteTrialLog(log, _trialLogWriter);
 
+            LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
         }
 
         public static void LogMOMFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -479,7 +528,10 @@ namespace Multi.Cursor
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log start events
-            LogStartEvents(log, trialRecord);
+            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
+            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
 
             switch (trial.Technique.GetDevice())
             {
@@ -553,8 +605,10 @@ namespace Multi.Cursor
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             Output.Conlog<ExperiLogger>(log.ToString());
 
-            WriteTrialLog(log);
+            WriteTrialLog(log, _trialLogWriter);
             //_trialLogWriter?.Dispose();
+
+            LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
         }
 
         private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -574,15 +628,41 @@ namespace Multi.Cursor
             log.dist = $"{trialRecord.GetDistMM():F2}";
         }
 
-        private static void LogStartEvents(TrialLog log, TrialRecord trialRecord)
+        private static void LogTotalTrialTime(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
+            TotalTrialLog log = new TotalTrialLog();
+
+            // Information
+            LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
+
+            // Total time
+            log.trial_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS);
+            _trialTimes[trial.Id] = log.trial_time;
+
+            WriteTrialLog(log, _totalTrialLogWriter);
         }
 
-        private static void WriteHeader<T>()
+        public static void LogBlockTime(Block block)
+        {
+            BlockLog log = new BlockLog();
+
+            log.ptc = block.PtcNum;
+            log.id = block.Id;
+            log.tech = block.Technique.ToString().ToLower();
+            log.cmplx = block.Complexity.ToString().ToLower();
+            log.n_trials = block.GetNumTrials();
+            log.tsk_type = block.TaskType.ToString().ToLower();
+            log.n_fun = block.NFunctions;
+            log.n_obj = block.NObjects;
+
+            double avgTime = _trialTimes.Values.Average()/1000;
+            log.block_time = $"{avgTime:F2}";
+
+            WriteTrialLog(log, _blockLogWriter);
+
+        }
+
+        private static void WriteHeader<T>(StreamWriter streamWriter)
         {
             //var fields = typeof(T).GetFields();
             //var headers = fields.Select(f => f.Name);
@@ -608,10 +688,10 @@ namespace Multi.Cursor
 
             // 4. Extract names and write to the file.
             var headers = allFields.Select(f => f.Name);
-            _trialLogWriter.WriteLine(string.Join(";", headers));
+            streamWriter.WriteLine(string.Join(";", headers));
         }
 
-        private static void WriteTrialLog<T>(T trialLog)
+        private static void WriteTrialLog<T>(T log, StreamWriter streamWriter)
         {
             //var fields = typeof(T).GetFields();
             //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
@@ -635,12 +715,43 @@ namespace Multi.Cursor
 
             // 4. Get values in the same order.
             var values = orderedFields
-                .Select(f => f.GetValue(trialLog)?.ToString() ?? "");
+                .Select(f => f.GetValue(log)?.ToString() ?? "");
 
             // 5. Write the values.
-            _trialLogWriter.WriteLine(string.Join(";", values));
-            _trialLogWriter.Flush();
+            streamWriter.WriteLine(string.Join(";", values));
+            //streamWriter.Flush();
         }
+
+        //private static void WriteTotalTrialLog<T>(T totalTrialLog)
+        //{
+        //    //var fields = typeof(T).GetFields();
+        //    //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
+        //    //_trialLogWriter.WriteLine(string.Join(";", values));
+        //    //_trialLogWriter.Flush();
+
+        //    var type = typeof(T);
+        //    var baseType = type.BaseType;
+
+        //    // 1. Get fields from the base class (parent)
+        //    // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
+        //    var parentFields = baseType != null && baseType != typeof(object)
+        //        ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+        //        : Enumerable.Empty<FieldInfo>();
+
+        //    // 2. Get fields from the derived class (child)
+        //    var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+        //    // 3. Combine them: Parent fields first, then Child fields.
+        //    var orderedFields = parentFields.Concat(childFields);
+
+        //    // 4. Get values in the same order.
+        //    var values = orderedFields
+        //        .Select(f => f.GetValue(totalTrialLog)?.ToString() ?? "");
+
+        //    // 5. Write the values.
+        //    _totalTrialLogWriter.WriteLine(string.Join(";", values));
+        //    _totalTrialLogWriter.Flush();
+        //}
 
         private static void Dispose()
         {
