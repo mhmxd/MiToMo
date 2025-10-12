@@ -1027,16 +1027,86 @@ namespace Multi.Cursor
             canvas.Children.Clear();
         }
 
-        public async Task<Task<bool>> SetupLayout(Complexity complexity)
-        {
-            // Task to return when everything is set up
-            var tcs = new TaskCompletionSource<bool>();
+        //public async Task<Task<bool>> SetupLayout(Complexity complexity)
+        //{
+        //    // Task to return when everything is set up
+        //    var tcs = new TaskCompletionSource<bool>();
 
+        //    // Create a list to hold the tasks for placing the grids
+        //    var placementTasks = new List<Task>();
+
+        //    switch (complexity)
+        //    {
+        //        case Complexity.Simple:
+        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
+        //            placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
+        //            placementTasks.Add(_rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
+        //            break;
+        //        case Complexity.Moderate:
+        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING));
+        //            placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
+        //            placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
+        //            break;
+        //        case Complexity.Complex:
+        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateTopComplexGrid, -1, HORIZONTAL_PADDING));
+        //            placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1));
+        //            placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1));
+        //            break;
+        //    }
+
+        //    // Await all tasks concurrently.
+        //    // The code will not proceed until all grids have been placed and their Loaded events processed.
+        //    await Task.WhenAll(placementTasks);
+
+        //    // Task is a success by default, unless a block fails to find positions
+        //    tcs.SetResult(true);
+
+        //    // Find positions for all blocks
+        //    for (int b = 1; b <= _experiment.Blocks.Count; b++)
+        //    {
+        //        Block bl = _experiment.Blocks[b - 1];
+        //        this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
+        //        if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
+        //        {
+        //            this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
+        //            BlockHandler blockHandler = new MultiObjectBlockHandler(this, bl);
+        //            bool positionsFound = blockHandler.FindPositionsForActiveBlock();
+        //            if (positionsFound) _blockHandlers.Add(blockHandler);
+        //            else
+        //            {
+        //                this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
+        //                tcs.SetResult(false); // Indicate failure
+        //            }
+        //        }
+        //        else // Single-object block
+        //        {
+        //            this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
+        //            BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl, b);
+        //            bool positionsFound = blockHandler.FindPositionsForActiveBlock();
+        //            if (positionsFound) _blockHandlers.Add(blockHandler);
+        //            else
+        //            {
+        //                this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
+        //                tcs.SetResult(false); // Indicate failure
+        //            }
+        //        }
+        //    }
+
+        //    return tcs.Task;
+
+        //}
+
+        public async Task<bool> SetupLayout(Complexity complexity)
+        {
             // Create a list to hold the tasks for placing the grids
             var placementTasks = new List<Task>();
 
+            // Flag to track overall success. Assume success (true) by default.
+            bool overallSuccess = true;
+
             switch (complexity)
             {
+                // ... (your switch statement logic remains the same)
                 case Complexity.Simple:
                     placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
                     placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
@@ -1055,45 +1125,47 @@ namespace Multi.Cursor
             }
 
             // Await all tasks concurrently.
-            // The code will not proceed until all grids have been placed and their Loaded events processed.
             await Task.WhenAll(placementTasks);
-
-            // Task is a success by default, unless a block fails to find positions
-            tcs.SetResult(true);
 
             // Find positions for all blocks
             for (int b = 1; b <= _experiment.Blocks.Count; b++)
             {
                 Block bl = _experiment.Blocks[b - 1];
                 this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
+
+                // Use a local variable to store the handler
+                BlockHandler blockHandler = null;
+
                 if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
                 {
                     this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
-                    BlockHandler blockHandler = new MultiObjectBlockHandler(this, bl);
-                    bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-                    if (positionsFound) _blockHandlers.Add(blockHandler);
-                    else
-                    {
-                        this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-                        tcs.SetResult(false); // Indicate failure
-                    }
+                    blockHandler = new MultiObjectBlockHandler(this, bl);
                 }
                 else // Single-object block
                 {
                     this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
-                    BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl, b);
-                    bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-                    if (positionsFound) _blockHandlers.Add(blockHandler);
-                    else
-                    {
-                        this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-                        tcs.SetResult(false); // Indicate failure
-                    }
+                    blockHandler = new SingleObjectBlockHandler(this, bl, b);
+                }
+
+                bool positionsFound = blockHandler.FindPositionsForActiveBlock();
+
+                if (positionsFound)
+                {
+                    _blockHandlers.Add(blockHandler);
+                }
+                else
+                {
+                    this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
+                    // Set the flag to false, but DO NOT set the Task's result yet.
+                    overallSuccess = false;
+
+                    // OPTIONAL: If a single failure should stop processing immediately, use:
+                    // return false; 
                 }
             }
 
-            return tcs.Task;
-
+            // The method now automatically returns a Task<bool> with the final value of overallSuccess.
+            return overallSuccess;
         }
 
         public void ShowObjectsArea(Rect areaRect, Brush areaColor, MouseEvents mouseEvents)
