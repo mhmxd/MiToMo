@@ -20,9 +20,9 @@ namespace Multi.Cursor
         public Trial_Action MARKER_NOT_ON_FUNCTION_OBJECT_PRESS = Trial_Action.CONTINUE;
 
         //--- Setting
-        private int N_FUNC = 2;
-        private int N_OBJ = 1;
-        private int N_BLOCKS = 5;
+        private int N_FUNC = 1;
+        private int N_OBJ = 3;
+        private int N_BLOCKS = 3;
         public static int DEFAULT_PTC = 1000;
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
@@ -79,9 +79,9 @@ namespace Multi.Cursor
         private Range _longDistRangeMM; // Long distances range (mm)
 
         //public static int REP_TRIAL_NUM_PASS = 5; // Trial ends on Start
-        public static double REP_TRIAL_MAX_DIST_STARTS_MM = Config.EXCEL_CELL_W; // Max distance between Starts in a repeating trial (mm)
-        public static double REP_TRIAL_OBJ_AREA_RADIUS_MM = Config.EXCEL_CELL_W; // Radius of the object area in repeating trials (mm)
-        public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
+        //public static double REP_TRIAL_MAX_DIST_STARTS_MM = Config.EXCEL_CELL_W; // Max distance between Starts in a repeating trial (mm)
+        //public static double REP_TRIAL_OBJ_AREA_RADIUS_MM = Config.EXCEL_CELL_W; // Radius of the object area in repeating trials (mm)
+        
 
         private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
 
@@ -97,7 +97,10 @@ namespace Multi.Cursor
         //-- Constants
         //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
         public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
+        public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
         public static double START_WIDTH_MM = OBJ_WIDTH_MM;
+
+
 
         //-- Information
 
