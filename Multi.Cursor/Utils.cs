@@ -757,8 +757,6 @@ namespace Multi.Cursor
             return tech == Technique.TOMO_SWIPE || tech == Technique.TOMO_TAP ? Technique.TOMO : Technique.MOUSE;
         }
 
-        
-
         public static int GetDuration(long start, long end)
         {
             if (start != -1 && end != -1 && end >= start)

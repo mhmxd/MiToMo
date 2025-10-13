@@ -22,27 +22,27 @@ namespace Multi.Cursor
         // Set for each log (in constructor)
         private static string _sosfTrialLogFilePath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "Multi.Cursor.Logs", "sosf_trial_log.csv"
+            "Multi.Cursor.Logs", "sosf_trial_log"
         );
         private static string _somfTrialLogFilePath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "Multi.Cursor.Logs", "somf_trial_log.csv"
+            "Multi.Cursor.Logs", "somf_trial_log"
         );
         private static string _mosfTrialLogFilePath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "Multi.Cursor.Logs", "mosf_trial_log.csv"
+            "Multi.Cursor.Logs", "mosf_trial_log"
         );
         private static string _momfTrialLogFilePath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "Multi.Cursor.Logs", "momf_trial_log.csv"
+            "Multi.Cursor.Logs", "momf_trial_log"
         );
         private static string _totalLogFilePath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "Multi.Cursor.Logs", "total_trial_log.csv"
+            "Multi.Cursor.Logs", "total_trial_log"
         );
         private static string _blockLogFilePath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "Multi.Cursor.Logs", "block_log.csv"
+            "Multi.Cursor.Logs", "blocks_log"
         );
 
         private static Logger _gestureFileLog;
@@ -82,12 +82,14 @@ namespace Multi.Cursor
             _ptcId = participantId;
             _technique = tech;
 
+            string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
+
             // Default (will set based on the task type)
             switch (taskType)
             {
                 case TaskType.ONE_OBJ_ONE_FUNC:
                     {
-                        string logFilePath = _sosfTrialLogFilePath;
+                        string logFilePath = $"{_sosfTrialLogFilePath}_{timestamp}.csv";
                         bool fileExists = File.Exists(logFilePath);
                         bool fileIsEmpty = !fileExists || new FileInfo(logFilePath).Length == 0;
 
@@ -101,7 +103,7 @@ namespace Multi.Cursor
                     break;
                 case TaskType.ONE_OBJ_MULTI_FUNC:
                     {
-                        string logFilePath = _somfTrialLogFilePath;
+                        string logFilePath = $"{_somfTrialLogFilePath}_{timestamp}.csv";
                         bool fileExists = File.Exists(logFilePath);
                         bool fileIsEmpty = !fileExists || new FileInfo(logFilePath).Length == 0;
 
@@ -115,7 +117,7 @@ namespace Multi.Cursor
                     break;
                 case TaskType.MULTI_OBJ_ONE_FUNC:
                     {
-                        string logFilePath = _mosfTrialLogFilePath;
+                        string logFilePath = $"{_mosfTrialLogFilePath}_{timestamp}.csv";
                         bool fileExists = File.Exists(logFilePath);
                         bool fileIsEmpty = !fileExists || new FileInfo(logFilePath).Length == 0;
 
@@ -129,7 +131,7 @@ namespace Multi.Cursor
                     break;
                 case TaskType.MULTI_OBJ_MULTI_FUNC:
                     {
-                        string logFilePath = _momfTrialLogFilePath;
+                        string logFilePath = $"{_momfTrialLogFilePath}_{timestamp}.csv";
                         bool fileExists = File.Exists(logFilePath);
                         bool fileIsEmpty = !fileExists || new FileInfo(logFilePath).Length == 0;
 
@@ -146,9 +148,10 @@ namespace Multi.Cursor
             _trialLogWriter.AutoFlush = true;
 
             // Create total log if not exists
-            bool totalFileExists = File.Exists(_totalLogFilePath);
-            bool totalFileIsEmpty = !totalFileExists || new FileInfo(_totalLogFilePath).Length == 0;
-            _totalTrialLogWriter = new StreamWriter(_totalLogFilePath, append: true, Encoding.UTF8);
+            string totalLogFilePath = $"{_totalLogFilePath}_{timestamp}.csv";
+            bool totalFileExists = File.Exists(totalLogFilePath);
+            bool totalFileIsEmpty = !totalFileExists || new FileInfo(totalLogFilePath).Length == 0;
+            _totalTrialLogWriter = new StreamWriter(totalLogFilePath, append: true, Encoding.UTF8);
             _totalTrialLogWriter.AutoFlush = true;
             if (totalFileIsEmpty)
             {
@@ -156,9 +159,10 @@ namespace Multi.Cursor
             }
 
             // Create block log if not exists
-            bool blockFileExists = File.Exists(_blockLogFilePath);
-            bool blockFileIsEmpty = !blockFileExists || new FileInfo(_blockLogFilePath).Length == 0;
-            _blockLogWriter = new StreamWriter(_blockLogFilePath, append: true, Encoding.UTF8);
+            string blockLogFilePath = $"{_blockLogFilePath}_{timestamp}.csv";
+            bool blockFileExists = File.Exists(blockLogFilePath);
+            bool blockFileIsEmpty = !blockFileExists || new FileInfo(blockLogFilePath).Length == 0;
+            _blockLogWriter = new StreamWriter(blockLogFilePath, append: true, Encoding.UTF8);
             _blockLogWriter.AutoFlush = true;
             if (blockFileIsEmpty)
             {
@@ -224,11 +228,6 @@ namespace Multi.Cursor
         public static void LogTrialMessage(string message)
         {
             _blockFileLog.Information(message);
-        }
-
-        public static void LogGestureDuration(string gesture, int duration)
-        {
-
         }
 
         public static void LogSingleObjTrialTimes(TrialRecord trialRecord)
@@ -651,7 +650,7 @@ namespace Multi.Cursor
             log.tech = block.Technique.ToString().ToLower();
             log.cmplx = block.Complexity.ToString().ToLower();
             log.n_trials = block.GetNumTrials();
-            log.tsk_type = block.TaskType.ToString().ToLower();
+            log.tsk_type = Str.TASKTYPE_ABBR[block.TaskType];
             log.n_fun = block.NFunctions;
             log.n_obj = block.NObjects;
 

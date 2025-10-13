@@ -58,6 +58,8 @@ namespace Multi.Cursor
             PtcNum = ptcNum;
             _technique = technique;
             _taskType = type;
+            NFunctions = nFunc;
+            NObjects = nObj;
             _complexity = complexity;
         }
 
@@ -67,26 +69,26 @@ namespace Multi.Cursor
         /// <param name="id"></param>
         /// <param name="targetMultiples"></param>
         /// <param name="distsMM"></param>
-        public Block(Side side, int id, List<int> targetMultiples, List<double> distsMM)
-        {
-            _id = id;
+        //public Block(Side side, int id, List<int> targetMultiples, List<double> distsMM)
+        //{
+        //    _id = id;
 
-            //-- Create trials (dist x targetWidth x sideWindow)
-            int trialNum = 1;
-            foreach (int targetMultiple in targetMultiples)
-            {
-                foreach (double distMM in distsMM)
-                {
-                    Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, side);
-                    _trials.Add(trial);
-                    trialNum++;
-                }
-            }
+        //    //-- Create trials (dist x targetWidth x sideWindow)
+        //    int trialNum = 1;
+        //    foreach (int targetMultiple in targetMultiples)
+        //    {
+        //        foreach (double distMM in distsMM)
+        //        {
+        //            Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, side);
+        //            _trials.Add(trial);
+        //            trialNum++;
+        //        }
+        //    }
 
 
-            // Shuffle the trials
-            _trials.Shuffle();
-        }
+        //    // Shuffle the trials
+        //    _trials.Shuffle();
+        //}
 
         public void ShuffleTrials()
         {
@@ -178,201 +180,6 @@ namespace Multi.Cursor
             // Return the block
             return block;
         }
-
-        //public static Block CreateSingleObjSingleFunBlock(
-        //    int id,
-        //    List<int> functionWidthsMX,
-        //    List<Range> distRanges)
-        //{
-        //    Block block = new Block(TaskType.ONE_OBJ_ONE_FUNC);
-        //    block.Id = id;
-
-        //    // Create and add trials to the block
-        //    int trialNum = 1;
-        //    for (int sInd = 0; sInd < 3; sInd++)
-        //    {
-        //        Side functionSide = (Side)sInd;
-        //        foreach (int targetMultiple in functionWidthsMX)
-        //        {
-        //            foreach (Range range in distRanges)
-        //            {
-        //                Trial trial = Trial.CreateSingleObjSingleFuncTrial(
-        //                    id * 100 + trialNum,
-        //                    functionSide,
-        //                    targetMultiple,
-        //                    range);
-        //                block._trials.Add(trial);
-
-        //                trialNum++;
-        //            }
-        //        }
-        //    }
-
-        //    return block;
-        //}
-
-        //public static Block CreateSingleObjMultiFunBlock(
-        //    int id,
-        //    List<int> functionWidthsMX,
-        //    List<Range> distRanges)
-        //{
-        //    Block block = new Block(TaskType.ONE_OBJ_ONE_FUNC);
-        //    block.Id = id;
-
-        //    // Create and add trials to the block (For now, we creat 2 three functions using each widthMX)
-        //    int trialNum = 1;
-        //    for (int sInd = 0; sInd < 3; sInd++)
-        //    {
-        //        Side functionSide = (Side)sInd;
-        //        foreach (int funcW in functionWidthsMX)
-        //        {
-        //            foreach (Range range in distRanges)
-        //            {
-        //                Trial trial = Trial.CreateSingleObjMultiFuncTrial(
-        //                    id * 100 + trialNum,
-        //                    functionSide,
-        //                    funcW,
-        //                    range);
-        //                block._trials.Add(trial);
-
-        //                trialNum++;
-        //            }
-        //        }
-        //    }
-
-        //    // Shuffle the trials
-        //    block.ShuffleTrials();
-
-        //    return block;
-        //}
-
-        //public static Block CreateMultiObjSingleFuncBlock(
-        //    int id,
-        //    List<int> functionWidthsMX,
-        //    List<Range> distRanges)
-        //{
-        //    Block block = new Block(TaskType.MULTI_OBJ_ONE_FUNC);
-        //    block.Id = id;
-
-        //    // Create and add trials to the block
-        //    int trialNum = 1;
-        //    for (int sInd = 0; sInd < 3; sInd++)
-        //    {
-        //        Side side = (Side)sInd;
-        //        foreach (int funcW in functionWidthsMX)
-        //        {
-        //            foreach (Range range in distRanges)
-        //            {
-        //                Trial trial = Trial.CreateMultiObjcectTrial(
-        //                    id * 100 + trialNum,
-        //                    side,
-        //                    funcW,
-        //                    range,
-        //                    nPasses);
-
-        //                block._trials.Add(trial);
-
-        //                trialNum++;
-        //            }
-        //        }
-        //    }
-        //}
-
-
-        //public static Block CreateRepBlock(
-        //    int id, 
-        //    List<int> targetMultiples,
-        //    List<Range> distRanges,
-        //    int nPasses)
-        //{
-        //    Block block = new Block(TaskType.MULTI_OBJ_ONE_FUNC);
-        //    block.Id = id;
-
-        //    // Create and add trials to the block
-        //    block.TrialInfo($"{targetMultiples.Count}W x {distRanges.Count}D x 3Sides");
-        //    int trialNum = 1;
-        //    for (int sInd = 0; sInd < 3; sInd++)
-        //    {
-        //        Side side = (Side)sInd;
-        //        foreach (int targetMultiple in targetMultiples)
-        //        {
-        //            foreach (Range range in distRanges)
-        //            {
-        //                Trial trial = Trial.CreateMultiObjcectTrial(
-        //                    id * 100 + trialNum, 
-        //                    side,
-        //                    targetMultiple, 
-        //                    range, 
-        //                    nPasses);
-
-        //                block._trials.Add(trial);
-
-        //                trialNum++;
-        //            }
-        //        }
-        //    }
-
-        //    // Display all trials in the block
-        //    foreach (Trial trial in block._trials)
-        //    {
-        //        block.TrialInfo(trial.ToString());
-        //    }
-        //    block._trials.Shuffle();
-
-        //    return block;
-        //}
-
-        //public static Block CreateAltBlock(
-        //    int id, 
-        //    List<int> targetMultiples,
-        //    List<Range> distRanges)
-        //{
-        //    Block block = new Block(TaskType.ONE_OBJ_ONE_FUNC);
-        //    block.Id = id;
-
-        //    // Create and add trials to the block
-        //    int trialNum = 1;
-        //    for (int sInd = 0; sInd < 3; sInd++)
-        //    {
-        //        Side side = (Side)sInd;
-        //        foreach (int targetMultiple in targetMultiples)
-        //        {
-        //            foreach (Range range in distRanges)
-        //            {
-        //                Trial trial = Trial.CreateSingleObjectTrial(
-        //                    id * 100 + trialNum,
-        //                    side,
-        //                    targetMultiple,
-        //                    range);
-        //                block._trials.Add(trial);
-
-        //                trialNum++;
-        //            }
-        //        }
-
-                
-        //    }
-
-        //    //-------------------- BRING BACK LATER
-        //    // Shuffle until no consecutive trials have the same target multiple
-        //    // This is a simple shuffle, but it may not guarantee no consecutive trials with the same target multiple
-        //    //bool hasConsecutive = true;
-        //    //while (hasConsecutive)
-        //    //{
-        //    //    block._trials.Shuffle();
-        //    //    hasConsecutive = false;
-        //    //    for (int i = 1; i < block._trials.Count; i++)
-        //    //    {
-        //    //        if (block._trials[i].TargetMultiple == block._trials[i - 1].TargetMultiple)
-        //    //        {
-        //    //            hasConsecutive = true;
-        //    //            break;
-        //    //        }
-        //    //    }
-        //    //}
-
-        //    return block;
-        //}
 
         public Block(int id, List<int> topTargetMultiples, List<int> sideTargetMultiples, List<double> distsMM, int rep)
         {
