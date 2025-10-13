@@ -385,6 +385,11 @@ namespace Multi.Cursor
             LogEvent(Str.FUN_MARKED, funId.ToString());
         }
 
+        public override void OnFunctionDeMarked(int funId)
+        {
+            LogEvent(Str.FUN_DEMARKED, funId.ToString());
+        }
+
         public override void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;

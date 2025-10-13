@@ -167,6 +167,15 @@ namespace Multi.Cursor
             }
         }
 
+        public void DemarkObject(int id)
+        {
+            TObject obj = Objects.FirstOrDefault(o => o.Id == id);
+            if (obj != null)
+            {
+                obj.State = ButtonState.DEFAULT;
+            }
+        }
+
         public void ApplyFunction(int funcId)
         {
             this.TrialInfo($"FuncId: {funcId}");
@@ -206,6 +215,13 @@ namespace Multi.Cursor
             ChangeFunctionState(id, ButtonState.MARKED);
             this.TrialInfo($"Function#{id} marked.");
         }
+
+        public void DemarkFunction(int id)
+        {
+            ChangeFunctionState(id, ButtonState.DEFAULT);
+            this.TrialInfo($"Function#{id} demarked.");
+        }
+
 
         public void EnableAllFunctions()
         {

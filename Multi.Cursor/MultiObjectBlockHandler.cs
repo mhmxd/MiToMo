@@ -331,6 +331,21 @@ namespace Multi.Cursor
 
         }
 
+        public override void OnFunctionDeMarked(int funId)
+        {
+            LogEvent(Str.FUN_DEMARKED, funId.ToString());
+
+            // Disable the function and the corresponding objects
+            if (_activeTrial.NFunctions > 1)
+            {
+                _activeTrialRecord.DemarkFunction(funId);
+                int objId = _activeTrialRecord.FindMappedObjectId(funId);
+                this.TrialInfo($"Demark obj#{objId}");
+                _activeTrialRecord.DemarkObject(objId);
+                UpdateScene();
+            }
+        }
+
         public override void OnFunctionMouseEnter(Object sender, MouseEventArgs e)
         {
             // Add the id to the list of visited if not already there (will use the index for the order of visit)
@@ -554,134 +569,6 @@ namespace Multi.Cursor
 
             return placedObjects;
         }
-
-        //private List<TrialRecord.TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
-        //{
-        //    List<TrialRecord.TObject> placedObjects = new List<TrialRecord.TObject>();
-        //    double objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
-        //    double areaW = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
-
-        //    int maxAttemptsPerObject = 1000;
-        //    int maxTotalRestarts = 5; // Maximum number of complete restarts
-        //    int restartCount = 0;
-
-        //    while (placedObjects.Count < nObjects && restartCount < maxTotalRestarts)
-        //    {
-        //        int i = placedObjects.Count; // Current object index
-        //        bool placed = false;
-
-        //        for (int attempt = 0; attempt < maxAttemptsPerObject; attempt++)
-        //        {
-        //            // 1. Generate a random potential center for the new square
-        //            Point potentialCenter = GenerateRandomPointInCircle(objAreaCenterPosition, areaW - objW / 2);
-        //            // Calculate the top-left corner from the potential center
-        //            Point topLeft = new Point(potentialCenter.X - objW / 2, potentialCenter.Y - objW / 2);
-
-        //            // 2. Check for overlaps with already placed objects
-        //            if (!HasOverlap(topLeft, objW, placedObjects))
-        //            {
-        //                TrialRecord.TObject trialObject = new TrialRecord.TObject(i + 1, topLeft, potentialCenter);
-        //                placedObjects.Add(trialObject);
-        //                placed = true;
-        //                break;
-        //            }
-        //        }
-
-        //        if (!placed)
-        //        {
-        //            // Backtracking: remove last 1-2 objects and try again
-        //            if (placedObjects.Count > 0)
-        //            {
-        //                int removeCount = Math.Min(2, placedObjects.Count);
-        //                placedObjects.RemoveRange(placedObjects.Count - removeCount, removeCount);
-        //                //this.TrialInfo($"Backtracking: removed {removeCount} object(s), now have {placedObjects.Count}");
-        //            }
-        //            else
-        //            {
-        //                // No objects to backtrack, need complete restart
-        //                restartCount++;
-        //                //this.TrialInfo($"Complete restart #{restartCount}");
-        //            }
-        //        }
-        //    }
-
-        //    if (placedObjects.Count < nObjects)
-        //    {
-        //        this.TrialInfo($"Warning: Could only place {placedObjects.Count} out of {nObjects} objects after {restartCount} restarts.");
-        //    }
-
-        //    return placedObjects;
-        //}
-
-        //private List<TrialRecord.TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
-        //{
-        //    List<TrialRecord.TObject> placedObjects = new List<TrialRecord.TObject>();
-        //    double objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
-        //    double areaW = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM);
-
-        //    // Generate a pool of candidate positions on a grid
-        //    List<Point> candidatePositions = GenerateGridPositions(objAreaCenterPosition, areaW, objW);
-
-        //    // Shuffle to randomize which positions we pick
-        //    Random random = new Random();
-        //    candidatePositions = candidatePositions.OrderBy(x => random.Next()).ToList();
-
-        //    // Place objects by picking from shuffled candidates
-        //    for (int i = 0; i < nObjects && i < candidatePositions.Count; i++)
-        //    {
-        //        Point center = candidatePositions[i];
-        //        Point topLeft = new Point(center.X - objW / 2, center.Y - objW / 2);
-
-        //        // Verify it doesn't overlap (should be rare with proper grid spacing)
-        //        if (!HasOverlap(topLeft, objW, placedObjects))
-        //        {
-        //            TrialRecord.TObject trialObject = new TrialRecord.TObject(placedObjects.Count + 1, topLeft, center);
-        //            placedObjects.Add(trialObject);
-        //        }
-        //    }
-
-        //    if (placedObjects.Count < nObjects)
-        //    {
-        //        this.TrialInfo($"Warning: Could only place {placedObjects.Count} out of {nObjects} objects.");
-        //    }
-
-        //    return placedObjects;
-        //}
-
-        //private List<Point> GenerateGridPositions(Point center, double radius, double objW)
-        //{
-        //    List<Point> positions = new List<Point>();
-
-        //    // Grid spacing: object width + small gap for safety
-        //    double spacing = objW * 1.2; // 20% gap between objects
-
-        //    // Create grid within bounding box, then filter to circle
-        //    int gridRange = (int)Math.Ceiling(radius / spacing);
-
-        //    for (int x = -gridRange; x <= gridRange; x++)
-        //    {
-        //        for (int y = -gridRange; y <= gridRange; y++)
-        //        {
-        //            Point gridPoint = new Point(
-        //                center.X + x * spacing,
-        //                center.Y + y * spacing
-        //            );
-
-        //            // Check if this point is within the circular area (with margin for object size)
-        //            double distanceFromCenter = Math.Sqrt(
-        //                Math.Pow(gridPoint.X - center.X, 2) +
-        //                Math.Pow(gridPoint.Y - center.Y, 2)
-        //            );
-
-        //            if (distanceFromCenter <= radius - objW / 2)
-        //            {
-        //                positions.Add(gridPoint);
-        //            }
-        //        }
-        //    }
-
-        //    return positions;
-        //}
 
         private Point GenerateRandomPointInSquare(Point areaCenter, double areaWidth, double objWidth)
         {

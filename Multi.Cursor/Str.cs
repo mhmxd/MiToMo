@@ -27,6 +27,7 @@ namespace Multi.Cursor
         public static string FUN_PRESS = "fun_press";
         public static string FUN_RELEASE = "fun_release";
         public static string FUN_EXIT = "fun_exit";
+        public static string FUN_DEMARKED = "fun_demarked";
 
         public static string STR_ENTER = "start_enter";
         //public static string START1_LAST_ENTRY = "start1_last_entry";

@@ -1541,9 +1541,9 @@ namespace Multi.Cursor
             return auxWindow.IsNavigatorOnButton(buttonId);
         }
 
-        public void MoveMarker(TouchPoint touchPoint, Action<int> OnFunctionMarked)
+        public void MoveMarker(TouchPoint touchPoint, Action<int> OnFunctionMarked, Action<int> OnFunctionDeMarked)
         {
-            _activeAuxWindow?.MoveMarker(touchPoint, OnFunctionMarked);
+            _activeAuxWindow?.MoveMarker(touchPoint, OnFunctionMarked, OnFunctionDeMarked);
 
         }
 

@@ -606,7 +606,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void MoveMarker(TouchPoint tp, Action<int> OnFunctionMarked)
+        public void MoveMarker(TouchPoint tp, Action<int> OnFunctionMarked, Action<int> OnFunctionDeMarked)
         {
             // Update the grid navigator with the current touch point
             var (dGridX, dGridY) = _gridNavigator.Update(tp);
@@ -664,25 +664,29 @@ namespace Multi.Cursor
                     markedButton.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR;
 
                     // Change the old button background based on the previous state
-                    if (oldButton.Background.Equals(Config.BUTTON_HOVER_FILL_COLOR)) // Gray
+                    if (oldButton.Background.Equals(Config.BUTTON_HOVER_FILL_COLOR)) // Gray => White
                     {
                         //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
                         oldButton.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
                     }
+                    else if (oldButton.Background.Equals(Config.FUNCTION_ENABLED_COLOR)) // Light green => Orange
+                    {
+                        oldButton.Background = Config.FUNCTION_DEFAULT_COLOR;
+                        OnFunctionDeMarked(oldButton.Id); // Call the event
+                    }
 
                     // Change the new button background based on its previous state
-                    if (markedButton.Background.Equals(Config.BUTTON_DEFAULT_FILL_COLOR))
+                    if (markedButton.Background.Equals(Config.BUTTON_DEFAULT_FILL_COLOR)) // Moved over a normal button
                     {
                         //this.TrialInfo($"Set {markedButton.Id} to Hover Fill");
-                        markedButton.Background = Config.BUTTON_HOVER_FILL_COLOR; // Change to hover color
+                        markedButton.Background = Config.BUTTON_HOVER_FILL_COLOR;
                     }
-                    else if (markedButton.Background.Equals(Config.FUNCTION_DEFAULT_COLOR))
+                    else if (markedButton.Background.Equals(Config.FUNCTION_DEFAULT_COLOR)) // Moved over a function
                     {
                         this.TrialInfo($"Set {markedButton.Id} to Enabled");
-                        markedButton.Background = Config.FUNCTION_ENABLED_COLOR; // Change to enabled color
+                        markedButton.Background = Config.FUNCTION_ENABLED_COLOR;
                         // Call the event
                         OnFunctionMarked(markedButton.Id);
-
                     }
                 }
 

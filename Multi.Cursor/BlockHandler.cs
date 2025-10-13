@@ -232,6 +232,8 @@ namespace Multi.Cursor
 
         public abstract void OnFunctionMarked(int funId);
 
+        public abstract void OnFunctionDeMarked(int funId);
+
         public void SetFunctionAsEnabled(int funcId)
         {
             _mainWindow.FillButtonInAuxWindow(
@@ -331,7 +333,7 @@ namespace Multi.Cursor
             if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
             {
                 LogEventOnce(Str.FLICK); // First flick after activation
-                _mainWindow?.MoveMarker(indPoint, OnFunctionMarked);
+                _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionDeMarked);
             }
             
         }
