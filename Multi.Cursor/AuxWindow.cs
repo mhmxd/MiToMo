@@ -484,12 +484,31 @@ namespace Multi.Cursor
         //    // Implemented in the derived classes
         //}
 
-        public void ShowMarker()
+        public void ShowMarker(Action<int> OnFunctionMarked)
         {
-            if (_lastMarkedButtonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
+            int buttonId = _lastMarkedButtonId;
+            if (buttonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
             {
-                MarkButton(_lastMarkedButtonId); // Highlight the last highlighted button
+                //MarkButton(_lastMarkedButtonId, OnFunctionMarked); // Highlight the last highlighted button
                 this.TrialInfo($"Last highlight = {_lastMarkedButtonId}");
+                if (_buttonInfos.ContainsKey(buttonId))
+                {
+                    _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
+                                                                                                // Change the old button background based on the previous state
+                    if (_buttonInfos[buttonId].Button.Background.Equals(Config.BUTTON_HOVER_FILL_COLOR)) // Gray => White
+                    {
+                        //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
+                        _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
+                    }
+                    else if (_buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_ENABLED_COLOR)) // Light green => Orange
+                    {
+                        _buttonInfos[buttonId].Button.Background = Config.FUNCTION_DEFAULT_COLOR;
+                    }
+                }
+                else
+                {
+                    this.TrialInfo($"Button with ID {buttonId} not found.");
+                }
             }
             else
             {
@@ -497,23 +516,19 @@ namespace Multi.Cursor
             }
         }
 
-        public void ActivateMarker()
+        public void ActivateMarker(Action<int> OnFunctionMarked)
         {
             this.TrialInfo($"Last highlight = {_lastMarkedButtonId}");
-            ActivateMarker(_lastMarkedButtonId); // Activate the grid navigator with the last highlighted button ID
-        }
 
-        public void ActivateMarker(int buttonId)
-        {
             // Find the button with the specified ID
-            if (_buttonInfos.ContainsKey(buttonId))
+            if (_buttonInfos.ContainsKey(_lastMarkedButtonId))
             {
                 _gridNavigator.Activate(); // Activate the grid navigator
-                HighlightButton(buttonId); // Highlight the button
+                MarkButton(_lastMarkedButtonId, OnFunctionMarked); // Highlight the button
             }
             else
             {
-                this.TrialInfo($"Button with ID {buttonId} not found.");
+                this.TrialInfo($"Button with ID {_lastMarkedButtonId} not found.");
             }
         }
 
@@ -547,20 +562,30 @@ namespace Multi.Cursor
             }
         }
 
-        private void MarkButton(int buttonId)
-        {
-            // Find the button with the specified ID
-            if (_buttonInfos.ContainsKey(buttonId))
-            {
-                _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
-            }
-            else
-            {
-                this.TrialInfo($"Button with ID {buttonId} not found.");
-            }
-        }
+        //private void MarkButton(int buttonId)
+        //{
+        //    // Find the button with the specified ID
+        //    if (_buttonInfos.ContainsKey(buttonId))
+        //    {
+        //        _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
+        //                                                                                    // Change the old button background based on the previous state
+        //        if (_buttonInfos[buttonId].Button.Background.Equals(Config.BUTTON_HOVER_FILL_COLOR)) // Gray => White
+        //        {
+        //            //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
+        //            _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
+        //        }
+        //        else if (_buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_ENABLED_COLOR)) // Light green => Orange
+        //        {
+        //            _buttonInfos[buttonId].Button.Background = Config.FUNCTION_DEFAULT_COLOR;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        this.TrialInfo($"Button with ID {buttonId} not found.");
+        //    }
+        //}
 
-        public void HighlightButton(int buttonId)
+        public void MarkButton(int buttonId, Action<int> OnFunctionMarked)
         {
             var buttonBgOrange =
                 _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_DEFAULT_COLOR);
@@ -580,23 +605,37 @@ namespace Multi.Cursor
             {
                 _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
 
-                // Change the background to selected (green) if orange or light green
-                if (buttonBgOrange || buttonBgLightGreen)
+                if (_buttonInfos[buttonId].Button.Background.Equals(Config.BUTTON_DEFAULT_FILL_COLOR)) // Normal button
                 {
-                    _buttonInfos[buttonId].Button.Background = Config.FUNCTION_APPLIED_COLOR;
-
-                    // Tell the MainWindow to mark the mapped object and set function as applied
-                    ((MainWindow)this.Owner).MarkMappedObject(buttonId);
-                    ((MainWindow)this.Owner).SetFunctionAsApplied(buttonId);
-                }
-                else if (buttonBgDarkGreen) // Don't change if already dark green
-                {
-                    // Do nothing, stay dark green
-                }
-                else // Change to default hover color
-                {
+                    //this.TrialInfo($"Set {markedButton.Id} to Hover Fill");
                     _buttonInfos[buttonId].Button.Background = Config.BUTTON_HOVER_FILL_COLOR;
                 }
+                else if (_buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_DEFAULT_COLOR)) // Function (default)
+                {
+                    this.TrialInfo($"Set {_buttonInfos[buttonId].Button.Id} to Enabled");
+                    _buttonInfos[buttonId].Button.Background = Config.FUNCTION_ENABLED_COLOR;
+                    // Call the event
+                    OnFunctionMarked(_buttonInfos[buttonId].Button.Id);
+                }
+
+
+                // Change the background to selected (green) if orange or light green
+                //if (buttonBgOrange || buttonBgLightGreen)
+                //{
+                //    _buttonInfos[buttonId].Button.Background = Config.FUNCTION_APPLIED_COLOR;
+
+                //    // Tell the MainWindow to mark the mapped object and set function as applied
+                //    ((MainWindow)this.Owner).MarkMappedObject(buttonId);
+                //    ((MainWindow)this.Owner).SetFunctionAsApplied(buttonId);
+                //}
+                //else if (buttonBgDarkGreen) // Don't change if already dark green
+                //{
+                //    // Do nothing, stay dark green
+                //}
+                //else // Change to default hover color
+                //{
+                //    _buttonInfos[buttonId].Button.Background = Config.BUTTON_HOVER_FILL_COLOR;
+                //}
 
                 _lastMarkedButtonId = buttonId; // Store the ID of the highlighted button
             }
@@ -676,18 +715,19 @@ namespace Multi.Cursor
                     }
 
                     // Change the new button background based on its previous state
-                    if (markedButton.Background.Equals(Config.BUTTON_DEFAULT_FILL_COLOR)) // Moved over a normal button
-                    {
-                        //this.TrialInfo($"Set {markedButton.Id} to Hover Fill");
-                        markedButton.Background = Config.BUTTON_HOVER_FILL_COLOR;
-                    }
-                    else if (markedButton.Background.Equals(Config.FUNCTION_DEFAULT_COLOR)) // Moved over a function
-                    {
-                        this.TrialInfo($"Set {markedButton.Id} to Enabled");
-                        markedButton.Background = Config.FUNCTION_ENABLED_COLOR;
-                        // Call the event
-                        OnFunctionMarked(markedButton.Id);
-                    }
+                    MarkButton(markedButton.Id, OnFunctionMarked);
+                    //if (markedButton.Background.Equals(Config.BUTTON_DEFAULT_FILL_COLOR)) // Moved over a normal button
+                    //{
+                    //    //this.TrialInfo($"Set {markedButton.Id} to Hover Fill");
+                    //    markedButton.Background = Config.BUTTON_HOVER_FILL_COLOR;
+                    //}
+                    //else if (markedButton.Background.Equals(Config.FUNCTION_DEFAULT_COLOR)) // Moved over a function
+                    //{
+                    //    this.TrialInfo($"Set {markedButton.Id} to Enabled");
+                    //    markedButton.Background = Config.FUNCTION_ENABLED_COLOR;
+                    //    // Call the event
+                    //    OnFunctionMarked(markedButton.Id);
+                    //}
                 }
 
                 // STEP 2: Update the last marked button ID

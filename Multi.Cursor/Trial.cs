@@ -36,15 +36,15 @@ namespace Multi.Cursor
         public double TargetWidthPX => Utils.MM2PX(TargetWidthMM);
 
         // Distance to the target center, from start's center
-        private double _distanceMM;
-        public double DistanceMM
-        {
-            get => _distanceMM;
-            set => _distanceMM = value;
-        }
-        public int DistancePX => Utils.MM2PX(DistanceMM);
+        //private double _distanceMM;
+        //public double DistanceMM
+        //{
+        //    get => _distanceMM;
+        //    set => _distanceMM = value;
+        //}
+        //public int DistancePX => Utils.MM2PX(DistanceMM);
 
-        public List<double> Distances = new List<double>(); // Distances in px
+        //public List<double> Distances = new List<double>(); // Distances in px
 
         public Range DistRangeMM { get; set; }
         public Range DistRangePX => DistRangeMM.GetPx(); // Distance range in px
@@ -91,18 +91,18 @@ namespace Multi.Cursor
         /// </summary>
         /// <param name="targetWidthMM"> Target width in mm</param>
         /// <param name="distMM">Distance to target in mm</param>
-        public Trial(int id, int functionWidthMX, double distMM, Side sideWin)
-        {
-            _id = id;
-            //_targetWidthMM = targetWidthMM;
-            //_targetMultiple = functionWidthMX;
-            _functionWidths.Add(functionWidthMX);
-            _distanceMM = distMM;
-            _funcSide = sideWin;
-            //Side[] validDirections = { Side.Top, Side.Left, Side.Right };
-            //_sideWindow = validDirections[Utils.Random.Next(validDirections.Length)];
-            //_straightPath = true;
-        }
+        //public Trial(int id, int functionWidthMX, double distMM, Side sideWin)
+        //{
+        //    _id = id;
+        //    //_targetWidthMM = targetWidthMM;
+        //    //_targetMultiple = functionWidthMX;
+        //    _functionWidths.Add(functionWidthMX);
+        //    _distanceMM = distMM;
+        //    _funcSide = sideWin;
+        //    //Side[] validDirections = { Side.Top, Side.Left, Side.Right };
+        //    //_sideWindow = validDirections[Utils.Random.Next(validDirections.Length)];
+        //    //_straightPath = true;
+        //}
 
         /// <summary>
         /// Create trials
@@ -159,18 +159,18 @@ namespace Multi.Cursor
             return _functionWidths.Count;
         }
 
-        public override string ToString()
-        {
-            if (_distanceMM == 0)
-                return $"Trial: [Id = {_id}, W = {_functionWidths.ToStr()} units, D = {DistRangeMM.Label}, Side = {_funcSide}]";
-            else
-                return $"Trial: [Id = {_id}, W = {_functionWidths.ToStr()} units, D = {_distanceMM:F2} mm, Side = {_funcSide}]";
-        }
+        //public override string ToString()
+        //{
+        //    if (_distanceMM == 0)
+        //        return $"Trial: [Id = {_id}, W = {_functionWidths.ToStr()} units, D = {DistRangeMM.Label}, Side = {_funcSide}]";
+        //    else
+        //        return $"Trial: [Id = {_id}, W = {_functionWidths.ToStr()} units, D = {_distanceMM:F2} mm, Side = {_funcSide}]";
+        //}
 
         public string ToStr()
         {
             return $"Trial#{Id} [Target = {FuncSide.ToString()}, " +
-                $"FunctionWidths = {GetFunctionWidths().ToStr()}, Dist Range (mm) = {DistRangeMM.ToString()}]";
+                $"FunctionWidths = {GetFunctionWidths().ToStr()}, Dist = {DistRangeMM.ToString()}]";
         }
 
         public string GetCacheFileName(string cachedDirectory)

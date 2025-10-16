@@ -181,91 +181,91 @@ namespace Multi.Cursor
             return block;
         }
 
-        public Block(int id, List<int> topTargetMultiples, List<int> sideTargetMultiples, List<double> distsMM, int rep)
-        {
-            _id = id;
+        //public Block(int id, List<int> topTargetMultiples, List<int> sideTargetMultiples, List<double> distsMM, int rep)
+        //{
+        //    _id = id;
 
-            // Top trials
-            int trialNum = 1;
-            for (int r = 0; r < rep; r++)
-            {
-                foreach (int targetMultiple in topTargetMultiples)
-                {
-                    foreach (double distMM in distsMM)
-                    {
-                        Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, Side.Top);
-                        _trials.Add(trial);
-                        trialNum++;
-                    }
-                }
-            }
+        //    // Top trials
+        //    int trialNum = 1;
+        //    for (int r = 0; r < rep; r++)
+        //    {
+        //        foreach (int targetMultiple in topTargetMultiples)
+        //        {
+        //            foreach (double distMM in distsMM)
+        //            {
+        //                Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, Side.Top);
+        //                _trials.Add(trial);
+        //                trialNum++;
+        //            }
+        //        }
+        //    }
 
-            // Left trials
-            for (int r = 0; r < rep; r++)
-            {
-                foreach (int targetMultiple in sideTargetMultiples)
-                {
-                    foreach (double distMM in distsMM)
-                    {
-                        Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, Side.Left);
-                        _trials.Add(trial);
-                        trialNum++;
-                    }
-                }
-            }
+        //    // Left trials
+        //    for (int r = 0; r < rep; r++)
+        //    {
+        //        foreach (int targetMultiple in sideTargetMultiples)
+        //        {
+        //            foreach (double distMM in distsMM)
+        //            {
+        //                Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, Side.Left);
+        //                _trials.Add(trial);
+        //                trialNum++;
+        //            }
+        //        }
+        //    }
 
-            // Right trials
-            for (int r = 0; r < rep; r++)
-            {
-                foreach (int targetMultiple in sideTargetMultiples)
-                {
-                    foreach (double distMM in distsMM)
-                    {
-                        Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, Side.Right);
-                        _trials.Add(trial);
-                        trialNum++;
-                    }
-                }
-            }
+        //    // Right trials
+        //    for (int r = 0; r < rep; r++)
+        //    {
+        //        foreach (int targetMultiple in sideTargetMultiples)
+        //        {
+        //            foreach (double distMM in distsMM)
+        //            {
+        //                Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, Side.Right);
+        //                _trials.Add(trial);
+        //                trialNum++;
+        //            }
+        //        }
+        //    }
 
-            // Shuffle the trials
-            _trials.Shuffle();
-        }
+        //    // Shuffle the trials
+        //    _trials.Shuffle();
+        //}
 
-        public Block(int id, List<int> targetMultiples, List<double> distsMM, int rep)
-        {
-            _id = id;
+        //public Block(int id, List<int> targetMultiples, List<double> distsMM, int rep)
+        //{
+        //    _id = id;
 
-            //-- Create trials (dist x targetWidth x sideWindow)
-            // trial id = _id * 100 + num
-            int trialNum = 1;
-            for (int r = 0; r < rep; r++)
-            {
-                foreach (int targetMultiple in targetMultiples)
-                {
-                    foreach (double distMM in distsMM)
-                    {
-                        for (int locInd = 0; locInd < 3; locInd++)
-                        {
-                            Side sideWindow = (Side)locInd;
-                            Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, sideWindow);
-                            _trials.Add(trial);
-                            trialNum++;
-                        }
+        //    //-- Create trials (dist x targetWidth x sideWindow)
+        //    // trial id = _id * 100 + num
+        //    int trialNum = 1;
+        //    for (int r = 0; r < rep; r++)
+        //    {
+        //        foreach (int targetMultiple in targetMultiples)
+        //        {
+        //            foreach (double distMM in distsMM)
+        //            {
+        //                for (int locInd = 0; locInd < 3; locInd++)
+        //                {
+        //                    Side sideWindow = (Side)locInd;
+        //                    Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, sideWindow);
+        //                    _trials.Add(trial);
+        //                    trialNum++;
+        //                }
 
-                    }
-                }
-            }
+        //            }
+        //        }
+        //    }
 
-            // Shuffle the trials
-            _trials.Shuffle();
+        //    // Shuffle the trials
+        //    _trials.Shuffle();
 
-            // TESTING
-            foreach (Trial trial in _trials)
-            {
-                Seril.Information(trial.ToString());
-            }
-        }
+        //    // TESTING
+        //    foreach (Trial trial in _trials)
+        //    {
+        //        Seril.Information(trial.ToString());
+        //    }
+        //}
 
         public Trial GetTrial(int trialNum)
         {
@@ -308,16 +308,16 @@ namespace Multi.Cursor
             }
         }
 
-        public string ToString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Block: [Id = {_id}]");
-            foreach (Trial trial in _trials)
-            {
-                sb.AppendLine(trial.ToString());
-            }
-            return sb.ToString();
-        }
+        //public string ToString()
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.AppendLine($"Block: [Id = {_id}]");
+        //    foreach (Trial trial in _trials)
+        //    {
+        //        sb.AppendLine(trial.ToString());
+        //    }
+        //    return sb.ToString();
+        //}
 
         public TaskType GetBlockType()
         {

@@ -22,7 +22,7 @@ namespace Multi.Cursor
         //}
 
         // Attributes
-        protected Dictionary<int, TrialRecord> _trialRecords = new Dictionary<int, TrialRecord>();
+        protected Dictionary<int, TrialRecord> _trialRecords = new Dictionary<int, TrialRecord>(); // Trial id -> Record
         protected MainWindow _mainWindow;
         protected Block _activeBlock;
         protected int _activeBlockNum;

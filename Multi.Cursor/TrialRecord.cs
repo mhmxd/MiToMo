@@ -37,6 +37,7 @@ namespace Multi.Cursor
             public int WidthInUnits { get; set; }
             public Point Center { get; set; }
             public Point Position { get; set; } // Top-left corner of the button
+            public int DistanceToObjArea; // in pixels
             public ButtonState State { get; set; }
 
             public TFunction(int id, int widthInUnits, Point center, Point position)
@@ -45,7 +46,8 @@ namespace Multi.Cursor
                 Center = center;
                 Position = position;
                 WidthInUnits = widthInUnits;
-                State = ButtonState.DEFAULT;
+                State = ButtonState.DEFAULT;                
+
             }
 
         }
@@ -54,6 +56,7 @@ namespace Multi.Cursor
         public List<TFunction> Functions;
         public List<TObject> Objects;
         public List<Pair> ObjFuncMap;
+        public int Distance; // in pixels
 
         public Rect ObjectAreaRect;
         //public Dictionary<string, int> EventCounts;
@@ -622,6 +625,28 @@ namespace Multi.Cursor
             Events.Clear();
         }
 
+        public void ResetStates()
+        {
+            foreach (TFunction func in Functions)
+            {
+                func.State = ButtonState.DEFAULT;
+            }
+
+            foreach (TObject obj in Objects)
+            {
+                obj.State = ButtonState.DEFAULT;
+            }
+        }
+
+        public void Reset()
+        {
+            Functions.Clear();
+            Objects.Clear();
+            ObjFuncMap.Clear();
+            Events.Clear();
+            Times.Clear();
+        }
+
         public List<int> GetFunctionIds()
         {
             return Functions.Select(f => f.Id).ToList();
@@ -630,11 +655,6 @@ namespace Multi.Cursor
         public List<Point> GetFunctionCenters()
         {
             return Functions.Select(f => f.Center).ToList();
-        }
-
-        public double GetDistMM()
-        {
-            return Utils.PX2MM(Functions[0].Center.DistanceTo(Objects[0].Center));
         }
 
         public void AddTime(string label, double time)

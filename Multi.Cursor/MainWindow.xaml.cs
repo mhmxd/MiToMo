@@ -244,6 +244,7 @@ namespace Multi.Cursor
         private Rect _objectConstraintRectAbsolue;
         private List<BlockHandler> _blockHandlers = new List<BlockHandler> ();
         private Border _startButton;
+        private Rectangle _objectArea;
 
         public MainWindow()
         {
@@ -1171,7 +1172,7 @@ namespace Multi.Cursor
         public void ShowObjectsArea(Rect areaRect, Brush areaColor, MouseEvents mouseEvents)
         {
             // Show the area rectangle
-            Rectangle areaRectangle = new Rectangle
+            _objectArea = new Rectangle
             {
                 Width = areaRect.Width,
                 Height = areaRect.Height,
@@ -1179,21 +1180,22 @@ namespace Multi.Cursor
             };
 
             // Position the area rectangle on the Canvas
-            Canvas.SetLeft(areaRectangle, areaRect.Left - this.Left);
-            Canvas.SetTop(areaRectangle, areaRect.Top - this.Top);
+            Canvas.SetLeft(_objectArea, areaRect.Left - this.Left);
+            Canvas.SetTop(_objectArea, areaRect.Top - this.Top);
 
             // Add the event handler
-            areaRectangle.MouseEnter += mouseEvents.MouseEnter;
-            areaRectangle.MouseDown += mouseEvents.MouseDown;
-            areaRectangle.MouseUp += mouseEvents.MouseUp;
-            areaRectangle.MouseLeave += mouseEvents.MouseLeave;
+            _objectArea.MouseEnter += mouseEvents.MouseEnter;
+            _objectArea.MouseDown += mouseEvents.MouseDown;
+            _objectArea.MouseUp += mouseEvents.MouseUp;
+            _objectArea.MouseLeave += mouseEvents.MouseLeave;
 
             // Add the rectangle to the Canvas
-            canvas.Children.Add(areaRectangle);
+            canvas.Children.Add(_objectArea);
         }
 
         public void ShowObjects(List<TrialRecord.TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
         {
+            this.TrialInfo($"Showing {trialObjects.Count} objects");
             // Create and position the objects
             foreach (TrialRecord.TObject trObj in trialObjects)
             {
@@ -1205,7 +1207,7 @@ namespace Multi.Cursor
         {
             // Convert the absolute position to relative position
             Point positionInMain = Utils.Offset(tObject.Position, -this.Left, -this.Top);
-
+            this.TrialInfo($"Showing object {tObject.Id} at {positionInMain}");
             // Create the square
             Rectangle objRectangle = new Rectangle
             {
@@ -1241,17 +1243,16 @@ namespace Multi.Cursor
             {
                 case Side.Left:
                     _activeAuxWindow = _leftWindow;
-                    _activeAuxWindow.ActivateMarker();
                     break;
                 case Side.Top:
                     _activeAuxWindow = _topWindow;
-                    _activeAuxWindow.ActivateMarker();
                     break;
                 case Side.Right:
                     _activeAuxWindow = _rightWindow;
-                    _activeAuxWindow.ActivateMarker();
                     break;
             }
+
+            _activeAuxWindow.ActivateMarker(OnFunctionMarked);
         }
 
         public void DeactivateAuxWindow()
@@ -1262,9 +1263,19 @@ namespace Multi.Cursor
         public void ShowAllAuxMarkers()
         {
             // Show all aux markers (without activation)
-            _leftWindow.ShowMarker();
-            _topWindow.ShowMarker();
-            _rightWindow.ShowMarker();
+            _leftWindow.ShowMarker(OnFunctionMarked);
+            _topWindow.ShowMarker(OnFunctionMarked);
+            _rightWindow.ShowMarker(OnFunctionMarked);
+        }
+
+        private void OnFunctionMarked(int funId)
+        {
+            _activeBlockHandler.OnFunctionMarked(funId);
+        }
+
+        private void OnFunctionDeMarked(int funId)
+        {
+            _activeBlockHandler.OnFunctionDeMarked(funId);
         }
 
         public void SetTargetWindow(Side side,
@@ -1450,7 +1461,7 @@ namespace Multi.Cursor
             Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
             Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
-            
+
             return new TrialRecord.TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
         }
 
@@ -1501,7 +1512,6 @@ namespace Multi.Cursor
                 this.Width - 2 * (padding + objAreaHalfWidth),
                 this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
             );
-
         }
 
         public bool IsTechniqueToMo()

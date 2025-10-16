@@ -124,7 +124,7 @@ namespace Multi.Cursor
         public override void ShowActiveTrial()
         {
             this.TrialInfo(Str.MINOR_LINE);
-            this.TrialInfo($"Showing Trial#{_activeTrial.Id} | Side: {_activeTrial.FuncSide} | W: {_activeTrial.GetFunctionWidths().ToStr()} | Dist: {_activeTrial.DistanceMM:F2}mm");
+            this.TrialInfo($"Showing " + _activeTrial.ToStr());
             //ExperiLogger.StartTrialLog(_activeTrial);
 
             // Update the main window label
@@ -211,17 +211,17 @@ namespace Multi.Cursor
                     break;
                 case Result.MISS:
                     Sounder.PlayTargetMiss();
+                    //-- Log
+
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
+                    _trialRecords[_activeTrial.Id].ClearTimestamps();
+                    _trialRecords[_activeTrial.Id].ResetStates();
                     this.TrialInfo(Str.MAJOR_LINE);
                     GoToNextTrial();
                     break;
                 case Result.ERROR:
                     Sounder.PlayStartMiss();
-                    // Record everything and reset
-                    // TODO: Record times
-
-                    // Reset timestamps
-                    _activeTrialRecord.ClearTimestamps();
+                    // Do nothing
                     
                     break;
             }

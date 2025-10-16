@@ -55,19 +55,19 @@ namespace Multi.Cursor
             }
 
             // If consecutive trials have the same function Ids, re-order them (so marker doesn't stay on the same function)
-            int maxAttempts = 100;
-            int attempt = 0;
-            while (attempt < maxAttempts && AreFunctionsRepeated())
-            {
-                _activeBlock.Trials.Shuffle();
-                attempt++;
-            }
+            //int maxAttempts = 100;
+            //int attempt = 0;
+            //while (attempt < maxAttempts && AreFunctionsRepeated())
+            //{
+            //    _activeBlock.Trials.Shuffle();
+            //    attempt++;
+            //}
 
-            if (attempt == maxAttempts)
-            {
-                this.TrialInfo($"Warning: Could not eliminate repeated functions in consecutive trials after {maxAttempts} attempts.");
-                return false;
-            }
+            //if (attempt == maxAttempts)
+            //{
+            //    this.TrialInfo($"Warning: Could not eliminate repeated functions in consecutive trials after {maxAttempts} attempts.");
+            //    return false;
+            //}
 
             return true;
         }
@@ -78,8 +78,7 @@ namespace Multi.Cursor
             int objHalfW = objW / 2;
             int objAreaW = Utils.MM2PX(OBJ_AREA_WIDTH_MM);
             int objAreaHalfW = objAreaW / 2;
-            //this.TrialInfo($"Trial#{trial.Id} [Target = {trial.FuncSide.ToString()}, " +
-            //    $"TargetMult = {trial.TargetMultiple}, Dist range (mm) = {trial.DistRange.ToString()}]");
+            this.TrialInfo($"{trial.ToStr()}");
 
             // Ensure TrialRecord exists for this trial
             if (!_trialRecords.ContainsKey(trial.Id))
@@ -114,12 +113,10 @@ namespace Multi.Cursor
             }
             else
             {
-                this.TrialInfo($"Found object position: {objAreaCenter.ToStr()}");
-
                 // Get the top-left corner of the object area rectangle
                 Point objAreaPosition = objAreaCenter.OffsetPosition(-objAreaHalfW);
 
-                this.TrialInfo($"Found object position: {objAreaPosition.ToStr()}");
+                this.TrialInfo($"Found object area position: {objAreaPosition.ToStr()}");
 
                 _trialRecords[trial.Id].ObjectAreaRect = new Rect(
                         objAreaPosition.X,
@@ -129,6 +126,7 @@ namespace Multi.Cursor
 
                 // Place objects in the area
                 _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenter, trial.NObjects);
+                this.TrialInfo($"Placed {_trialRecords[trial.Id].Objects.Count} objects");
 
                 // Randomly map objects to functions
                 List<int> objIds = _trialRecords[trial.Id].Objects.Select(o => o.Id).ToList();
@@ -243,7 +241,7 @@ namespace Multi.Cursor
                     Sounder.PlayHit();
                     double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
                     _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
-                    // -- Log
+                    //-- Log
                     if (_activeTrial.GetNumFunctions() == 1) ExperiLogger.LogMOSFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
                     else ExperiLogger.LogMOMFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
                         //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial Time = {trialTime:F2}s");
@@ -251,12 +249,17 @@ namespace Multi.Cursor
                     break;
                 case Result.MISS:
                     Sounder.PlayTargetMiss();
+                    //-- Log
+
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
+                    _trialRecords[_activeTrial.Id].ClearTimestamps();
+                    _trialRecords[_activeTrial.Id].ResetStates();
+
                     GoToNextTrial();
                     break;
                 case Result.ERROR:
                     Sounder.PlayStartMiss();
-                    // Do nothing, just reset everything
+                    // Do nothing (continue)
 
                     break;
             }
@@ -267,8 +270,7 @@ namespace Multi.Cursor
         {
             _mainWindow.ResetTargetWindow(_activeTrial.FuncSide); // Reset the target window
             _mainWindow.ClearCanvas(); // Clear the main canvas
-            //_trialEventCounts.Clear(); // Reset the event counts for the trial
-            //_trialTimestamps.Clear(); // Reset the timestamps for the trial
+
             _isTargetAvailable = false; // Reset the target availability
             _nSelectedObjects = 0; // Reset the number of applied objects
             _pressedObjectId = -1; // Reset the pressed object id
@@ -276,9 +278,6 @@ namespace Multi.Cursor
 
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
-                //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
-                //_mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
-                _activeTrialRecord.ClearTimestamps();
                 _functionsVisitMap.Clear();
                 _objectsVisitMap.Clear();
 
