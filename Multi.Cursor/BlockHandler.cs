@@ -177,12 +177,13 @@ namespace Multi.Cursor
             if (!IsStartClicked()) // Start button not clicked yet
             {
                 Sounder.PlayStartMiss();
-            } else
+            }
+            else
             {
                 EndActiveTrial(Result.MISS);
             }
 
-            e.Handled = true; // Mark the event as handled to prevent further processing
+            //e.Handled = true; // Mark the event as handled to prevent further processing
         }
         public virtual void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
         {
@@ -191,7 +192,7 @@ namespace Multi.Cursor
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            if (!IsStartClicked()) // Start button not clicked yet
+            if (IsStartPressed() && !IsStartClicked()) // Start button not clicked yet
             {
                 Sounder.PlayStartMiss();
             }
@@ -279,14 +280,26 @@ namespace Multi.Cursor
         }
 
         //---- Object area
-        public abstract void OnObjectAreaMouseEnter(Object sender, MouseEventArgs e);
+        public virtual void OnObjectAreaMouseEnter(Object sender, MouseEventArgs e)
+        {
+            // Only log if entered from outside (NOT from the object)
+            if (_activeTrialRecord.GetLastTrialEventType() != Str.OBJ_EXIT) LogEvent(Str.ARA_ENTER);
+        }
 
         public virtual void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            
+
             if (!IsStartClicked()) // Start button not clicked yet
             {
                 Sounder.PlayStartMiss();
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return;
+            }
+
+            if (!_activeTrialRecord.AreAllObjectsApplied())
+            {
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                EndActiveTrial(Result.MISS);
             }
 
             LogEvent(Str.ARA_PRESS);
@@ -294,9 +307,36 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public abstract void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e);
+        public virtual void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)
+        {
+            LogEvent(Str.ARA_RELEASE);
 
-        public abstract void OnObjectAreaMouseExit(Object sender, MouseEventArgs e);
+            if (!IsStartClicked())
+            {
+                this.TrialInfo($"Start wasn't clicked");
+                Sounder.PlayStartMiss();
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return; // Do nothing if start button was not clicked
+            }
+
+            if (_activeTrialRecord.AreAllObjectsApplied())
+            {
+                EndActiveTrial(Result.HIT);
+            }
+            else
+            {
+                this.TrialInfo($"Not all objects applied");
+                EndActiveTrial(Result.MISS);
+            }
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
+        }
+
+        public virtual void OnObjectAreaMouseExit(Object sender, MouseEventArgs e)
+        {
+            // Will be later removed if entered the object
+            LogEvent(Str.ARA_EXIT);
+        }
 
         //---- Function
         public abstract void OnFunctionMouseEnter(Object sender, MouseEventArgs e);
@@ -306,9 +346,29 @@ namespace Multi.Cursor
             int funId = (int)((FrameworkElement)sender).Tag;
             LogEvent(Str.FUN_PRESS, funId);
 
+            if (!IsStartClicked()) // Start button not clicked yet
+            {
+                Sounder.PlayStartMiss();
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return;
+            }
+
+            if (_activeTrial.Technique.GetDevice() == Technique.TOMO) // No function pressing in TOMO
+            {
+                EndActiveTrial(Result.MISS);
+                e.Handled = true;
+                return;
+            }
+
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
-        public abstract void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e);
+        public virtual void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
+        {
+            int funId = (int)((FrameworkElement)sender).Tag;
+            LogEvent(Str.FUN_RELEASE, funId);
+
+            // Rest of the handling is done in the derived classes
+        }
 
         public abstract void OnFunctionMouseExit(Object sender, MouseEventArgs e);
 
@@ -705,6 +765,11 @@ namespace Multi.Cursor
         protected bool IsStartClicked()
         {
             return GetEventCount(Str.STR_RELEASE) > 0;
+        }
+
+        protected bool IsObjectJustPressed(int objId)
+        {
+            return _activeTrialRecord.GetLastTrialEvent().HasTypeId(Str.OBJ_PRESS, objId);
         }
     }
 

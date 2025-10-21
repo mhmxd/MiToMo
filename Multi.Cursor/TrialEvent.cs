@@ -26,6 +26,16 @@ namespace Multi.Cursor
             this.Time = time;
         }
 
+        public bool HasTypeId(string type, string id)
+        {
+            return this.Type == type && this.Id == id;
+        }
+
+        public bool HasTypeId(string type, int id)
+        {
+            return this.Type == type && this.Id == id.ToString();
+        }
+
         public override string ToString()
         {
             if (Id == "")
@@ -35,6 +45,18 @@ namespace Multi.Cursor
             else
             {
                 return $"{Type}-{Id}: {Time}";
+            }
+        }
+
+        public string GetTypeId()
+        {
+            if (Id == "")
+            {
+                return $"{Type}";
+            }
+            else
+            {
+                return $"{Type}-{Id}";
             }
         }
     }

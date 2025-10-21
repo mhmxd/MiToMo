@@ -300,6 +300,13 @@ namespace Multi.Cursor
                 return; // Do nothing if start button was not clicked
             }
 
+            if (!IsObjectJustPressed(1))
+            {
+                this.TrialInfo($"Object wasn't pressed");
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return; // Do nothing if object wasn't pressed
+            }
+
 
             var device = Utils.GetDevice(_activeBlock.Technique);
             var objectPressed = GetEventCount(Str.OBJ_PRESS) > 0;
@@ -314,9 +321,6 @@ namespace Multi.Cursor
             this.TrialInfo($"Technique: {device == Technique.TOMO}, ObjPressed: {objectPressed}, MarkerOnFunction: {markerOverEnabledFunc}, FuncWinActive: {functionWindowActivated}");
             switch (device, objectPressed, markerOverEnabledFunc, anyFunctionEnabled, allFunctionsApplied, functionWindowActivated, _objectSelected)
             {
-                case (_, false, _, _, _, _, _): // MOUSE, object not pressed
-                    // Do nothing because the object was not pressed
-                    break;
 
                 case (Technique.TOMO, true, true, _, _, true, _): // ToMo, object pressed, marker on function, function window activated 
                     _activeTrialRecord.ApplyFunction(funcIdUnderMarker, 1);
@@ -364,8 +368,22 @@ namespace Multi.Cursor
 
         public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_RELEASE, funId);
+            // If the trial has already ended, ignore further events
+            if (_activeTrialRecord.GetLastTrialEventType() == Str.TRIAL_END)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            base.OnFunctionMouseUp(sender, e); // Just logs the event
+
+            if (!IsStartClicked())
+            {
+                Sounder.PlayStartMiss();
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return; // Do nothing if start button was not clicked
+            }
+
 
             //this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
 
@@ -373,6 +391,13 @@ namespace Multi.Cursor
             var functionId = (int)((FrameworkElement)sender).Tag;
             var device = Utils.GetDevice(_activeBlock.Technique);
             var objectMarked = GetEventCount(Str.OBJ_RELEASE) > 0;
+
+            if (!objectMarked) // Technique doesn't matter here
+            {
+                EndActiveTrial(Result.MISS);
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return; // Do nothing if object is not marked
+            }
 
             this.TrialInfo($"ObjectMarked: {objectMarked};");
 
@@ -548,31 +573,6 @@ namespace Multi.Cursor
             // Check the Id in the visited list. If visited, log the event.
             int funId = (int)((FrameworkElement)sender).Tag;
             LogEvent(Str.FUN_EXIT, funId);
-        }
-
-        public override void OnObjectAreaMouseEnter(object sender, MouseEventArgs e)
-        {
-            // Only log if entered from outside (NOT from the object)
-            if (_activeTrialRecord.GetLastTrialEventType() != Str.OBJ_EXIT) LogEvent(Str.ARA_ENTER);
-        }
-
-        public override void OnObjectAreaMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            LogEvent(Str.ARA_RELEASE);
-
-            if (!IsStartClicked())
-            {
-                this.TrialInfo($"Start wasn't clicked");
-                Sounder.PlayStartMiss();
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                return; // Do nothing if start button was not clicked
-            }
-        }
-
-        public override void OnObjectAreaMouseExit(object sender, MouseEventArgs e)
-        {
-            // Will be later removed if entered the object
-            LogEvent(Str.ARA_EXIT);
         }
     }
 }

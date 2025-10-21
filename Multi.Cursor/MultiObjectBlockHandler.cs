@@ -342,12 +342,32 @@ namespace Multi.Cursor
 
         public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
+            // If the trial has already ended, ignore further events
+            if (_activeTrialRecord.GetLastTrialEventType() == Str.TRIAL_END)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            base.OnFunctionMouseUp(sender, e);
+
+            if (!IsStartClicked())
+            {
+                Sounder.PlayStartMiss();
+                e.Handled = true;
+                return;
+            }
+
             var funId = (int)((FrameworkElement)sender).Tag;
             var device = Utils.GetDevice(_activeBlock.Technique);
             int markedObjId = _activeTrialRecord.GetMarketObjectId();
-            LogEvent(Str.FUN_RELEASE, funId);
-            //if (_activeTrial.NFunctions == 1) LogEventWithCount(Str.FUN_RELEASE);
-            //else LogEventWithIndex(Str.FUN_RELEASE, funId);
+            
+            if (markedObjId == -1) // No object marked
+            {
+                EndActiveTrial(Result.MISS);
+                e.Handled = true;
+                return;
+            }
 
             //this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
 
@@ -683,11 +703,11 @@ namespace Multi.Cursor
             
 
         }
-        public override void OnObjectAreaMouseEnter(object sender, MouseEventArgs e)
-        {
-            // Only log if entered from outside (NOT from the object)
-            if (_activeTrialRecord.GetLastTrialEventType() != Str.OBJ_EXIT) LogEvent(Str.ARA_ENTER);
-        }
+        //public override void OnObjectAreaMouseEnter(object sender, MouseEventArgs e)
+        //{
+        //    // Only log if entered from outside (NOT from the object)
+        //    if (_activeTrialRecord.GetLastTrialEventType() != Str.OBJ_EXIT) LogEvent(Str.ARA_ENTER);
+        //}
 
         //public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
         //{
@@ -696,23 +716,23 @@ namespace Multi.Cursor
 
         //}
 
-        public override void OnObjectAreaMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            LogEvent(Str.ARA_RELEASE);
+        //public override void OnObjectAreaMouseUp(object sender, MouseButtonEventArgs e)
+        //{
+        //    LogEvent(Str.ARA_RELEASE);
 
-            if (!IsStartClicked())
-            {
-                this.TrialInfo($"Start wasn't clicked");
-                Sounder.PlayStartMiss();
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                return; // Do nothing if start button was not clicked
-            }
-        }
+        //    if (!IsStartClicked())
+        //    {
+        //        this.TrialInfo($"Start wasn't clicked");
+        //        Sounder.PlayStartMiss();
+        //        e.Handled = true; // Mark the event as handled to prevent further processing
+        //        return; // Do nothing if start button was not clicked
+        //    }
+        //}
 
-        public override void OnObjectAreaMouseExit(object sender, MouseEventArgs e)
-        {
-            LogEvent(Str.ARA_EXIT);
-        }
+        //public override void OnObjectAreaMouseExit(object sender, MouseEventArgs e)
+        //{
+        //    LogEvent(Str.ARA_EXIT);
+        //}
 
         public override void IndexTap()
         {
