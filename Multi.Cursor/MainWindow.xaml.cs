@@ -551,8 +551,8 @@ namespace Multi.Cursor
                 _topWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _topWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
                 _topWindow.Top = Config.ACTIVE_SCREEN.WorkingArea.Top;
-                _topWindow.MouseEnter += AuxWindow_MouseEnter;
-                _topWindow.MouseLeave += AuxWindow_MouseExit;
+                //_topWindow.MouseEnter += AuxWindow_MouseEnter;
+                //_topWindow.MouseLeave += AuxWindow_MouseExit;
                 //_topWindow.MouseDown += SideWindow_MouseDown;
                 //_topWindow.MouseUp += SideWindow_MouseUp;
                 _topWindow.Show();
@@ -571,8 +571,8 @@ namespace Multi.Cursor
                 _leftWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _leftWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
                 _leftWindow.Top = this.Top;
-                _leftWindow.MouseEnter += AuxWindow_MouseEnter;
-                _leftWindow.MouseLeave += AuxWindow_MouseExit;
+                //_leftWindow.MouseEnter += AuxWindow_MouseEnter;
+                //_leftWindow.MouseLeave += AuxWindow_MouseExit;
                 //_leftWindow.MouseDown += SideWindow_MouseDown;
                 //_leftWindow.MouseUp += SideWindow_MouseUp;
                 _leftWindow.Show();
@@ -591,8 +591,8 @@ namespace Multi.Cursor
                 _rightWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _rightWindow.Left = this.Left + this.Width;
                 _rightWindow.Top = this.Top;
-                _rightWindow.MouseEnter += AuxWindow_MouseEnter;
-                _rightWindow.MouseLeave += AuxWindow_MouseExit;
+                //_rightWindow.MouseEnter += AuxWindow_MouseEnter;
+                //_rightWindow.MouseLeave += AuxWindow_MouseExit;
                 //_rightWindow.MouseDown += SideWindow_MouseDown;
                 //_rightWindow.MouseUp += SideWindow_MouseUp;
                 _rightWindow.Show();
@@ -667,26 +667,26 @@ namespace Multi.Cursor
             
         }
 
-        private void AuxWindow_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            if (sender is AuxWindow window)
-            {
-                Side side = window.Side;
-                _activeBlockHandler.OnAuxWindowMouseEnter(side, e);
-            }
+        //private void AuxWindow_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        //{
+        //    if (sender is AuxWindow window)
+        //    {
+        //        Side side = window.Side;
+        //        _activeBlockHandler.OnAuxWindowMouseEnter(side, sender, e);
+        //    }
             
 
-        }
+        //}
 
-        private void AuxWindow_MouseExit(object sender, System.Windows.Input.MouseEventArgs e)
-        {
-            if (sender is AuxWindow window)
-            {
-                Side side = window.Side;
-                _activeBlockHandler.OnAuxWindowMouseExit(side, e);
-            }
+        //private void AuxWindow_MouseExit(object sender, System.Windows.Input.MouseEventArgs e)
+        //{
+        //    if (sender is AuxWindow window)
+        //    {
+        //        Side side = window.Side;
+        //        _activeBlockHandler.OnAuxWindowMouseExit(side, sender, e);
+        //    }
 
-        }
+        //}
 
         private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -1275,12 +1275,14 @@ namespace Multi.Cursor
 
         private void OnFunctionDeMarked(int funId)
         {
-            _activeBlockHandler.OnFunctionDeMarked(funId);
+            _activeBlockHandler.OnFunctionUnmarked(funId);
         }
 
         public void SetTargetWindow(Side side,
-            SysIput.MouseEventHandler windowMouseEnterHandler, SysIput.MouseEventHandler windowMouseExitHandler,
-            MouseButtonEventHandler windowMouseDownHandler, MouseButtonEventHandler windowMouseUpHandler)
+            Action<Side, Object, SysIput.MouseEventArgs> windowMouseEnterHandler,
+            Action<Side, Object, SysIput.MouseEventArgs> windowMouseExitHandler,
+            Action<Side, Object, SysIput.MouseButtonEventArgs> windowMouseDownHandler,
+            Action<Side, Object, SysIput.MouseButtonEventArgs> windowMouseUpHandler)
         {
             switch (side)
             {
@@ -1298,14 +1300,15 @@ namespace Multi.Cursor
             }
 
             // All aux windows are treated the same (for now)
-            _targetWindow.MouseEnter += windowMouseEnterHandler;
-            _targetWindow.MouseLeave += windowMouseExitHandler;
-            //_leftWindow.MouseDown += windowMouseDownHandler;
-            //_leftWindow.MouseUp += windowMouseUpHandler;
-            //_rightWindow.MouseDown += windowMouseDownHandler;
-            //_rightWindow.MouseUp += windowMouseUpHandler;
-            //_topWindow.MouseDown += windowMouseDownHandler;
-            //_topWindow.MouseUp += windowMouseUpHandler;
+            //_targetWindow.MouseEnter += windowMouseEnterHandler;
+            //_targetWindow.MouseLeave += windowMouseExitHandler;
+            //_targetWindow.MouseDown += windowMouseDownHandler;
+            //_targetWindow.MouseUp += windowMouseUpHandler;
+
+            _targetWindow.MouseDown += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseDown(side, sender, e);};
+            _targetWindow.MouseUp += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseUp(side, sender, e); };
+            _targetWindow.MouseEnter += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseEnter(side, sender, e); };
+            _targetWindow.MouseLeave += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseExit(side, sender, e); };
 
         }
 

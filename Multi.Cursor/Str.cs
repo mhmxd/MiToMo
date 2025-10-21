@@ -45,6 +45,8 @@ namespace Multi.Cursor
 
         public static string PNL_ENTER = "pnl_enter";
         public static string PNL_EXIT = "pnl_exit";
+        public static string PNL_PRESS = "pnl_press";
+        public static string PNL_RELEASE = "pnl_release";
 
         //public static string START_PRESS_ONE = "start1_press";
         //public static string START_RELEASE_ONE = "start1_release";
@@ -111,13 +113,20 @@ namespace Multi.Cursor
         public static readonly string SWIPE_END = "swipe_end";
         public static readonly string FLICK = "flick";
 
+        // Trial types
+        public static readonly string SOSF = "sosf";
+        public static readonly string SOMF = "somf";
+        public static readonly string MOSF = "mosf";
+        public static readonly string MOMF = "momf";
+
+
         // Task type abbreviations
         public static Dictionary<TaskType, string> TASKTYPE_ABBR = new Dictionary<TaskType, string>
         {
-            {TaskType.ONE_OBJ_ONE_FUNC, "sosf" },
-            {TaskType.ONE_OBJ_MULTI_FUNC, "somf" },
-            {TaskType.MULTI_OBJ_ONE_FUNC, "mosf" },
-            {TaskType.MULTI_OBJ_MULTI_FUNC, "momf" },
+            {TaskType.ONE_OBJ_ONE_FUNC, SOSF },
+            {TaskType.ONE_OBJ_MULTI_FUNC, SOMF },
+            {TaskType.MULTI_OBJ_ONE_FUNC, MOSF },
+            {TaskType.MULTI_OBJ_MULTI_FUNC, MOMF },
         };
 
 

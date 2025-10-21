@@ -23,6 +23,7 @@ namespace Multi.Cursor.Logging
         public int func_width;  // mm
         public string dist_lvl; // s, m, l
         public string dist;     // mm
+        public int result;      // hit (1), miss (0)
 
         public override string ToString()
         {

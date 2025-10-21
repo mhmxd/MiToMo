@@ -180,53 +180,44 @@ namespace Multi.Cursor
             
         }
 
-        public override void EndActiveTrial(Result result)
-        {
-            this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
-            LogEvent(Str.TRIAL_END, _activeTrial.Id); // Log the trial end event
-            _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
+        //public override void EndActiveTrial(Result result)
+        //{
 
-            switch (result)
-            {
-                case Result.HIT:
-                    Sounder.PlayHit();
-                    //double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
-                    double trialTime = GetDuration(Str.OBJ_RELEASE + "_1", Str.TRIAL_END);
-                    _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
-                    
-                    //ExperiLogger.LogSingleObjTrialTimes(_activeTrialRecord);
-                    if (_activeTrial.GetNumFunctions() == 1)
-                    {
-                        ExperiLogger.LogSOSFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
-                    }
-                    else
-                    {
-                        ExperiLogger.LogSOMFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
-                    }
+        //    switch (result)
+        //    {
+        //        case Result.HIT:
+        //            Sounder.PlayHit();
+        //            //double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
+        //            double trialTime = GetDuration(Str.OBJ_RELEASE + "_1", Str.TRIAL_END);
+        //            _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                   
+        //            //this.TrialInfo($"Trial Time = {trialTime:F2}s");
+        //            //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial Time = {trialTime:F2}s");
+        //            this.TrialInfo(Str.MAJOR_LINE);
+        //            GoToNextTrial();
+        //            break;
+        //        case Result.MISS:
+        //            Sounder.PlayTargetMiss();
 
-                    //this.TrialInfo($"Trial Time = {trialTime:F2}s");
-                    //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial Time = {trialTime:F2}s");
-                    this.TrialInfo(Str.MAJOR_LINE);
-                    GoToNextTrial();
-                    break;
-                case Result.MISS:
-                    Sounder.PlayTargetMiss();
-                    //-- Log
+        //            _activeBlock.ShuffleBackTrial(_activeTrialNum);
+        //            _trialRecords[_activeTrial.Id].ClearTimestamps();
+        //            _trialRecords[_activeTrial.Id].ResetStates();
+        //            this.TrialInfo(Str.MAJOR_LINE);
+        //            GoToNextTrial();
+        //            break;
+        //    }
 
-                    _activeBlock.ShuffleBackTrial(_activeTrialNum);
-                    _trialRecords[_activeTrial.Id].ClearTimestamps();
-                    _trialRecords[_activeTrial.Id].ResetStates();
-                    this.TrialInfo(Str.MAJOR_LINE);
-                    GoToNextTrial();
-                    break;
-                case Result.ERROR:
-                    Sounder.PlayStartMiss();
-                    // Do nothing
-                    
-                    break;
-            }
+        //    // Log the records
+        //    if (_activeTrial.GetNumFunctions() == 1)
+        //    {
+        //        ExperiLogger.LogSOSFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+        //    }
+        //    else
+        //    {
+        //        ExperiLogger.LogSOMFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+        //    }
 
-        }
+        //}
 
         public override void GoToNextTrial()
         {
@@ -261,45 +252,12 @@ namespace Multi.Cursor
             }
         }
 
-        public override void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
-        {
-            LogEvent(Str.MAIN_WIN_PRESS);
-
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
-
-            var startButtonClicked = GetEventCount(Str.STR_RELEASE) == 1;
-
-            switch (startButtonClicked)
-            {
-                case true: // Start button was clicked
-                    EndActiveTrial(Result.MISS);
-                    break;
-                case false: // Start button was not clicked
-                    EndActiveTrial(Result.ERROR);
-                    break;
-            }
-
-            e.Handled = true; // Mark the event as handled to prevent further processing
-        }
-
-        public override void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
-        {
-            LogEventOnce(Str.FIRST_MOVE); // Will manage the 'first'
-        }
-
-        public override void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
-        {
-            
-            e.Handled = true; // Mark the event as handled to prevent further processing
-        }
-
         public override void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)
         {
+            base.OnObjectMouseDown(sender, e);
+
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_PRESS, objId);
-
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
-
+         
             var startButtonClicked = (GetEventCount(Str.STR_RELEASE) > 0);
             var device = Utils.GetDevice(_activeBlock.Technique);
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
@@ -311,7 +269,7 @@ namespace Multi.Cursor
             switch (startButtonClicked, device, markerOverEnabledFunc, allFunctionsApplied)
             {
                 case (false, _, _, _): // Start button not clicked, _
-                    EndActiveTrial(Result.ERROR); // Pressed on object without Start button clicked
+                    //EndActiveTrial(Result.ERROR); // Pressed on object without Start button clicked
                     break;
 
                 case (true, Technique.TOMO, _, false): // ToMo, _, not all functions applied
@@ -328,9 +286,6 @@ namespace Multi.Cursor
 
         public override void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_RELEASE, objId);
-
             this.TrialInfo($"Trial Id: {_activeTrial.Id} | Obj: {this.GetHashCode()}");
             var device = Utils.GetDevice(_activeBlock.Technique);
             var objectPressed = GetEventCount(Str.OBJ_PRESS) > 0; // Check if the object was pressed
@@ -350,11 +305,7 @@ namespace Multi.Cursor
                     break;
 
                 case (Technique.TOMO, true, true, _, _, true, _): // ToMo, object pressed, marker on function, function window activated 
-                    _activeTrialRecord.ApplyFunction(funcIdUnderMarker);
-                    if (_activeTrialRecord.AreAllFunctionsApplied())
-                    {
-                        _activeTrialRecord.ChangeObjectState(1, ButtonState.APPLIED);
-                    }
+                    _activeTrialRecord.ApplyFunction(funcIdUnderMarker, 1);
                     UpdateScene();
                     break;
                 case (Technique.TOMO, _, false, _, _, false, _): // ToMo, marker not on function, _, function window not activated
@@ -377,28 +328,24 @@ namespace Multi.Cursor
                     break;
             }
 
-            e.Handled = true; // Mark the event as handled to prevent further processing
+            base.OnObjectMouseUp(sender, e);
         }
 
         public override void OnFunctionMarked(int funId)
         {
-            LogEvent(Str.FUN_MARKED, funId.ToString());
+            base.OnFunctionMarked(funId);
+
+            _activeTrialRecord.MarkObject(1);
+            UpdateScene();
+
         }
 
-        public override void OnFunctionDeMarked(int funId)
+        public override void OnFunctionUnmarked(int funId)
         {
-            LogEvent(Str.FUN_DEMARKED, funId.ToString());
-        }
+            base.OnFunctionUnmarked(funId);
 
-        public override void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
-        {
-            int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_PRESS, funId);
-
-            //this.TrialInfo($"Trial Id: {_activeTrial.Id} | Obj: {this.GetHashCode()}");
-            //this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
-
-            e.Handled = true; // Mark the event as handled to prevent further processing
+            _activeTrialRecord.UnmarkObject(1);
+            UpdateScene();
         }
 
         public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
@@ -422,7 +369,7 @@ namespace Multi.Cursor
                     break;
 
                 case (Technique.MOUSE, true): // MOUSE, object marked
-                    _activeTrialRecord.ApplyFunction(functionId);
+                    _activeTrialRecord.ApplyFunction(functionId, 1);
                     // Change obj's color only if all functions are selected
                     if (_activeTrialRecord.AreAllFunctionsApplied())
                     {
@@ -568,20 +515,6 @@ namespace Multi.Cursor
                     EndActiveTrial(Result.MISS);
                     break;
             }
-        }
-
-        public override void OnObjectMouseEnter(object sender, MouseEventArgs e)
-        {
-            // If the last timestamp was ARA_EXIT, remove that
-            if (_activeTrialRecord.GetLastTrialEventType() == Str.ARA_EXIT) _activeTrialRecord.RemoveLastTimestamp();
-            var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_ENTER, objId);
-        }
-
-        public override void OnObjectMouseLeave(object sender, MouseEventArgs e)
-        {
-            var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_EXIT, objId);
         }
 
         public override void OnFunctionMouseEnter(object sender, MouseEventArgs e)

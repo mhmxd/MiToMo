@@ -49,8 +49,7 @@ namespace Multi.Cursor
     public enum Result 
     { 
         MISS, 
-        HIT, 
-        ERROR 
+        HIT
     }
 
     public enum Trial_Action 

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using MathNet.Numerics;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,8 +69,53 @@ namespace Multi.Cursor
             // Show the first trial
             ShowActiveTrial();
         }
+
         public abstract void ShowActiveTrial();
-        public abstract void EndActiveTrial(Result result);
+        public virtual void EndActiveTrial(Result result)
+        {
+            this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
+            this.TrialInfo(Str.MAJOR_LINE);
+            _activeTrialRecord.Result = result;
+            LogEvent(Str.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
+            _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
+
+            switch (result)
+            {
+                case Result.HIT:
+                    Sounder.PlayHit();
+                    double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
+                    _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                    
+                    break;
+                case Result.MISS:
+                    Sounder.PlayTargetMiss();
+
+                    _activeBlock.ShuffleBackTrial(_activeTrialNum);
+                    _trialRecords[_activeTrial.Id].ClearTimestamps();
+                    _trialRecords[_activeTrial.Id].ResetStates();
+                    break;
+            }
+
+            //-- Log
+            switch (Str.TASKTYPE_ABBR[_activeTrial.TaskType])
+            {
+                case "sosf":
+                    ExperiLogger.LogSOSFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+                    break;
+                case "somf":
+                    ExperiLogger.LogSOMFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+                    break;
+                case "mosf":
+                    ExperiLogger.LogMOSFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+                    break;
+                case "momf":
+                    ExperiLogger.LogMOMFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+                    break;
+
+            }
+
+            GoToNextTrial();
+        }
         public abstract void GoToNextTrial();
 
         protected bool AreFunctionsRepeated()
@@ -123,48 +170,97 @@ namespace Multi.Cursor
 
         }
 
-        public abstract void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e);
-        public abstract void OnMainWindowMouseMove(Object sender, MouseEventArgs e);
-        public abstract void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e);
-        public void OnAuxWindowMouseDown(Object sender, MouseButtonEventArgs e)
+        public virtual void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            if (GetEventCount(Str.OBJ_RELEASE) == 0) // Not yet clicked on the Object => ERROR
+            LogEvent(Str.MAIN_WIN_PRESS);
+
+            if (!IsStartClicked())
             {
-                EndActiveTrial(Result.ERROR);
-            }
-            else // Clicked on the Start => MISS
-            {
-                EndActiveTrial(Result.MISS);
+                Sounder.PlayStartMiss();
+                return;
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
-
-        public void OnAuxWindowMouseEnter(Object sender, MouseEventArgs e)
+        public virtual void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
         {
-            // Sender must be of the type Side
-            LogEvent(Str.PNL_ENTER, sender.ToString());
+            LogEventOnce(Str.FIRST_MOVE);
+        }
+
+        public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true; // Mark the event as handled to prevent further processing
+        }
+
+        public void OnAuxWindowMouseEnter(Side side, Object sender, MouseEventArgs e)
+        {
+            LogEvent(Str.PNL_ENTER, side.ToString().ToLower());
+        }
+
+        public void OnAuxWindowMouseDown(Side side, Object sender, MouseButtonEventArgs e)
+        {
+            LogEvent(Str.PNL_PRESS, side.ToString().ToLower());
+
+            if (!IsStartClicked())
+            {
+                Sounder.PlayStartMiss();
+                return;
+            }
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public void OnAuxWindowMouseMove(Object sender, MouseEventArgs e)
         {
             // Nothing for now
         }
-        public void OnAuxWindowMouseUp(Object sender, MouseButtonEventArgs e)
+        public void OnAuxWindowMouseUp(Side side, Object sender, MouseButtonEventArgs e)
         {
-            // Nothing for now
+            LogEvent(Str.PNL_PRESS, side.ToString().ToLower());
+            e.Handled = true;
         }
 
-        public void OnAuxWindowMouseExit(Object sender, MouseEventArgs e)
+        public void OnAuxWindowMouseExit(Side side, Object sender, MouseEventArgs e)
         {
-            // Sender must be of the type Side
-            LogEvent(Str.PNL_EXIT, sender.ToString());
+            LogEvent(Str.PNL_EXIT, side.ToString().ToLower());
         }
 
-        public abstract void OnObjectMouseEnter(Object sender, MouseEventArgs e);
-        public abstract void OnObjectMouseLeave(Object sender, MouseEventArgs e);
-        public abstract void OnObjectMouseDown(Object sender, MouseButtonEventArgs e);
-        public abstract void OnObjectMouseUp(Object sender, MouseButtonEventArgs e);
+        public virtual void OnObjectMouseEnter(Object sender, MouseEventArgs e)
+        {
+            // If the last timestamp was ARA_EXIT, remove that
+            if (_activeTrialRecord.GetLastTrialEventType() == Str.ARA_EXIT) _activeTrialRecord.RemoveLastTimestamp();
+            var objId = (int)((FrameworkElement)sender).Tag;
+
+            // Add the id to the list of visited if not already there (will use the index for the order of visit)
+            LogEvent(Str.OBJ_ENTER, objId);
+
+            // Log the event
+            LogEvent(Str.OBJ_ENTER, objId);
+        }
+
+        public virtual void OnObjectMouseLeave(Object sender, MouseEventArgs e)
+        {
+            var objId = (int)((FrameworkElement)sender).Tag;
+            LogEvent(Str.OBJ_EXIT, objId);
+        }
+
+        public virtual void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)
+        {
+            var objId = (int)((FrameworkElement)sender).Tag;
+            LogEvent(Str.OBJ_PRESS, objId);
+
+            // Rest of the handling is done in the derived classes
+        }
+
+        public virtual void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
+        {
+            // Rest of the handling is done in the derived classes
+
+            var objId = (int)((FrameworkElement)sender).Tag;
+            LogEvent(Str.OBJ_RELEASE, objId);
+
+            e.Handled = true;
+        }
 
         //---- Object area
         public abstract void OnObjectAreaMouseEnter(Object sender, MouseEventArgs e);
@@ -178,7 +274,13 @@ namespace Multi.Cursor
         //---- Function
         public abstract void OnFunctionMouseEnter(Object sender, MouseEventArgs e);
 
-        public abstract void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e);
+        public virtual void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
+        {
+            int funId = (int)((FrameworkElement)sender).Tag;
+            LogEvent(Str.FUN_PRESS, funId);
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
+        }
         public abstract void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e);
 
         public abstract void OnFunctionMouseExit(Object sender, MouseEventArgs e);
@@ -205,24 +307,16 @@ namespace Multi.Cursor
 
             var startButtonPressed = GetEventCount(Str.STR_PRESS) > 0;
 
-            switch (startButtonPressed)
+            if (startButtonPressed)
             {
-                case true: // Start button was pressed => valid trial started
-                    _mainWindow.RemoveStartTrialButton();
-                    break;
-                case false: // Start button was not pressed => invalid trial
-                    EndActiveTrial(Result.MISS);
-                    break;
+                _mainWindow.RemoveStartTrialButton();
+            }
+            else // Pressed outside the button => miss
+            {
+                EndActiveTrial(Result.MISS);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
-
-            //_activeTrialNum++;
-            //_activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-            //_activeTrialRecord = _trialRecords[_activeTrial.Id];
-
-            //ShowActiveTrial();
-
         }
 
         public void OnStartButtonMouseExit(Object sender, MouseEventArgs e)
@@ -230,9 +324,17 @@ namespace Multi.Cursor
             LogEvent(Str.STR_EXIT);
         }
 
-        public abstract void OnFunctionMarked(int funId);
+        public virtual void OnFunctionMarked(int funId)
+        {
+            _activeTrialRecord.MarkFunction(funId);
+            LogEvent(Str.FUN_MARKED, funId.ToString());
+        }
 
-        public abstract void OnFunctionDeMarked(int funId);
+        public virtual void OnFunctionUnmarked(int funId)
+        {
+            _activeTrialRecord.UnmarkFunction(funId);
+            LogEvent(Str.FUN_DEMARKED, funId.ToString());
+        }
 
         public void SetFunctionAsEnabled(int funcId)
         {
@@ -333,7 +435,7 @@ namespace Multi.Cursor
             if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
             {
                 LogEventOnce(Str.FLICK); // First flick after activation
-                _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionDeMarked);
+                _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked);
             }
             
         }
@@ -567,6 +669,11 @@ namespace Multi.Cursor
         //{
         //    LogEvent(action);
         //}
+
+        protected bool IsStartClicked()
+        {
+            return GetEventCount(Str.STR_RELEASE) > 0;
+        }
     }
 
 }

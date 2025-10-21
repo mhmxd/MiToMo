@@ -63,6 +63,8 @@ namespace Multi.Cursor
         private List<TrialEvent> Events;
         private Dictionary<string, double> Times;
 
+        public Result Result;
+
         public TrialRecord()
         {
             Functions = new List<TFunction>();
@@ -170,7 +172,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void DemarkObject(int id)
+        public void UnmarkObject(int id)
         {
             TObject obj = Objects.FirstOrDefault(o => o.Id == id);
             if (obj != null)
@@ -179,7 +181,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void ApplyFunction(int funcId)
+        public void ApplyFunction(int funcId, int objId)
         {
             this.TrialInfo($"FuncId: {funcId}");
             TFunction func = GetFunctionById(funcId);
@@ -188,28 +190,31 @@ namespace Multi.Cursor
                 func.State = ButtonState.APPLIED;
             }
 
-            int nFuncs = Functions.Count;
-            int nObjs = Objects.Count;
+            // Apply to the specified object
+            if (objId != -1) ChangeObjectState(objId, ButtonState.APPLIED);
 
-            //this.TrialInfo($"nFunc: {nFuncs}; nObj: {nObjs}");
+            //int nFuncs = Functions.Count;
+            //int nObjs = Objects.Count;
 
-            switch (nFuncs, nObjs) 
-            {
-                case (1, 1): // One function and one object => apply the function to the object
-                    ChangeObjectState(1, ButtonState.APPLIED);
-                    break;
-                case (1, _): // One function and multiple objects => apply the function to the marked/enabled object
-                    int markedObjId = Objects.FirstOrDefault(o => o.State == ButtonState.MARKED)?.Id ?? -1;
-                    ChangeObjectState(markedObjId, ButtonState.APPLIED);
-                    break;
-                case (_, 1): // Multiple functions and one object => apply the function to the single object
-                    //ChangeObjectState(1, ButtonState.APPLIED);
-                    break;
-                default: // Multiple functions and multiple objects => apply the function to the object mapped to the function
-                    int mappedObjId = FindMappedObjectId(funcId);
-                    ChangeObjectState(mappedObjId, ButtonState.APPLIED);
-                    break;
-            }
+            ////this.TrialInfo($"nFunc: {nFuncs}; nObj: {nObjs}");
+
+            //switch (nFuncs, nObjs) 
+            //{
+            //    case (1, 1): // One function and one object => apply the function to the object
+            //        ChangeObjectState(1, ButtonState.APPLIED);
+            //        break;
+            //    case (1, _): // One function and multiple objects => apply the function to the marked/enabled object
+            //        int markedObjId = Objects.FirstOrDefault(o => o.State == ButtonState.MARKED)?.Id ?? -1;
+            //        ChangeObjectState(markedObjId, ButtonState.APPLIED);
+            //        break;
+            //    case (_, 1): // Multiple functions and one object => apply the function to the single object
+            //        //ChangeObjectState(1, ButtonState.APPLIED);
+            //        break;
+            //    default: // Multiple functions and multiple objects => apply the function to the object mapped to the function
+            //        int mappedObjId = FindMappedObjectId(funcId);
+            //        ChangeObjectState(mappedObjId, ButtonState.APPLIED);
+            //        break;
+            //}
 
         }
 
@@ -219,7 +224,7 @@ namespace Multi.Cursor
             this.TrialInfo($"Function#{id} marked.");
         }
 
-        public void DemarkFunction(int id)
+        public void UnmarkFunction(int id)
         {
             ChangeFunctionState(id, ButtonState.DEFAULT);
             this.TrialInfo($"Function#{id} demarked.");
@@ -239,6 +244,14 @@ namespace Multi.Cursor
             foreach (TObject obj in Objects)
             {
                 obj.State = ButtonState.MARKED;
+            }
+        }
+
+        public void UnmarkAllObjects()
+        {
+            foreach (TObject obj in Objects)
+            {
+                obj.State = ButtonState.DEFAULT;
             }
         }
 
@@ -618,6 +631,11 @@ namespace Multi.Cursor
         public bool HasTimestamp(string label)
         {
             return Events.Any(ts => ts.Type == label);
+        }
+
+        public int GetMarketObjectId()
+        {
+            return Objects.FirstOrDefault(o => o.State == ButtonState.MARKED)?.Id ?? -1;
         }
 
         public void ClearTimestamps()

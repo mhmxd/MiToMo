@@ -625,6 +625,7 @@ namespace Multi.Cursor
             log.n_fun = trial.GetNumFunctions();
             log.dist_lvl = trial.DistRangeMM.Label.Split('-')[0].ToLower();
             log.dist = $"{Utils.PX2MM(trialRecord.Distance):F2}";
+            log.result = (int)trialRecord.Result;
         }
 
         private static void LogTotalTrialTime(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
