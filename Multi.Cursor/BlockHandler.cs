@@ -174,10 +174,12 @@ namespace Multi.Cursor
         {
             LogEvent(Str.MAIN_WIN_PRESS);
 
-            if (!IsStartClicked())
+            if (!IsStartClicked()) // Start button not clicked yet
             {
                 Sounder.PlayStartMiss();
-                return;
+            } else
+            {
+                EndActiveTrial(Result.MISS);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -189,6 +191,11 @@ namespace Multi.Cursor
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
+            if (IsStartPressed()) // Pressed in Start, released in main window
+            {
+                EndActiveTrial(Result.MISS);
+            }
+
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
@@ -669,6 +676,11 @@ namespace Multi.Cursor
         //{
         //    LogEvent(action);
         //}
+
+        protected bool IsStartPressed()
+        {
+            return GetEventCount(Str.STR_PRESS) > 0;
+        }
 
         protected bool IsStartClicked()
         {
