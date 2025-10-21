@@ -592,6 +592,14 @@ namespace Multi.Cursor
         {
             base.OnObjectMouseDown(sender, e);
 
+            // Pressed on the Object without starting the trial
+            if (!IsStartClicked())
+            {
+                Sounder.PlayStartMiss();
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return; // Do nothing if start button was not clicked
+            }
+
             var objId = (int)((FrameworkElement)sender).Tag;
 
             var startButtonClicked = GetEventCount(Str.STR_RELEASE) > 0;
@@ -605,9 +613,6 @@ namespace Multi.Cursor
 
             switch (startButtonClicked, device, markerOverFunction, allObjectsApplied)
             {
-                case (false, _, _, _): // Start button not clicked, _
-                    //EndActiveTrial(Result.ERROR); // Pressed on object without Start button clicked
-                    break;
 
                 case (true, Technique.TOMO, true, false): // ToMo, marker over function, not all objects applied
                     //_activeTrialRecord.MarkObject(objId);
@@ -631,6 +636,15 @@ namespace Multi.Cursor
 
         public override void OnObjectMouseUp(object sender, MouseButtonEventArgs e)
         {
+
+            if (!IsStartClicked())
+            {
+                this.TrialInfo($"Start wasn't clicked");
+                Sounder.PlayStartMiss();
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return; // Do nothing if start button was not clicked
+            }
+
             var objId = (int)((FrameworkElement)sender).Tag;
             TrialEvent lastTrialEvent = _activeTrialRecord.GetLastTrialEvent();
             this.TrialInfo($"Last event: {lastTrialEvent.ToString()}; ObjID: {objId}");
@@ -675,32 +689,24 @@ namespace Multi.Cursor
             if (_activeTrialRecord.GetLastTrialEventType() != Str.OBJ_EXIT) LogEvent(Str.ARA_ENTER);
         }
 
-        public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
-        {
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
-            LogEvent(Str.ARA_PRESS);
+        //public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
+        //{
+        //    this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
+            
 
-            var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
-
-            switch (allObjectsApplied)
-            {
-                case true:
-                    // All objects are selected, so we can end the trial
-                    EndActiveTrial(Result.HIT);
-                    break;
-                case false:
-                    // Not all objects are selected, so we treat it as a miss
-                    EndActiveTrial(Result.MISS);
-                    break;
-            }
-
-            e.Handled = true; // Mark the event as handled to prevent further processing
-
-        }
+        //}
 
         public override void OnObjectAreaMouseUp(object sender, MouseButtonEventArgs e)
         {
             LogEvent(Str.ARA_RELEASE);
+
+            if (!IsStartClicked())
+            {
+                this.TrialInfo($"Start wasn't clicked");
+                Sounder.PlayStartMiss();
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return; // Do nothing if start button was not clicked
+            }
         }
 
         public override void OnObjectAreaMouseExit(object sender, MouseEventArgs e)

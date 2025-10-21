@@ -26,9 +26,16 @@ namespace Multi.Cursor
             this.Time = time;
         }
 
-        public string ToString()
+        public override string ToString()
         {
-            return $"{Type}-{Id}: {Time}";
+            if (Id == "")
+            {
+                return $"{Type}: {Time}";
+            }
+            else
+            {
+                return $"{Type}-{Id}: {Time}";
+            }
         }
     }
 }

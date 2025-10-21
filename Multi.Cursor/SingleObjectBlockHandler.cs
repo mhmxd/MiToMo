@@ -254,41 +254,55 @@ namespace Multi.Cursor
 
         public override void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            base.OnObjectMouseDown(sender, e);
+            base.OnObjectMouseDown(sender, e); // Just logs the event
 
-            var objId = (int)((FrameworkElement)sender).Tag;
-         
-            var startButtonClicked = (GetEventCount(Str.STR_RELEASE) > 0);
-            var device = Utils.GetDevice(_activeBlock.Technique);
-            int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
-            var markerOverEnabledFunc = funcIdUnderMarker != -1;
-            var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
-
-            this.TrialInfo($"StartButtonClicked: {startButtonClicked}");
-
-            switch (startButtonClicked, device, markerOverEnabledFunc, allFunctionsApplied)
+            // Pressed on the Object without starting the trial
+            if (!IsStartClicked())
             {
-                case (false, _, _, _): // Start button not clicked, _
-                    //EndActiveTrial(Result.ERROR); // Pressed on object without Start button clicked
-                    break;
-
-                case (true, Technique.TOMO, _, false): // ToMo, _, not all functions applied
-                    
-                    break;
-
-                case (true, Technique.MOUSE, _, false):
-
-                    break;
+                Sounder.PlayStartMiss();
             }
+
+            //var objId = (int)((FrameworkElement)sender).Tag;
+         
+            //var startButtonClicked = (GetEventCount(Str.STR_RELEASE) > 0);
+            //var device = Utils.GetDevice(_activeBlock.Technique);
+            //int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
+            //var markerOverEnabledFunc = funcIdUnderMarker != -1;
+            //var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
+
+            //this.TrialInfo($"StartButtonClicked: {startButtonClicked}");
+
+            //switch (startButtonClicked, device, markerOverEnabledFunc, allFunctionsApplied)
+            //{
+            //    case (false, _, _, _): // Start button not clicked, _
+                    
+            //        break;
+
+            //    case (true, Technique.TOMO, _, false): // ToMo, _, not all functions applied
+                    
+            //        break;
+
+            //    case (true, Technique.MOUSE, _, false):
+
+            //        break;
+            //}
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public override void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Trial Id: {_activeTrial.Id} | Obj: {this.GetHashCode()}");
+            
+            if (!IsStartClicked())
+            {
+                Sounder.PlayStartMiss();
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return; // Do nothing if start button was not clicked
+            }
+
+
             var device = Utils.GetDevice(_activeBlock.Technique);
-            var objectPressed = GetEventCount(Str.OBJ_PRESS) > 0; // Check if the object was pressed
+            var objectPressed = GetEventCount(Str.OBJ_PRESS) > 0;
             int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             var markerOverEnabledFunc = funcIdUnderMarker != -1;
             var functionClicked = GetEventCount(Str.FUN_RELEASE) == 1; // Check if the function was clicked
@@ -410,27 +424,32 @@ namespace Multi.Cursor
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
-        public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
-        {
-            //this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
-            LogEvent(Str.ARA_PRESS);
+        //public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
+        //{
+        //    // Pressed on the Object without starting the trial
+        //    if (!IsStartClicked())
+        //    {
+        //        Sounder.PlayStartMiss();
+        //    }
 
-            var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
+            
 
-            switch (allFunctionsApplied)
-            {
-                case true:
-                    // All objects are selected, so we can end the trial
-                    EndActiveTrial(Result.HIT);
-                    break;
-                case false:
-                    // Not all objects are selected, so we treat it as a miss
-                    EndActiveTrial(Result.MISS);
-                    break;
-            }
+        //    var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
 
-            e.Handled = true; // Mark the event as handled to prevent further processing
-        }
+        //    switch (allFunctionsApplied)
+        //    {
+        //        case true:
+        //            // All objects are selected, so we can end the trial
+        //            EndActiveTrial(Result.HIT);
+        //            break;
+        //        case false:
+        //            // Not all objects are selected, so we treat it as a miss
+        //            EndActiveTrial(Result.MISS);
+        //            break;
+        //    }
+
+        //    e.Handled = true; // Mark the event as handled to prevent further processing
+        //}
 
         public override void IndexTap()
         {
@@ -540,6 +559,14 @@ namespace Multi.Cursor
         public override void OnObjectAreaMouseUp(object sender, MouseButtonEventArgs e)
         {
             LogEvent(Str.ARA_RELEASE);
+
+            if (!IsStartClicked())
+            {
+                this.TrialInfo($"Start wasn't clicked");
+                Sounder.PlayStartMiss();
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return; // Do nothing if start button was not clicked
+            }
         }
 
         public override void OnObjectAreaMouseExit(object sender, MouseEventArgs e)

@@ -314,7 +314,7 @@ namespace Multi.Cursor
 
         public string TrialEventsToString()
         {
-            return string.Join("; ", Events.Select(ts => $"{ts.Type}-{ts.Id}: {ts.Time}"));
+            return string.Join("; ", Events.Select(ts => ts.ToString()));
         }
 
         public string GetLastTrialEventType()

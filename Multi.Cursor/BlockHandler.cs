@@ -191,9 +191,9 @@ namespace Multi.Cursor
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            if (IsStartPressed()) // Pressed in Start, released in main window
+            if (!IsStartClicked()) // Start button not clicked yet
             {
-                EndActiveTrial(Result.MISS);
+                Sounder.PlayStartMiss();
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -281,7 +281,18 @@ namespace Multi.Cursor
         //---- Object area
         public abstract void OnObjectAreaMouseEnter(Object sender, MouseEventArgs e);
 
-        public abstract void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e);
+        public virtual void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
+        {
+            
+            if (!IsStartClicked()) // Start button not clicked yet
+            {
+                Sounder.PlayStartMiss();
+            }
+
+            LogEvent(Str.ARA_PRESS);
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
+        }
 
         public abstract void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e);
 
