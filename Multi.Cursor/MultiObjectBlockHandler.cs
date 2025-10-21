@@ -351,8 +351,8 @@ namespace Multi.Cursor
                 return;
             }
 
-            var funId = (int)((FrameworkElement)sender).Tag;
-            var device = Utils.GetDevice(_activeBlock.Technique);
+            //-- Trial started:
+
             int markedObjId = _activeTrialRecord.GetMarketObjectId();
             
             if (markedObjId == -1) // No object marked
@@ -362,16 +362,14 @@ namespace Multi.Cursor
                 return;
             }
 
-            //this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
+            //-- An object is marked:
 
-            switch (device)
+            if (_activeTrial.Technique == Technique.MOUSE)
             {
-                case Technique.MOUSE:
-                    _activeTrialRecord.ApplyFunction(funId, markedObjId);
-                    UpdateScene();
-                    break;
+                var funId = (int)((FrameworkElement)sender).Tag;
+                _activeTrialRecord.ApplyFunction(funId, markedObjId);
+                UpdateScene();
             }
-
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
@@ -605,35 +603,58 @@ namespace Multi.Cursor
                 return; // Do nothing if start button was not clicked
             }
 
-            var objId = (int)((FrameworkElement)sender).Tag;
+            //-- Trial started:
 
-            var startButtonClicked = GetEventCount(Str.STR_RELEASE) > 0;
-            var device = Utils.GetDevice(_activeBlock.Technique);
-            int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
-            var markerOverFunction = funcIdUnderMarker != -1;
-            var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
-
-            this.TrialInfo($"StartButtonClicked: {startButtonClicked}; Technique: {device}; " +
-                $"MarkerOnFunction: {markerOverFunction}; AllObjApplied: {allObjectsApplied}");
-
-            switch (startButtonClicked, device, markerOverFunction, allObjectsApplied)
+            if (_activeTrial.IsTechniqueToMo())
             {
+                // Nothing for now
+            }
+            else // MOUSE
+            {
+                var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
+                var objId = (int)((FrameworkElement)sender).Tag;
 
-                case (true, Technique.TOMO, true, false): // ToMo, marker over function, not all objects applied
-                    //_activeTrialRecord.MarkObject(objId);
-                    //UpdateScene();
-                    break;
-
-                case (true, Technique.MOUSE, _, false): // MOUSE, any marker state, not all objects selected
-                    //_activeTrialRecord.MarkObject(objId);
-                    _pressedObjectId = objId;
-                    //UpdateScene();
-                    //SetFunctionAsEnabled();
-                    break;
-                case (true, Technique.MOUSE, _, true): // MOUSE, any marker state, all objects selected
+                if (allObjectsApplied)
+                {
                     EndActiveTrial(Result.MISS); // Should not end on object press (should click area)
                     return;
+                }
+                else
+                {
+                    _pressedObjectId = objId;
+                }
+
             }
+
+                
+
+            //var startButtonClicked = GetEventCount(Str.STR_RELEASE) > 0;
+            //var device = Utils.GetDevice(_activeBlock.Technique);
+            //int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
+            //var markerOverFunction = funcIdUnderMarker != -1;
+            
+
+            //this.TrialInfo($"StartButtonClicked: {startButtonClicked}; Technique: {device}; " +
+            //    $"MarkerOnFunction: {markerOverFunction}; AllObjApplied: {allObjectsApplied}");
+
+            //switch (startButtonClicked, device, markerOverFunction, allObjectsApplied)
+            //{
+
+            //    case (true, Technique.TOMO, true, false): // ToMo, marker over function, not all objects applied
+            //        //_activeTrialRecord.MarkObject(objId);
+            //        //UpdateScene();
+            //        break;
+
+            //    case (true, Technique.MOUSE, _, false): // MOUSE, any marker state, not all objects selected
+            //        //_activeTrialRecord.MarkObject(objId);
+                    
+            //        //UpdateScene();
+            //        //SetFunctionAsEnabled();
+            //        break;
+            //    case (true, Technique.MOUSE, _, true): // MOUSE, any marker state, all objects selected
+            //        EndActiveTrial(Result.MISS); // Should not end on object press (should click area)
+            //        return;
+            //}
 
             e.Handled = true;
 
@@ -641,51 +662,62 @@ namespace Multi.Cursor
 
         public override void OnObjectMouseUp(object sender, MouseButtonEventArgs e)
         {
+            var objId = (int)((FrameworkElement)sender).Tag;
 
             if (!IsStartClicked())
             {
                 this.TrialInfo($"Start wasn't clicked");
                 Sounder.PlayStartMiss();
+                LogEvent(Str.OBJ_RELEASE, objId);
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
 
-            var objId = (int)((FrameworkElement)sender).Tag;
-            TrialEvent lastTrialEvent = _activeTrialRecord.GetLastTrialEvent();
-            this.TrialInfo($"Last event: {lastTrialEvent.ToString()}; ObjID: {objId}");
-            var device = Utils.GetDevice(_activeBlock.Technique);
-            var thisObjPressed = lastTrialEvent.Type == Str.OBJ_PRESS && lastTrialEvent.Id == objId.ToString();
-            int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
-            var markerOverFunction = funcIdUnderMarker != -1;
-            var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
+            //-- Trial started:
 
-            // Show all the flags
-            this.TrialInfo($"Technique: {device}, ThisObjPressed: {thisObjPressed}; MarkerOnFunction: {markerOverFunction}, AllObjSelected: {allObjectsApplied}");
-
-            switch (device, thisObjPressed, markerOverFunction, allObjectsApplied)
+            if (!IsObjectJustPressed(objId)) // Technique doesn't matter here
             {
-                case (Technique.TOMO, true, true, false): // ToMo, object pressed, marker on function, not all objects applied
-                    _activeTrialRecord.ApplyFunction(funcIdUnderMarker, objId);
-                    UpdateScene();
-                    break;
-                case (Technique.TOMO, true, false, false): // ToMo, object pressed, marker NOT on function, not all objects applied
-                    // Act based on the flag
-                    break;
-
-
-                case (Technique.MOUSE, true, _, false): // MOUSE, _, not all functions selected
-                    _activeTrialRecord.MarkObject(objId);
-                    _activeTrialRecord.MarkFunction(_activeTrialRecord.FindMappedFunctionId(objId));
-                    UpdateScene();
-                    break;
-                case (Technique.MOUSE, true, _, true): // MOUSE, _, all functions applied
-                    EndActiveTrial(Result.HIT);
-                    break;
+                this.TrialInfo($"Object wasn't pressed");
+                LogEvent(Str.OBJ_RELEASE, objId);
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return; // Do nothing if object wasn't pressed
             }
 
-            base.OnObjectMouseUp(sender, e);
+            //-- Object is pressed (while marker was over function):
 
-            
+            var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied(); // Probably pressed on the area, then here to release
+
+            if (allObjectsApplied)
+            {
+                LogEvent(Str.OBJ_RELEASE, objId);
+                e.Handled = true;
+                EndActiveTrial(Result.MISS);
+                return;
+            }
+
+            //-- Not all objects applied:
+
+            if (_activeTrial.IsTechniqueToMo())
+            {
+                int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
+                var markerOverEnabledFunc = funcIdUnderMarker != -1;
+
+                if (markerOverEnabledFunc)
+                {
+                    _activeTrialRecord.ApplyFunction(funcIdUnderMarker, objId);
+                    UpdateScene();
+                }
+                else
+                {
+                    EndActiveTrial(Result.MISS);
+                }
+            }
+            else // MOUSE
+            {
+                _activeTrialRecord.MarkObject(objId);
+                _activeTrialRecord.MarkFunction(_activeTrialRecord.FindMappedFunctionId(objId));
+                UpdateScene();
+            }
 
         }
         //public override void OnObjectAreaMouseEnter(object sender, MouseEventArgs e)

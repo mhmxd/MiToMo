@@ -262,8 +262,23 @@ namespace Multi.Cursor
                 Sounder.PlayStartMiss();
             }
 
+            //-- Trial started:
+
+            if (_activeTrial.IsTechniqueToMo())
+            {
+                int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
+
+                if (funcIdUnderMarker == -1) // Marker not over enabled function => miss
+                {
+                    this.TrialInfo($"Marker not over enabled function");
+                    EndActiveTrial(Result.MISS);
+                    e.Handled = true; // Mark the event as handled to prevent further processing
+                    return; // Do nothing if marker is not over enabled function
+                }
+            }
+
             //var objId = (int)((FrameworkElement)sender).Tag;
-         
+
             //var startButtonClicked = (GetEventCount(Str.STR_RELEASE) > 0);
             //var device = Utils.GetDevice(_activeBlock.Technique);
             //int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
@@ -275,11 +290,11 @@ namespace Multi.Cursor
             //switch (startButtonClicked, device, markerOverEnabledFunc, allFunctionsApplied)
             //{
             //    case (false, _, _, _): // Start button not clicked, _
-                    
+
             //        break;
 
             //    case (true, Technique.TOMO, _, false): // ToMo, _, not all functions applied
-                    
+
             //        break;
 
             //    case (true, Technique.MOUSE, _, false):
@@ -292,61 +307,79 @@ namespace Multi.Cursor
 
         public override void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            
             if (!IsStartClicked())
             {
                 Sounder.PlayStartMiss();
+                var objId = (int)((FrameworkElement)sender).Tag;
+                LogEvent(Str.OBJ_RELEASE, objId);
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
 
-            if (!IsObjectJustPressed(1))
+            //-- Trial started:
+
+            if (!IsObjectJustPressed(1)) // Technique doesn't matter here
             {
                 this.TrialInfo($"Object wasn't pressed");
+                var objId = (int)((FrameworkElement)sender).Tag;
+                LogEvent(Str.OBJ_RELEASE, objId);
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if object wasn't pressed
             }
 
+            //-- Object is pressed (while marker was over function):
 
-            var device = Utils.GetDevice(_activeBlock.Technique);
-            var objectPressed = GetEventCount(Str.OBJ_PRESS) > 0;
-            int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
-            var markerOverEnabledFunc = funcIdUnderMarker != -1;
-            var functionClicked = GetEventCount(Str.FUN_RELEASE) == 1; // Check if the function was clicked
-            var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
-            var anyFunctionEnabled = _activeTrialRecord.IsAnyFunctionEnabled();
-            var functionWindowActivated = _mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide);
-
-            // Show the current timestamps
-            this.TrialInfo($"Technique: {device == Technique.TOMO}, ObjPressed: {objectPressed}, MarkerOnFunction: {markerOverEnabledFunc}, FuncWinActive: {functionWindowActivated}");
-            switch (device, objectPressed, markerOverEnabledFunc, anyFunctionEnabled, allFunctionsApplied, functionWindowActivated, _objectSelected)
+            if (_activeTrial.IsTechniqueToMo())
             {
+                int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
+                var markerOverEnabledFunc = funcIdUnderMarker != -1;
 
-                case (Technique.TOMO, true, true, _, _, true, _): // ToMo, object pressed, marker on function, function window activated 
+                if (markerOverEnabledFunc)
+                {
                     _activeTrialRecord.ApplyFunction(funcIdUnderMarker, 1);
                     UpdateScene();
-                    break;
-                case (Technique.TOMO, _, false, _, _, false, _): // ToMo, marker not on function, _, function window not activated
-                    _activeTrialRecord.MarkObject(1);
-                    UpdateScene();
-                    break;
-                case (Technique.TOMO, _, false, _, _, true, _): // ToMo, marker not on function, _, function window activated
-                    //EndActiveTrial(Result.MISS);
-                    break;
-                
-                case (Technique.MOUSE, true, _, _, _, _, _): // MOUSE, object correctly pressed
-                    _activeTrialRecord.EnableAllFunctions();
-                    _activeTrialRecord.MarkObject(1);
-                    UpdateScene();
-                    break;
-
-                
-                default:
-                    this.TrialInfo($"Unexpected combination of events in Trial#{_activeTrial.Id}");
-                    break;
+                }
+                else
+                {
+                    EndActiveTrial(Result.MISS);
+                }
+            }
+            else // MOUSE
+            {
+                _activeTrialRecord.EnableAllFunctions();
+                _activeTrialRecord.MarkObject(1);
+                UpdateScene();
             }
 
-            base.OnObjectMouseUp(sender, e);
+            e.Handled = true;
+
+            //var device = Utils.GetDevice(_activeBlock.Technique);
+            //var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
+            //var anyFunctionEnabled = _activeTrialRecord.IsAnyFunctionEnabled();
+            //var functionWindowActivated = _mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide);
+
+            //// Show the current timestamps
+            //this.TrialInfo($"Technique: {device == Technique.TOMO}, ObjPressed: {objectPressed}, MarkerOnFunction: {markerOverEnabledFunc}, FuncWinActive: {functionWindowActivated}");
+            //switch (device, objectPressed, markerOverEnabledFunc, anyFunctionEnabled, allFunctionsApplied, functionWindowActivated, _objectSelected)
+            //{
+
+            //    case (Technique.TOMO, true, true, _, _, true, _): // ToMo, object pressed, marker on function, function window activated 
+                    
+            //        break;
+            //    case (Technique.TOMO, _, false, _, _, false, _): // ToMo, marker not on function, _, function window not activated
+            //        _activeTrialRecord.MarkObject(1);
+            //        UpdateScene();
+            //        break;
+            //    case (Technique.TOMO, _, false, _, _, true, _): // ToMo, marker not on function, _, function window activated
+            //        //EndActiveTrial(Result.MISS);
+            //        break;
+                
+            //    case (Technique.MOUSE, true, _, _, _, _, _): // MOUSE, object correctly pressed
+                    
+            //        break;
+            //}
+
+            
         }
 
         public override void OnFunctionMarked(int funId)
@@ -399,30 +432,18 @@ namespace Multi.Cursor
                 return; // Do nothing if object is not marked
             }
 
-            this.TrialInfo($"ObjectMarked: {objectMarked};");
+            //-- Object is marked:
 
-            switch (device, objectMarked)
+            if (_activeTrial.Technique == Technique.MOUSE)
             {
-                case (Technique.TOMO, _):
-                    // Nothing for now, handled in OnObjectMouseUp
-                    break;
+                _activeTrialRecord.ApplyFunction(functionId, 1);
+                // Change obj's color only if all functions are selected
+                if (_activeTrialRecord.AreAllFunctionsApplied())
+                {
+                    _activeTrialRecord.ChangeObjectState(1, ButtonState.APPLIED);
+                }
 
-                case (Technique.MOUSE, true): // MOUSE, object marked
-                    _activeTrialRecord.ApplyFunction(functionId, 1);
-                    // Change obj's color only if all functions are selected
-                    if (_activeTrialRecord.AreAllFunctionsApplied())
-                    {
-                        _activeTrialRecord.ChangeObjectState(1, ButtonState.APPLIED);
-                    }
-                    UpdateScene();
-                    break;
-                case (Technique.MOUSE, false): // MOUSE, object not marked
-                    EndActiveTrial(Result.MISS);
-                    break;
-                
-                default:
-                    this.TrialInfo($"Unexpected combination of events in Trial#{_activeTrial.Id}");
-                    break;
+                UpdateScene();
             }
 
             

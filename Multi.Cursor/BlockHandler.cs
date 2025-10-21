@@ -271,12 +271,6 @@ namespace Multi.Cursor
 
         public virtual void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            // Rest of the handling is done in the derived classes
-
-            var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_RELEASE, objId);
-
-            e.Handled = true;
         }
 
         //---- Object area

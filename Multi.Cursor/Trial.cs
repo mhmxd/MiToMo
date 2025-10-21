@@ -179,6 +179,11 @@ namespace Multi.Cursor
             return Path.Combine(cachedDirectory, $"Cache_{FuncSide}_{_functionWidths.ToString()}_{DistRangeMM.Label}.json");
         }
 
+        public bool IsTechniqueToMo()
+        {
+            return Technique == Technique.TOMO || Technique == Technique.TOMO_SWIPE || Technique == Technique.TOMO_TAP;
+        }
+
 
     }
 }
