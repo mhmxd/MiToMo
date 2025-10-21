@@ -211,7 +211,10 @@ namespace Multi.Cursor
             if (!IsStartClicked())
             {
                 Sounder.PlayStartMiss();
-                return;
+            }
+            else
+            {
+                EndActiveTrial(Result.MISS);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -224,6 +227,12 @@ namespace Multi.Cursor
         public void OnAuxWindowMouseUp(Side side, Object sender, MouseButtonEventArgs e)
         {
             LogEvent(Str.PNL_PRESS, side.ToString().ToLower());
+
+            if (IsStartPressed()) // Pressed in Start, released in aux window
+            {
+                EndActiveTrial(Result.MISS);
+            }
+
             e.Handled = true;
         }
 
