@@ -333,13 +333,6 @@ namespace Multi.Cursor
             UpdateScene();
         }
 
-        public override void OnFunctionMouseEnter(Object sender, MouseEventArgs e)
-        {
-            // Add the id to the list of visited if not already there (will use the index for the order of visit)
-            int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_ENTER, funId);
-        }
-
         public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
             // If the trial has already ended, ignore further events
@@ -381,14 +374,6 @@ namespace Multi.Cursor
 
 
             e.Handled = true; // Mark the event as handled to prevent further processing
-        }
-
-        public override void OnFunctionMouseExit(Object sender, MouseEventArgs e)
-        {
-            int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_EXIT, funId);
-            //if (_activeTrial.NFunctions == 1) LogEventWithCount(Str.FUN_EXIT);
-            //else LogEventWithIndex(Str.FUN_EXIT, funId);
         }
 
         public override void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
@@ -733,145 +718,6 @@ namespace Multi.Cursor
         //{
         //    LogEvent(Str.ARA_EXIT);
         //}
-
-        public override void IndexTap()
-        {
-            var technique = _activeBlock.GetSpecificTechnique();
-            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
-            Side correspondingSide = Side.Top;
-            var funcOnCorrespondingSide = _activeTrial.FuncSide == correspondingSide;
-
-            this.TrialInfo($"Technique: {Utils.GetDevice(_activeBlock.Technique)}");
-
-            switch (technique, allObjSelected, funcOnCorrespondingSide)
-            {
-                case (Technique.TOMO_TAP, false, true): // Correct side activated
-                    _mainWindow.ActivateAuxWindowMarker(correspondingSide);
-                    break;
-                case (Technique.TOMO_TAP, false, false): // Incorrect side activated
-                    EndActiveTrial(Result.MISS);
-                    break;
-                case (Technique.TOMO_TAP, true, true): // Correct deactivation
-                    EndActiveTrial(Result.HIT);
-                    break;
-                case (Technique.TOMO_TAP, true, false): // Incorrect deactivation
-                    EndActiveTrial(Result.MISS);
-                    break;
-
-                case (Technique.TOMO_SWIPE, _, _): // Wrong _technique for index tap
-                    EndActiveTrial(Result.MISS);
-                    break;
-            }
-        }
-
-        public override void ThumbTap(long downInstant, long upInstant)
-        {
-            var technique = _activeBlock.GetSpecificTechnique();
-            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
-            Side correspondingSide = Side.Left;
-            var funcOnCorrespondingSide = _activeTrial.FuncSide == correspondingSide;
-
-            this.TrialInfo($"Technique: {_activeBlock.GetSpecificTechnique()}");
-
-            switch (technique, allObjSelected, funcOnCorrespondingSide)
-            {
-                case (Technique.TOMO_TAP, false, true): // Correct side activated
-                    _mainWindow.ActivateAuxWindowMarker(correspondingSide);
-                    break;
-                case (Technique.TOMO_TAP, false, false): // Incorrect side activated
-                    EndActiveTrial(Result.MISS);
-                    break;
-                case (Technique.TOMO_TAP, true, true): // Correct deactivation
-                    EndActiveTrial(Result.HIT);
-                    break;
-                case (Technique.TOMO_TAP, true, false): // Incorrect deactivation
-                    EndActiveTrial(Result.MISS);
-                    break;
-
-                case (Technique.TOMO_SWIPE, _, _): // Wrong _technique for index tap
-                    EndActiveTrial(Result.MISS);
-                    break;
-            }
-        }
-
-        public override void MiddleTap()
-        {
-            var technique = _activeBlock.GetSpecificTechnique();
-            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
-            Side correspondingSide = Side.Right;
-            var funcOnCorrespondingSide = _activeTrial.FuncSide == correspondingSide;
-
-            this.TrialInfo($"Technique: {_activeBlock.GetSpecificTechnique()}");
-
-            switch (technique, allObjSelected, funcOnCorrespondingSide)
-            {
-                case (Technique.TOMO_TAP, false, true): // Correct side activated
-                    _mainWindow.ActivateAuxWindowMarker(correspondingSide);
-                    break;
-                case (Technique.TOMO_TAP, false, false): // Incorrect side activated
-                    EndActiveTrial(Result.MISS);
-                    break;
-                case (Technique.TOMO_TAP, true, true): // Correct deactivation
-                    EndActiveTrial(Result.HIT);
-                    break;
-                case (Technique.TOMO_TAP, true, false): // Incorrect deactivation
-                    EndActiveTrial(Result.MISS);
-                    break;
-
-                case (Technique.TOMO_SWIPE, _, _): // Wrong _technique for index tap
-                    EndActiveTrial(Result.MISS);
-                    break;
-            }
-        }
-
-        public override void ThumbTap(Side side)
-        {
-            //ThumbTap();
-        }
-
-        public override void ThumbSwipe(Direction dir)
-        {
-            var technique = _activeBlock.GetSpecificTechnique();
-            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
-            var dirMatchesSide = dir switch
-            {
-                Direction.Left => _activeTrial.FuncSide == Side.Left,
-                Direction.Right => _activeTrial.FuncSide == Side.Right,
-                Direction.Up => _activeTrial.FuncSide == Side.Top,
-                _ => false
-            };
-
-            var dirOppositeSide = dir switch
-            {
-                Direction.Left => _activeTrial.FuncSide == Side.Right,
-                Direction.Right => _activeTrial.FuncSide == Side.Left,
-                Direction.Down => _activeTrial.FuncSide == Side.Top,
-                _ => false
-            };
-
-            this.TrialInfo($"Technique: {_activeBlock.GetSpecificTechnique()}");
-
-            switch (technique, allObjSelected, dirMatchesSide, dirOppositeSide)
-            {
-                case (Technique.TOMO_SWIPE, true, _, true): // Deactivation success
-                    EndActiveTrial(Result.HIT);
-                    break;
-                case (Technique.TOMO_SWIPE, true, _, false): // Deactivation failure
-                    EndActiveTrial(Result.MISS);
-                    break;
-                case (Technique.TOMO_SWIPE, false, true, _): // Correct activation swipe
-                    _mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide);
-                    break;
-                case (Technique.TOMO_SWIPE, false, false, _): // Incorrect activation swipe
-                    EndActiveTrial(Result.MISS);
-                    break;
-
-                case (Technique.TOMO_TAP, _, _, _): // Wrong _technique for swipe
-                    EndActiveTrial(Result.MISS);
-                    break;
-
-            }
-        }
 
         
     }

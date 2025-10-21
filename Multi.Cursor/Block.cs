@@ -340,10 +340,10 @@ namespace Multi.Cursor
                 return TaskType.MULTI_FUNCTION;
         }
 
-        public Technique GetSpecificTechnique()
-        {
-            return _technique;
-        }
+        //public Technique GetTechnique()
+        //{
+        //    return _technique;
+        //}
 
         public Complexity GetComplexity()
         {

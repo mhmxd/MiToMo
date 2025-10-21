@@ -339,7 +339,12 @@ namespace Multi.Cursor
         }
 
         //---- Function
-        public abstract void OnFunctionMouseEnter(Object sender, MouseEventArgs e);
+        public virtual void OnFunctionMouseEnter(Object sender, MouseEventArgs e)
+        {
+            // Add the id to the list of visited if not already there (will use the index for the order of visit)
+            int funId = (int)((FrameworkElement)sender).Tag;
+            LogEvent(Str.FUN_ENTER, funId);
+        }
 
         public virtual void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
         {
@@ -370,7 +375,11 @@ namespace Multi.Cursor
             // Rest of the handling is done in the derived classes
         }
 
-        public abstract void OnFunctionMouseExit(Object sender, MouseEventArgs e);
+        public virtual void OnFunctionMouseExit(Object sender, MouseEventArgs e)
+        {
+            int funId = (int)((FrameworkElement)sender).Tag;
+            LogEvent(Str.FUN_EXIT, funId);
+        }
 
         public abstract void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e);
 
@@ -510,7 +519,33 @@ namespace Multi.Cursor
             
         }
 
-        public abstract void IndexTap();
+        public virtual void IndexTap()
+        {
+            if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
+            {
+                EndActiveTrial(Result.MISS);
+                return;
+            }
+
+            //-- TAP:
+
+            if (!IsStartClicked())
+            {
+                return; // Do nothing if Start was not clicked
+            }
+
+            Side correspondingSide = Side.Top;
+            var funcOnCorrespondingSide = _activeTrial.FuncSide == correspondingSide;
+
+            if (funcOnCorrespondingSide)
+            {
+                _mainWindow.ActivateAuxWindowMarker(correspondingSide);
+            }
+            else
+            {
+                EndActiveTrial(Result.MISS);
+            }
+        }
 
         public void IndexMove(double dX, double dY)
         {
@@ -533,9 +568,75 @@ namespace Multi.Cursor
             LogEvent(Str.Join(Str.INDEX, Str.UP));
         }
 
-        public abstract void ThumbSwipe(Direction dir);
+        public virtual void ThumbSwipe(Direction dir)
+        {
+            if (_activeTrial.Technique != Technique.TOMO_SWIPE) // Wrong technique for swipe
+            {
+                EndActiveTrial(Result.MISS);
+                return;
+            }
 
-        public abstract void ThumbTap(long downInstant, long upInstant);
+            //-- SWIPE:
+
+            if (!IsStartClicked())
+            {
+                return; // Do nothing if Start was not clicked
+            }
+
+            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
+            var dirMatchesSide = dir switch
+            {
+                Direction.Left => _activeTrial.FuncSide == Side.Left,
+                Direction.Right => _activeTrial.FuncSide == Side.Right,
+                Direction.Up => _activeTrial.FuncSide == Side.Top,
+                _ => false
+            };
+
+            var dirOppositeSide = dir switch
+            {
+                Direction.Left => _activeTrial.FuncSide == Side.Right,
+                Direction.Right => _activeTrial.FuncSide == Side.Left,
+                Direction.Down => _activeTrial.FuncSide == Side.Top,
+                _ => false
+            };
+
+            if (dirMatchesSide)
+            {
+                _mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide);
+            }
+            else
+            {
+                EndActiveTrial(Result.MISS);
+            }
+        }
+
+        public virtual void ThumbTap(long downInstant, long upInstant)
+        {
+            if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
+            {
+                EndActiveTrial(Result.MISS);
+                return;
+            }
+
+            //-- TAP:
+
+            if (!IsStartClicked())
+            {
+                return; // Do nothing if Start was not clicked
+            }
+
+            Side correspondingSide = Side.Left;
+            var funcOnCorrespondingSide = _activeTrial.FuncSide == correspondingSide;
+
+            if (funcOnCorrespondingSide)
+            {
+                _mainWindow.ActivateAuxWindowMarker(correspondingSide);
+            }
+            else
+            {
+                EndActiveTrial(Result.MISS);
+            }
+        }
 
         public void ThumbMove(TouchPoint thumbPoint)
         {
@@ -547,7 +648,33 @@ namespace Multi.Cursor
             // Nothing for now
         }
 
-        public abstract void MiddleTap();
+        public virtual void MiddleTap()
+        {
+            if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
+            {
+                EndActiveTrial(Result.MISS);
+                return;
+            }
+
+            //-- TAP:
+
+            if (!IsStartClicked())
+            {
+                return; // Do nothing if Start was not clicked
+            }
+
+            Side correspondingSide = Side.Right;
+            var funcOnCorrespondingSide = _activeTrial.FuncSide == correspondingSide;
+
+            if (funcOnCorrespondingSide)
+            {
+                _mainWindow.ActivateAuxWindowMarker(correspondingSide);
+            }
+            else
+            {
+                EndActiveTrial(Result.MISS);
+            }
+        }
 
         public void RingTap()
         {
@@ -674,9 +801,6 @@ namespace Multi.Cursor
 
             return 0;
         }
-
-
-        public abstract void ThumbTap(Side side);
 
         public int GetMappedObjId(int funcId)
         {
