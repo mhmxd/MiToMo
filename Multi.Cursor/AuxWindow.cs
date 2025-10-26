@@ -147,7 +147,7 @@ namespace Multi.Cursor
             // Correct way of finding min and max dist
             _buttonInfos[button.Id].DistToStartRange = GetMinMaxDistances(buttonCenterAbsolute, _objectConstraintRectAbsolute);
 
-            // Update min/max X and Y for grid bounds
+            // Update min/max x and y for grid bounds
             _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
             _gridMinY = Math.Min(_gridMinY, buttonRect.Top);
             _gridMaxX = Math.Max(_gridMaxX, buttonRect.Right);
@@ -916,8 +916,8 @@ namespace Multi.Cursor
             // 2. A point on one of the rectangle's edges (if outsidePoint projects onto the edge).
             // 3. One of the rectangle's corners (if outsidePoint projects outside the edge).
 
-            // For WPF Rect, X is Left, Y is Top.
-            // rect.Right and rect.Bottom are calculated properties (X + Width, Y + Height).
+            // For WPF Rect, x is Left, y is Top.
+            // rect.Right and rect.Bottom are calculated properties (x + Width, y + Height).
             double dx = Math.Max(0.0, Math.Max(rect.X - outsidePoint.X, outsidePoint.X - rect.Right));
             double dy = Math.Max(0.0, Math.Max(rect.Y - outsidePoint.Y, outsidePoint.Y - rect.Bottom));
 

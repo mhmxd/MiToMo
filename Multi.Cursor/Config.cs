@@ -100,8 +100,8 @@ namespace Multi.Cursor
 
         // --------------- Movement Thresholds --
         //public static double TAP_MOVE_LIMIT = 0.2; // Amount of allowed movement for Tap
-        //public static float TAP_X_MOVE_LIMIT = 0.5f; // Amount of allowed X movement for Tap
-        //public static float TAP_Y_MOVE_LIMIT = 0.5f; // Amount of allowed Y movement for Tap
+        //public static float TAP_X_MOVE_LIMIT = 0.5f; // Amount of allowed x movement for Tap
+        //public static float TAP_Y_MOVE_LIMIT = 0.5f; // Amount of allowed y movement for Tap
         public static readonly (float DX, float DY) TAP_GENERAL_THRESHOLD = (0.2f, 0.2f);
 
         public static readonly (float DX, float DY) TAP_THUMB_THRESHOLD = (0.5f, 0.5f);

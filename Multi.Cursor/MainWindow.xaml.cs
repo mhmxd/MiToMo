@@ -62,13 +62,13 @@ namespace Multi.Cursor
 
     //public partial class TouchPoint
     //{
-    //    public int X { get; set; }
-    //    public int Y { get; set; }
+    //    public int x { get; set; }
+    //    public int y { get; set; }
     //    public int Value { get; set; }
 
     //    override public string ToString()
     //    {
-    //        return string.Format("({0}, {1}): {2}", X, Y, Value);
+    //        return string.Format("({0}, {1}): {2}", x, y, Value);
     //    }
     //}
 
@@ -862,7 +862,7 @@ namespace Multi.Cursor
         //    // Get the absolute position of the target center
         //    Point targetCenterInTargetWindow = trialTargetWindow.GetGridButtonCenter(targetId);
         //    Point targetCenterAbsolute = targetCenterInTargetWindow
-        //        .OffsetPosition(trialTargetWindowPosition.X, trialTargetWindowPosition.Y);
+        //        .OffsetPosition(trialTargetWindowPosition.x, trialTargetWindowPosition.y);
 
         //    // Find a Start position for each distance in the passes
         //    _repTrialStartPositions[trial.Id] = new Dictionary<int, Point>(); // Initialize the dict for this trial
@@ -877,7 +877,7 @@ namespace Multi.Cursor
         //        Point startPosition = startCenter.OffsetPosition(-startHalfW, -startHalfW);
         //        Point startPositionInMain = startPosition.OffsetPosition(-thisLeft, -thisTop); // Position relative to the main window
         //        this.TrialInfo($"Target: {targetCenterAbsolute}; Dist (px): {dist}; Start pos in main: {startPositionInMain}");
-        //        if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position
+        //        if (startCenter.x == -1 && startCenter.y == -1) // Failed to find a valid position
         //        {
         //            this.TrialInfo($"No valid position found for Start for dist {dist}!");
         //            return false;

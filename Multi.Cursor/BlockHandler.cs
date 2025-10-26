@@ -70,7 +70,17 @@ namespace Multi.Cursor
             ShowActiveTrial();
         }
 
-        public abstract void ShowActiveTrial();
+        public virtual void ShowActiveTrial()
+        {
+            this.TrialInfo(Str.MINOR_LINE);
+            this.TrialInfo($"Showing " + _activeTrial.ToStr());
+
+            LogEvent(Str.TRIAL_SHOW, _activeTrial.Id);
+
+            // Start logging cursor positions
+            ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
+        }
+
         public virtual void EndActiveTrial(Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
@@ -188,6 +198,9 @@ namespace Multi.Cursor
         public virtual void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
         {
             LogEventOnce(Str.FIRST_MOVE);
+
+            // Log cursor movement
+            ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
         }
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)

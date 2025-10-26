@@ -18,8 +18,8 @@ namespace Multi.Cursor
         [StructLayout(LayoutKind.Sequential)]
         private struct TOUCHINPUT
         {
-            public int x;               // Touch X coordinate (100th of a pixel)
-            public int y;               // Touch Y coordinate (100th of a pixel)
+            public int x;               // Touch x coordinate (100th of a pixel)
+            public int y;               // Touch y coordinate (100th of a pixel)
             public IntPtr hSource;      // Touch source handle (not used)
             public uint dwID;           // Contact ID
             public uint dwFlags;        // Touch event flags

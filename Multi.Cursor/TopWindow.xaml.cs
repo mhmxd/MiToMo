@@ -217,7 +217,7 @@ namespace Multi.Cursor
         //    //_buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
         //    //this.TrialInfo($"Button Position: {positionInWindow}");
 
-        //    Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
+        //    Rect buttonRect = new Rect(positionInWindow.x, positionInWindow.y, button.ActualWidth, button.ActualHeight);
         //    _buttonInfos[button.Id].Rect = buttonRect;
         //    //_buttonRects.Add(button.Id, buttonRect); // Store the rect for later
 
@@ -230,14 +230,14 @@ namespace Multi.Cursor
         //    // Correct way of finding min and max dist
         //    _buttonInfos[button.Id].DistToStartRange = GetMinMaxDistances(buttonCenterAbsolute, _objectConstraintRectAbsolute);
 
-        //    // Update min/max X and Y for grid bounds
+        //    // Update min/max x and y for grid bounds
         //    _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
         //    _gridMinY = Math.Min(_gridMinY, buttonRect.Top);
         //    _gridMaxX = Math.Max(_gridMaxX, buttonRect.Right);
         //    _gridMaxY = Math.Max(_gridMaxY, buttonRect.Bottom);
 
 
-        //    if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
+        //    if (positionInWindow.x <= _topLeftButtonPosition.x && positionInWindow.y <= _topLeftButtonPosition.y)
         //    {
         //        //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
         //        _topLeftButtonPosition = positionInWindow; // Update the top-left button position
@@ -277,7 +277,7 @@ namespace Multi.Cursor
         //                    //_buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
         //                    //this.TrialInfo($"Button Position: {positionInWindow}");
 
-        //                    Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
+        //                    Rect buttonRect = new Rect(positionInWindow.x, positionInWindow.y, button.ActualWidth, button.ActualHeight);
         //                    _buttonInfos[button.Id].Rect = buttonRect;
         //                    //_buttonRects.Add(button.Id, buttonRect); // Store the rect for later
 
@@ -298,14 +298,14 @@ namespace Multi.Cursor
         //                    // Correct way of finding min and max dist
         //                    _buttonInfos[button.Id].DistToStartRange = GetMinMaxDistances(buttonCenterAbsolute, _objectConstraintRectAbsolute);
 
-        //                    // Update min/max X and Y for grid bounds
+        //                    // Update min/max x and y for grid bounds
         //                    _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
         //                    _gridMinY = Math.Min(_gridMinY, buttonRect.Top);
         //                    _gridMaxX = Math.Max(_gridMaxX, buttonRect.Right);
         //                    _gridMaxY = Math.Max(_gridMaxY, buttonRect.Bottom);
 
 
-        //                    if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
+        //                    if (positionInWindow.x <= _topLeftButtonPosition.x && positionInWindow.y <= _topLeftButtonPosition.y)
         //                    {
         //                        //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
         //                        _topLeftButtonPosition = positionInWindow; // Update the top-left button position
@@ -344,7 +344,7 @@ namespace Multi.Cursor
         //        }
         //        else // if button doesn't containt the center point, calculate the distance
         //        {
-        //            double dist = Utils.Dist(gridCenterPoint, new Point(idRect.Value.X + idRect.Value.Width / 2, idRect.Value.Y + idRect.Value.Height / 2));
+        //            double dist = Utils.Dist(gridCenterPoint, new Point(idRect.Value.x + idRect.Value.Width / 2, idRect.Value.y + idRect.Value.Height / 2));
         //            if (dist < centerDistance)
         //            {
         //                centerDistance = dist;

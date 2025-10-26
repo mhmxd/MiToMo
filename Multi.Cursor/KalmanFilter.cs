@@ -130,7 +130,7 @@ namespace Multi.Cursor
                 { initPos.X, 0, 0, initPos.Y, 0, 0 }
             );
             //Vector<double> initialVector = Vector<double>.Build.DenseOfArray(new double[] 
-            //    { initPos.X, 0, 0, initPos.Y, 0, 0 }
+            //    { initPos.x, 0, 0, initPos.y, 0, 0 }
             //);
             //x0 = initialVector.ToColumnMatrix();
 

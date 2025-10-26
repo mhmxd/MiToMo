@@ -10,7 +10,7 @@ namespace Multi.Cursor
     {
         public string Type; // e.g., "obj_enter", "fun_press", etc.
         public string Id; // e.g., object or function ID
-        public long Time; // Timestamp in milliseconds
+        public long Time; // timestamp in milliseconds
 
         public TrialEvent(string type, string id)
         {

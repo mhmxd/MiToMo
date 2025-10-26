@@ -174,7 +174,7 @@ namespace Multi.Cursor
 
             //// Calculate distance from the point to the circle's center
             //double distance = Math.Sqrt(
-            //    Math.Pow(_cursorTransform.X - centerX, 2) + Math.Pow(_cursorTransform.Y - centerY, 2)
+            //    Math.Pow(_cursorTransform.x - centerX, 2) + Math.Pow(_cursorTransform.y - centerY, 2)
             //    );
 
             //// Check if the distance is less than or equal to the radius
@@ -203,7 +203,7 @@ namespace Multi.Cursor
             //TRIAL_LOG.Information($"Target Center: {centerX}, {centerY}");
             // Calculate distance from the point to the circle's center
             //double distance = Math.Sqrt(
-            //    Math.Pow(p.X - centerX, 2) + Math.Pow(p.Y - centerY, 2)
+            //    Math.Pow(p.x - centerX, 2) + Math.Pow(p.y - centerY, 2)
             //    );
 
             // Check if the distance is less than or equal to the radius
@@ -216,8 +216,8 @@ namespace Multi.Cursor
             // Show the simulated cursor
             //inactiveCursor.Visibility = Visibility.Hidden;
             //activeCursor.Visibility = Visibility.Visible;
-            //_cursorTransform.X = x;
-            //_cursorTransform.Y = y;
+            //_cursorTransform.x = x;
+            //_cursorTransform.y = y;
         }
 
         public void ShowCursor(Point p)
@@ -259,8 +259,8 @@ namespace Multi.Cursor
             _cursorTransform.X = position.X;
             _cursorTransform.Y = position.Y;
 
-            //_cursorTransform.X = position.X;
-            //_cursorTransform.Y = 10;
+            //_cursorTransform.x = position.x;
+            //_cursorTransform.y = 10;
         }
 
         public void ActivateGridNavigator()
@@ -343,7 +343,7 @@ namespace Multi.Cursor
             double potentialY = _cursorTransform.Y + dY;
             PositionInfo<SideWindow>($"Potential Pos: {potentialX:F2}, {potentialY:F2}");
 
-            // X: Within boundaries
+            // x: Within boundaries
             if (potentialX < 0)
             {
                 dX = -_cursorTransform.X + 3;
@@ -353,7 +353,7 @@ namespace Multi.Cursor
                 dX = windowWidth - 10 - _cursorTransform.X;
             }
 
-            // Y: Within boundaries
+            // y: Within boundaries
             if (potentialY < 0)
             {
                 dY = -_cursorTransform.Y + 3;
@@ -396,7 +396,7 @@ namespace Multi.Cursor
             // Only move the cursor while it is inside the window
             if (currentX >= 0 && currentY >= 0)
             {
-                // X: Within boundaries
+                // x: Within boundaries
                 if (potentialX < 0) 
                 {
                     dX = -currentX; // Don't stick it all the way
@@ -405,7 +405,7 @@ namespace Multi.Cursor
                     dX = windowWidth - currentX;
                 }
 
-                // Y: Within boundaries
+                // y: Within boundaries
                 if (potentialY < 0)
                 {
                     dY = -currentY;
@@ -610,14 +610,14 @@ namespace Multi.Cursor
         //                    _buttonInfos[button.Id].Position = positionInWindow;
         //                    //_buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
         //                    //this.TrialInfo($"Button Position: {positionInWindow}");
-        //                    if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
+        //                    if (positionInWindow.x <= _topLeftButtonPosition.x && positionInWindow.y <= _topLeftButtonPosition.y)
         //                    {
         //                        //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
         //                        _topLeftButtonPosition = positionInWindow; // Update the top-left button position
         //                        //_lastMarkedButtonId = button.Id; // Set the last highlighted button to this one
         //                    }
 
-        //                    Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
+        //                    Rect buttonRect = new Rect(positionInWindow.x, positionInWindow.y, button.ActualWidth, button.ActualHeight);
         //                    _buttonInfos[button.Id].Rect = buttonRect;
         //                    //_buttonRects.Add(button.Id, buttonRect); // Store the rect for later
 
@@ -638,13 +638,13 @@ namespace Multi.Cursor
         //                    // Correct way of finding min and max dist
         //                    _buttonInfos[button.Id].DistToStartRange = GetMinMaxDistances(buttonCenterAbsolute, _objectConstraintRectAbsolute);
 
-        //                    // Update min/max X and Y for grid bounds
+        //                    // Update min/max x and y for grid bounds
         //                    _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
         //                    _gridMinY = Math.Min(_gridMinY, buttonRect.Top);
         //                    _gridMaxX = Math.Max(_gridMaxX, buttonRect.Right);
         //                    _gridMaxY = Math.Max(_gridMaxY, buttonRect.Bottom);
 
-        //                    if (positionInWindow.X <= _topLeftButtonPosition.X && positionInWindow.Y <= _topLeftButtonPosition.Y)
+        //                    if (positionInWindow.x <= _topLeftButtonPosition.x && positionInWindow.y <= _topLeftButtonPosition.y)
         //                    {
         //                        //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
         //                        _topLeftButtonPosition = positionInWindow; // Update the top-left button position

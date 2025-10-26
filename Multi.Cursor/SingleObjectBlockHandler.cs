@@ -123,16 +123,11 @@ namespace Multi.Cursor
 
         public override void ShowActiveTrial()
         {
-            this.TrialInfo(Str.MINOR_LINE);
-            this.TrialInfo($"Showing " + _activeTrial.ToStr());
-            //ExperiLogger.StartTrialLog(_activeTrial);
+            base.ShowActiveTrial();
 
             // Update the main window label
             //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
-
-            // Log the trial show timestamp
-            //_activeTrialRecord.RecordEvent(Str.TRIAL_SHOW);
-            LogEvent(Str.TRIAL_SHOW, _activeTrial.Id);
+            
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 

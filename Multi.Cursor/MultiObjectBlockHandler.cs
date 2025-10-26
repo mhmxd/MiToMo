@@ -179,13 +179,7 @@ namespace Multi.Cursor
 
         public override void ShowActiveTrial()
         {
-            this.TrialInfo(Str.MINOR_LINE);
-            this.TrialInfo($"Showing rep Trial#{_activeTrial.Id} | Function side: {_activeTrial.FuncSide} " +
-                $"| Dist (mm): ({_activeTrial.DistRangeMM.Label}) {_activeTrial.DistRangeMM.ToString()}");
-            
-            // Log the trial show timestamp
-            //_activeTrialRecord.RecordEvent(Str.TRIAL_SHOW);
-            LogEvent(Str.TRIAL_SHOW, _activeTrial.Id.ToString());
+            base.ShowActiveTrial();
 
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
@@ -464,13 +458,13 @@ namespace Multi.Cursor
             //        Utils.MM2PX(randDistMM), 
             //        trial.FuncSide.GetOpposite());
 
-            //    if (objAreaCenterPosition.X != 0 && objAreaCenterPosition.Y != 0)
+            //    if (objAreaCenterPosition.x != 0 && objAreaCenterPosition.y != 0)
             //    {
             //        this.TrialInfo($"Found a valid object area center position for Trial#{trial.Id} at {objAreaCenterPosition}.");
             //        // Set the Rect
             //        _trialRecords[trial.Id].ObjectAreaRect = new Rect(
-            //            objAreaCenterPosition.X - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
-            //            objAreaCenterPosition.Y - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+            //            objAreaCenterPosition.x - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+            //            objAreaCenterPosition.y - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
             //            Utils.MM2PX(OBJ_AREA_WIDTH_MM),
             //            Utils.MM2PX(OBJ_AREA_WIDTH_MM));
             //        _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenterPosition, Experiment.REP_TRIAL_NUM_PASS);

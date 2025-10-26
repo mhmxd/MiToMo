@@ -86,5 +86,11 @@ namespace Multi.Cursor.Logging
         public int strrl_gstst;      // start release -> gesture start
         public int gstst_gstnd;      // gesture start -> gesture end
         public int gstnd_fstfl;      // gesture end -> first flick
+
+
+        public MOMFTrialLong(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
+            : base(blockNum, trialNum, trial, trialRecord)
+        {
+        }
     }
 }

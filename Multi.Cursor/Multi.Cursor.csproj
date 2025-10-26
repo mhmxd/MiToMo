@@ -310,6 +310,7 @@
     <Compile Include="ButtonFactory.cs" />
     <Compile Include="GridFactory.cs" />
     <Compile Include="Logging\BlockLog.cs" />
+    <Compile Include="Logging\CursorRecord.cs" />
     <Compile Include="Logging\MOMFTrialLong.cs" />
     <Compile Include="Logging\MOSFTrialLog.cs" />
     <Compile Include="Logging\SOMFTrialLog.cs" />

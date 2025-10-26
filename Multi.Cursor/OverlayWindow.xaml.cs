@@ -320,13 +320,13 @@ namespace Multi.Cursor
             // Configure weights according to regions
             if (Utils.IsBetween(normalAngle, 0, 90))
             {
-                weightX = -weightX; // X- => A+
-                weightY = -weightY; // Y- => A+
+                weightX = -weightX; // x- => A+
+                weightY = -weightY; // y- => A+
             }
 
             if (Utils.IsBetween(normalAngle, 90, 180))
             {
-                weightX = -weightX; // X- => A+
+                weightX = -weightX; // x- => A+
             }
 
             if (Utils.IsBetween(normalAngle, 180, 270))
@@ -336,7 +336,7 @@ namespace Multi.Cursor
 
             if (Utils.IsBetween(normalAngle, 270, 360))
             {
-                weightY = -weightY; // Y- => A+
+                weightY = -weightY; // y- => A+
             }
 
             Seril.Information($"Weights = {weightX:F3}, {weightY:F3}");
@@ -356,7 +356,7 @@ namespace Multi.Cursor
         // 🔼🔽 Move cross along the visible part of the line
         public void MovePlus(double dX, double dY)
         {
-            // Project movement onto the rotated X-axis
+            // Project movement onto the rotated x-axis
             double movementAlongBeam = dX * Math.Cos(_angleRad) + dY * Math.Sin(_angleRad);
 
             // Move the cross along the line
@@ -456,14 +456,14 @@ namespace Multi.Cursor
         //    _angle += deltaAngle;
 
         //    // Set the starting position of the line at the cursor
-        //    _radiusLine.X1 = _cursorPosition.X;
-        //    _radiusLine.Y1 = _cursorPosition.Y;
+        //    _radiusLine.X1 = _cursorPosition.x;
+        //    _radiusLine.Y1 = _cursorPosition.y;
 
         //    // Extend the line outward based on the angle
         //    double radians = _angle * Math.PI / 180.0;
 
-        //    _radiusLine.X2 = _cursorPosition.X - LINE_LENGTH * Math.Cos(radians);
-        //    _radiusLine.Y2 = _cursorPosition.Y - LINE_LENGTH * Math.Sin(radians);
+        //    _radiusLine.X2 = _cursorPosition.x - LINE_LENGTH * Math.Cos(radians);
+        //    _radiusLine.Y2 = _cursorPosition.y - LINE_LENGTH * Math.Sin(radians);
 
         //    // Move the cross to its new position after rotation
         //    UpdateCrossPosition();
@@ -490,7 +490,7 @@ namespace Multi.Cursor
 
             // Find the line formula (needed for finding the interception point)
             //_lineA = Tan(_angleRad);
-            //_lineB = _beamStart.Y - _lineA * _beamStart.X;
+            //_lineB = _beamStart.y - _lineA * _beamStart.x;
 
             // Find the interception points (of the inner and outer rects)
             Point? innerPoint = GetLineRectangleIntersection(_beamStart, lineEnd, _innerRect);
@@ -651,8 +651,8 @@ namespace Multi.Cursor
             // If Plus is inside side window, update its position along with the line
             double distToOuterPoint = Utils.Dist(_beamStart, _outerPoint);
             double distToInnerPoint = Utils.Dist(_beamStart, _innerPoint);
-            //Utils.IsBetweenInc(potentialPos.X, _innerPoint.X, _outerPoint.X) &&
-            //    Utils.IsBetweenInc(potentialPos.Y, _innerPoint.Y, _outerPoint.Y)
+            //Utils.IsBetweenInc(potentialPos.x, _innerPoint.x, _outerPoint.x) &&
+            //    Utils.IsBetweenInc(potentialPos.y, _innerPoint.y, _outerPoint.y)
 
             if (_plusDistance > distToInnerPoint && _plusDistance < distToOuterPoint)
             {

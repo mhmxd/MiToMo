@@ -104,7 +104,7 @@ namespace Multi.Cursor
 
         //public static double DistX(Point p1, Point p2)
         //{
-        //    return Abs(p1.X - p2.X);
+        //    return Abs(p1.x - p2.x);
         //}
 
         public static int MM2PX(double mm)
