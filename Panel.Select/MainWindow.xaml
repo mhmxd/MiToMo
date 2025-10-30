@@ -1,0 +1,20 @@
+﻿<Window x:Class="Panel.Select.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Main Window"
+        WindowStyle="None" 
+        Background="White"
+        ResizeMode="NoResize"
+        BorderThickness="1"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Canvas x:Name="canvas"
+                Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}"
+                Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Grid}}">
+            <TextBlock x:Name="infoLabel"
+                       Text="Trial 0 | Block 0"
+                       SizeChanged="InfoLabel_SizeChanged"
+                       FontSize="14" FontWeight="Medium"/>
+        </Canvas>
+    </Grid>
+</Window>
