@@ -20,8 +20,8 @@ namespace Panel.Select
         public Trial_Action MARKER_NOT_ON_FUNCTION_OBJECT_PRESS = Trial_Action.CONTINUE;
 
         //--- Setting
-        private int N_FUNC = 1;
-        private int N_OBJ = 2;
+        private int N_FUNC = 3;
+        private int N_OBJ = 1;
         private int N_BLOCKS = 1;
         public static int DEFAULT_PTC = 1000;
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
