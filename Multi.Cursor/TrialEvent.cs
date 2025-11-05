@@ -31,7 +31,7 @@ namespace Multi.Cursor
             return this.Type == type && this.Id == id;
         }
 
-        public bool HasTypeId(string type, int id)
+        public bool HasTypeAndId(string type, int id)
         {
             return this.Type == type && this.Id == id.ToString();
         }

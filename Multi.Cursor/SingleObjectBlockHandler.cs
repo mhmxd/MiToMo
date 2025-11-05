@@ -302,28 +302,26 @@ namespace Multi.Cursor
 
         public override void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         {
+            base.OnObjectMouseUp(sender, e); // For logging the event
+
             if (!IsStartClicked())
             {
                 Sounder.PlayStartMiss();
-                var objId = (int)((FrameworkElement)sender).Tag;
-                LogEvent(Str.OBJ_RELEASE, objId);
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
 
             //-- Trial started:
 
-            if (!IsObjectJustPressed(1)) // Technique doesn't matter here
+            if (!WasObjectPressed(1)) // Technique doesn't matter here
             {
                 this.TrialInfo($"Object wasn't pressed");
-                var objId = (int)((FrameworkElement)sender).Tag;
-                LogEvent(Str.OBJ_RELEASE, objId);
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if object wasn't pressed
             }
 
-            //-- Object is pressed (while marker was over function):
-
+            //-- Object is pressed:
+            this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
             if (_activeTrial.IsTechniqueToMo())
             {
                 int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
@@ -341,6 +339,7 @@ namespace Multi.Cursor
             }
             else // MOUSE
             {
+                this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
                 _activeTrialRecord.EnableAllFunctions();
                 _activeTrialRecord.MarkObject(1);
                 UpdateScene();
@@ -412,9 +411,6 @@ namespace Multi.Cursor
                 return; // Do nothing if start button was not clicked
             }
 
-
-            //this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
-
             // Function id is sender's tag as int
             var functionId = (int)((FrameworkElement)sender).Tag;
             var device = Utils.GetDevice(_activeBlock.Technique);
@@ -428,7 +424,7 @@ namespace Multi.Cursor
             }
 
             //-- Object is marked:
-
+            this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
             if (_activeTrial.Technique == Technique.MOUSE)
             {
                 _activeTrialRecord.ApplyFunction(functionId, 1);

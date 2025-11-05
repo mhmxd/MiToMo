@@ -656,34 +656,33 @@ namespace Multi.Cursor
 
         public override void OnObjectMouseUp(object sender, MouseButtonEventArgs e)
         {
+            base.OnObjectMouseUp(sender, e); // For logging the event
+
             var objId = (int)((FrameworkElement)sender).Tag;
 
             if (!IsStartClicked())
             {
                 this.TrialInfo($"Start wasn't clicked");
                 Sounder.PlayStartMiss();
-                LogEvent(Str.OBJ_RELEASE, objId);
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
 
             //-- Trial started:
 
-            if (!IsObjectJustPressed(objId)) // Technique doesn't matter here
+            if (!WasObjectPressed(objId)) // Technique doesn't matter here
             {
                 this.TrialInfo($"Object wasn't pressed");
-                LogEvent(Str.OBJ_RELEASE, objId);
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if object wasn't pressed
             }
 
-            //-- Object is pressed (while marker was over function):
+            //-- Object is pressed:
 
             var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied(); // Probably pressed on the area, then here to release
 
             if (allObjectsApplied)
             {
-                LogEvent(Str.OBJ_RELEASE, objId);
                 e.Handled = true;
                 EndActiveTrial(Result.MISS);
                 return;

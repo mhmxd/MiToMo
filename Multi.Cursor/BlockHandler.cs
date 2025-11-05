@@ -284,6 +284,10 @@ namespace Multi.Cursor
 
         public virtual void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         {
+            var objId = (int)((FrameworkElement)sender).Tag;
+            LogEvent(Str.OBJ_RELEASE, objId);
+
+            // Rest of the handling is done in the derived classes
         }
 
         //---- Object area
@@ -898,9 +902,10 @@ namespace Multi.Cursor
             return GetEventCount(Str.STR_RELEASE) > 0;
         }
 
-        protected bool IsObjectJustPressed(int objId)
+        protected bool WasObjectPressed(int objId)
         {
-            return _activeTrialRecord.GetLastTrialEvent().HasTypeId(Str.OBJ_PRESS, objId);
+            this.TrialInfo($"Last event: {_activeTrialRecord.GetBeforeLastTrialEvent().ToString()}");
+            return _activeTrialRecord.GetBeforeLastTrialEvent().HasTypeAndId(Str.OBJ_PRESS, objId);
         }
     }
 

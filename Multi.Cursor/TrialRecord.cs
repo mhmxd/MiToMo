@@ -327,6 +327,11 @@ namespace Multi.Cursor
             return Events.Count > 0 ? Events.Last() : null;
         }
 
+        public TrialEvent GetBeforeLastTrialEvent()
+        {
+            return Events.Count > 1 ? Events[Events.Count - 2] : null;
+        }
+
         public long GetFirstTime(string type)
         {
             var timestamp = Events.FirstOrDefault(ts => ts.Type == type);
