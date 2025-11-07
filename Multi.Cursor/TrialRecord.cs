@@ -332,6 +332,11 @@ namespace Multi.Cursor
             return Events.Count > 1 ? Events[Events.Count - 2] : null;
         }
 
+        public int GetEventIndex(string type)
+        {
+            return Events.FindIndex(ts => ts.Type == type);
+        }
+
         public long GetFirstTime(string type)
         {
             var timestamp = Events.FirstOrDefault(ts => ts.Type == type);

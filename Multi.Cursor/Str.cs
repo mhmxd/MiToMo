@@ -60,6 +60,7 @@ namespace Multi.Cursor
         //public static string TARGET_RELEASE = "target_release";
         //public static string TARGET_LEAVE = "target_leave";
 
+        public static string PNL_SELECT = "pnl_select"; // For ToMo (when gesture is registered)
         public static string FUN_MARKED = "fun_marked";
 
         public static string MAIN_WIN_PRESS = "main_win_press";

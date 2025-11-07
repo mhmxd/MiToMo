@@ -747,6 +747,8 @@ namespace Multi.Cursor
             log.funcs_sel_time = trialRecord.GetDuration(Str.PNL_ENTER, Str.FUN_RELEASE);
             log.objs_sel_time = trialRecord.GetDuration(Str.ARA_ENTER, Str.OBJ_RELEASE);
             log.func_po_sel_time = trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUN_RELEASE);
+            log.panel_sel_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.PNL_SELECT);
+            log.panel_nav_time = trialRecord.GetDuration(Str.PNL_SELECT, Str.OBJ_PRESS);
 
             WriteTrialLog(log, _totalLogFilePath, _totalTrialLogWriter);
 

@@ -20,7 +20,7 @@ namespace Multi.Cursor
         public Trial_Action MARKER_NOT_ON_FUNCTION_OBJECT_PRESS = Trial_Action.CONTINUE;
 
         //--- Setting
-        private readonly int N_FUNC = 1;
+        private readonly int N_FUNC = 3;
         private readonly int N_OBJ = 1;
         private readonly int N_BLOCKS = 3;
         public static int DEFAULT_PTC = 1000;

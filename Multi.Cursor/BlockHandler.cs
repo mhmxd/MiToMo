@@ -79,6 +79,8 @@ namespace Multi.Cursor
 
             // Start logging cursor positions
             ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
+
+            // Rest in overriding classes
         }
 
         public virtual void EndActiveTrial(Result result)
@@ -417,6 +419,7 @@ namespace Multi.Cursor
             if (startButtonPressed)
             {
                 _mainWindow.RemoveStartTrialButton();
+                //UpdateScene(); // Temp (for measuring time)
             }
             else // Pressed outside the button => miss
             {
@@ -550,6 +553,7 @@ namespace Multi.Cursor
 
             if (funcOnCorrespondingSide)
             {
+                LogEvent(Str.PNL_SELECT);
                 _mainWindow.ActivateAuxWindowMarker(correspondingSide);
             }
             else
@@ -613,6 +617,7 @@ namespace Multi.Cursor
 
             if (dirMatchesSide)
             {
+                LogEvent(Str.PNL_SELECT);
                 _mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide);
             }
             else
@@ -641,6 +646,7 @@ namespace Multi.Cursor
 
             if (funcOnCorrespondingSide)
             {
+                LogEvent(Str.PNL_SELECT);
                 _mainWindow.ActivateAuxWindowMarker(correspondingSide);
             }
             else
@@ -679,6 +685,7 @@ namespace Multi.Cursor
 
             if (funcOnCorrespondingSide)
             {
+                LogEvent(Str.PNL_SELECT);
                 _mainWindow.ActivateAuxWindowMarker(correspondingSide);
             }
             else
@@ -905,7 +912,7 @@ namespace Multi.Cursor
         protected bool WasObjectPressed(int objId)
         {
             this.TrialInfo($"Last event: {_activeTrialRecord.GetBeforeLastTrialEvent().ToString()}");
-            return _activeTrialRecord.GetBeforeLastTrialEvent().HasTypeAndId(Str.OBJ_PRESS, objId);
+            return _activeTrialRecord.GetEventIndex(Str.OBJ_PRESS) != -1;
         }
     }
 

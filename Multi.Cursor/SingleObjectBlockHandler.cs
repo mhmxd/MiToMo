@@ -134,7 +134,7 @@ namespace Multi.Cursor
             // Color the target button and set the handlers
             this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
             Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
-            UpdateScene();
+            UpdateScene(); // (comment for measuring panel selection time)
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.FuncSide, 
             //    _activeTrialRecord.FunctionId, 
