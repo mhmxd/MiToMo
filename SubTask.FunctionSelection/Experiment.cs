@@ -15,14 +15,11 @@ namespace SubTask.FunctionSelection
 
         //--- Flags
         public bool MULTI_FUNC_SAME_W = false;
-        public Trial_Action OUTSIDE_OBJECT_PRESS = Trial_Action.CONTINUE;
-        public Trial_Action OUTSIDE_AREA_PRESS = Trial_Action.CONTINUE;
-        public Trial_Action MARKER_NOT_ON_FUNCTION_OBJECT_PRESS = Trial_Action.CONTINUE;
 
         //--- Setting
         private readonly int N_FUNC = 3;
-        private readonly int N_OBJ = 1;
         private readonly int N_BLOCKS = 3;
+
         public static int DEFAULT_PTC = 1000;
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
@@ -98,7 +95,8 @@ namespace SubTask.FunctionSelection
         //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
         public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
         public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
-        public static double START_WIDTH_MM = OBJ_WIDTH_MM;
+        public static double START_W_MM = Config.EXCEL_CELL_W;
+        public static double START_H_MM = Config.EXCEL_CELL_H;
 
 
 
@@ -161,17 +159,13 @@ namespace SubTask.FunctionSelection
                 _longDistRangeMM    // Long distances
             };
 
-            //List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
             // Create and add blocks
             for (int i = 0; i < N_BLOCKS; i++)
             {
                 int blockId = Participant_Number * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, Participant_Number, blockId, complexity, distRanges, N_FUNC, N_OBJ);
+                Block block = Block.CreateBlock(Participant_Number, blockId, complexity, N_FUNC);
                 _blocks.Add(block);
             }
-
-            //CreateAltBlocks(1, targetMultiples, distRanges);
-            //CreateRepBlocks(1, targetMultiples, distRanges);
         }
 
         public int GetNumBlocks()

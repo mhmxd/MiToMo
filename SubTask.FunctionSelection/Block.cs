@@ -26,13 +26,6 @@ namespace SubTask.FunctionSelection
             set => _id = value;
         }
 
-        private TaskType _taskType = TaskType.MULTI_OBJ_ONE_FUNC;
-        public TaskType TaskType
-        {
-            get => _taskType;
-            set => _taskType = value;
-        }
-
         private Complexity _complexity = Complexity.Simple;
         public Complexity Complexity
         {
@@ -40,55 +33,17 @@ namespace SubTask.FunctionSelection
             set => _complexity = value;
         }
 
-        public Technique _technique = Technique.MOUSE;
-
-        public Technique Technique
-        {
-            get => _technique;
-            set => _technique = value;
-        }
-
-        public int NFunctions, NObjects;
+        public int NFunctions;
 
         public int PtcNum { get; set; }
 
-        public Block(int ptcNum, Technique technique, TaskType type, int nFunc, int nObj, Complexity complexity, int id)
+        private Block(int ptcNum, int nFunc, Complexity complexity, int id)
         {
             this.Id = id;
             PtcNum = ptcNum;
-            _technique = technique;
-            _taskType = type;
             NFunctions = nFunc;
-            NObjects = nObj;
             _complexity = complexity;
         }
-
-        /// <summary>
-        /// One side (for repeating blocks)
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="targetMultiples"></param>
-        /// <param name="distsMM"></param>
-        //public Block(Side side, int id, List<int> targetMultiples, List<double> distsMM)
-        //{
-        //    _id = id;
-
-        //    //-- Create trials (dist x targetWidth x sideWindow)
-        //    int trialNum = 1;
-        //    foreach (int targetMultiple in targetMultiples)
-        //    {
-        //        foreach (double distMM in distsMM)
-        //        {
-        //            Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, side);
-        //            _trials.Add(trial);
-        //            trialNum++;
-        //        }
-        //    }
-
-
-        //    // Shuffle the trials
-        //    _trials.Shuffle();
-        //}
 
         public void ShuffleTrials()
         {
@@ -104,37 +59,14 @@ namespace SubTask.FunctionSelection
         /// <param name="nObj"></param>
         /// <returns></returns>
         public static Block CreateBlock(
-            Technique technique,
             int ptc,
             int id,
             Complexity complexity,
-            List<Range> distRanges,
-            int nFun,
-            int nObj)
+            int nFun)
         {
 
-            // Set the type of the block based on nFun and nObj
-            TaskType type = TaskType.ONE_OBJ_ONE_FUNC;
-            switch (nObj, nFun)
-            {
-                case (1, 1):
-                    type = TaskType.ONE_OBJ_ONE_FUNC;
-                    break;
-                case (1, > 1):
-                    type = TaskType.ONE_OBJ_MULTI_FUNC;
-                    break;
-                case ( > 1, 1):
-                    type = TaskType.MULTI_OBJ_ONE_FUNC;
-                    break;
-                case ( > 1, > 1):
-                    type = TaskType.MULTI_OBJ_MULTI_FUNC;
-                    break;
-                default:
-                    throw new ArgumentException("Invalid number of functions or objects.");
-            }
-
             // Create block
-            Block block = new Block(ptc, technique, type, nFun, nObj, complexity, id);
+            Block block = new Block(ptc, nFun, complexity, id);
 
             // Create and add trials to the block
             int trialNum = 1;
@@ -145,32 +77,24 @@ namespace SubTask.FunctionSelection
                 // Get the function widths based on side and complexity
                 List<int> buttonWidths = Experiment.BUTTON_WIDTHS[complexity][functionSide];
 
-                foreach (Range range in distRanges)
+                // For now all function Ws are the same. We may later create trials with multiple function Ws
+                foreach (int funcW in buttonWidths)
                 {
-                    // For now all function Ws are the same. We may later create trials with multiple function Ws
-                    foreach (int funcW in buttonWidths)
+                    List<int> functionWidths = new List<int>(nFun);
+                    for (int i = 0; i < nFun; i++)
                     {
-                        List<int> functionWidths = new List<int>(nFun);
-                        for (int i = 0; i < nFun; i++)
-                        {
-                            functionWidths.Add(funcW);
-                        }
-
-                        Trial trial = Trial.CreateTrial(
-                            id * 100 + trialNum,
-                            technique,
-                            ptc,
-                            type,
-                            complexity,
-                            functionSide,
-                            range,
-                            nObj,
-                            functionWidths);
-
-                        block._trials.Add(trial);
-                        trialNum++;
+                        functionWidths.Add(funcW);
                     }
 
+                    Trial trial = Trial.CreateTrial(
+                        id * 100 + trialNum,
+                        ptc,
+                        complexity,
+                        functionSide,
+                        functionWidths);
+
+                    block._trials.Add(trial);
+                    trialNum++;
                 }
             }
 
@@ -181,91 +105,6 @@ namespace SubTask.FunctionSelection
             return block;
         }
 
-        //public Block(int id, List<int> topTargetMultiples, List<int> sideTargetMultiples, List<double> distsMM, int rep)
-        //{
-        //    _id = id;
-
-        //    // Top trials
-        //    int trialNum = 1;
-        //    for (int r = 0; r < rep; r++)
-        //    {
-        //        foreach (int targetMultiple in topTargetMultiples)
-        //        {
-        //            foreach (double distMM in distsMM)
-        //            {
-        //                Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, Side.Top);
-        //                _trials.Add(trial);
-        //                trialNum++;
-        //            }
-        //        }
-        //    }
-
-        //    // Left trials
-        //    for (int r = 0; r < rep; r++)
-        //    {
-        //        foreach (int targetMultiple in sideTargetMultiples)
-        //        {
-        //            foreach (double distMM in distsMM)
-        //            {
-        //                Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, Side.Left);
-        //                _trials.Add(trial);
-        //                trialNum++;
-        //            }
-        //        }
-        //    }
-
-        //    // Right trials
-        //    for (int r = 0; r < rep; r++)
-        //    {
-        //        foreach (int targetMultiple in sideTargetMultiples)
-        //        {
-        //            foreach (double distMM in distsMM)
-        //            {
-        //                Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, Side.Right);
-        //                _trials.Add(trial);
-        //                trialNum++;
-        //            }
-        //        }
-        //    }
-
-        //    // Shuffle the trials
-        //    _trials.Shuffle();
-        //}
-
-        //public Block(int id, List<int> targetMultiples, List<double> distsMM, int rep)
-        //{
-        //    _id = id;
-
-        //    //-- Create trials (dist x targetWidth x sideWindow)
-        //    // trial id = _id * 100 + num
-        //    int trialNum = 1;
-        //    for (int r = 0; r < rep; r++)
-        //    {
-        //        foreach (int targetMultiple in targetMultiples)
-        //        {
-        //            foreach (double distMM in distsMM)
-        //            {
-        //                for (int locInd = 0; locInd < 3; locInd++)
-        //                {
-        //                    Side sideWindow = (Side)locInd;
-        //                    Trial trial = new Trial(_id * 100 + trialNum, targetMultiple, distMM, sideWindow);
-        //                    _trials.Add(trial);
-        //                    trialNum++;
-        //                }
-
-        //            }
-        //        }
-        //    }
-
-        //    // Shuffle the trials
-        //    _trials.Shuffle();
-
-        //    // TESTING
-        //    foreach (Trial trial in _trials)
-        //    {
-        //        Seril.Information(trial.ToString());
-        //    }
-        //}
 
         public Trial GetTrial(int trialNum)
         {
@@ -307,43 +146,6 @@ namespace SubTask.FunctionSelection
                 Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
             }
         }
-
-        //public string ToString()
-        //{
-        //    StringBuilder sb = new StringBuilder();
-        //    sb.AppendLine($"Block: [Id = {_id}]");
-        //    foreach (Trial trial in _trials)
-        //    {
-        //        sb.AppendLine(trial.ToString());
-        //    }
-        //    return sb.ToString();
-        //}
-
-        public TaskType GetBlockType()
-        {
-            return _taskType;
-        }
-
-        public TaskType GetObjectType()
-        {
-            if (_taskType == TaskType.ONE_OBJ_ONE_FUNC || _taskType == TaskType.ONE_OBJ_MULTI_FUNC)
-                return TaskType.ONE_OBJECT;
-            else
-                return TaskType.MULTI_OBJECT;
-        }
-
-        public TaskType GetFunctionType()
-        {
-            if (_taskType == TaskType.ONE_OBJ_ONE_FUNC || _taskType == TaskType.MULTI_OBJ_ONE_FUNC)
-                return TaskType.ONE_FUNCTION;
-            else
-                return TaskType.MULTI_FUNCTION;
-        }
-
-        //public Technique GetTechnique()
-        //{
-        //    return _technique;
-        //}
 
         public Complexity GetComplexity()
         {

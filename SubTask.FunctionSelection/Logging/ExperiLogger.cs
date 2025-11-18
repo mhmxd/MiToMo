@@ -67,165 +67,18 @@ namespace SubTask.FunctionSelection
         private static Dictionary<int, List<CursorRecord>> _trialCursorRecords = new Dictionary<int, List<CursorRecord>>();
         private static int _activeTrialId = -1;
 
-        //public static void Init(int participantId, Technique tech)
-        //{
-        //    _ptcId = participantId;
-        //    _technique = tech;
-
-        //    bool fileExists = File.Exists(_sosfTrialLogFilePath);
-        //    bool fileIsEmpty = !fileExists || new FileInfo(_sosfTrialLogFilePath).Length == 0;
-
-        //    _trialLogWriter = new StreamWriter(_sosfTrialLogFilePath, append: true, Encoding.UTF8);
-
-        //    if (fileIsEmpty)
-        //    {
-        //        WriteHeader<TrialLog>();
-        //    }
-        //}
-
-        public static void Init(int participantId, Technique tech, TaskType taskType)
+        public static void Init(int participantId)
         {
             _ptcId = participantId;
-            _technique = tech;
 
-            //string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-
-            // Default (will set based on the task type)
-            switch (taskType)
-            {
-                case TaskType.ONE_OBJ_ONE_FUNC:
-                    {
-                        _trialLogWriter = PrepareFile<SOSFTrialLog>(_sosfTrialLogFilePath);
-                        //string logFilePath = $"{_sosfTrialLogFilePath}_{timestamp}.csv";
-                        //bool fileExists = File.Exists(logFilePath);
-                        //bool fileIsEmpty = !fileExists || new FileInfo(logFilePath).Length == 0;
-
-                        //_trialLogWriter = new StreamWriter(logFilePath, append: true, Encoding.UTF8);
-
-                        //if (fileIsEmpty)
-                        //{
-                        //    WriteHeader<SOSFTrialLog>(_trialLogWriter);
-                        //}
-                    }
-                    break;
-                case TaskType.ONE_OBJ_MULTI_FUNC:
-                    {
-                        _trialLogWriter = PrepareFile<SOMFTrialLog>(_somfTrialLogFilePath);
-                        //string logFilePath = $"{_somfTrialLogFilePath}_{timestamp}.csv";
-                        //bool fileExists = File.Exists(logFilePath);
-                        //bool fileIsEmpty = !fileExists || new FileInfo(logFilePath).Length == 0;
-
-                        //_trialLogWriter = new StreamWriter(logFilePath, append: true, Encoding.UTF8);
-
-                        //if (fileIsEmpty)
-                        //{
-                        //    WriteHeader<SOMFTrialLog>(_trialLogWriter);
-                        //}
-                    }
-                    break;
-                case TaskType.MULTI_OBJ_ONE_FUNC:
-                    {
-                        _trialLogWriter = PrepareFile<MOSFTrialLog>(_mosfTrialLogFilePath);
-
-                        //string logFilePath = $"{_mosfTrialLogFilePath}_{timestamp}.csv";
-                        //bool fileExists = File.Exists(logFilePath);
-                        //bool fileIsEmpty = !fileExists || new FileInfo(logFilePath).Length == 0;
-
-                        //_trialLogWriter = new StreamWriter(logFilePath, append: true, Encoding.UTF8);
-
-                        //if (fileIsEmpty)
-                        //{
-                        //    WriteHeader<MOSFTrialLog>(_trialLogWriter);
-                        //}
-                    }
-                    break;
-                case TaskType.MULTI_OBJ_MULTI_FUNC:
-                    {
-                        _trialLogWriter = PrepareFile<MOMFTrialLong>(_momfTrialLogFilePath);
-
-                        //string logFilePath = $"{_momfTrialLogFilePath}_{timestamp}.csv";
-                        //bool fileExists = File.Exists(logFilePath);
-                        //bool fileIsEmpty = !fileExists || new FileInfo(logFilePath).Length == 0;
-
-                        //_trialLogWriter = new StreamWriter(logFilePath, append: true, Encoding.UTF8);
-
-                        //if (fileIsEmpty)
-                        //{
-                        //    WriteHeader<MOMFTrialLong>(_trialLogWriter);
-                        //}
-                    }
-                    break;
-            }
-
-
-            //_trialLogWriter.AutoFlush = true;
+            _trialLogWriter = PrepareFile<SOMFTrialLog>(_somfTrialLogFilePath);
 
             // Create total log if not exists
             _totalTrialLogWriter = PrepareFile<TotalTrialLog>(_totalLogFilePath);
-            //string totalLogFilePath = $"{_totalLogFilePath}_{timestamp}.csv";
-            //bool totalFileExists = File.Exists(totalLogFilePath);
-            //bool totalFileIsEmpty = !totalFileExists || new FileInfo(totalLogFilePath).Length == 0;
-            //_totalTrialLogWriter = new StreamWriter(totalLogFilePath, append: true, Encoding.UTF8);
-            //_totalTrialLogWriter.AutoFlush = true;
-            //if (totalFileIsEmpty)
-            //{
-            //    WriteHeader<TotalTrialLog>(_totalTrialLogWriter);
-            //}
 
             // Create block log if not exists
             _blockLogWriter = PrepareFile<BlockLog>(_blockLogFilePath);
-            //string blockLogFilePath = $"{_blockLogFilePath}_{timestamp}.csv";
-            //bool blockFileExists = File.Exists(blockLogFilePath);
-            //bool timedFileIsEmpty = !blockFileExists || new FileInfo(blockLogFilePath).Length == 0;
-            //_blockLogWriter = new StreamWriter(blockLogFilePath, append: true, Encoding.UTF8);
-            //_blockLogWriter.AutoFlush = true;
-            //if (timedFileIsEmpty)
-            //{
-            //    WriteHeader<BlockLog>(_blockLogWriter);
-            //}
         }
-
-        //public static void StartBlockLog(int blockId, TaskType blockType, Complexity blockComplexity)
-        //{
-        //    String blockFileName = $"Block-{blockId}-{blockType}.txt";
-        //    string blockFilePath = System.IO.Path.Combine(
-        //        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-        //        "SubTask.FunctionSelection.Logs", $"{_ptcId}-{_technique}", blockFileName
-        //    );
-
-        //    //_blockFileLog = new LoggerConfiguration()
-        //    //    .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
-        //    //    outputTemplate: "{TrialEvent:HH:mm:ss.fff} {Message:lj}{NewLine}"))
-        //    //    .CreateLogger();
-
-        //    _blockFileLog = new LoggerConfiguration()
-        //        .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
-        //        outputTemplate: "{Message:lj}{NewLine}"))
-        //        .CreateLogger();
-
-        //    _blockFileLog.Information($"--- Technique: {_technique} | Block#: {blockId} | Type: {blockType} | Complexity: {blockComplexity} ---");
-        //}
-
-        //private static void PrepareFile<T>(ref string filePath, StreamWriter writer)
-        //{
-        //    string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-        //    filePath = $"{filePath}_{timestamp}.csv";
-
-        //    string directoryPath = Path.GetDirectoryName(filePath);
-        //    if (!Directory.Exists(directoryPath))
-        //    {
-        //        Directory.CreateDirectory(directoryPath);
-        //    }
-
-        //    bool timedFileExists = File.Exists(filePath);
-        //    bool timedFileIsEmpty = !timedFileExists || new FileInfo(filePath).Length == 0;
-        //    writer = new StreamWriter(filePath, append: true, Encoding.UTF8);
-        //    writer.AutoFlush = true;
-        //    if (timedFileIsEmpty)
-        //    {
-        //        WriteHeader<T>(writer);
-        //    }
-        //}
 
         private static void PrepareFileWithHeader<T>(ref string filePath, StreamWriter writer, string header)
         {
@@ -556,7 +409,7 @@ namespace SubTask.FunctionSelection
                     log.pnlnt_fun1nt = trialRecord.GetNthSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER, 1);
 
                     int i;
-                    for (i = 1; i <= trial.GetNumFunctions(); i++)
+                    for (i = 1; i <= trial.GetNumFunctionWidths(); i++)
                     {
                         DynamiclySetFieldValue(
                             log, $"fun{i}nt_fun{i}pr",
@@ -566,7 +419,7 @@ namespace SubTask.FunctionSelection
                             trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, i));
 
                         // Transition to the next function (i + 1)
-                        if (i < trial.GetNumFunctions())
+                        if (i < trial.GetNumFunctionWidths())
                         {
                             DynamiclySetFieldValue(
                             log, $"fun{i}rl_fun{i + 1}nt",
@@ -586,7 +439,7 @@ namespace SubTask.FunctionSelection
 
                     log.fstfl_fun1mk = trialRecord.GetFirstSeqDuration(Str.FLICK, Str.FUN_MARKED);
 
-                    for (i = 1; i <= trial.GetNumFunctions(); i++)
+                    for (i = 1; i <= trial.GetNumFunctionWidths(); i++)
                     {
                         DynamiclySetFieldValue(
                             log, $"fun{i}mk_objpr_{i}",
@@ -596,7 +449,7 @@ namespace SubTask.FunctionSelection
                             trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE, i));
 
                         // Transition to the next function (i + 1)
-                        if (i < trial.GetNumFunctions())
+                        if (i < trial.GetNumFunctionWidths())
                         {
                             DynamiclySetFieldValue(
                             log, $"objrl_fun{i + 1}mk",
@@ -681,7 +534,7 @@ namespace SubTask.FunctionSelection
 
                     log.fstfl_fun1mk = trialRecord.GetFirstSeqDuration(Str.FLICK, Str.FUN_MARKED);
 
-                    for (int i = 1; i <= trial.GetNumFunctions(); i++)
+                    for (int i = 1; i <= trial.GetNumFunctionWidths(); i++)
                     {
                         DynamiclySetFieldValue(
                             log, $"fun{i}mk_obj{i}pr",
@@ -691,7 +544,7 @@ namespace SubTask.FunctionSelection
                             trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE, i));
 
                         // Transition to the next function (i + 1)
-                        if (i < trial.GetNumFunctions())
+                        if (i < trial.GetNumFunctionWidths())
                         {
                             DynamiclySetFieldValue(
                             log, $"obj{i}rl_fun{i + 1}mk",
@@ -727,7 +580,7 @@ namespace SubTask.FunctionSelection
         //    log.fun_side = trial.FuncSide.ToString().ToLower();
         //    log.func_width = trial.GetFunctionWidthMM();
         //    log.n_obj = trial.NObjects;
-        //    log.n_fun = trial.GetNumFunctions();
+        //    log.n_fun = trial.GetNumFunctionWidths();
         //    log.dist_lvl = trial.DistRangeMM.Label.Split('-')[0].ToLower();
         //    log.dist = $"{Utils.PX2MM(trialRecord.Distance):F2}";
         //    log.result = (int)trialRecord.Result;
@@ -779,12 +632,9 @@ namespace SubTask.FunctionSelection
 
             log.ptc = block.PtcNum;
             log.id = block.Id;
-            log.tech = block.Technique.ToString().ToLower();
             log.cmplx = block.Complexity.ToString().ToLower();
             log.n_trials = block.GetNumTrials();
-            log.tsk_type = Str.TASKTYPE_ABBR[block.TaskType];
             log.n_fun = block.NFunctions;
-            log.n_obj = block.NObjects;
 
             double avgTime = _trialTimes.Values.Average() / 1000;
             log.block_time = $"{avgTime:F2}";

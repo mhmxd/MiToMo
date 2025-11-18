@@ -802,15 +802,7 @@ namespace SubTask.FunctionSelection
             //Block block = _experiment.GetBlock(_activeBlockNum);
             _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
-            ExperiLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique, _activeBlockHandler.GetBlockType());
-
-            if (Utils.GetDevice(_experiment.Active_Technique) == Technique.TOMO)
-            {
-                _isTouchMouseActive = true;
-                if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);
-                _touchSurface.SetGestureHandler(_activeBlockHandler);
-                this.TrialInfo($"TouchSurface Initiated");
-            }
+            ExperiLogger.Init(_experiment.Participant_Number);
 
             _stopWatch.Start();
             _activeBlockHandler.BeginActiveBlock();
@@ -936,20 +928,14 @@ namespace SubTask.FunctionSelection
                 Block block = _experiment.GetBlock(_activeBlockNum);
 
                 _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
-                if (Utils.GetDevice(_experiment.Active_Technique) == Technique.TOMO) _touchSurface.SetGestureHandler(_activeBlockHandler);
 
                 _activeBlockHandler.BeginActiveBlock();
 
-                //if (TaskType == TaskType.REPEATING) _activeBlockHandler = new MultiObjectBlockHandler(this, block);
-                //else if (TaskType == TaskType.ALTERNATING) _activeBlockHandler = new SingleObjectBlockHandler(this, block);
-
-                //bool positionsFound = _activeBlockHandler.FindPositionsForActiveBlock();
-                //if (positionsFound) _activeBlockHandler.BeginActiveBlock();
             }
             else // All blocks finished
             {
                 MessageBoxResult dialogResult = SysWin.MessageBox.Show(
-                    "Technique finished!",
+                    "Task finished!",
                     "End",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information
@@ -985,42 +971,14 @@ namespace SubTask.FunctionSelection
             UpdateLabelPosition();
         }
 
-        public void ShowStart(
-            Point absolutePosition, Brush color,
-            SysIput.MouseEventHandler mouseEnterHandler, SysIput.MouseEventHandler mouseLeaveHandler,
-            MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
+        public void ShowStart(Side panelSide, MouseEvents mouseEvents)
         {
-            // Clear the previous objects
-            canvas.Children.Clear();
+            // Get the aux window
+            AuxWindow auxWindow = GetAuxWindow(panelSide);
 
-            // Convert the absolute position to relative position
-            Point positionInMain = Utils.Offset(absolutePosition,
-                -this.Left,
-                -this.Top);
-
-            // Create the square
-            _startRectangle = new Rectangle
-            {
-                Width = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                Fill = color
-            };
-
-            // Position the Start on the Canvas
-            Canvas.SetLeft(_startRectangle, positionInMain.X);
-            Canvas.SetTop(_startRectangle, positionInMain.Y);
-
-            // Add event
-            _startRectangle.MouseEnter += mouseEnterHandler;
-            _startRectangle.MouseLeave += mouseLeaveHandler;
-            _startRectangle.MouseDown += buttonDownHandler;
-            _startRectangle.MouseUp += buttonUpHandler;
-
-            // Add the circle to the Canvas
-            //canvas.Children.Add(_startCircle);
-            canvas.Children.Add(_startRectangle);
+            // Show the start
+            auxWindow.ShowStart(mouseEvents);
         }
-
 
         public void ClearCanvas()
         {
@@ -1132,150 +1090,15 @@ namespace SubTask.FunctionSelection
             for (int b = 1; b <= _experiment.Blocks.Count; b++)
             {
                 Block bl = _experiment.Blocks[b - 1];
-                this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
+                this.TrialInfo($"Setting up handler for block#{bl.Id}");
 
                 // Use a local variable to store the handler
-                BlockHandler blockHandler = null;
-
-                if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
-                {
-                    this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
-                    blockHandler = new MultiObjectBlockHandler(this, bl);
-                }
-                else // Single-object block
-                {
-                    this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
-                    blockHandler = new SingleObjectBlockHandler(this, bl, b);
-                }
-
-                bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-
-                if (positionsFound)
-                {
-                    _blockHandlers.Add(blockHandler);
-                }
-                else
-                {
-                    this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-                    // Set the flag to false, but DO NOT set the Task's result yet.
-                    overallSuccess = false;
-
-                    // OPTIONAL: If a single failure should stop processing immediately, use:
-                    // return false; 
-                }
+                BlockHandler blockHandler = new(this, bl, b);
+                _blockHandlers.Add(blockHandler);
             }
 
             // The method now automatically returns a Task<bool> with the final value of overallSuccess.
             return overallSuccess;
-        }
-
-        public void ShowObjectsArea(Rect areaRect, Brush areaColor, MouseEvents mouseEvents)
-        {
-            // Show the area rectangle
-            _objectArea = new Rectangle
-            {
-                Width = areaRect.Width,
-                Height = areaRect.Height,
-                Fill = areaColor
-            };
-
-            // Position the area rectangle on the Canvas
-            Canvas.SetLeft(_objectArea, areaRect.Left - this.Left);
-            Canvas.SetTop(_objectArea, areaRect.Top - this.Top);
-
-            // Add the event handler
-            _objectArea.MouseEnter += mouseEvents.MouseEnter;
-            _objectArea.MouseDown += mouseEvents.MouseDown;
-            _objectArea.MouseUp += mouseEvents.MouseUp;
-            _objectArea.MouseLeave += mouseEvents.MouseLeave;
-
-            // Add the rectangle to the Canvas
-            canvas.Children.Add(_objectArea);
-        }
-
-        public void ShowObjects(List<TrialRecord.TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
-        {
-            this.TrialInfo($"Showing {trialObjects.Count} objects");
-            // Create and position the objects
-            foreach (TrialRecord.TObject trObj in trialObjects)
-            {
-                ShowObject(trObj, objColor, mouseEvents);
-            }
-        }
-
-        private void ShowObject(TrialRecord.TObject tObject, Brush color, MouseEvents mouseEvents)
-        {
-            // Convert the absolute position to relative position
-            Point positionInMain = Utils.Offset(tObject.Position, -this.Left, -this.Top);
-            this.TrialInfo($"Showing object {tObject.Id} at {positionInMain}");
-            // Create the square
-            Rectangle objRectangle = new Rectangle
-            {
-                Tag = tObject.Id,
-                Width = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
-                Fill = color
-            };
-
-            // Position the object on the Canvas
-            Canvas.SetLeft(objRectangle, positionInMain.X);
-            Canvas.SetTop(objRectangle, positionInMain.Y);
-
-            // Assign event handlers
-            objRectangle.MouseEnter += mouseEvents.MouseEnter;
-            objRectangle.MouseDown += mouseEvents.MouseDown;
-            objRectangle.MouseUp += mouseEvents.MouseUp;
-            objRectangle.MouseLeave += mouseEvents.MouseLeave;
-
-            // Add the rectangle to the Canvas
-            canvas.Children.Add(objRectangle);
-        }
-
-        public void ActivateAuxWindowMarker(Side window)
-        {
-            this.TrialInfo($"Activating aux window: {window}");
-            // Deactivate all aux windows
-            _leftWindow.DeactivateGridNavigator();
-            _topWindow.DeactivateGridNavigator();
-            _rightWindow.DeactivateGridNavigator();
-
-            switch (window)
-            {
-                case Side.Left:
-                    _activeAuxWindow = _leftWindow;
-                    break;
-                case Side.Top:
-                    _activeAuxWindow = _topWindow;
-                    break;
-                case Side.Right:
-                    _activeAuxWindow = _rightWindow;
-                    break;
-            }
-
-            _activeAuxWindow.ActivateMarker(OnFunctionMarked);
-        }
-
-        public void DeactivateAuxWindow()
-        {
-            _activeAuxWindow = null;
-        }
-
-        public void ShowAllAuxMarkers()
-        {
-            // Show all aux markers (without activation)
-            _leftWindow.ShowMarker(OnFunctionMarked);
-            _topWindow.ShowMarker(OnFunctionMarked);
-            _rightWindow.ShowMarker(OnFunctionMarked);
-        }
-
-        private void OnFunctionMarked(int funId)
-        {
-            _activeBlockHandler.OnFunctionMarked(funId);
-        }
-
-        private void OnFunctionDeMarked(int funId)
-        {
-            _activeBlockHandler.OnFunctionUnmarked(funId);
         }
 
         public void SetTargetWindow(Side side,
@@ -1298,12 +1121,6 @@ namespace SubTask.FunctionSelection
                 default:
                     throw new ArgumentException($"Invalid target side: {_trial.FuncSide}");
             }
-
-            // All aux windows are treated the same (for now)
-            //_targetWindow.MouseEnter += windowMouseEnterHandler;
-            //_targetWindow.MouseLeave += windowMouseExitHandler;
-            //_targetWindow.MouseDown += windowMouseDownHandler;
-            //_targetWindow.MouseUp += windowMouseUpHandler;
 
             _targetWindow.MouseDown += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseDown(side, sender, e); };
             _targetWindow.MouseUp += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseUp(side, sender, e); };
@@ -1350,12 +1167,6 @@ namespace SubTask.FunctionSelection
                     return; // Exit after filling the first matching object
                 }
             }
-        }
-
-        public void MarkMappedObject(int funcId)
-        {
-            _activeBlockHandler.MarkMappedObject(funcId);
-            _activeBlockHandler.UpdateScene();
         }
 
         public void SetFunctionAsApplied(int funcId)

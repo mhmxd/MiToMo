@@ -18,6 +18,9 @@ namespace SubTask.FunctionSelection
 {
     public abstract class AuxWindow : Window
     {
+        // Start button
+        protected Rectangle _startRect;
+
         // Class to store all the info regarding each button (positions, etc.)
         protected class ButtonInfo
         {
@@ -953,6 +956,23 @@ namespace SubTask.FunctionSelection
         }
 
         public abstract void ShowPoint(Point p);
+
+        public virtual void ShowStart(MouseEvents mouseEvents)
+        {
+            // Create the Start rectangle
+            _startRect = new Rectangle
+            {
+                Width = Utils.MM2PX(Experiment.START_W_MM),
+                Height = Utils.MM2PX(Experiment.START_H_MM),
+                Fill = Brushes.Green // Color of the Start area
+            };
+
+            // Add event handlers
+            _startRect.MouseEnter += mouseEvents.MouseEnter;
+            _startRect.MouseLeave += mouseEvents.MouseLeave;
+            _startRect.MouseDown += mouseEvents.MouseDown;
+            _startRect.MouseUp += mouseEvents.MouseUp;
+        }
 
 
     }

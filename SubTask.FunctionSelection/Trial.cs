@@ -26,33 +26,8 @@ namespace SubTask.FunctionSelection
         public TaskType TaskType { get; set; }
         public Complexity Complexity { get; set; }
 
-        // Target circle diameter
-        private double _targetWidthMM;
-        public double TargetWidthMM
-        {
-            get => _targetWidthMM;
-            set => _targetWidthMM = value;
-        }
-        public double TargetWidthPX => Utils.MM2PX(TargetWidthMM);
-
-        // Distance to the target center, from start's center
-        //private double _distanceMM;
-        //public double DistanceMM
-        //{
-        //    get => _distanceMM;
-        //    set => _distanceMM = value;
-        //}
-        //public int DistancePX => Utils.MM2PX(DistanceMM);
-
-        //public List<double> Distances = new List<double>(); // Distances in px
-
         public Range DistRangeMM { get; set; }
         public Range DistRangePX => DistRangeMM.GetPx(); // Distance range in px
-
-        //public Point StartPosition, TargetPosition; // Relative to the respective windows
-
-        // Trial number (not needed for now)
-        //private int _number { get; set; }
 
         private Side _funcSide; // Side window to show target in
         public Side FuncSide
@@ -72,37 +47,12 @@ namespace SubTask.FunctionSelection
 
         public int NFunctions => _functionWidths.Count;
 
-        //private int _targetMultiple; // Multiples of the target width (ref. the Experiment.TARGET_WIDTHS_MM list)
-        //public int TargetMultiple
-        //{
-        //    get => _targetMultiple;
-        //    set => _targetMultiple = value;
-        //}
-
         //=========================================================================
 
         public Trial(int id)
         {
             this._id = id;
         }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="targetWidthMM"> Target width in mm</param>
-        /// <param name="distMM">Distance to target in mm</param>
-        //public Trial(int id, int functionWidthMX, double distMM, Side sideWin)
-        //{
-        //    _id = id;
-        //    //_targetWidthMM = targetWidthMM;
-        //    //_targetMultiple = functionWidthMX;
-        //    _functionWidths.Add(functionWidthMX);
-        //    _distanceMM = distMM;
-        //    _funcSide = sideWin;
-        //    //Side[] validDirections = { Side.Top, Side.Left, Side.Right };
-        //    //_sideWindow = validDirections[Utils.Random.Next(validDirections.Length)];
-        //    //_straightPath = true;
-        //}
 
         /// <summary>
         /// Create trials
@@ -115,18 +65,14 @@ namespace SubTask.FunctionSelection
         /// <param name="functionWidthsMX"></param>
         /// <returns></returns>
         public static Trial CreateTrial(
-            int id, Technique tech, int ptc, TaskType type, Complexity complexity,
-            Side side, Range distRangeMM, int nObj, List<int> functionWidthsMX)
+            int id, int ptc, Complexity complexity,
+            Side side, List<int> functionWidthsMX)
         {
             Trial trial = new Trial(id);
-            trial.Technique = tech;
             trial.PtcNum = ptc;
-            trial.TaskType = type;
             trial.Complexity = complexity;
             trial.FuncSide = side;
-            trial.DistRangeMM = distRangeMM;
             trial.AddFunctionWidths(functionWidthsMX);
-            trial.NObjects = nObj;
 
             return trial;
         }
@@ -154,18 +100,10 @@ namespace SubTask.FunctionSelection
             return _functionWidths[0] * 4; // Width is in MX (1 MX = 4 mm)
         }
 
-        public int GetNumFunctions()
+        public int GetNumFunctionWidths()
         {
             return _functionWidths.Count;
         }
-
-        //public override string ToString()
-        //{
-        //    if (_distanceMM == 0)
-        //        return $"Trial: [Id = {_id}, W = {_functionWidths.ToStr()} units, D = {DistRangeMM.Label}, Side = {_funcSide}]";
-        //    else
-        //        return $"Trial: [Id = {_id}, W = {_functionWidths.ToStr()} units, D = {_distanceMM:F2} mm, Side = {_funcSide}]";
-        //}
 
         public string ToStr()
         {

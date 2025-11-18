@@ -38,7 +38,7 @@ namespace SubTask.FunctionSelection.Logging
             this.fun_side = trial.FuncSide.ToString().ToLower();
             this.func_width = trial.GetFunctionWidthMM();
             this.n_obj = trial.NObjects;
-            this.n_fun = trial.GetNumFunctions();
+            this.n_fun = trial.GetNumFunctionWidths();
             this.dist_lvl = trial.DistRangeMM.Label.Split('-')[0].ToLower();
             this.dist = $"{Utils.PX2MM(trialRecord.Distance):F2}";
             this.result = (int)trialRecord.Result;

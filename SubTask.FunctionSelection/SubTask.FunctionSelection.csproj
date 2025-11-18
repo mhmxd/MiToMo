@@ -346,7 +346,6 @@
     <Compile Include="ColumnFactory.cs" />
     <Compile Include="GridNavigator.cs" />
     <Compile Include="Range.cs" />
-    <Compile Include="MultiObjectBlockHandler.cs" />
     <Compile Include="RowFactory.cs" />
     <Compile Include="SButton.cs" />
     <Compile Include="Sounder.cs" />
