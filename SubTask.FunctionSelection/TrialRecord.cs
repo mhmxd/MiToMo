@@ -76,6 +76,16 @@ namespace SubTask.FunctionSelection
             Times = new Dictionary<string, double>();
         }
 
+        public void AddFunction(TFunction function)
+        {
+            Functions.Add(function);
+        }
+
+        public void AddAllFunctions(List<TFunction> functions)
+        {
+            Functions.AddRange(functions);
+        }
+
         public void MapObjectToFunction(int objectId, int functionId)
         {
             var pair = new Pair(objectId, functionId);
@@ -84,6 +94,7 @@ namespace SubTask.FunctionSelection
                 ObjFuncMap.Add(pair);
             }
         }
+
 
         public TFunction GetFunctionById(int id)
         {

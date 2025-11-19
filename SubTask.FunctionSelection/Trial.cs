@@ -108,7 +108,7 @@ namespace SubTask.FunctionSelection
         public string ToStr()
         {
             return $"Trial#{Id} [Target = {FuncSide.ToString()}, " +
-                $"FunctionWidths = {GetFunctionWidths().ToStr()}, Dist = {DistRangeMM.ToString()}]";
+                $"FunctionWidths = {GetFunctionWidths().ToStr()}]";
         }
 
         public string GetCacheFileName(string cachedDirectory)

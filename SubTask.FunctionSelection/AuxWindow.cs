@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace SubTask.FunctionSelection
     public abstract class AuxWindow : Window
     {
         // Start button
-        protected Rectangle _startRect;
+        protected Border _startButton;
 
         // Class to store all the info regarding each button (positions, etc.)
         protected class ButtonInfo
@@ -224,6 +225,11 @@ namespace SubTask.FunctionSelection
             return _middleButtonId;
         }
 
+        public int SelectRandButton(int widthMult)
+        {
+            return _widthButtons[widthMult].GetRandomElement().Id;
+        }
+
         public int SelectRandButtonByConstraints(int widthMult, Rect objConstraintRect, int dist)
         {
             //this.TrialInfo($"Selecting button by multiple: {widthMult}");
@@ -332,6 +338,14 @@ namespace SubTask.FunctionSelection
             this.TrialInfo($"No buttons with width multiple {widthMult} matched the distance!");
             return -1; // Return an invalid point if no buttons are found
 
+        }
+
+        public void FillGridButtons(List<int> buttonIds, Brush color)
+        {
+            foreach (int buttonId in buttonIds)
+            {
+                FillGridButton(buttonId, color);
+            }
         }
 
         public virtual void FillGridButton(int buttonId, Brush color)
@@ -960,18 +974,48 @@ namespace SubTask.FunctionSelection
         public virtual void ShowStart(MouseEvents mouseEvents)
         {
             // Create the Start rectangle
-            _startRect = new Rectangle
+            // Create the "button" as a Border with text inside
+            _startButton = new Border
             {
-                Width = Utils.MM2PX(Experiment.START_W_MM),
-                Height = Utils.MM2PX(Experiment.START_H_MM),
-                Fill = Brushes.Green // Color of the Start area
+                Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
+                Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
+                Background = Config.START_AVAILABLE_COLOR,
+                BorderBrush = Brushes.Black,
             };
 
+            // Add label inside
+            var label = new TextBlock
+            {
+                Text = Str.START,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextAlignment = TextAlignment.Center,
+                FontSize = Config.TRIAL_START_BUTTON_FONT_SIZE,
+                Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
+            };
+            _startButton.Child = label;
+
             // Add event handlers
-            _startRect.MouseEnter += mouseEvents.MouseEnter;
-            _startRect.MouseLeave += mouseEvents.MouseLeave;
-            _startRect.MouseDown += mouseEvents.MouseDown;
-            _startRect.MouseUp += mouseEvents.MouseUp;
+            _startButton.MouseEnter += mouseEvents.MouseEnter;
+            _startButton.MouseLeave += mouseEvents.MouseLeave;
+            _startButton.MouseDown += mouseEvents.MouseDown;
+            _startButton.MouseUp += mouseEvents.MouseUp;
+        }
+
+        public void ChangeStartColor(Brush color)
+        {
+            if (_startButton != null)
+            {
+                _startButton.Background = color;
+            }
+        }
+
+        public void ChangeStartText(string text)
+        {
+            if (_startButton != null && _startButton.Child is TextBlock label)
+            {
+                label.Text = text;
+            }
         }
 
 

@@ -4,7 +4,8 @@ namespace SubTask.FunctionSelection
 {
     internal class Str
     {
-        public static string START = "start";
+        public static string START = "START";
+        public static string END = "END";
 
         public static string TRIAL_SHOW = "trial_show";
         public static string FIRST_MOVE = "move";

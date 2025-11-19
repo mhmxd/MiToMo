@@ -81,6 +81,8 @@ namespace SubTask.FunctionSelection
         //private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
         //private Grid _gridCol1, _gridCol2, _gridCol3; // Grid columns
 
+        private int _gridBottomY = 0;
+
         public SideWindow(Side side, Point relPos)
         {
             InitializeComponent();
@@ -568,8 +570,6 @@ namespace SubTask.FunctionSelection
             //double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
             //Canvas.SetLeft(_buttonsGrid, leftPosition);
 
-
-
             // Subscribe to the Loaded event to get the correct width.
             _buttonsGrid.Loaded += (sender, e) =>
             {
@@ -577,6 +577,8 @@ namespace SubTask.FunctionSelection
                 {
                     // Now ActualWidth has a valid value.
                     double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
+                    _gridBottomY = (int)(Canvas.GetTop(_buttonsGrid) + _buttonsGrid.ActualHeight);
+
                     Canvas.SetLeft(_buttonsGrid, leftPosition);
 
                     RegisterAllButtons(_buttonsGrid);
@@ -611,32 +613,41 @@ namespace SubTask.FunctionSelection
 
             // Position the Start rectangle on the bottom (based on the last button's position)
             int distanceFromEdgeMM = 20; // Distance from the bottom edge in mm
-            if (_buttonsGrid != null && _buttonsGrid.Children.Count > 0)
-            {
-                // Get the bottommost button
-                Button bottommostButton = _buttonsGrid.Children
-                    .OfType<Button>()
-                    .OrderByDescending(b => Canvas.GetTop(b))
-                    .FirstOrDefault();
-                if (bottommostButton != null)
-                {
-                    double bottommostY = Canvas.GetTop(bottommostButton) + bottommostButton.ActualHeight;
-                    double startY = bottommostY + Utils.MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
-                    double startX = (this.Width - _startRect.Width) / 2; // Center horizontally
-                    Canvas.SetLeft(_startRect, startX);
-                    Canvas.SetTop(_startRect, startY);
-                    // Add the Start rectangle to the canvas
-                    this.canvas.Children.Add(_startRect);
-                }
-                else
-                {
-                    this.TrialInfo("No buttons found in the grid to position Start area.");
-                }
-            }
-            else
-            {
-                this.TrialInfo("Buttons grid is not initialized or empty, cannot show Start area.");
-            }
+            double startY = _gridBottomY + Utils.MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
+            double startX = (this.Width - _startButton.Width) / 2; // Center horizontally
+            Canvas.SetLeft(_startButton, startX);
+            Canvas.SetTop(_startButton, startY);
+
+            // Add the rectangle to the Canvas
+            this.canvas.Children.Add(_startButton);
+
+            //if (_buttonsGrid != null && _buttonsGrid.Children.Count > 0)
+            //{
+            //    // Get the bottommost button
+            //    this.TrialInfo($"Number of children: {_buttonsGrid.Children.Count}");
+            //    Button bottommostButton = _buttonsGrid.Children
+            //        .OfType<Button>()
+            //        .OrderByDescending(b => Canvas.GetTop(b))
+            //        .FirstOrDefault();
+            //    if (bottommostButton != null)
+            //    {
+            //        double bottommostY = Canvas.GetTop(bottommostButton) + bottommostButton.ActualHeight;
+            //        double startY = bottommostY + Utils.MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
+            //        double startX = (this.Width - _startRect.Width) / 2; // Center horizontally
+            //        Canvas.SetLeft(_startRect, startX);
+            //        Canvas.SetTop(_startRect, startY);
+            //        // Add the Start rectangle to the canvas
+            //        this.canvas.Children.Add(_startRect);
+            //    }
+            //    else
+            //    {
+            //        this.TrialInfo("No buttons found in the grid to position Start area.");
+            //    }
+            //}
+            //else
+            //{
+            //    this.TrialInfo("Buttons grid is not initialized or empty, cannot show Start area.");
+            //}
 
         }
 

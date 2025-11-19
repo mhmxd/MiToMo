@@ -440,7 +440,7 @@ namespace SubTask.FunctionSelection
             // TEMP: for logging purposes
             if (Keyboard.IsKeyDown(Key.Space))
             {
-                _activeBlockHandler.LogAverageTimeOnDistances();
+                
             }
 
             // Exit on Shift + F5
@@ -977,7 +977,69 @@ namespace SubTask.FunctionSelection
             AuxWindow auxWindow = GetAuxWindow(panelSide);
 
             // Show the start
-            auxWindow.ShowStart(mouseEvents);
+            //auxWindow.ShowStart(mouseEvents);
+            _startButton = new Border
+            {
+                Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
+                Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
+                Background = Config.START_AVAILABLE_COLOR,
+                BorderBrush = Brushes.Black,
+            };
+
+            // Add label inside
+            var label = new TextBlock
+            {
+                Text = Str.START,
+                HorizontalAlignment = SysWin.HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextAlignment = TextAlignment.Center,
+                FontSize = Config.TRIAL_START_BUTTON_FONT_SIZE,
+                Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
+            };
+            _startButton.Child = label;
+
+            // Position the start button vertically centered, under the top or next to the side panels
+            //int dist = Utils.MM2PX(10);
+            //switch (panelSide)
+            //{
+            //    case Side.Left:
+            //        Canvas.SetLeft(_startButton, dist);
+            //        Canvas.SetTop(_startButton, (this.Height - _startButton.Height) / 2);
+            //        break;
+            //    case Side.Right:
+            //        Canvas.SetLeft(_startButton, this.Width - dist - _startButton.Width);
+            //        Canvas.SetTop(_startButton, (this.Height - _startButton.Height) / 2);
+            //        break;
+            //    case Side.Top:
+            //        Canvas.SetLeft(_startButton, (this.Width - _startButton.Width) / 2);
+            //        Canvas.SetTop(_startButton, dist);
+            //        break;
+            //}
+
+            // Temp: position start in the middle of this window
+            Canvas.SetLeft(_startButton, (this.Width - _startButton.Width) / 2);
+            Canvas.SetTop(_startButton, (this.Height - _startButton.Height) / 2);
+
+            // Add event handlers
+            _startButton.MouseEnter += mouseEvents.MouseEnter;
+            _startButton.MouseLeave += mouseEvents.MouseLeave;
+            _startButton.MouseDown += mouseEvents.MouseDown;
+            _startButton.MouseUp += mouseEvents.MouseUp;
+
+            // Add to canvas
+            //Canvas.SetLeft(_startButton, this.Left);
+            //Canvas.SetTop(_startButton, 0);
+            canvas.Children.Add(_startButton);
+        }
+
+        public void SwitchStartToEnd(Side panelSide)
+        {
+            // Get the aux window
+            AuxWindow auxWindow = GetAuxWindow(panelSide);
+            // Change the start color
+            auxWindow.ChangeStartColor(Config.START_UNAVAILABLE_COLOR);
+            // Make the text "End"
+            auxWindow.ChangeStartText(Str.END);
         }
 
         public void ClearCanvas()
@@ -1267,10 +1329,22 @@ namespace SubTask.FunctionSelection
             return (id, centerPositionAbsolute);
         }
 
-        public TrialRecord.TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
+        //public TrialRecord.TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
+        //{
+        //    AuxWindow auxWindow = GetAuxWindow(side);
+        //    int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
+
+        //    Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
+        //    Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
+        //    Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
+
+        //    return new TrialRecord.TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+        //}
+
+        public TrialRecord.TFunction FindRandomFunction(Side side, int widthUnits)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
-            int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
+            int id = auxWindow.SelectRandButton(widthUnits);
 
             Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
@@ -1279,7 +1353,34 @@ namespace SubTask.FunctionSelection
             return new TrialRecord.TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
         }
 
-        public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
+        //public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
+        //{
+        //    this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
+        //    List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
+        //    List<int> foundIds = new List<int>();
+        //    // Find a UNIQUE function for each width
+        //    int maxTries = 100;
+        //    int tries = 1;
+        //    do
+        //    {
+        //        tries++;
+        //        functions.Clear();
+        //        foundIds.Clear();
+        //        this.TrialInfo($"Num. of Tries: {tries}");
+        //        foreach (int widthUnit in widthUnits)
+        //        {
+        //            TrialRecord.TFunction function = FindRandomFunction(side, widthUnit, distRange);
+        //            this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
+        //            functions.Add(function);
+        //            foundIds.Add(function.Id);
+        //        }
+
+        //    } while (foundIds.HasDuplicates() && tries < maxTries);
+
+        //    return functions;
+        //}
+
+        public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits)
         {
             this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
             List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
@@ -1295,7 +1396,7 @@ namespace SubTask.FunctionSelection
                 this.TrialInfo($"Num. of Tries: {tries}");
                 foreach (int widthUnit in widthUnits)
                 {
-                    TrialRecord.TFunction function = FindRandomFunction(side, widthUnit, distRange);
+                    TrialRecord.TFunction function = FindRandomFunction(side, widthUnit);
                     this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
                     functions.Add(function);
                     foundIds.Add(function.Id);
@@ -1483,6 +1584,29 @@ namespace SubTask.FunctionSelection
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             return auxWindow.GetMiddleButtonId();
+        }
+
+        internal void EnableFunctions(Side side, List<int> list)
+        {
+            AuxWindow auxWindow = GetAuxWindow(side);
+            auxWindow.FillGridButtons(list, Config.FUNCTION_ENABLED_COLOR);
+
+        }
+
+        internal void ChangeStartButtonText(string text)
+        {
+            if (_startButton != null && _startButton.Child is TextBlock label)
+            {
+                label.Text = text;
+            }
+        }
+
+        internal void ChangeStartButtonColor(Brush color)
+        {
+            if (_startButton != null)
+            {
+                _startButton.Background = color;
+            }
         }
     }
 }

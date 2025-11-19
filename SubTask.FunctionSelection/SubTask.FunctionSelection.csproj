@@ -319,7 +319,6 @@
     <Compile Include="Logging\TotalTrialLog.cs" />
     <Compile Include="Logging\TrialLog.cs" />
     <Compile Include="MouseEvents.cs" />
-    <Compile Include="SingleObjectBlockHandler.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -356,7 +355,6 @@
       <DependentUpon>TopWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="TouchFinger.cs" />
-    <Compile Include="Filog.cs" />
     <Compile Include="FixedBuffer.cs" />
     <Compile Include="KalmanVeloFilter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

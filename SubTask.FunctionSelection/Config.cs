@@ -125,7 +125,7 @@ namespace SubTask.FunctionSelection
         public static readonly Brush LIGHT_PURPLE =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B19CD7"));
 
-        public static readonly Brush START_AVAILABLE_COLOR = Brushes.Green;
+        public static readonly Brush START_AVAILABLE_COLOR = Brushes.LightGreen;
         public static readonly Brush START_UNAVAILABLE_COLOR = DARK_ORANGE;
 
         public static readonly Brush OBJ_AREA_BG_COLOR = Brushes.White; // Background color of the object area
@@ -170,7 +170,7 @@ namespace SubTask.FunctionSelection
         public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * WINDOW_PADDING_MM + GUTTER_05MM;
         public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GUTTER_05MM + 2 * WINDOW_PADDING_MM;
 
-        public static Dimensions TRIAL_START_BUTTON_DIM_MM = new Dimensions(20, 10);
+        public static Dimensions TRIAL_START_BUTTON_DIM_MM = new Dimensions(40, 30);
         public static int TRIAL_START_BUTTON_FONT_SIZE = 16;
 
         public static void SetMode(int speed)

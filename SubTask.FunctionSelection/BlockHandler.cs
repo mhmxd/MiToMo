@@ -34,6 +34,12 @@ namespace SubTask.FunctionSelection
             _mainWindow = mainWindow;
             _activeBlock = activeBlock;
             _activeBlockNum = activeBlockNum;
+
+            // Create trial records
+            foreach (Trial trial in _activeBlock.Trials)
+            {
+                _trialRecords[trial.Id] = new TrialRecord();
+            }
         }
 
         //public abstract bool FindPositionsForActiveBlock();
@@ -69,20 +75,6 @@ namespace SubTask.FunctionSelection
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
-            // Color the target button and set the handlers
-            this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
-            Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
-            UpdateScene(); // (comment for measuring panel selection time)
-            //_mainWindow.FillButtonInTargetWindow(
-            //    _activeTrial.FuncSide, 
-            //    _activeTrialRecord.FunctionId, 
-            //    funcDefaultColor);
-
-            _mainWindow.SetAuxButtonsHandlers(
-                _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
-                OnFunctionMouseEnter, this.OnFunctionMouseDown, this.OnFunctionMouseUp,
-                OnFunctionMouseExit, this.OnNonTargetMouseDown);
-
             // Clear the main window canvas (to add shapes)
             //_mainWindow.ClearCanvas();
 
@@ -90,6 +82,17 @@ namespace SubTask.FunctionSelection
             MouseEvents startButtonEvents = new MouseEvents(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStart(_activeTrial.FuncSide, startButtonEvents);
+
+            // Color the target button and set the handlers
+            _activeTrialRecord.AddAllFunctions(_mainWindow.FindRandomFunctions(_activeTrial.FuncSide, _activeTrial.GetFunctionWidths()));
+            this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
+            _mainWindow.FillButtonsInAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), Config.FUNCTION_DEFAULT_COLOR);
+            UpdateScene();
+
+            _mainWindow.SetAuxButtonsHandlers(
+                _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
+                OnFunctionMouseEnter, this.OnFunctionMouseDown, this.OnFunctionMouseUp,
+                OnFunctionMouseExit, this.OnNonTargetMouseDown);
 
             // Update info label
             _mainWindow.UpdateInfoLabel();
@@ -156,10 +159,7 @@ namespace SubTask.FunctionSelection
                 ShowActiveTrial();
             }
             else // Last trial of the block
-            {
-                // Log the avg times
-                LogAverageTimeOnDistances();
-
+            { 
                 // Log block time
                 ExperiLogger.LogBlockTime(_activeBlock);
 
@@ -411,13 +411,6 @@ namespace SubTask.FunctionSelection
                 return;
             }
 
-            if (_activeTrial.Technique.GetDevice() == Technique.TOMO) // No function pressing in TOMO
-            {
-                EndActiveTrial(Result.MISS);
-                e.Handled = true;
-                return;
-            }
-
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
         public virtual void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
@@ -426,17 +419,26 @@ namespace SubTask.FunctionSelection
             LogEvent(Str.FUN_RELEASE, funId);
 
             // If the trial has already ended, ignore further events
-            if (_activeTrialRecord.GetLastTrialEventType() == Str.TRIAL_END)
-            {
-                e.Handled = true;
-                return;
-            }
+            //if (_activeTrialRecord.GetLastTrialEventType() == Str.TRIAL_END)
+            //{
+            //    e.Handled = true;
+            //    return;
+            //}
 
             if (!IsStartClicked())
             {
                 Sounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
+            }
+
+            // Apply the function
+            SetFunctionAsApplied(funId);
+
+            // If all functions are applied, make Start button available
+            if (_activeTrialRecord.AreAllFunctionsApplied())
+            {
+                _mainWindow.ChangeStartButtonColor(Config.FUNCTION_ENABLED_COLOR);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -480,15 +482,29 @@ namespace SubTask.FunctionSelection
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             var startButtonPressed = GetEventCount(Str.STR_PRESS) > 0;
-
             if (startButtonPressed)
             {
-                _mainWindow.RemoveStartTrialButton();
-                //UpdateScene(); // Temp (for measuring time)
+                _mainWindow.SwitchStartToEnd(_activeTrial.FuncSide);
+                UpdateScene();
             }
-            else // Pressed outside the button => miss
+            else // Press was outside the button => miss
             {
                 EndActiveTrial(Result.MISS);
+            }
+
+            //--- Correctly pressed
+            if (_activeTrialRecord.AreAllFunctionsApplied())
+            {
+                EndActiveTrial(Result.HIT);
+            }
+            else
+            {
+                // Make functions available
+                _mainWindow.EnableFunctions(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
+
+                // Change START to END and unavailable (until all functions are applied)
+                _mainWindow.ChangeStartButtonText(Str.END);
+                _mainWindow.ChangeStartButtonColor(Config.DARK_ORANGE);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -534,6 +550,10 @@ namespace SubTask.FunctionSelection
         public void SetFunctionAsApplied(int funcId)
         {
             _activeTrialRecord.SetFunctionAsApplied(funcId);
+            _mainWindow.FillButtonInAuxWindow(
+                _activeTrial.FuncSide,
+                funcId,
+                Config.FUNCTION_APPLIED_COLOR);
         }
 
         protected void SetObjectAsDisabled(int objId)
@@ -629,37 +649,6 @@ namespace SubTask.FunctionSelection
         public int GetNumTrialsInBlock()
         {
             return _activeBlock.GetNumTrials();
-        }
-
-        public void LogAverageTimeOnDistances()
-        {
-            // Find the average trial Time from TrialRecord.Times
-            List<double> shortDistTimes = new List<double>();
-            List<double> midDistTimes = new List<double>();
-            List<double> longDistTimes = new List<double>();
-
-            foreach (int trialId in _trialRecords.Keys)
-            {
-                Trial trial = _activeBlock.GetTrialById(trialId);
-                if (trial != null && _trialRecords[trialId].HasTime(Str.TRIAL_TIME))
-                {
-                    if (trial.DistRangeMM.Label == Str.SHORT_DIST)
-                        shortDistTimes.Add(_trialRecords[trialId].GetTime(Str.TRIAL_TIME));
-                    if (trial.DistRangeMM.Label == Str.MID_DIST)
-                        midDistTimes.Add(_trialRecords[trialId].GetTime(Str.TRIAL_TIME));
-                    if (trial.DistRangeMM.Label == Str.LONG_DIST)
-                        longDistTimes.Add(_trialRecords[trialId].GetTime(Str.TRIAL_TIME));
-                }
-            }
-
-            // Log the averages using ExperiLogger
-            double shortDistAvg = shortDistTimes.Avg();
-            double midDistAvg = midDistTimes.Avg();
-            double lonDistAvg = longDistTimes.Avg();
-            //ExperiLogger.LogTrialMessage($"Average Time per Distance --- " +
-            //    $"Short({shortDistTimes.Count}): {shortDistAvg:F2}; " +
-            //    $"Mid({midDistTimes.Count}): {midDistAvg:F2}; " +
-            //    $"Long({longDistTimes.Count}): {lonDistAvg:F2}");
         }
 
         public void RecordToMoAction(Finger finger, string action)
