@@ -13,6 +13,7 @@ namespace SubTask.FunctionSelection
 {
     public class TrialRecord
     {
+        public int TrialId;
 
         public class TObject
         {
@@ -54,26 +55,19 @@ namespace SubTask.FunctionSelection
 
         //public int FunctionId;
         public List<TFunction> Functions;
-        public List<TObject> Objects;
-        public List<Pair> ObjFuncMap;
-        public int Distance; // in pixels
-
-        public Rect ObjectAreaRect;
-        //public Dictionary<string, int> EventCounts;
         private List<TrialEvent> Events;
         private Dictionary<string, double> Times;
 
         public Result Result;
 
-        public TrialRecord()
+        public TrialRecord(int trialId)
         {
             Functions = new List<TFunction>();
-            Objects = new List<TObject>();
-            ObjFuncMap = new List<Pair>();
-            ObjectAreaRect = new Rect();
+
             //EventCounts = new Dictionary<string, int>();
             Events = new List<TrialEvent>();
             Times = new Dictionary<string, double>();
+            TrialId = trialId;
         }
 
         public void AddFunction(TFunction function)
@@ -85,16 +79,6 @@ namespace SubTask.FunctionSelection
         {
             Functions.AddRange(functions);
         }
-
-        public void MapObjectToFunction(int objectId, int functionId)
-        {
-            var pair = new Pair(objectId, functionId);
-            if (!ObjFuncMap.Contains(pair))
-            {
-                ObjFuncMap.Add(pair);
-            }
-        }
-
 
         public TFunction GetFunctionById(int id)
         {
@@ -114,20 +98,6 @@ namespace SubTask.FunctionSelection
             }
 
             return -1;
-        }
-
-        public int FindMappedFunctionId(int objectId)
-        {
-            // Find the first function that is mapped to the given object funcId
-            var pair = ObjFuncMap.FirstOrDefault(p => p.First == objectId);
-            return pair != null ? pair.Second : -1; // Return -1 if no mapping found
-        }
-
-        public int FindMappedObjectId(int functionId)
-        {
-            // Find the first object that is mapped to the given function funcId
-            var pair = ObjFuncMap.FirstOrDefault(p => p.Second == functionId);
-            return pair != null ? pair.First : -1; // Return -1 if no mapping found
         }
 
         public bool IsEnabledFunction(int id)
@@ -150,18 +120,6 @@ namespace SubTask.FunctionSelection
             return true; // All functions are selected
         }
 
-        public bool AreAllObjectsApplied()
-        {
-            foreach (TObject obj in Objects)
-            {
-                if (obj.State != ButtonState.APPLIED)
-                {
-                    return false; // If any object is not applied, return false
-                }
-            }
-            return true; // All objects are applied
-        }
-
         public bool IsAnyFunctionEnabled()
         {
             foreach (TFunction func in Functions)
@@ -174,24 +132,6 @@ namespace SubTask.FunctionSelection
             return false; // No functions are enabled
         }
 
-        public void MarkObject(int id)
-        {
-            TObject obj = Objects.FirstOrDefault(o => o.Id == id);
-            if (obj != null)
-            {
-                obj.State = ButtonState.MARKED;
-            }
-        }
-
-        public void UnmarkObject(int id)
-        {
-            TObject obj = Objects.FirstOrDefault(o => o.Id == id);
-            if (obj != null)
-            {
-                obj.State = ButtonState.DEFAULT;
-            }
-        }
-
         public void ApplyFunction(int funcId, int objId)
         {
             this.TrialInfo($"FuncId: {funcId}");
@@ -200,32 +140,6 @@ namespace SubTask.FunctionSelection
             {
                 func.State = ButtonState.APPLIED;
             }
-
-            // Apply to the specified object
-            if (objId != -1) ChangeObjectState(objId, ButtonState.APPLIED);
-
-            //int nFuncs = Functions.Count;
-            //int nObjs = Objects.Count;
-
-            ////this.TrialInfo($"nFunc: {nFuncs}; nObj: {nObjs}");
-
-            //switch (nFuncs, nObjs) 
-            //{
-            //    case (1, 1): // One function and one object => apply the function to the object
-            //        ChangeObjectState(1, ButtonState.APPLIED);
-            //        break;
-            //    case (1, _): // One function and multiple objects => apply the function to the marked/enabled object
-            //        int markedObjId = Objects.FirstOrDefault(o => o.State == ButtonState.MARKED)?.Id ?? -1;
-            //        ChangeObjectState(markedObjId, ButtonState.APPLIED);
-            //        break;
-            //    case (_, 1): // Multiple functions and one object => apply the function to the single object
-            //        //ChangeObjectState(1, ButtonState.APPLIED);
-            //        break;
-            //    default: // Multiple functions and multiple objects => apply the function to the object mapped to the function
-            //        int mappedObjId = FindMappedObjectId(funcId);
-            //        ChangeObjectState(mappedObjId, ButtonState.APPLIED);
-            //        break;
-            //}
 
         }
 
@@ -250,45 +164,9 @@ namespace SubTask.FunctionSelection
             }
         }
 
-        public void MarkAllObjects()
-        {
-            foreach (TObject obj in Objects)
-            {
-                obj.State = ButtonState.MARKED;
-            }
-        }
-
-        public void UnmarkAllObjects()
-        {
-            foreach (TObject obj in Objects)
-            {
-                obj.State = ButtonState.DEFAULT;
-            }
-        }
-
         public void SetFunctionAsApplied(int funcId)
         {
             ChangeFunctionState(funcId, ButtonState.APPLIED);
-        }
-
-        public void MarkMappedObject(int funcId)
-        {
-            int objId = FindMappedObjectId(funcId);
-            if (objId != -1)
-            {
-                ChangeObjectState(objId, ButtonState.MARKED);
-            }
-        }
-
-        public void ChangeObjectState(int objId, ButtonState newState)
-        {
-            this.TrialInfo($"Change Obj#{objId} to {newState}");
-            TObject markedObj = Objects.FirstOrDefault(o => o.Id == objId);
-            if (markedObj != null)
-            {
-                this.TrialInfo($"Changed Obj#{objId} to {newState}");
-                markedObj.State = newState;
-            }
         }
 
         public void ChangeFunctionState(int funcId, ButtonState newState)
@@ -653,12 +531,6 @@ namespace SubTask.FunctionSelection
         {
             return Events.Any(ts => ts.Type == label);
         }
-
-        public int GetMarketObjectId()
-        {
-            return Objects.FirstOrDefault(o => o.State == ButtonState.MARKED)?.Id ?? -1;
-        }
-
         public void ClearTimestamps()
         {
             Events.Clear();
@@ -670,18 +542,11 @@ namespace SubTask.FunctionSelection
             {
                 func.State = ButtonState.DEFAULT;
             }
-
-            foreach (TObject obj in Objects)
-            {
-                obj.State = ButtonState.DEFAULT;
-            }
         }
 
         public void Reset()
         {
             Functions.Clear();
-            Objects.Clear();
-            ObjFuncMap.Clear();
             Events.Clear();
             Times.Clear();
         }

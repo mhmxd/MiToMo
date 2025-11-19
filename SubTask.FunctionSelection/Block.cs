@@ -125,9 +125,10 @@ namespace SubTask.FunctionSelection
 
         public void ShuffleBackTrial(int trialNum)
         {
+            Trial trialToCopy = _trials[trialNum - 1];
+
             if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
             {
-                Trial trialToCopy = _trials[trialNum - 1];
                 Random random = new Random();
                 int insertIndex = random.Next(trialNum + 1, _trials.Count);
 
@@ -135,7 +136,7 @@ namespace SubTask.FunctionSelection
             }
             else if (trialNum == _trials.Count && _trials.Count > 1)
             {
-                _trials.Insert(trialNum, _trials[trialNum - 1]);
+                _trials.Insert(trialNum, trialToCopy);
             }
             else if (_trials.Count <= 1)
             {

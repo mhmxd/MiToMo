@@ -17,7 +17,7 @@ namespace SubTask.FunctionSelection
     public class BlockHandler
     {
         // Attributes
-        protected Dictionary<int, TrialRecord> _trialRecords = new Dictionary<int, TrialRecord>(); // Trial id -> Record
+        protected List<TrialRecord> _trialRecords = new List<TrialRecord>(); // Trial id is inside the TrialRecord
         protected MainWindow _mainWindow;
         protected Block _activeBlock;
         protected int _activeBlockNum;
@@ -34,12 +34,6 @@ namespace SubTask.FunctionSelection
             _mainWindow = mainWindow;
             _activeBlock = activeBlock;
             _activeBlockNum = activeBlockNum;
-
-            // Create trial records
-            foreach (Trial trial in _activeBlock.Trials)
-            {
-                _trialRecords[trial.Id] = new TrialRecord();
-            }
         }
 
         //public abstract bool FindPositionsForActiveBlock();
@@ -51,7 +45,8 @@ namespace SubTask.FunctionSelection
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-            _activeTrialRecord = _trialRecords[_activeTrial.Id];
+            _trialRecords.Add(new TrialRecord(_activeTrial.Id));
+            _activeTrialRecord = _trialRecords.Last();
             this.TrialInfo($"Active block id: {_activeBlock.Id}");
 
             // Clear the main window canvas (to add shapes)
@@ -111,14 +106,10 @@ namespace SubTask.FunctionSelection
                     Sounder.PlayHit();
                     double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
                     _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
-
                     break;
                 case Result.MISS:
                     Sounder.PlayTargetMiss();
-
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
-                    _trialRecords[_activeTrial.Id].ClearTimestamps();
-                    _trialRecords[_activeTrial.Id].ResetStates();
                     break;
             }
 
@@ -149,12 +140,12 @@ namespace SubTask.FunctionSelection
                 //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
                 _mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
                 _mainWindow.ClearCanvas();
-                _activeTrialRecord.ClearTimestamps();
                 _functionsVisitMap.Clear();
 
                 _activeTrialNum++;
                 _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-                _activeTrialRecord = _trialRecords[_activeTrial.Id];
+                _trialRecords.Add(new TrialRecord(_activeTrial.Id));
+                _activeTrialRecord = _trialRecords.Last();
 
                 ShowActiveTrial();
             }
@@ -578,22 +569,6 @@ namespace SubTask.FunctionSelection
                 }
 
                 _mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id, funcColor);
-            }
-
-            foreach (var obj in _activeTrialRecord.Objects)
-            {
-                Brush objColor = Config.OBJ_DEFAULT_COLOR;
-                switch (obj.State)
-                {
-                    case ButtonState.MARKED:
-                        objColor = Config.OBJ_MARKED_COLOR;
-                        break;
-                    case ButtonState.APPLIED:
-                        objColor = Config.OBJ_APPLIED_COLOR;
-                        break;
-                }
-
-                _mainWindow.FillObject(obj.Id, objColor);
             }
         }
 
