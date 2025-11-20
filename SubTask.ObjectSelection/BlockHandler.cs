@@ -144,7 +144,8 @@ namespace SubTask.ObjectSelection
 
                 _activeTrialNum++;
                 _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-                _activeTrialRecord = _trialRecords[_activeTrial.Id];
+                _trialRecords.Add(new TrialRecord(_activeTrial.Id));
+                _activeTrialRecord = _trialRecords.Last();
 
                 ShowActiveTrial();
             }
@@ -392,9 +393,9 @@ namespace SubTask.ObjectSelection
 
             //-- Object is pressed:
 
-            var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied(); // Probably pressed on the area, then here to release
+            var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied(); 
 
-            if (allObjectsApplied)
+            if (allObjectsApplied) // Probably pressed on the area, then here to release
             {
                 e.Handled = true;
                 EndActiveTrial(Result.MISS);
@@ -402,8 +403,13 @@ namespace SubTask.ObjectSelection
             }
 
             //-- Not all objects applied:
-            _activeTrialRecord.MarkObject(objId);
+            _activeTrialRecord.SelectObject(objId);
             UpdateScene();
+
+            //if (_activeTrialRecord.AreAllObjectsApplied()) // NOW all objects are applied => HIT
+            //{
+            //    EndActiveTrial(Result.HIT);
+            //}
         }
 
         //---- Object area
@@ -487,7 +493,17 @@ namespace SubTask.ObjectSelection
 
             if (startButtonPressed)
             {
+                // Remove Start (option1)
                 _mainWindow.RemoveStartTrialButton();
+
+                // Change the button to END and disable it (option2)
+                //_mainWindow.ChangeStartButtonColor(Config.START_UNAVAILABLE_COLOR);
+                //_mainWindow.ChangeStartButtonText(Str.END);
+
+                // Make objects available
+                _activeTrialRecord.MakeAllObjectsAvailable(ButtonState.ENABLED);
+                UpdateScene();
+                
                 //UpdateScene(); // Temp (for measuring time)
             }
             else // Pressed outside the button => miss
@@ -532,10 +548,10 @@ namespace SubTask.ObjectSelection
                 Brush objColor = Config.OBJ_DEFAULT_COLOR;
                 switch (obj.State)
                 {
-                    case ButtonState.MARKED:
-                        objColor = Config.OBJ_MARKED_COLOR;
+                    case ButtonState.ENABLED:
+                        objColor = Config.OBJ_ENABLED_COLOR;
                         break;
-                    case ButtonState.APPLIED:
+                    case ButtonState.SELECTED:
                         objColor = Config.OBJ_APPLIED_COLOR;
                         break;
                 }

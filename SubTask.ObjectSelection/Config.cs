@@ -79,7 +79,7 @@ namespace SubTask.ObjectSelection
 
         //public static double VERTICAL_PADDING_MM = 4; // 12px
         //public static double HORIZONTAL_PADDING_MM = 4; // 4px (for the side window)
-        public static double WINDOW_PADDING_MM = 4;
+        public static double WINDOW_PADDING_MM = 10;
 
         // --------------------------------------
 
@@ -125,12 +125,12 @@ namespace SubTask.ObjectSelection
         public static readonly Brush LIGHT_PURPLE =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B19CD7"));
 
-        public static readonly Brush START_AVAILABLE_COLOR = Brushes.Green;
+        public static readonly Brush START_AVAILABLE_COLOR = Brushes.LightGreen;
         public static readonly Brush START_UNAVAILABLE_COLOR = DARK_ORANGE;
 
         public static readonly Brush OBJ_AREA_BG_COLOR = Brushes.White; // Background color of the object area
 
-        public static readonly Brush OBJ_MARKED_COLOR = Brushes.LightGreen;
+        public static readonly Brush OBJ_ENABLED_COLOR = Brushes.LightGreen;
         public static readonly Brush OBJ_APPLIED_COLOR = Brushes.Green;
         public static readonly Brush OBJ_DEFAULT_COLOR = Brushes.Gray;
 

@@ -69,6 +69,6 @@ namespace SubTask.ObjectSelection
 
     public enum ButtonState
     {
-        DEFAULT = 0, MARKED = 1, APPLIED = 2
+        DEFAULT = 0, MARKED = 1, ENABLED = 2, SELECTED = 3
     }
 }

@@ -1312,7 +1312,7 @@ namespace SubTask.ObjectSelection
             {
                 Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
                 Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
-                Background = Config.LIGHT_PURPLE,
+                Background = Config.START_AVAILABLE_COLOR,
                 BorderBrush = Brushes.Black,
                 //BorderThickness = new Thickness(2),
                 //CornerRadius = new CornerRadius(6)
@@ -1321,7 +1321,7 @@ namespace SubTask.ObjectSelection
             // Add label inside
             var label = new TextBlock
             {
-                Text = "Start",
+                Text = Str.START,
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
@@ -1339,16 +1339,16 @@ namespace SubTask.ObjectSelection
 
             // Button is centered-align to the obj area
             Point startTrialButtonPosition = new Point(0, 0);
-            Point objAreaPosition = new Point(objAreaRect.X - this.Left, objAreaRect.Y - this.Top);
-            startTrialButtonPosition.X = objAreaPosition.X + (objAreaRect.Width - _startButton.Width) / 2;
+            //Point objAreaPosition = new Point(objAreaRect.X - this.Left, objAreaRect.Y - this.Top);
+            startTrialButtonPosition.X = objAreaRect.X + (objAreaRect.Width - _startButton.Width) / 2;
 
             // If there is no space above or below the obj area, show the button on the other side
-            double aboveY = objAreaPosition.Y - _startButton.Height;
-            double belowY = objAreaPosition.Y + objAreaRect.Height;
+            double aboveY = objAreaRect.Y - _startButton.Height;
+            double belowY = objAreaRect.Y + objAreaRect.Height;
             bool showAbove = _random.Next(2) == 0; // Randomly decide whether to show above or below
             if (showAbove)
             {
-                if (objAreaPosition.Y - _startButton.Height < this.Top + padding) // No space above
+                if (objAreaRect.Y - _startButton.Height < this.Top + padding) // No space above
                 {
                     // Show below the area
                     startTrialButtonPosition.Y = belowY;
@@ -1404,6 +1404,22 @@ namespace SubTask.ObjectSelection
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             return auxWindow.GetMiddleButtonId();
+        }
+
+        internal void ChangeStartButtonText(string text)
+        {
+            if (_startButton != null && _startButton.Child is TextBlock label)
+            {
+                label.Text = text;
+            }
+        }
+
+        internal void ChangeStartButtonColor(Brush color)
+        {
+            if (_startButton != null)
+            {
+                _startButton.Background = color;
+            }
         }
     }
 }
