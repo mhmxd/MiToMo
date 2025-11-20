@@ -183,66 +183,30 @@ namespace SubTask.ObjectSelection
             log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
             log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
 
-            // Log the rest of the times
-            switch (trial.Technique.GetDevice())
+            log.strrl_obj1nt = trialRecord.GetFirstSeqDuration(Str.STR_RELEASE, Str.OBJ_ENTER);
+
+            for (int i = 1; i <= trial.NObjects; i++)
             {
-                case Technique.MOUSE:
-                    log.strrl_obj1pr = trialRecord.GetFirstSeqDuration(Str.STR_RELEASE, Str.OBJ_PRESS);
+                DynamiclySetFieldValue(
+                    log, $"obj{i}nt_obj{i}pr",
+                    trialRecord.GetNthSeqDuration(Str.OBJ_ENTER, Str.OBJ_PRESS, i));
+                DynamiclySetFieldValue(
+                    log, $"obj{i}pr_obj{i}rl",
+                    trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE, i));
 
-                    for (int i = 1; i <= trial.NObjects; i++)
-                    {
-                        DynamiclySetFieldValue(
-                            log, $"obj{i}pr_obj{i}rl",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.FUN_PRESS, i));
-                        DynamiclySetFieldValue(
-                            log, $"obj{i}rl_pnlnt{i}",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.PNL_ENTER, i));
-                        DynamiclySetFieldValue(
-                            log, $"pnlnt{i}_funnt{i}",
-                            trialRecord.GetNthSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER, i));
-                        DynamiclySetFieldValue(
-                            log, $"funnt{i}_funpr{i}",
-                            trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, i));
-                        DynamiclySetFieldValue(
-                            log, $"funpr{i}_funrl{i}",
-                            trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, i));
+                // Transition to the Next Object (i + 1)
+                if (i < trial.NObjects)
+                {
+                    DynamiclySetFieldValue(
+                    log, $"obj{i}rl_obj{i + 1}nt",
+                    trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.OBJ_PRESS, i));
+                }
 
-                        // Transition to the Next Object (i + 1)
-                        if (i < trial.NObjects)
-                        {
-                            DynamiclySetFieldValue(
-                            log, $"funrl{i}_obj{i + 1}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.OBJ_PRESS, i));
-                        }
-
-                    }
-
-
-                    break;
-
-                case Technique.TOMO:
-                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(Str.STR_RELEASE, trial.Technique);
-                    log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
-                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
-                    log.fstfl_funmk = trialRecord.GetDuration(Str.FLICK, Str.FUN_MARKED);
-                    log.funmk_obj1pr = trialRecord.GetFirstSeqDuration(Str.FUN_MARKED, Str.OBJ_PRESS);
-
-                    for (int i = 1; i < trial.NObjects; i++)
-                    {
-                        DynamiclySetFieldValue(
-                            log, $"obj{i}rl_obj{i + 1}pr",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.OBJ_PRESS, i));
-
-                        // Transition to the Next Object (i + 1)
-                        if (i < trial.NObjects)
-                        {
-                            DynamiclySetFieldValue(
-                            log, $"funrl{i}_obj{i + 1}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.OBJ_PRESS, i));
-                        }
-                    }
-                    break;
             }
+
+            log.objNrl_arapr = trialRecord.GetLastSeqDuration(Str.OBJ_RELEASE, Str.ARA_PRESS);
+
+            log.arapr_ararl = trialRecord.GetLastSeqDuration(Str.ARA_PRESS, Str.ARA_RELEASE);
 
             // Testing
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
@@ -265,11 +229,7 @@ namespace SubTask.ObjectSelection
             log.trial_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS);
             _trialTimes[trial.Id] = log.trial_time;
 
-            log.funcs_sel_time = trialRecord.GetDuration(Str.PNL_ENTER, Str.FUN_RELEASE);
-            log.objs_sel_time = trialRecord.GetDuration(Str.ARA_ENTER, Str.OBJ_RELEASE);
-            log.func_po_sel_time = trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUN_RELEASE);
-            log.panel_sel_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.PNL_SELECT);
-            log.panel_nav_time = trialRecord.GetDuration(Str.PNL_SELECT, Str.OBJ_PRESS);
+            log.objs_sel_time = trialRecord.GetDurationFromFirstToLast(Str.OBJ_ENTER, Str.OBJ_RELEASE);
 
             WriteTrialLog(log, _totalLogFilePath, _totalTrialLogWriter);
 

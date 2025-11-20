@@ -15,8 +15,6 @@ namespace SubTask.ObjectSelection.Logging
         public int block;       // block number
         public int trial;       // trial number
         public int id;          // number
-        public string tech;     // technique
-        public string cmplx;    // complexity
         public int n_obj;       // number of objects
         public int result;      // hit (1), miss (0)
 
@@ -26,8 +24,6 @@ namespace SubTask.ObjectSelection.Logging
             this.block = blockNum;
             this.trial = trialNum;
             this.id = trial.Id;
-            this.tech = trial.Technique.ToString().ToLower();
-            this.cmplx = trial.Complexity.ToString().ToLower();
             this.n_obj = trial.NObjects;
             this.result = (int)trialRecord.Result;
         }

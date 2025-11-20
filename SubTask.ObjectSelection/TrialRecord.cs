@@ -228,6 +228,26 @@ namespace SubTask.ObjectSelection
             return -1; // Return -1 if the type is not found
         }
 
+        public int GetDurationFromFirstToLast(string startLabel, string endLabel)
+        {
+            if (Events == null || Events.Count == 0)
+                return -1;
+
+            // Find the first occurrence of startLabel
+            int startIndex = Events.FindIndex(t => t.Type == endLabel);
+            this.TrialInfo($"Index of {startLabel}: {startIndex}");
+            if (startIndex < 0)
+                return -1;
+
+            // Find the last occurence of endLabel
+            int endIndex = Events.FindLastIndex(t => t.Type == endLabel);
+            this.TrialInfo($"Index of {endLabel}: {endIndex}");
+            if (endIndex < 0)
+                return -1;
+
+            return Utils.GetDuration(Events[startIndex].Time, Events[endIndex].Time);
+        }
+
         public long GetFirstAfterLast(string beforeType, string type)
         {
             if (Events == null || Events.Count == 0)
