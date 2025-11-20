@@ -114,22 +114,7 @@ namespace SubTask.FunctionSelection
             }
 
             //-- Log
-            switch (Str.TASKTYPE_ABBR[_activeTrial.TaskType])
-            {
-                case "sosf":
-                    ExperiLogger.LogSOSFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
-                    break;
-                case "somf":
-                    ExperiLogger.LogSOMFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
-                    break;
-                case "mosf":
-                    ExperiLogger.LogMOSFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
-                    break;
-                case "momf":
-                    ExperiLogger.LogMOMFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
-                    break;
-
-            }
+            ExperiLogger.LogDetailed(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
 
             GoToNextTrial();
         }

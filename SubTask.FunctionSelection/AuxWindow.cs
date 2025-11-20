@@ -492,16 +492,6 @@ namespace SubTask.FunctionSelection
             }
         }
 
-        //public virtual void MakeTargetAvailable()
-        //{
-        //    // Implemented in the derived classes
-        //}
-
-        //public virtual void MakeTargetUnavailable()
-        //{
-        //    // Implemented in the derived classes
-        //}
-
         public void ShowMarker(Action<int> OnFunctionMarked)
         {
             int buttonId = _lastMarkedButtonId;
@@ -564,44 +554,6 @@ namespace SubTask.FunctionSelection
         {
             _gridNavigator.Stop();
         }
-
-        private void ResetHighlights()
-        {
-            // Reset the border color of all buttons
-            foreach (int buttonId in _buttonInfos.Keys)
-            {
-                _buttonInfos[buttonId].ResetButonBorder();
-                _buttonInfos[buttonId].ChangeBackFill();
-                //if (_buttonInfos[buttonId].Button.Background != Config.FUNCTION_ENABLED_COLOR 
-                //    && _buttonInfos[buttonId].Button.Background != Config.FUNCTION_DEFAULT_COLOR)
-                //{
-                //    _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
-                //}
-            }
-        }
-
-        //private void MarkButton(int buttonId)
-        //{
-        //    // Find the button with the specified ID
-        //    if (_buttonInfos.ContainsKey(buttonId))
-        //    {
-        //        _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
-        //                                                                                    // Change the old button background based on the previous state
-        //        if (_buttonInfos[buttonId].Button.Background.Equals(Config.BUTTON_HOVER_FILL_COLOR)) // Gray => White
-        //        {
-        //            //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
-        //            _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
-        //        }
-        //        else if (_buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_ENABLED_COLOR)) // Light green => Orange
-        //        {
-        //            _buttonInfos[buttonId].Button.Background = Config.FUNCTION_DEFAULT_COLOR;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        this.TrialInfo($"Button with ID {buttonId} not found.");
-        //    }
-        //}
 
         public void MarkButton(int buttonId, Action<int> OnFunctionMarked)
         {

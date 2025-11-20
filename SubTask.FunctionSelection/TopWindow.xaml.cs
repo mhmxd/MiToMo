@@ -139,33 +139,6 @@ namespace SubTask.FunctionSelection
             double startY = (this.Height - _startButton.Height) / 2; // Center vertically
             Canvas.SetLeft(_startButton, startX);
             Canvas.SetTop(_startButton, startY);
-            //if (_buttonsGrid != null && _buttonsGrid.Children.Count > 0)
-            //{
-            //    // Get the rightmost button
-            //    this.TrialInfo($"Number of children: {_buttonsGrid.Children.Count}");
-            //    Button rightmostButton = _buttonsGrid.Children
-            //        .OfType<Button>()
-            //        .OrderByDescending(b => Canvas.GetLeft(b))
-            //        .FirstOrDefault();
-            //    if (rightmostButton != null)
-            //    {
-            //        double rightmostX = Canvas.GetLeft(rightmostButton) + rightmostButton.ActualWidth;
-            //        double startX = rightmostX + Utils.MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
-            //        double startY = (this.Height - _startRect.Height) / 2; // Center vertically
-            //        Canvas.SetLeft(_startRect, startX);
-            //        Canvas.SetTop(_startRect, startY);
-            //        // Add the Start rectangle to the canvas
-            //        this.canvas.Children.Add(_startRect);
-            //    }
-            //    else
-            //    {
-            //        this.TrialInfo("No buttons found in the grid to position Start area.");
-            //    }
-            //}
-            //else
-            //{
-            //    this.TrialInfo("Buttons grid is not initialized or empty, cannot show Start area.");
-            //}
 
             // Add the rectangle to the Canvas
             this.canvas.Children.Add(_startButton);

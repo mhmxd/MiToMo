@@ -313,7 +313,7 @@
     <Compile Include="Logging\CursorRecord.cs" />
     <Compile Include="Logging\MOMFTrialLong.cs" />
     <Compile Include="Logging\MOSFTrialLog.cs" />
-    <Compile Include="Logging\SOMFTrialLog.cs" />
+    <Compile Include="Logging\DetailedTrialLog.cs" />
     <Compile Include="Logging\SOSFTrialLog.cs" />
     <Compile Include="Logging\TopLog.cs" />
     <Compile Include="Logging\TotalTrialLog.cs" />

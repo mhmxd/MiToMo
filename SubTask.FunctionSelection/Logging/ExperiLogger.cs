@@ -19,22 +19,9 @@ namespace SubTask.FunctionSelection
 {
     internal class ExperiLogger
     {
-        // Set for each log (in constructor)
-        private static string _sosfTrialLogFilePath = System.IO.Path.Combine(
+        private static string _trialLogFilePath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.FunctionSelection.Logs", "sosf_trial_log"
-        );
-        private static string _somfTrialLogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.FunctionSelection.Logs", "somf_trial_log"
-        );
-        private static string _mosfTrialLogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.FunctionSelection.Logs", "mosf_trial_log"
-        );
-        private static string _momfTrialLogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.FunctionSelection.Logs", "momf_trial_log"
+            "SubTask.FunctionSelection.Logs", "detailed_trial_log"
         );
         private static string _totalLogFilePath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
@@ -71,7 +58,8 @@ namespace SubTask.FunctionSelection
         {
             _ptcId = participantId;
 
-            _trialLogWriter = PrepareFile<SOMFTrialLog>(_somfTrialLogFilePath);
+            // Create detailed trial log if not exists
+            _trialLogWriter = PrepareFile<DetailedTrialLog>(_trialLogFilePath);
 
             // Create total log if not exists
             _totalTrialLogWriter = PrepareFile<TotalTrialLog>(_totalLogFilePath);
@@ -181,287 +169,36 @@ namespace SubTask.FunctionSelection
             _blockFileLog.Information(message);
         }
 
-        public static void LogSingleObjTrialTimes(TrialRecord trialRecord)
+        public static void LogDetailed(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            int nFunctions = trialRecord.Functions.Count;
-
-            if (nFunctions == 1)
-            {
-                switch (_technique)
-                {
-                    case Technique.MOUSE:
-                        _blockFileLog.Information($"Start Release   -> Obj Enter:   {trialRecord.GetDuration(Str.STR_RELEASE, Str.OBJ_ENTER)}");
-                        _blockFileLog.Information($"Obj Enter       -> Obj Press:   {trialRecord.GetDuration(Str.OBJ_ENTER, Str.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUN_PRESS)}");
-                        _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(Str.FUN_PRESS, Str.FUN_RELEASE)}");
-                        _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(Str.FUN_RELEASE, Str.ARA_PRESS)}");
-                        _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS))}");
-                        _blockFileLog.Information($"==============================================================================================================");
-                        break;
-
-                    case Technique.TOMO_TAP:
-                        _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDurationToFingerAction(Str.STR_RELEASE, Str.TAP_DOWN)}");
-                        _blockFileLog.Information($"Tap Down        -> Tap Up:      {trialRecord.GetGestureDuration(Technique.TOMO_TAP)}");
-                        _blockFileLog.Information($"Tap Up          -> Obj Press:   {trialRecord.GetDurationFromFingerAction(Str.TAP_UP, Str.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT)}");
-                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(Str.OBJ_EXIT, Str.ARA_PRESS)}");
-                        _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS))}");
-                        _blockFileLog.Information($"==============================================================================================================");
-                        break;
-
-                    case Technique.TOMO_SWIPE:
-                        _blockFileLog.Information($"Start Release   -> Swipe Start: {trialRecord.GetDurationToFingerAction(Str.STR_RELEASE, Str.SWIPE_START)}");
-                        _blockFileLog.Information($"Swipe Start     -> Swipe End:   {trialRecord.GetGestureDuration(Technique.TOMO_SWIPE)}");
-                        _blockFileLog.Information($"Swipe End       -> Obj Press:   {trialRecord.GetDurationFromFingerAction(Str.SWIPE_END, Str.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT)}");
-                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(Str.OBJ_EXIT, Str.ARA_PRESS)}");
-                        _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS))}");
-                        _blockFileLog.Information($"==============================================================================================================");
-                        break;
-                }
-            }
-            else
-            {
-                // For now. Later we put detailed log
-                _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS)}");
-            }
-
-        }
-
-        public static void LogMultipleObjTrialTimes(TrialRecord trialRecord)
-        {
-            // For now. Later we put detailed log
-            _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS)}");
-        }
-
-        public static void LogSOSFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-        {
-            string logFilePath = _sosfTrialLogFilePath; // Passed to the writer
-
-            Output.Conlog<ExperiLogger>("Logging Trial");
-            SOSFTrialLog log = new SOSFTrialLog(blockNum, trialNum, trial, trialRecord);
-
-            // Information
-            //FillTrialInfo(log, blockNum, trialNum, trial, trialRecord);
-
-            // Log start events
-            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
-
-            // Log the rest of the times
-            switch (trial.Technique.GetDevice())
-            {
-                case Technique.MOUSE:
-                    log.strrl_objnt = trialRecord.GetLastSeqDuration(Str.STR_RELEASE, Str.OBJ_ENTER);
-
-                    log.objrl_pnlnt = trialRecord.GetLastSeqDuration(Str.OBJ_RELEASE, Str.PNL_ENTER);
-                    log.pnlnt_funnt = trialRecord.GetLastSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER);
-                    log.funnt_funpr = trialRecord.GetLastSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS);
-                    log.funpr_funrl = trialRecord.GetLastSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE);
-                    log.funrl_arant = trialRecord.GetLastSeqDuration(Str.FUN_RELEASE, Str.ARA_ENTER);
-
-                    break;
-
-                case Technique.TOMO:
-                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(Str.STR_RELEASE, trial.Technique);
-                    log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
-                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
-                    log.fstfl_funmk = trialRecord.GetDuration(Str.FLICK, Str.FUN_MARKED);
-                    log.funmk_objnt = trialRecord.GetDuration(Str.ARA_ENTER, Str.OBJ_ENTER);
-                    break;
-            }
-
-            log.objnt_objpr = trialRecord.GetLastSeqDuration(Str.OBJ_ENTER, Str.OBJ_PRESS);
-            log.objpr_objrl = trialRecord.GetLastSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE);
-
-            log.arant_arapr = trialRecord.GetLastSeqDuration(Str.ARA_ENTER, Str.ARA_PRESS);
-
-            // Testing
-            Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
-
-            WriteTrialLog(log, logFilePath, _trialLogWriter);
-            //_trialLogWriter?.Dispose();
-
-            LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
-        }
-
-        public static void LogMOSFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-        {
-            string logFilePath = _mosfTrialLogFilePath; // Passed to the writer
-
-            Output.Conlog<ExperiLogger>("Logging Trial");
-            MOSFTrialLog log = new MOSFTrialLog(blockNum, trialNum, trial, trialRecord);
-
-            // Information
-            //FillTrialInfo(log, blockNum, trialNum, trial, trialRecord);
-
-            // Log start events
-            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
-
-            // Log the rest of the times
-            switch (trial.Technique.GetDevice())
-            {
-                case Technique.MOUSE:
-                    log.strrl_obj1pr = trialRecord.GetFirstSeqDuration(Str.STR_RELEASE, Str.OBJ_PRESS);
-
-                    for (int i = 1; i <= trial.NObjects; i++)
-                    {
-                        DynamiclySetFieldValue(
-                            log, $"obj{i}pr_obj{i}rl",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.FUN_PRESS, i));
-                        DynamiclySetFieldValue(
-                            log, $"obj{i}rl_pnlnt{i}",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.PNL_ENTER, i));
-                        DynamiclySetFieldValue(
-                            log, $"pnlnt{i}_funnt{i}",
-                            trialRecord.GetNthSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER, i));
-                        DynamiclySetFieldValue(
-                            log, $"funnt{i}_funpr{i}",
-                            trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, i));
-                        DynamiclySetFieldValue(
-                            log, $"funpr{i}_funrl{i}",
-                            trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, i));
-
-                        // Transition to the Next Object (i + 1)
-                        if (i < trial.NObjects)
-                        {
-                            DynamiclySetFieldValue(
-                            log, $"funrl{i}_obj{i + 1}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.OBJ_PRESS, i));
-                        }
-
-                    }
-
-
-                    break;
-
-                case Technique.TOMO:
-                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(Str.STR_RELEASE, trial.Technique);
-                    log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
-                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
-                    log.fstfl_funmk = trialRecord.GetDuration(Str.FLICK, Str.FUN_MARKED);
-                    log.funmk_obj1pr = trialRecord.GetFirstSeqDuration(Str.FUN_MARKED, Str.OBJ_PRESS);
-
-                    for (int i = 1; i < trial.NObjects; i++)
-                    {
-                        DynamiclySetFieldValue(
-                            log, $"obj{i}rl_obj{i + 1}pr",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.OBJ_PRESS, i));
-
-                        // Transition to the Next Object (i + 1)
-                        if (i < trial.NObjects)
-                        {
-                            DynamiclySetFieldValue(
-                            log, $"funrl{i}_obj{i + 1}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.OBJ_PRESS, i));
-                        }
-                    }
-                    break;
-            }
-
-            // Testing
-            Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
-
-            WriteTrialLog(log, logFilePath, _trialLogWriter);
-            //_trialLogWriter?.Dispose();
-
-            LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
-        }
-
-        public static void LogSOMFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-        {
-            string logFilePath = _somfTrialLogFilePath; // Passed to the writer
+            string logFilePath = _trialLogFilePath; // Passed to the writer
 
             Output.Conlog<ExperiLogger>("Logging SOMF Trial");
-            SOMFTrialLog log = new SOMFTrialLog(blockNum, trialNum, trial, trialRecord);
-
-            // Information
-            //FillTrialInfo(log, blockNum, trialNum, trial, trialRecord);
+            DetailedTrialLog log = new DetailedTrialLog(blockNum, trialNum, trial, trialRecord);
 
             // Log start events
             log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
             log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
+            log.strnt_strpr = trialRecord.GetFirstSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetFirstSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
 
-            // Log the rest of the times
-            switch (trial.Technique.GetDevice())
-            {
-                case Technique.MOUSE:
-                    log.strrl_objnt = trialRecord.GetFirstSeqDuration(Str.STR_RELEASE, Str.OBJ_ENTER);
-                    log.objnt_objpr = trialRecord.GetDuration(Str.OBJ_ENTER, Str.OBJ_PRESS);
-                    log.objpr_objrl = trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE);
-                    log.objrl_pnlnt = trialRecord.GetFirstSeqDuration(Str.OBJ_RELEASE, Str.PNL_ENTER);
+            log.strrl_pnlnt = trialRecord.GetFirstSeqDuration(Str.STR_RELEASE, Str.PNL_ENTER);
 
-                    log.pnlnt_fun1nt = trialRecord.GetNthSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER, 1);
+            log.pnlnt_fun1nt = trialRecord.GetNthSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER, 1);
 
-                    int i;
-                    for (i = 1; i <= trial.GetNumFunctionWidths(); i++)
-                    {
-                        DynamiclySetFieldValue(
-                            log, $"fun{i}nt_fun{i}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, i));
-                        DynamiclySetFieldValue(
-                            log, $"fun{i}pr_fun{i}rl",
-                            trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, i));
+            log.fun1nt_fun1pr = trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, 1);
+            log.fun1pr_fun1rl = trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, 1);
+            log.fun1rl_fun2nt = trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.FUN_ENTER, 1);
+            log.fun2nt_fun2pr = trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, 2);
+            log.fun2pr_fun2rl = trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, 2);
+            log.fun2rl_fun3nt = trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.FUN_ENTER, 2);
+            log.fun3nt_fun3pr = trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, 3);
+            log.fun3pr_fun3rl = trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, 3);
 
-                        // Transition to the next function (i + 1)
-                        if (i < trial.GetNumFunctionWidths())
-                        {
-                            DynamiclySetFieldValue(
-                            log, $"fun{i}rl_fun{i + 1}nt",
-                            trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.FUN_ENTER, i));
-                        }
-
-                    }
-
-                    log.funNrl_arapr = trialRecord.GetLastSeqDuration(Str.FUN_RELEASE, Str.ARA_PRESS);
-
-                    break;
-
-                case Technique.TOMO:
-                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(Str.STR_RELEASE, trial.Technique);
-                    log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
-                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
-
-                    log.fstfl_fun1mk = trialRecord.GetFirstSeqDuration(Str.FLICK, Str.FUN_MARKED);
-
-                    for (i = 1; i <= trial.GetNumFunctionWidths(); i++)
-                    {
-                        DynamiclySetFieldValue(
-                            log, $"fun{i}mk_objpr_{i}",
-                            trialRecord.GetNthSeqDuration(Str.FUN_MARKED, Str.OBJ_PRESS, i));
-                        DynamiclySetFieldValue(
-                            log, $"objpr_objrl_{i}",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE, i));
-
-                        // Transition to the next function (i + 1)
-                        if (i < trial.GetNumFunctionWidths())
-                        {
-                            DynamiclySetFieldValue(
-                            log, $"objrl_fun{i + 1}mk",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.FUN_MARKED, i));
-                        }
-
-                    }
-
-                    log.objrl_arapr = trialRecord.GetLastSeqDuration(Str.OBJ_RELEASE, Str.ARA_PRESS);
-
-                    break;
-            }
+            log.fun3rl_pnlex = trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.PNL_EXIT, 3);
+            log.pnlex_endnt = trialRecord.GetLastSeqDuration(Str.PNL_EXIT, Str.STR_ENTER);
+            log.endnt_endpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
+            log.endpr_endrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
 
             // Testing
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
@@ -471,120 +208,6 @@ namespace SubTask.FunctionSelection
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
         }
-
-        public static void LogMOMFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-        {
-            string logFilePath = _momfTrialLogFilePath; // Passed to the writer
-
-            int nFun = trial.NObjects; // NFunc = NObjects
-
-            MOMFTrialLong log = new MOMFTrialLong(blockNum, trialNum, trial, trialRecord);
-
-            // Information
-            //FillTrialInfo(log, blockNum, trialNum, trial, trialRecord);
-
-            // Log start events
-            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
-
-            switch (trial.Technique.GetDevice())
-            {
-                case Technique.MOUSE:
-                    log.strrl_obj1pr = trialRecord.GetFirstSeqDuration(Str.STR_RELEASE, Str.OBJ_PRESS);
-
-                    for (int i = 1; i <= nFun; i++)
-                    {
-                        DynamiclySetFieldValue(
-                            log, $"obj{i}pr_obj{i}rl",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE, i));
-                        DynamiclySetFieldValue(
-                            log, $"obj{i}rl_pnlnt_{i}",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.PNL_ENTER, i));
-                        DynamiclySetFieldValue(
-                            log, $"pnlnt_fun{i}nt",
-                            trialRecord.GetNthSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER, i));
-                        DynamiclySetFieldValue(
-                            log, $"fun{i}nt_fun{i}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, i));
-                        DynamiclySetFieldValue(
-                            log, $"fun{i}pr_fun{i}rl",
-                            trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, i));
-
-                        // Transition to the Next Object (i + 1)
-                        if (i < trial.NObjects)
-                        {
-                            DynamiclySetFieldValue(
-                            log, $"fun{i}rl_obj{i}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.OBJ_PRESS, i));
-                        }
-
-                        log.funNrl_arapr = trialRecord.GetLastSeqDuration(Str.FUN_RELEASE, Str.ARA_PRESS);
-
-                    }
-
-
-                    break;
-
-                case Technique.TOMO:
-                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(Str.STR_RELEASE, trial.Technique);
-                    log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
-                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
-
-                    log.fstfl_fun1mk = trialRecord.GetFirstSeqDuration(Str.FLICK, Str.FUN_MARKED);
-
-                    for (int i = 1; i <= trial.GetNumFunctionWidths(); i++)
-                    {
-                        DynamiclySetFieldValue(
-                            log, $"fun{i}mk_obj{i}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_MARKED, Str.OBJ_PRESS, i));
-                        DynamiclySetFieldValue(
-                            log, $"obj{i}pr_obj{i}rl",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE, i));
-
-                        // Transition to the next function (i + 1)
-                        if (i < trial.GetNumFunctionWidths())
-                        {
-                            DynamiclySetFieldValue(
-                            log, $"obj{i}rl_fun{i + 1}mk",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.FUN_MARKED, i));
-                        }
-
-                    }
-
-                    log.objNrl_arapr = trialRecord.GetLastSeqDuration(Str.OBJ_RELEASE, Str.ARA_PRESS);
-                    break;
-            }
-
-            // Testing
-            Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
-
-            WriteTrialLog(log, logFilePath, _trialLogWriter);
-            //_trialLogWriter?.Dispose();
-
-            LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
-        }
-
-        //private static void FillTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-        //{
-        //    // General info
-        //    log.ptc = trial.PtcNum;
-        //    log.block = blockNum;
-        //    log.trial = trialNum;
-        //    log.id = trial.Id;
-        //    log.tech = trial.Technique.ToString().ToLower();
-        //    log.cmplx = trial.Complexity.ToString().ToLower();
-        //    log.tsk_type = Str.TASKTYPE_ABBR[trial.TaskType];
-        //    log.fun_side = trial.FuncSide.ToString().ToLower();
-        //    log.func_width = trial.GetFunctionWidthMM();
-        //    log.n_obj = trial.NObjects;
-        //    log.n_fun = trial.GetNumFunctionWidths();
-        //    log.dist_lvl = trial.DistRangeMM.Label.Split('-')[0].ToLower();
-        //    log.dist = $"{Utils.PX2MM(trialRecord.Distance):F2}";
-        //    log.result = (int)trialRecord.Result;
-        //}
 
         private static void LogTotalTrialTime(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
@@ -594,14 +217,10 @@ namespace SubTask.FunctionSelection
             //FillTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Total time
-            log.trial_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS);
+            log.trial_time = trialRecord.GetLastSeqDuration(Str.STR_RELEASE, Str.STR_PRESS);
             _trialTimes[trial.Id] = log.trial_time;
 
-            log.funcs_sel_time = trialRecord.GetDuration(Str.PNL_ENTER, Str.FUN_RELEASE);
-            log.objs_sel_time = trialRecord.GetDuration(Str.ARA_ENTER, Str.OBJ_RELEASE);
-            log.func_po_sel_time = trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUN_RELEASE);
-            log.panel_sel_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.PNL_SELECT);
-            log.panel_nav_time = trialRecord.GetDuration(Str.PNL_SELECT, Str.OBJ_PRESS);
+            log.funcs_sel_time = trialRecord.GetDurationFromFirstToLast(Str.FUN_ENTER, Str.FUN_RELEASE);
 
             WriteTrialLog(log, _totalLogFilePath, _totalTrialLogWriter);
 
@@ -707,37 +326,6 @@ namespace SubTask.FunctionSelection
         {
             _trialCursorRecords[_activeTrialId].Add(new CursorRecord(cursorPos));
         }
-
-        //private static void WriteTotalTrialLog<T>(T totalTrialLog)
-        //{
-        //    //var fields = typeof(T).GetFields();
-        //    //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
-        //    //_trialLogWriter.WriteLine(string.Join(";", values));
-        //    //_trialLogWriter.Flush();
-
-        //    var type = typeof(T);
-        //    var baseType = type.BaseType;
-
-        //    // 1. Get fields from the base class (parent)
-        //    // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
-        //    var parentFields = baseType != null && baseType != typeof(object)
-        //        ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-        //        : Enumerable.Empty<FieldInfo>();
-
-        //    // 2. Get fields from the derived class (child)
-        //    var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-        //    // 3. Combine them: Parent fields first, then Child fields.
-        //    var orderedFields = parentFields.Concat(childFields);
-
-        //    // 4. Get values in the same order.
-        //    var values = orderedFields
-        //        .Select(f => f.GetValue(totalTrialLog)?.ToString() ?? "");
-
-        //    // 5. Write the values.
-        //    _totalTrialLogWriter.WriteLine(string.Join(";", values));
-        //    _totalTrialLogWriter.Flush();
-        //}
 
         private static void Dispose()
         {

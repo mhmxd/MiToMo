@@ -551,10 +551,6 @@ namespace SubTask.FunctionSelection
                 _topWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _topWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
                 _topWindow.Top = Config.ACTIVE_SCREEN.WorkingArea.Top;
-                //_topWindow.MouseEnter += AuxWindow_MouseEnter;
-                //_topWindow.MouseLeave += AuxWindow_MouseExit;
-                //_topWindow.MouseDown += SideWindow_MouseDown;
-                //_topWindow.MouseUp += SideWindow_MouseUp;
                 _topWindow.Show();
                 _topWinRect = Utils.GetRect(_topWindow);
                 _topWinRectPadded = Utils.GetRect(_topWindow, VERTICAL_PADDING);
@@ -571,10 +567,6 @@ namespace SubTask.FunctionSelection
                 _leftWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _leftWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
                 _leftWindow.Top = this.Top;
-                //_leftWindow.MouseEnter += AuxWindow_MouseEnter;
-                //_leftWindow.MouseLeave += AuxWindow_MouseExit;
-                //_leftWindow.MouseDown += SideWindow_MouseDown;
-                //_leftWindow.MouseUp += SideWindow_MouseUp;
                 _leftWindow.Show();
                 _leftWinRect = Utils.GetRect(_leftWindow);
                 _lefWinRectPadded = Utils.GetRect(_leftWindow, VERTICAL_PADDING);
@@ -591,10 +583,6 @@ namespace SubTask.FunctionSelection
                 _rightWindow.WindowStartupLocation = WindowStartupLocation.Manual;
                 _rightWindow.Left = this.Left + this.Width;
                 _rightWindow.Top = this.Top;
-                //_rightWindow.MouseEnter += AuxWindow_MouseEnter;
-                //_rightWindow.MouseLeave += AuxWindow_MouseExit;
-                //_rightWindow.MouseDown += SideWindow_MouseDown;
-                //_rightWindow.MouseUp += SideWindow_MouseUp;
                 _rightWindow.Show();
                 _rightWinRect = Utils.GetRect(_rightWindow);
                 _rightWinRectPadded = Utils.GetRect(_rightWindow, VERTICAL_PADDING);
@@ -609,20 +597,6 @@ namespace SubTask.FunctionSelection
                 _absRight = _absLeft + (int)this.Width;
                 _absBottom = _absTop + (int)Height;
 
-                //--- Overlay window
-                //var bounds = screens[1].Bounds;
-                //_overlayWindow = new OverlayWindow
-                //{
-                //    WindowStartupLocation = WindowStartupLocation.Manual,
-                //    Left = bounds.Left,
-                //    Top = bounds.Top,
-                //    Width = bounds.Width,
-                //    Height = bounds.Height,
-
-                //    WindowState = WindowState.Normal, // Start as normal to set position
-                //};
-                //WindowHelper.SetAlwaysOnTop( _overlayWindow );
-                //_overlayWindow.Show();
             }
 
 
@@ -642,7 +616,6 @@ namespace SubTask.FunctionSelection
 
             //AdjustWindowPositions();
         }
-
 
         private void MainWindow_LocationChanged(object sender, EventArgs e)
         {
@@ -666,27 +639,6 @@ namespace SubTask.FunctionSelection
             _activeBlockHandler.OnMainWindowMouseUp(sender, e);
 
         }
-
-        //private void AuxWindow_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-        //{
-        //    if (sender is AuxWindow window)
-        //    {
-        //        Side side = window.Side;
-        //        _activeBlockHandler.OnAuxWindowMouseEnter(side, sender, e);
-        //    }
-
-
-        //}
-
-        //private void AuxWindow_MouseExit(object sender, System.Windows.Input.MouseEventArgs e)
-        //{
-        //    if (sender is AuxWindow window)
-        //    {
-        //        Side side = window.Side;
-        //        _activeBlockHandler.OnAuxWindowMouseExit(side, sender, e);
-        //    }
-
-        //}
 
         private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -818,108 +770,6 @@ namespace SubTask.FunctionSelection
             //}
         }
 
-        //private bool FindPosForRepTrial(Trial trial)
-        //{
-        //    int startW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
-        //    int startHalfW = startW / 2;
-        //    this.TrialInfo($"Finding positions for Trial#{trial.Id} [Target = {trial.FuncSide.ToString()}, " +
-        //        $"TargetMult = {trial.TargetMultiple}, D (mm) = {trial.DistanceMM:F2}]");
-
-        //    // Get the target window
-        //    AuxWindow trialTargetWindow = null;
-        //    Point trialTargetWindowPosition = new Point(0, 0);
-        //    switch (trial.FuncSide)
-        //    {
-        //        case Side.Left:
-        //            trialTargetWindow = _leftWindow;
-        //            trialTargetWindowPosition = new Point(_leftWinRect.Left, _leftWinRect.Top);
-        //            break;
-        //        case Side.Right:
-        //            trialTargetWindow = _rightWindow;
-        //            trialTargetWindowPosition = new Point(_rightWinRect.Left, _rightWinRect.Top);
-        //            break;
-        //        case Side.Top:
-        //            trialTargetWindow = _topWindow;
-        //            trialTargetWindowPosition = new Point(_topWinRect.Left, _topWinRect.Top);
-        //            break;
-        //        default:
-        //            throw new ArgumentException($"Invalid target side: {trial.FuncSide}");
-        //    }
-
-        //    // Set the acceptable range for the Target button
-
-        //    int targetId = trialTargetWindow.SelectRandButtonByConstraints(trial.TargetMultiple, trial.DistancePX);
-        //    _trialTargetIds[trial.Id] = targetId; // Map trial id to target id
-
-        //    // Get the absolute position of the target center
-        //    Point targetCenterInTargetWindow = trialTargetWindow.GetGridButtonCenter(targetId);
-        //    Point targetCenterAbsolute = targetCenterInTargetWindow
-        //        .OffsetPosition(trialTargetWindowPosition.x, trialTargetWindowPosition.y);
-
-        //    // Find a Start position for each distance in the passes
-        //    _repTrialStartPositions[trial.Id] = new Dictionary<int, Point>(); // Initialize the dict for this trial
-        //    foreach (int dist in trial.Distances)
-        //    {
-        //        // Find a position for the Start
-        //        Point startCenter = FindRandPointWithDist(
-        //            _objectConstraintRectAbsolue,
-        //            targetCenterAbsolute,
-        //            dist,
-        //            trial.FuncSide.GetOpposite());
-        //        Point startPosition = startCenter.OffsetPosition(-startHalfW, -startHalfW);
-        //        Point startPositionInMain = startPosition.OffsetPosition(-thisLeft, -thisTop); // Position relative to the main window
-        //        this.TrialInfo($"Target: {targetCenterAbsolute}; Dist (px): {dist}; Start pos in main: {startPositionInMain}");
-        //        if (startCenter.x == -1 && startCenter.y == -1) // Failed to find a valid position
-        //        {
-        //            this.TrialInfo($"No valid position found for Start for dist {dist}!");
-        //            return false;
-        //        }
-        //        else // Valid position found
-        //        {
-        //            _repTrialStartPositions[trial.Id][dist] = startPositionInMain; // Add the position to the dictionary
-        //        }
-        //    }
-
-        //    return true; // Valid positions found for all distances
-        //}
-
-        public Point FindRandPointWithDist(Rect rect, Point src, double dist, Side side)
-        {
-            this.TrialInfo($"Finding position: Rect: {rect.ToString()}; Src: {src}; Dist: {dist:F2}; Side: {side}");
-
-            const int maxAttempts = 1000;
-            const double angleSpreadDeg = 90.0; // Spread in degrees
-
-            // 1. Find the center of the target rect
-            Point center = new Point(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
-
-            // 2. Calculate the direction vector and base angle in radians
-            double dx = center.X - src.X;
-            double dy = center.Y - src.Y;
-            double angleToCenter = Math.Atan2(dy, dx); // This is in radians
-
-            // 3. Compute the spread around that angle
-            double spreadRad = DegToRad(angleSpreadDeg);
-            double minRad = angleToCenter - spreadRad / 2;
-            double maxRad = angleToCenter + spreadRad / 2;
-
-            for (int i = 0; i < maxAttempts; i++)
-            {
-                double randomRad = minRad + _random.NextDouble() * (maxRad - minRad);
-                double s_x = src.X + dist * Math.Cos(randomRad);
-                double s_y = src.Y + dist * Math.Sin(randomRad);
-                Point candidate = new Point((int)Math.Round(s_x), (int)Math.Round(s_y));
-
-                if (rect.Contains(candidate))
-                {
-                    return candidate;
-                }
-            }
-
-            // No valid point found
-            return new Point(-1, -1);
-        }
-
         public void GoToNextBlock()
         {
             if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
@@ -1047,75 +897,6 @@ namespace SubTask.FunctionSelection
             // Clear the canvas
             canvas.Children.Clear();
         }
-
-        //public async Task<Task<bool>> SetupLayout(Complexity complexity)
-        //{
-        //    // Task to return when everything is set up
-        //    var tcs = new TaskCompletionSource<bool>();
-
-        //    // Create a list to hold the tasks for placing the grids
-        //    var placementTasks = new List<Task>();
-
-        //    switch (complexity)
-        //    {
-        //        case Complexity.Simple:
-        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
-        //            placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
-        //            placementTasks.Add(_rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
-        //            break;
-        //        case Complexity.Moderate:
-        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING));
-        //            placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
-        //            placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
-        //            break;
-        //        case Complexity.Complex:
-        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateTopComplexGrid, -1, HORIZONTAL_PADDING));
-        //            placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1));
-        //            placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1));
-        //            break;
-        //    }
-
-        //    // Await all tasks concurrently.
-        //    // The code will not proceed until all grids have been placed and their Loaded events processed.
-        //    await Task.WhenAll(placementTasks);
-
-        //    // Task is a success by default, unless a block fails to find positions
-        //    tcs.SetResult(true);
-
-        //    // Find positions for all blocks
-        //    for (int b = 1; b <= _experiment.Blocks.Count; b++)
-        //    {
-        //        Block bl = _experiment.Blocks[b - 1];
-        //        this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
-        //        if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
-        //        {
-        //            this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
-        //            BlockHandler blockHandler = new MultiObjectBlockHandler(this, bl);
-        //            bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-        //            if (positionsFound) _blockHandlers.Add(blockHandler);
-        //            else
-        //            {
-        //                this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-        //                tcs.SetResult(false); // Indicate failure
-        //            }
-        //        }
-        //        else // Single-object block
-        //        {
-        //            this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
-        //            BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl, b);
-        //            bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-        //            if (positionsFound) _blockHandlers.Add(blockHandler);
-        //            else
-        //            {
-        //                this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-        //                tcs.SetResult(false); // Indicate failure
-        //            }
-        //        }
-        //    }
-
-        //    return tcs.Task;
-
-        //}
 
         public async Task<bool> SetupLayout(Complexity complexity)
         {
@@ -1352,33 +1133,6 @@ namespace SubTask.FunctionSelection
 
             return new TrialRecord.TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
         }
-
-        //public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
-        //{
-        //    this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
-        //    List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
-        //    List<int> foundIds = new List<int>();
-        //    // Find a UNIQUE function for each width
-        //    int maxTries = 100;
-        //    int tries = 1;
-        //    do
-        //    {
-        //        tries++;
-        //        functions.Clear();
-        //        foundIds.Clear();
-        //        this.TrialInfo($"Num. of Tries: {tries}");
-        //        foreach (int widthUnit in widthUnits)
-        //        {
-        //            TrialRecord.TFunction function = FindRandomFunction(side, widthUnit, distRange);
-        //            this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
-        //            functions.Add(function);
-        //            foundIds.Add(function.Id);
-        //        }
-
-        //    } while (foundIds.HasDuplicates() && tries < maxTries);
-
-        //    return functions;
-        //}
 
         public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits)
         {
