@@ -58,7 +58,8 @@ namespace SubTask.FunctionPointSelect
         public List<Pair> ObjFuncMap;
         public int Distance; // in pixels
 
-        public Rect ObjectAreaRect;
+        public Rect StartBtnRect;
+        //public Rect ObjectAreaRect;
         //public Dictionary<string, int> EventCounts;
         private List<TrialEvent> Events;
         private Dictionary<string, double> Times;
@@ -70,7 +71,8 @@ namespace SubTask.FunctionPointSelect
             Functions = new List<TFunction>();
             Objects = new List<TObject>();
             ObjFuncMap = new List<Pair>();
-            ObjectAreaRect = new Rect();
+            StartBtnRect = new Rect(0, 0, Config.TRIAL_START_BUTTON_DIM_MM.Width, Config.TRIAL_START_BUTTON_DIM_MM.Height);
+            //ObjectAreaRect = new Rect();
             //EventCounts = new Dictionary<string, int>();
             Events = new List<TrialEvent>();
             Times = new Dictionary<string, double>();

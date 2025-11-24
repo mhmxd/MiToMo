@@ -78,8 +78,6 @@ namespace SubTask.FunctionPointSelect
         {
             int objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
             int objHalfW = objW / 2;
-            int objAreaW = Utils.MM2PX(OBJ_AREA_WIDTH_MM);
-            int objAreaHalfW = objAreaW / 2;
 
             //this.TrialInfo(trial.ToStr());
 
@@ -93,45 +91,48 @@ namespace SubTask.FunctionPointSelect
             {
                 _trialRecords[trial.Id].Functions.AddRange(
                     _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
-                    );
+                );
             });
 
             //this.TrialInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().ToStr()}");
 
             // Find a position for the object area
-            Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+            Rect StartBtnConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
             {
-                return _mainWindow.GetObjAreaCenterConstraintRect();
+                return _mainWindow.GetStartBtnConstraintRect();
             });
 
-            Point objCenter = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
+            Point startCenter = StartBtnConstraintRect.FindPointWithinDistRangeFromMultipleSources(
                 _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
 
 
-            if (objCenter.X == -1 && objCenter.Y == -1) // Failed to find a valid position 
+            if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position 
             {
                 this.TrialInfo($"No valid position found for object in Trial#{trial.Id}!");
                 return false; // Return false to indicate failure
             }
             else
             {
-                //this.TrialInfo($"Found object position: {objCenter.ToStr()}");
+                //this.TrialInfo($"Found object position: {startCenter.ToStr()}");
 
-                // Get the top-left corner of the object area rectangle
-                Point objAreaPosition = objCenter.OffsetPosition(-objAreaHalfW);
+                // Get the top-left corner of the start button rectangle
+                int startBtnW = Utils.MM2PX(_trialRecords[trial.Id].StartBtnRect.Width);
+                int startBtnH = Utils.MM2PX(_trialRecords[trial.Id].StartBtnRect.Height);
+                int startBtnHalfW = startBtnW / 2;
+                Point startBtnPosition = startCenter.OffsetPosition(-startBtnHalfW);
 
-                //this.TrialInfo($"Found object area position: {objAreaPosition.ToStr()}");
+                //this.TrialInfo($"Found object area position: {startBtnPosition.ToStr()}");
 
-                _trialRecords[trial.Id].ObjectAreaRect = new Rect(
-                        objAreaPosition.X,
-                        objAreaPosition.Y,
-                        objAreaW,
-                        objAreaW);
+                _trialRecords[trial.Id].StartBtnRect = new Rect(
+                        startBtnPosition.X,
+                        startBtnPosition.Y,
+                        startBtnW,
+                        startBtnH);
 
                 // Put the object at the center
-                Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
-                TrialRecord.TObject obj = new TrialRecord.TObject(1, objPosition, objCenter); // Object is always 1 in this case
-                _trialRecords[trial.Id].Objects.Add(obj);
+                //Point objPosition = startBtnPosition.OffsetPosition((startBtnW - objW) / 2);
+                //TrialRecord.TObject obj = new TrialRecord.TObject(1, objPosition, startCenter); // Object is always 1 in this case
+                //_trialRecords[trial.Id].Objects.Add(obj);
 
                 return true;
             }
@@ -201,23 +202,27 @@ namespace SubTask.FunctionPointSelect
             _mainWindow.ClearCanvas();
 
             // Show the area
-            MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
-            _mainWindow.ShowObjectsArea(
-                _activeTrialRecord.ObjectAreaRect,
-                Config.OBJ_AREA_BG_COLOR,
-                objAreaEvents);
+            //MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
+            //_mainWindow.ShowStartBtn(
+            //    _activeTrialRecord.StartBtnRect,
+            //    Config.START_AVAILABLE_COLOR,
+            //    objAreaEvents);
 
             // Show objects
-            Brush objDefaultColor = Config.OBJ_DEFAULT_COLOR;
-            MouseEvents objectEvents = new MouseEvents(
-                OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
-            _mainWindow.ShowObjects(
-                _activeTrialRecord.Objects, objDefaultColor, objectEvents);
+            //Brush objDefaultColor = Config.OBJ_DEFAULT_COLOR;
+            //MouseEvents objectEvents = new MouseEvents(
+            //    OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
+            //_mainWindow.ShowObjects(
+            //    _activeTrialRecord.Objects, objDefaultColor, objectEvents);
 
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
-            _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
+            _mainWindow.ShowStartBtn(
+                _activeTrialRecord.StartBtnRect,
+                Config.START_AVAILABLE_COLOR,
+                startButtonEvents);
+            //_mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
 
             // Update info label
             _mainWindow.UpdateInfoLabel();

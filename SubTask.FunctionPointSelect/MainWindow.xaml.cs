@@ -1167,28 +1167,42 @@ namespace SubTask.FunctionPointSelect
             return overallSuccess;
         }
 
-        public void ShowObjectsArea(Rect areaRect, Brush areaColor, MouseEvents mouseEvents)
+        public void ShowStartBtn(Rect areaRect, Brush btnColor, MouseEvents mouseEvents)
         {
-            // Show the area rectangle
-            _objectArea = new Rectangle
+            // Create the "button" as a Border with text inside
+            _startButton = new Border
             {
                 Width = areaRect.Width,
                 Height = areaRect.Height,
-                Fill = areaColor
+                Background = btnColor,
+                BorderBrush = Brushes.Black,
             };
 
+            // Add label inside
+            var label = new TextBlock
+            {
+                Text = Str.START,
+                HorizontalAlignment = SysWin.HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextAlignment = TextAlignment.Center,
+                FontSize = Config.TRIAL_START_BUTTON_FONT_SIZE,
+                Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
+            };
+
+            _startButton.Child = label;
+
             // Position the area rectangle on the Canvas
-            Canvas.SetLeft(_objectArea, areaRect.Left - this.Left);
-            Canvas.SetTop(_objectArea, areaRect.Top - this.Top);
+            Canvas.SetLeft(_startButton, areaRect.Left - this.Left);
+            Canvas.SetTop(_startButton, areaRect.Top - this.Top);
 
             // Add the event handler
-            _objectArea.MouseEnter += mouseEvents.MouseEnter;
-            _objectArea.MouseDown += mouseEvents.MouseDown;
-            _objectArea.MouseUp += mouseEvents.MouseUp;
-            _objectArea.MouseLeave += mouseEvents.MouseLeave;
+            _startButton.MouseEnter += mouseEvents.MouseEnter;
+            _startButton.MouseDown += mouseEvents.MouseDown;
+            _startButton.MouseUp += mouseEvents.MouseUp;
+            _startButton.MouseLeave += mouseEvents.MouseLeave;
 
             // Add the rectangle to the Canvas
-            canvas.Children.Add(_objectArea);
+            canvas.Children.Add(_startButton);
         }
 
         public void ShowObjects(List<TrialRecord.TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
@@ -1502,16 +1516,16 @@ namespace SubTask.FunctionPointSelect
                 centerPositionInAuxWindow.Y + auxWindow.Top);
         }
 
-        public Rect GetObjAreaCenterConstraintRect()
+        public Rect GetStartBtnConstraintRect()
         {
             // Square
             double padding = Utils.MM2PX(VERTICAL_PADDING);
-            double objAreaHalfWidth = Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2);
+            double StartBtnHalfWidth = Utils.MM2PX(START_WIDTH_MM / 2);
             return new Rect(
-                this.Left + padding + objAreaHalfWidth,
-                this.Top + padding + objAreaHalfWidth,
-                this.Width - 2 * (padding + objAreaHalfWidth),
-                this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
+                this.Left + padding + StartBtnHalfWidth,
+                this.Top + padding + StartBtnHalfWidth,
+                this.Width - 2 * (padding + StartBtnHalfWidth),
+                this.Height - 2 * (padding + StartBtnHalfWidth) - _infoLabelHeight
             );
         }
 
