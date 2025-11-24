@@ -15,11 +15,7 @@ namespace SubTask.FunctionPointSelect.Logging
         public int block;       // block number
         public int trial;       // trial number
         public int id;          // number
-        public string tech;     // technique
         public string cmplx;    // complexity
-        public string tsk_type; // sosf, somf, mosf, momf 
-        public int n_obj;       // number of objects
-        public int n_fun;       // number of functions
         public string fun_side; // t, l, r
         public int func_width;  // mm
         public string dist_lvl; // s, m, l
@@ -32,15 +28,11 @@ namespace SubTask.FunctionPointSelect.Logging
             this.block = blockNum;
             this.trial = trialNum;
             this.id = trial.Id;
-            this.tech = trial.Technique.ToString().ToLower();
             this.cmplx = trial.Complexity.ToString().ToLower();
-            this.tsk_type = Str.TASKTYPE_ABBR[trial.TaskType];
             this.fun_side = trial.FuncSide.ToString().ToLower();
             this.func_width = trial.GetFunctionWidthMM();
-            this.n_obj = trial.NObjects;
-            this.n_fun = trial.GetNumFunctions();
             this.dist_lvl = trial.DistRangeMM.Label.Split('-')[0].ToLower();
-            this.dist = $"{Utils.PX2MM(trialRecord.Distance):F2}";
+            this.dist = $"{trialRecord.DistanceMM:F2}";
             this.result = (int)trialRecord.Result;
         }
 

@@ -34,7 +34,7 @@ namespace SubTask.FunctionPointSelect
         }
         public double TargetWidthPX => Utils.MM2PX(TargetWidthMM);
 
-        // Distance to the target center, from start's center
+        // DistanceMM to the target center, from start's center
         //private double _distanceMM;
         //public double DistanceMM
         //{
@@ -46,7 +46,7 @@ namespace SubTask.FunctionPointSelect
         //public List<double> Distances = new List<double>(); // Distances in px
 
         public Range DistRangeMM { get; set; }
-        public Range DistRangePX => DistRangeMM.GetPx(); // Distance range in px
+        public Range DistRangePX => DistRangeMM.GetPx(); // DistanceMM range in px
 
         //public Point StartPosition, TargetPosition; // Relative to the respective windows
 
@@ -89,7 +89,7 @@ namespace SubTask.FunctionPointSelect
         /// Constructor
         /// </summary>
         /// <param name="targetWidthMM"> Target width in mm</param>
-        /// <param name="distMM">Distance to target in mm</param>
+        /// <param name="distMM">DistanceMM to target in mm</param>
         //public Trial(int id, int functionWidthMX, double distMM, Side sideWin)
         //{
         //    _id = id;

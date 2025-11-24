@@ -56,7 +56,7 @@ namespace SubTask.FunctionPointSelect
         public List<TFunction> Functions;
         public List<TObject> Objects;
         public List<Pair> ObjFuncMap;
-        public int Distance; // in pixels
+        public double DistanceMM; // in mm
 
         public Rect StartBtnRect;
         //public Rect ObjectAreaRect;

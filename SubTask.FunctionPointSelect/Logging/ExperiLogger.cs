@@ -37,7 +37,7 @@ namespace SubTask.FunctionPointSelect
         private static Logger _gestureFileLog;
         private static Logger _blockFileLog;
 
-        private static StreamWriter _trialLogWriter;
+        private static StreamWriter _detailTrialLogWriter;
         private static StreamWriter _totalTrialLogWriter;
         private static StreamWriter _cursorLogWriter;
         private static StreamWriter _blockLogWriter;
@@ -62,7 +62,7 @@ namespace SubTask.FunctionPointSelect
         //    bool fileExists = File.Exists(_detailTrialLogFilePath);
         //    bool fileIsEmpty = !fileExists || new FileInfo(_detailTrialLogFilePath).Length == 0;
 
-        //    _trialLogWriter = new StreamWriter(_detailTrialLogFilePath, append: true, Encoding.UTF8);
+        //    _detailTrialLogWriter = new StreamWriter(_detailTrialLogFilePath, append: true, Encoding.UTF8);
 
         //    if (fileIsEmpty)
         //    {
@@ -75,7 +75,7 @@ namespace SubTask.FunctionPointSelect
             _ptcId = participantId;
 
             // Create SOSF trial log if not exists
-            _trialLogWriter = PrepareFile<DetailTrialLog>(_detailTrialLogFilePath);
+            _detailTrialLogWriter = PrepareFile<DetailTrialLog>(_detailTrialLogFilePath);
 
             // Create total log if not exists
             _totalTrialLogWriter = PrepareFile<TotalTrialLog>(_totalLogFilePath);
@@ -299,46 +299,26 @@ namespace SubTask.FunctionPointSelect
             // Information
             //FillTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
-            // Log start events
+            // Log events
             log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
             log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
             log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
             log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
 
-            // Log the rest of the times
-            switch (trial.Technique.GetDevice())
-            {
-                case Technique.MOUSE:
-                    log.strrl_objnt = trialRecord.GetLastSeqDuration(Str.STR_RELEASE, Str.OBJ_ENTER);
+            log.strrl_strxt = trialRecord.GetLastSeqDuration(Str.STR_RELEASE, Str.STR_EXIT);
+            log.strxt_pnlnt = trialRecord.GetLastSeqDuration(Str.STR_EXIT, Str.PNL_ENTER);
 
-                    log.objrl_pnlnt = trialRecord.GetLastSeqDuration(Str.OBJ_RELEASE, Str.PNL_ENTER);
-                    log.pnlnt_funnt = trialRecord.GetLastSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER);
-                    log.funnt_funpr = trialRecord.GetLastSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS);
-                    log.funpr_funrl = trialRecord.GetLastSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE);
-                    log.funrl_arant = trialRecord.GetLastSeqDuration(Str.FUN_RELEASE, Str.ARA_ENTER);
+            log.pnlnt_funnt = trialRecord.GetLastSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER);
+            log.funnt_funpr = trialRecord.GetLastSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS);
+            log.funpr_funrl = trialRecord.GetLastSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE);
 
-                    break;
-
-                case Technique.TOMO:
-                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(Str.STR_RELEASE, trial.Technique);
-                    log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
-                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
-                    log.fstfl_funmk = trialRecord.GetDuration(Str.FLICK, Str.FUN_MARKED);
-                    log.funmk_objnt = trialRecord.GetDuration(Str.ARA_ENTER, Str.OBJ_ENTER);
-                    break;
-            }
-
-            log.objnt_objpr = trialRecord.GetLastSeqDuration(Str.OBJ_ENTER, Str.OBJ_PRESS);
-            log.objpr_objrl = trialRecord.GetLastSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE);
-
-            log.arant_arapr = trialRecord.GetLastSeqDuration(Str.ARA_ENTER, Str.ARA_PRESS);
 
             // Testing
             //Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             //Output.Conlog<ExperiLogger>(log.ToString());
 
-            WriteTrialLog(log, logFilePath, _trialLogWriter);
-            //_trialLogWriter?.Dispose();
+            WriteTrialLog(log, logFilePath, _detailTrialLogWriter);
+            //_detailTrialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
         }
@@ -403,7 +383,7 @@ namespace SubTask.FunctionPointSelect
         {
             //var fields = typeof(T).GetFields();
             //var headers = fields.Select(f => f.Name);
-            //_trialLogWriter.WriteLine(string.Join(";", headers));
+            //_detailTrialLogWriter.WriteLine(string.Join(";", headers));
 
             // Writing first the parent class fields, then the child class fields
             var type = typeof(T);
@@ -432,8 +412,8 @@ namespace SubTask.FunctionPointSelect
         {
             //var fields = typeof(T).GetFields();
             //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
-            //_trialLogWriter.WriteLine(string.Join(";", values));
-            //_trialLogWriter.Flush();
+            //_detailTrialLogWriter.WriteLine(string.Join(";", values));
+            //_detailTrialLogWriter.Flush();
 
             var type = typeof(T);
             var baseType = type.BaseType;
@@ -468,8 +448,8 @@ namespace SubTask.FunctionPointSelect
         //{
         //    //var fields = typeof(T).GetFields();
         //    //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
-        //    //_trialLogWriter.WriteLine(string.Join(";", values));
-        //    //_trialLogWriter.Flush();
+        //    //_detailTrialLogWriter.WriteLine(string.Join(";", values));
+        //    //_detailTrialLogWriter.Flush();
 
         //    var type = typeof(T);
         //    var baseType = type.BaseType;
@@ -497,8 +477,8 @@ namespace SubTask.FunctionPointSelect
 
         private static void Dispose()
         {
-            _trialLogWriter?.Dispose();
-            _trialLogWriter = null;
+            _detailTrialLogWriter?.Dispose();
+            _detailTrialLogWriter = null;
         }
 
         public static void DynamiclySetFieldValue(TrialLog instance, string fieldName, int newValue)

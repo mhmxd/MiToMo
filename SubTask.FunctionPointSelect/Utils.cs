@@ -554,7 +554,7 @@ namespace SubTask.FunctionPointSelect
             return new Point(-1, -1); // Indicate failure
         }
 
-        public static Point FindPointWithinDistRangeFromMultipleSources(
+        public static (Point, double) FindPointWithinDistRangeFromMultipleSources(
             this Rect rect,
             List<Point> srcPoints,
             Range distRange)
@@ -567,7 +567,7 @@ namespace SubTask.FunctionPointSelect
             //}
             //if (minAllowedDist < 0 || maxAllowedDist < minAllowedDist)
             //{
-            //    throw new ArgumentOutOfRangeException("Distance range is invalid.");
+            //    throw new ArgumentOutOfRangeException("DistanceMM range is invalid.");
             //}
 
             for (int i = 0; i < maxAttempts; i++)
@@ -590,14 +590,16 @@ namespace SubTask.FunctionPointSelect
                     }
                 }
 
+                // Found a valid point!
                 if (allDistancesValid)
                 {
-                    return candidate; // Found a valid point!
+                    double distMM = Utils.PX2MM(candidate.DistanceTo(srcPoints[0])); // There is only one source point in our use case
+                    return (candidate, distMM);
                 }
             }
 
             // No valid point found within maxAttempts
-            return new Point(-1, -1); // Indicate failure
+            return (new Point(-1, -1), -1); // Indicate failure
         }
 
         public static double DistanceTo(this Point p1, Point p2)
@@ -729,7 +731,7 @@ namespace SubTask.FunctionPointSelect
             // If the segment is a point (s1 == s2)
             if (dx == 0 && dy == 0)
             {
-                return Dist(p, s1); // Distance from point p to point s1
+                return Dist(p, s1); // DistanceMM from point p to point s1
             }
 
             // Calculate the parameter t that represents the projection of point p onto the line defined by s1 and s2

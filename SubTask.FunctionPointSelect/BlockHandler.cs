@@ -97,13 +97,13 @@ namespace SubTask.FunctionPointSelect
 
             //this.TrialInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().ToStr()}");
 
-            // Find a position for the object area
+            // Find a position for the start button
             Rect StartBtnConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
             {
                 return _mainWindow.GetStartBtnConstraintRect();
             });
 
-            Point startCenter = StartBtnConstraintRect.FindPointWithinDistRangeFromMultipleSources(
+            (Point startCenter, double dist) = StartBtnConstraintRect.FindPointWithinDistRangeFromMultipleSources(
                 _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
 
 
@@ -129,6 +129,8 @@ namespace SubTask.FunctionPointSelect
                         startBtnPosition.Y,
                         startBtnW,
                         startBtnH);
+
+                _trialRecords[trial.Id].DistanceMM = dist;
 
                 // Put the object at the center
                 //Point objPosition = startBtnPosition.OffsetPosition((startBtnW - objW) / 2);
@@ -1200,7 +1202,7 @@ namespace SubTask.FunctionPointSelect
             double shortDistAvg = shortDistTimes.Avg();
             double midDistAvg = midDistTimes.Avg();
             double lonDistAvg = longDistTimes.Avg();
-            //ExperiLogger.LogTrialMessage($"Average Time per Distance --- " +
+            //ExperiLogger.LogTrialMessage($"Average Time per DistanceMM --- " +
             //    $"Short({shortDistTimes.Count}): {shortDistAvg:F2}; " +
             //    $"Mid({midDistTimes.Count}): {midDistAvg:F2}; " +
             //    $"Long({longDistTimes.Count}): {lonDistAvg:F2}");

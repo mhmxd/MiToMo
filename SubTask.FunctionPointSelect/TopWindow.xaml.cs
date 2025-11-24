@@ -329,7 +329,7 @@ namespace SubTask.FunctionPointSelect
         //    double gridCenterY = (_gridMinY + _gridMaxY) / 2;
         //    Point gridCenterPoint = new Point(gridCenterX, gridCenterY);
 
-        //    // Distance to the center point
+        //    // DistanceMM to the center point
         //    double centerDistance = double.MaxValue;
         //    int closestButtonId = -1;
 
