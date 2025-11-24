@@ -193,7 +193,7 @@ namespace SubTask.FunctionPointSelect
             }
 
             // Apply to the specified object
-            if (objId != -1) ChangeObjectState(objId, ButtonState.APPLIED);
+            //if (objId != -1) ChangeObjectState(objId, ButtonState.APPLIED);
 
             //int nFuncs = Functions.Count;
             //int nObjs = Objects.Count;
@@ -260,6 +260,11 @@ namespace SubTask.FunctionPointSelect
         public void SetFunctionAsApplied(int funcId)
         {
             ChangeFunctionState(funcId, ButtonState.APPLIED);
+        }
+
+        public void EnableFunction()
+        {
+            ChangeFunctionState(Functions[0].Id, ButtonState.ENABLED);
         }
 
         public void MarkMappedObject(int funcId)

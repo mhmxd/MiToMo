@@ -69,6 +69,6 @@ namespace SubTask.FunctionPointSelect
 
     public enum ButtonState
     {
-        DEFAULT = 0, MARKED = 1, APPLIED = 2
+        DEFAULT = 0, ENABLED = 1, MARKED = 2, APPLIED = 3
     }
 }

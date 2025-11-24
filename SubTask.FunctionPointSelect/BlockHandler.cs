@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Tensorflow;
 using static SubTask.FunctionPointSelect.Experiment;
 using static SubTask.FunctionPointSelect.TrialRecord;
 using static Tensorflow.TensorShapeProto.Types;
@@ -369,9 +370,16 @@ namespace SubTask.FunctionPointSelect
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
+            LogEvent(Str.MAIN_WIN_RELEASE);
+            
             if (IsStartPressed() && !IsStartClicked()) // Start button not clicked yet
             {
                 Sounder.PlayStartMiss();
+            }
+
+            if (IsFuncPressed())
+            {
+                EndActiveTrial(Result.MISS);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -404,7 +412,7 @@ namespace SubTask.FunctionPointSelect
         }
         public void OnAuxWindowMouseUp(Side side, Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.PNL_PRESS, side.ToString().ToLower());
+            LogEvent(Str.PNL_RELEASE, side.ToString().ToLower());
 
             if (IsStartPressed()) // Pressed in Start, released in aux window
             {
@@ -586,7 +594,6 @@ namespace SubTask.FunctionPointSelect
         public virtual void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_PRESS, funId);
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
@@ -595,19 +602,27 @@ namespace SubTask.FunctionPointSelect
                 return;
             }
 
-            if (_activeTrial.Technique.GetDevice() == Technique.TOMO) // No function pressing in TOMO
-            {
-                EndActiveTrial(Result.MISS);
-                e.Handled = true;
-                return;
-            }
+            //if (_activeTrial.Technique.GetDevice() == Technique.TOMO) // No function pressing in TOMO
+            //{
+            //    EndActiveTrial(Result.MISS);
+            //    e.Handled = true;
+            //    return;
+            //}
+
+            LogEvent(Str.FUN_PRESS, funId);
+
+            // Change state to APPLIED
+            _activeTrialRecord.SetFunctionAsApplied(funId);
+            UpdateScene();
+
+            Mouse.Capture(null);  // Release any active capture (so other windows/elements can get the MouseUp)
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
         public virtual void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_RELEASE, funId);
+            int funcId = (int)((FrameworkElement)sender).Tag;
+            LogEvent(Str.FUN_RELEASE, funcId);
 
             // If the trial has already ended, ignore further events
             if (_activeTrialRecord.GetLastTrialEventType() == Str.TRIAL_END)
@@ -616,38 +631,51 @@ namespace SubTask.FunctionPointSelect
                 return;
             }
 
-            if (!IsStartClicked())
-            {
-                Sounder.PlayStartMiss();
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                return; // Do nothing if start button was not clicked
-            }
+            //if (!IsStartClicked())
+            //{
+            //    Sounder.PlayStartMiss();
+            //    e.Handled = true; // Mark the event as handled to prevent further processing
+            //    return; // Do nothing if start button was not clicked
+            //}
+
+            _activeTrialRecord.ApplyFunction(funcId, 1);
+            UpdateScene();
+
+            EndActiveTrial(Result.HIT);
+
+            // Change obj's color only if all functions are selected
+            //if (_activeTrialRecord.AreAllFunctionsApplied())
+            //{
+            //    _activeTrialRecord.ChangeObjectState(1, ButtonState.APPLIED);
+            //}
+
+
 
             // Function id is sender's tag as int
-            var functionId = (int)((FrameworkElement)sender).Tag;
+            //var functionId = (int)((FrameworkElement)sender).Tag;
             //var device = Utils.GetDevice(_activeBlock.Technique);
-            var objectMarked = GetEventCount(Str.OBJ_RELEASE) > 0;
+            //var objectMarked = GetEventCount(Str.OBJ_RELEASE) > 0;
 
-            if (!objectMarked) // Technique doesn't matter here
-            {
-                EndActiveTrial(Result.MISS);
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                return; // Do nothing if object is not marked
-            }
+            //if (!objectMarked) // Technique doesn't matter here
+            //{
+            //    EndActiveTrial(Result.MISS);
+            //    e.Handled = true; // Mark the event as handled to prevent further processing
+            //    return; // Do nothing if object is not marked
+            //}
 
             //-- Object is marked:
-            this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
-            if (_activeTrial.Technique == Technique.MOUSE)
-            {
-                _activeTrialRecord.ApplyFunction(functionId, 1);
-                // Change obj's color only if all functions are selected
-                if (_activeTrialRecord.AreAllFunctionsApplied())
-                {
-                    _activeTrialRecord.ChangeObjectState(1, ButtonState.APPLIED);
-                }
+            //this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
+            //if (_activeTrial.Technique == Technique.MOUSE)
+            //{
+            //    _activeTrialRecord.ApplyFunction(functionId, 1);
+            //    // Change obj's color only if all functions are selected
+            //    if (_activeTrialRecord.AreAllFunctionsApplied())
+            //    {
+            //        _activeTrialRecord.ChangeObjectState(1, ButtonState.APPLIED);
+            //    }
 
-                UpdateScene();
-            }
+            //    UpdateScene();
+            //}
 
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -702,7 +730,8 @@ namespace SubTask.FunctionPointSelect
             if (startButtonPressed)
             {
                 _mainWindow.RemoveStartTrialButton();
-                //UpdateScene(); // Temp (for measuring time)
+                _activeTrialRecord.EnableFunction();
+                UpdateScene();
             }
             else // Pressed outside the button => miss
             {
@@ -737,19 +766,20 @@ namespace SubTask.FunctionPointSelect
 
         public void SetFunctionAsEnabled(int funcId)
         {
+            this.TrialInfo($"Function Id to enable: {funcId}");
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId,
                 Config.FUNCTION_ENABLED_COLOR);
         }
 
-        public void SetFunctionAsDisabled(int funcId)
-        {
-            _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide,
-                funcId,
-                Config.FUNCTION_DEFAULT_COLOR);
-        }
+        //public void SetFunctionAsDisabled(int funcId)
+        //{
+        //    _mainWindow.FillButtonInAuxWindow(
+        //        _activeTrial.FuncSide,
+        //        funcId,
+        //        Config.FUNCTION_DEFAULT_COLOR);
+        //}
 
         public void SetFunctionAsApplied(int funcId)
         {
@@ -769,6 +799,9 @@ namespace SubTask.FunctionPointSelect
                 //this.TrialInfo($"Function#{func.Id} state: {func.State}");
                 switch (func.State)
                 {
+                    case ButtonState.ENABLED:
+                        funcColor = Config.FUNCTION_ENABLED_COLOR;
+                        break;
                     case ButtonState.MARKED:
                         funcColor = Config.FUNCTION_ENABLED_COLOR;
                         break;
@@ -1191,6 +1224,11 @@ namespace SubTask.FunctionPointSelect
         protected bool IsStartClicked()
         {
             return GetEventCount(Str.STR_RELEASE) > 0;
+        }
+
+        protected bool IsFuncPressed()
+        {
+            return GetEventCount(Str.FUN_PRESS) > 0;
         }
 
         protected bool WasObjectPressed(int objId)

@@ -258,7 +258,7 @@ namespace SubTask.FunctionSelection
         }
         public void OnAuxWindowMouseUp(Side side, Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.PNL_PRESS, side.ToString().ToLower());
+            LogEvent(Str.PNL_RELEASE, side.ToString().ToLower());
 
             if (IsStartPressed()) // Pressed in Start, released in aux window
             {

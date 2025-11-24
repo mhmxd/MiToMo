@@ -660,9 +660,7 @@ namespace SubTask.FunctionPointSelect
 
         private void Window_MouseUp(object sender, MouseButtonEventArgs e)
         {
-
             _activeBlockHandler.OnMainWindowMouseUp(sender, e);
-
         }
 
         //private void AuxWindow_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
@@ -1376,11 +1374,11 @@ namespace SubTask.FunctionPointSelect
             _activeBlockHandler.UpdateScene();
         }
 
-        public void SetFunctionAsEnabled(int funcId)
-        {
-            _activeBlockHandler.SetFunctionAsEnabled(funcId);
-            _activeBlockHandler.UpdateScene();
-        }
+        //public void SetFunctionAsEnabled(int funcId)
+        //{
+        //    _activeBlockHandler.SetFunctionAsEnabled(funcId);
+        //    _activeBlockHandler.UpdateScene();
+        //}
 
         public void UpdateScene()
         {

@@ -289,12 +289,6 @@ namespace SubTask.FunctionPointSelect
 
         }
 
-        public static void LogMultipleObjTrialTimes(TrialRecord trialRecord)
-        {
-            // For now. Later we put detailed log
-            _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS)}");
-        }
-
         public static void LogDetails(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
             string logFilePath = _detailTrialLogFilePath; // Passed to the writer
@@ -340,33 +334,14 @@ namespace SubTask.FunctionPointSelect
             log.arant_arapr = trialRecord.GetLastSeqDuration(Str.ARA_ENTER, Str.ARA_PRESS);
 
             // Testing
-            Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
+            //Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
+            //Output.Conlog<ExperiLogger>(log.ToString());
 
             WriteTrialLog(log, logFilePath, _trialLogWriter);
             //_trialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
         }
-
-        //private static void FillTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-        //{
-        //    // General info
-        //    log.ptc = trial.PtcNum;
-        //    log.block = blockNum;
-        //    log.trial = trialNum;
-        //    log.id = trial.Id;
-        //    log.tech = trial.Technique.ToString().ToLower();
-        //    log.cmplx = trial.Complexity.ToString().ToLower();
-        //    log.tsk_type = Str.TASKTYPE_ABBR[trial.TaskType];
-        //    log.fun_side = trial.FuncSide.ToString().ToLower();
-        //    log.func_width = trial.GetFunctionWidthMM();
-        //    log.n_obj = trial.NObjects;
-        //    log.n_fun = trial.GetNumFunctions();
-        //    log.dist_lvl = trial.DistRangeMM.Label.Split('-')[0].ToLower();
-        //    log.dist = $"{Utils.PX2MM(trialRecord.Distance):F2}";
-        //    log.result = (int)trialRecord.Result;
-        //}
 
         private static void LogTotalTrialTime(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
