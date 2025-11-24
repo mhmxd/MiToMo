@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubTask.ObjectSelection", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubTask.FunctionSelection", "SubTask.FunctionSelection\SubTask.FunctionSelection.csproj", "{1C0ACAEB-616D-40DE-BC11-4E2D447955D9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubTask.FunctionPointSelect", "SubTask.FunctionPointSelect\SubTask.FunctionPointSelect.csproj", "{4F483306-CDCE-4505-AFC6-B9F64FF17483}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,14 @@ Global
 		{1C0ACAEB-616D-40DE-BC11-4E2D447955D9}.Release|Any CPU.Build.0 = Release|x64
 		{1C0ACAEB-616D-40DE-BC11-4E2D447955D9}.Release|x64.ActiveCfg = Release|x64
 		{1C0ACAEB-616D-40DE-BC11-4E2D447955D9}.Release|x64.Build.0 = Release|x64
+		{4F483306-CDCE-4505-AFC6-B9F64FF17483}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{4F483306-CDCE-4505-AFC6-B9F64FF17483}.Debug|Any CPU.Build.0 = Debug|x64
+		{4F483306-CDCE-4505-AFC6-B9F64FF17483}.Debug|x64.ActiveCfg = Debug|x64
+		{4F483306-CDCE-4505-AFC6-B9F64FF17483}.Debug|x64.Build.0 = Debug|x64
+		{4F483306-CDCE-4505-AFC6-B9F64FF17483}.Release|Any CPU.ActiveCfg = Release|x64
+		{4F483306-CDCE-4505-AFC6-B9F64FF17483}.Release|Any CPU.Build.0 = Release|x64
+		{4F483306-CDCE-4505-AFC6-B9F64FF17483}.Release|x64.ActiveCfg = Release|x64
+		{4F483306-CDCE-4505-AFC6-B9F64FF17483}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SubTask.FunctionSelection.Logging
+namespace SubTask.FunctionPointSelect.Logging
 {
-    internal class SOSFTrialLog : TrialLog
+    internal class DetailTrialLog : TrialLog
     {
         public int trlsh_curmv;    // trial show -\ first move
         public int curmv_strnt;   // first move -\ start entered *Last* (before press)
@@ -30,7 +30,7 @@ namespace SubTask.FunctionSelection.Logging
         public int fstfl_funmk;     // first flick -\ marker on function
         public int funmk_objnt;     // marker on function -\ object enter
 
-        public SOSFTrialLog(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
+        public DetailTrialLog(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         : base(blockNum, trialNum, trial, trialRecord)
         {
         }
