@@ -554,7 +554,7 @@ namespace Multi.Cursor
             return new Point(-1, -1); // Indicate failure
         }
 
-        public static Point FindPointWithinDistRangeFromMultipleSources(
+        public static (Point, double) FindPointWithinDistRangeFromMultipleSources(
             this Rect rect,
             List<Point> srcPoints,
             Range distRange)
@@ -567,7 +567,7 @@ namespace Multi.Cursor
             //}
             //if (minAllowedDist < 0 || maxAllowedDist < minAllowedDist)
             //{
-            //    throw new ArgumentOutOfRangeException("Distance range is invalid.");
+            //    throw new ArgumentOutOfRangeException("AvgDistanceMM range is invalid.");
             //}
 
             for (int i = 0; i < maxAttempts; i++)
@@ -579,6 +579,7 @@ namespace Multi.Cursor
 
                 // 2. Check if this candidate point satisfies the distance criteria for *all* source points
                 bool allDistancesValid = true;
+                List<double> distMMList = new List<double>();
                 foreach (Point src in srcPoints)
                 {
                     double dist = candidate.DistanceTo(src);
@@ -588,16 +589,21 @@ namespace Multi.Cursor
                         allDistancesValid = false;
                         break; // No need to check other source points if one fails
                     }
+
+                    // Add the valid dist to the list
+                    distMMList.Add(PX2MM(dist));
                 }
 
+                // Found a valid point
                 if (allDistancesValid)
                 {
-                    return candidate; // Found a valid point!
+                    double avgDist = distMMList.Average();
+                    return (candidate, avgDist); 
                 }
             }
 
             // No valid point found within maxAttempts
-            return new Point(-1, -1); // Indicate failure
+            return (new Point(-1, -1), -1); // Indicate failure
         }
 
         public static double DistanceTo(this Point p1, Point p2)
@@ -729,7 +735,7 @@ namespace Multi.Cursor
             // If the segment is a point (s1 == s2)
             if (dx == 0 && dy == 0)
             {
-                return Dist(p, s1); // Distance from point p to point s1
+                return Dist(p, s1); // AvgDistanceMM from point p to point s1
             }
 
             // Calculate the parameter t that represents the projection of point p onto the line defined by s1 and s2

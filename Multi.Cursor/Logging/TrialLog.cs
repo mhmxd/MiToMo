@@ -40,7 +40,7 @@ namespace Multi.Cursor.Logging
             this.n_obj = trial.NObjects;
             this.n_fun = trial.GetNumFunctions();
             this.dist_lvl = trial.DistRangeMM.Label.Split('-')[0].ToLower();
-            this.dist = $"{Utils.PX2MM(trialRecord.Distance):F2}";
+            this.dist = $"{trialRecord.AvgDistanceMM:F2}";
             this.result = (int)trialRecord.Result;
         }
 

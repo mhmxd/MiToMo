@@ -831,7 +831,7 @@ namespace Multi.Cursor
         //    int startW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
         //    int startHalfW = startW / 2;
         //    this.TrialInfo($"Finding positions for Trial#{trial.Id} [Target = {trial.FuncSide.ToString()}, " +
-        //        $"TargetMult = {trial.TargetMultiple}, D (mm) = {trial.DistanceMM:F2}]");
+        //        $"TargetMult = {trial.TargetMultiple}, D (mm) = {trial.AvgDistanceMM:F2}]");
 
         //    // Get the target window
         //    AuxWindow trialTargetWindow = null;

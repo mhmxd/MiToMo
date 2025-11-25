@@ -534,14 +534,14 @@ namespace SubTask.ObjectSelection
             return -1;
         }
 
-        public bool HasTime(string label)
-        {
-            return Times.Any(t => t.Key == label);
-        }
-
         public bool HasTimestamp(string label)
         {
             return Events.Any(ts => ts.Type == label);
+        }
+
+        public bool IsObjectClicked(int objId)
+        {
+            return Events.Any(ts => ts.Type == Str.OBJ_RELEASE && ts.Id == objId.ToString());
         }
 
         public int GetMarketObjectId()

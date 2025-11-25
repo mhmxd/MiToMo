@@ -101,7 +101,7 @@ namespace Multi.Cursor
                 return _mainWindow.GetObjAreaCenterConstraintRect();
             });
 
-            Point objAreaCenter = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
+            (Point objAreaCenter, double avgDist) = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
                 _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
 
 
@@ -123,6 +123,8 @@ namespace Multi.Cursor
                         objAreaPosition.Y,
                         objAreaW,
                         objAreaW);
+
+                _trialRecords[trial.Id].AvgDistanceMM = avgDist;
 
                 // Place objects in the area
                 _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenter, trial.NObjects);
@@ -615,7 +617,17 @@ namespace Multi.Cursor
                 }
                 else
                 {
-                    _pressedObjectId = objId;
+                    // Is object already clicked? => MISS
+                    if (_activeTrialRecord.IsObjectClicked(objId))
+                    {
+                        EndActiveTrial(Result.MISS);
+                    } 
+                    else
+                    {
+                        _pressedObjectId = objId;
+                    }
+
+                        
                 }
 
             }

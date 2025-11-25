@@ -56,7 +56,7 @@ namespace Multi.Cursor
         public List<TFunction> Functions;
         public List<TObject> Objects;
         public List<Pair> ObjFuncMap;
-        public int Distance; // in pixels
+        public double AvgDistanceMM; // Average distance from different sources
 
         public Rect ObjectAreaRect;
         //public Dictionary<string, int> EventCounts;
@@ -161,6 +161,11 @@ namespace Multi.Cursor
                 }
             }
             return false; // No functions are enabled
+        }
+
+        public bool IsObjectClicked(int objId)
+        {
+            return Events.Any(ts => ts.Type == Str.OBJ_RELEASE && ts.Id == objId.ToString());
         }
 
         public void MarkObject(int id)
@@ -631,11 +636,6 @@ namespace Multi.Cursor
             }
 
             return -1;
-        }
-
-        public bool HasTime(string label)
-        {
-            return Times.Any(t => t.Key == label);
         }
 
         public bool HasTimestamp(string label)

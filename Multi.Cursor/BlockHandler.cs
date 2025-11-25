@@ -868,7 +868,7 @@ namespace Multi.Cursor
             foreach (int trialId in _trialRecords.Keys)
             {
                 Trial trial = _activeBlock.GetTrialById(trialId);
-                if (trial != null && _trialRecords[trialId].HasTime(Str.TRIAL_TIME))
+                if (trial != null && _trialRecords[trialId].HasTimestamp(Str.TRIAL_TIME))
                 {
                     if (trial.DistRangeMM.Label == Str.SHORT_DIST)
                         shortDistTimes.Add(_trialRecords[trialId].GetTime(Str.TRIAL_TIME));
@@ -883,7 +883,7 @@ namespace Multi.Cursor
             double shortDistAvg = shortDistTimes.Avg();
             double midDistAvg = midDistTimes.Avg();
             double lonDistAvg = longDistTimes.Avg();
-            //ExperiLogger.LogTrialMessage($"Average Time per Distance --- " +
+            //ExperiLogger.LogTrialMessage($"Average Time per AvgDistanceMM --- " +
             //    $"Short({shortDistTimes.Count}): {shortDistAvg:F2}; " +
             //    $"Mid({midDistTimes.Count}): {midDistAvg:F2}; " +
             //    $"Long({longDistTimes.Count}): {lonDistAvg:F2}");

@@ -88,7 +88,7 @@ namespace Multi.Cursor
                 return _mainWindow.GetObjAreaCenterConstraintRect();
             });
 
-            Point objCenter = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
+            (Point objCenter, double avgDist) = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
                 _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
 
 
@@ -111,6 +111,8 @@ namespace Multi.Cursor
                         objAreaPosition.Y,
                         objAreaW,
                         objAreaW);
+
+                _trialRecords[trial.Id].AvgDistanceMM = avgDist;
 
                 // Put the object at the center
                 Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
@@ -259,6 +261,13 @@ namespace Multi.Cursor
 
             //-- Trial started:
 
+            // Pressed the second time => MISS
+            if (_activeTrialRecord.HasTimestamp(Str.OBJ_RELEASE))
+            {
+                EndActiveTrial(Result.MISS);
+            }
+
+            // ToMo
             if (_activeTrial.IsTechniqueToMo())
             {
                 int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
@@ -267,8 +276,8 @@ namespace Multi.Cursor
                 {
                     this.TrialInfo($"Marker not over enabled function");
                     EndActiveTrial(Result.MISS);
-                    e.Handled = true; // Mark the event as handled to prevent further processing
-                    return; // Do nothing if marker is not over enabled function
+                    //e.Handled = true; // Mark the event as handled to prevent further processing
+                    //return; // Do nothing if marker is not over enabled function
                 }
             }
 

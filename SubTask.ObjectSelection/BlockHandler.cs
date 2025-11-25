@@ -120,8 +120,8 @@ namespace SubTask.ObjectSelection
                     Sounder.PlayTargetMiss();
 
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
-                    _trialRecords[_activeTrial.Id].ClearTimestamps();
-                    _trialRecords[_activeTrial.Id].ResetStates();
+                    //_trialRecords[_activeTrial.Id].ClearTimestamps();
+                    //_trialRecords[_activeTrial.Id].ResetStates();
                     break;
             }
 
@@ -360,13 +360,22 @@ namespace SubTask.ObjectSelection
                 EndActiveTrial(Result.MISS); // Should not end on object press (should click area)
                 return;
             }
-            //else
-            //{
-            //    _pressedObjectId = objId;
-            //}
+            else
+            {
+                // Is object already clicked? => MISS
+                if (_activeTrialRecord.IsObjectClicked(objId))
+                {
+                    EndActiveTrial(Result.MISS);
+                }
+
+            }
+                //else
+                //{
+                //    _pressedObjectId = objId;
+                //}
 
 
-            e.Handled = true;
+                e.Handled = true;
         }
 
         public void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)

@@ -184,7 +184,7 @@ namespace Multi.Cursor
             double gridCenterY = (_gridMinY + _gridMaxY) / 2;
             Point gridCenterPoint = new Point(gridCenterX, gridCenterY);
             //this.TrialInfo($"Central Point: {gridCenterPoint}");
-            // Distance to the center point
+            // AvgDistanceMM to the center point
             double centerDistance = double.MaxValue;
             int closestButtonId = -1;
 
@@ -910,7 +910,7 @@ namespace Multi.Cursor
             double minDist;
             double maxDist;
 
-            // --- Calculate Minimum Distance ---
+            // --- Calculate Minimum AvgDistanceMM ---
             // The closest point in the rectangle to outsidePoint could be:
             // 1. The outsidePoint itself, if it's inside or on the edge of the rectangle (minDist = 0).
             // 2. A point on one of the rectangle's edges (if outsidePoint projects onto the edge).
@@ -926,7 +926,7 @@ namespace Multi.Cursor
             minDist = Math.Sqrt(dx * dx + dy * dy);
 
 
-            // --- Calculate Maximum Distance ---
+            // --- Calculate Maximum AvgDistanceMM ---
             // The furthest point from outsidePoint will always be one of the four corners of the rectangle.
             Point[] corners = new Point[]
             {

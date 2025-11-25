@@ -35,19 +35,19 @@ namespace Multi.Cursor
         }
         public double TargetWidthPX => Utils.MM2PX(TargetWidthMM);
 
-        // Distance to the target center, from start's center
+        // AvgDistanceMM to the target center, from start's center
         //private double _distanceMM;
-        //public double DistanceMM
+        //public double AvgDistanceMM
         //{
         //    get => _distanceMM;
         //    set => _distanceMM = value;
         //}
-        //public int DistancePX => Utils.MM2PX(DistanceMM);
+        //public int DistancePX => Utils.MM2PX(AvgDistanceMM);
 
         //public List<double> Distances = new List<double>(); // Distances in px
 
         public Range DistRangeMM { get; set; }
-        public Range DistRangePX => DistRangeMM.GetPx(); // Distance range in px
+        public Range DistRangePX => DistRangeMM.GetPx(); // AvgDistanceMM range in px
 
         //public Point StartPosition, TargetPosition; // Relative to the respective windows
 
@@ -90,7 +90,7 @@ namespace Multi.Cursor
         /// Constructor
         /// </summary>
         /// <param name="targetWidthMM"> Target width in mm</param>
-        /// <param name="distMM">Distance to target in mm</param>
+        /// <param name="distMM">AvgDistanceMM to target in mm</param>
         //public Trial(int id, int functionWidthMX, double distMM, Side sideWin)
         //{
         //    _id = id;
