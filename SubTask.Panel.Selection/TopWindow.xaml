@@ -1,0 +1,13 @@
+﻿<local:AuxWindow
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:SubTask.Panel.Selection" x:Class="SubTask.Panel.Selection.TopWindow"
+        Title="Top Window"
+        WindowStyle="None"
+        Topmost="true"
+        BorderThickness="1"
+        ResizeMode="NoResize">
+    <Canvas x:Name="canvas">
+    </Canvas>
+
+</local:AuxWindow>

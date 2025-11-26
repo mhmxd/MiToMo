@@ -12,10 +12,10 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using static Panel.Select.Experiment;
-using static Panel.Select.Utils;
+using static SubTask.Panel.Selection.Experiment;
+using static SubTask.Panel.Selection.Utils;
 
-namespace Panel.Select
+namespace SubTask.Panel.Selection
 {
     public class SingleObjectBlockHandler
     {
@@ -74,7 +74,8 @@ namespace Panel.Select
         //        _trialRecords[trial.Id] = new TrialRecord();
         //    }
         //    //this.TrialInfo($"Trial function widths: {trial.GetFunctionWidths()}");
-        //    _mainWindow.Dispatcher.Invoke(() => {
+        //    _mainWindow.Dispatcher.Invoke(() =>
+        //    {
         //        _trialRecords[trial.Id].Functions.AddRange(
         //            _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
         //            );
@@ -121,6 +122,60 @@ namespace Panel.Select
         //    }
         //}
 
+        //public override void ShowActiveTrial()
+        //{
+        //    base.ShowActiveTrial();
+
+        //    // Update the main window label
+        //    //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
+
+        //    // Set the target window based on the trial's target side
+        //    _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
+
+        //    // Color the target button and set the handlers
+        //    this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
+        //    Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
+        //    UpdateScene(); // (comment for measuring panel selection time)
+        //    //_mainWindow.FillButtonInTargetWindow(
+        //    //    _activeTrial.FuncSide, 
+        //    //    _activeTrialRecord.FunctionId, 
+        //    //    funcDefaultColor);
+
+        //    _mainWindow.SetAuxButtonsHandlers(
+        //        _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
+        //        OnFunctionMouseEnter, this.OnFunctionMouseDown, this.OnFunctionMouseUp,
+        //        OnFunctionMouseExit, this.OnNonTargetMouseDown);
+
+        //    // If on ToMo, activate the auxiliary window marker on all sides
+        //    if (_mainWindow.IsTechniqueToMo()) _mainWindow.ShowAllAuxMarkers();
+
+        //    // Clear the main window canvas (to add shapes)
+        //    _mainWindow.ClearCanvas();
+
+        //    // Show the area
+        //    MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
+        //    _mainWindow.ShowObjectsArea(
+        //        _activeTrialRecord.ObjectAreaRect,
+        //        Config.OBJ_AREA_BG_COLOR,
+        //        objAreaEvents);
+
+        //    // Show objects
+        //    Brush objDefaultColor = Config.OBJ_DEFAULT_COLOR;
+        //    MouseEvents objectEvents = new MouseEvents(
+        //        OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
+        //    _mainWindow.ShowObjects(
+        //        _activeTrialRecord.Objects, objDefaultColor, objectEvents);
+
+        //    // Show Start Trial button
+        //    MouseEvents startButtonEvents = new MouseEvents(
+        //        OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
+        //    _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
+
+        //    // Update info label
+        //    _mainWindow.UpdateInfoLabel();
+
+        //}
+
         ////public override void EndActiveTrial(Result result)
         ////{
 
@@ -131,7 +186,7 @@ namespace Panel.Select
         ////            //double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
         ////            double trialTime = GetDuration(Str.OBJ_RELEASE + "_1", Str.TRIAL_END);
         ////            _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
-                   
+
         ////            //this.TrialInfo($"Trial Time = {trialTime:F2}s");
         ////            //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial Time = {trialTime:F2}s");
         ////            this.TrialInfo(Str.MAJOR_LINE);
@@ -151,7 +206,7 @@ namespace Panel.Select
         ////    // Log the records
         ////    if (_activeTrial.GetNumFunctions() == 1)
         ////    {
-        ////        ExperiLogger.LogSOSFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+        ////        ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
         ////    }
         ////    else
         ////    {
@@ -159,6 +214,39 @@ namespace Panel.Select
         ////    }
 
         ////}
+
+        //public override void GoToNextTrial()
+        //{
+        //    if (_activeTrialNum < _activeBlock.Trials.Count)
+        //    {
+        //        //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
+        //        _mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
+        //        _mainWindow.ClearCanvas();
+        //        _activeTrialRecord.ClearTimestamps();
+        //        _nSelectedObjects = 0; // Reset the number of selected objects
+        //        _functionsVisitMap.Clear();
+        //        _objectsVisitMap.Clear();
+
+        //        _activeTrialNum++;
+        //        _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
+        //        _activeTrialRecord = _trialRecords[_activeTrial.Id];
+
+        //        ShowActiveTrial();
+        //    }
+        //    else // Last trial of the block
+        //    {
+        //        // Log the avg times
+        //        LogAverageTimeOnDistances();
+
+        //        // Log block time
+        //        ExperiLogger.LogBlockTime(_activeBlock);
+
+        //        // Show end of block window
+        //        BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
+        //        blockEndWindow.Owner = _mainWindow;
+        //        blockEndWindow.ShowDialog();
+        //    }
+        //}
 
         //public override void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)
         //{
@@ -215,28 +303,26 @@ namespace Panel.Select
 
         //public override void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         //{
+        //    base.OnObjectMouseUp(sender, e); // For logging the event
+
         //    if (!IsStartClicked())
         //    {
         //        Sounder.PlayStartMiss();
-        //        var objId = (int)((FrameworkElement)sender).Tag;
-        //        LogEvent(Str.OBJ_RELEASE, objId);
         //        e.Handled = true; // Mark the event as handled to prevent further processing
         //        return; // Do nothing if start button was not clicked
         //    }
 
         //    //-- Trial started:
 
-        //    if (!IsObjectJustPressed(1)) // Technique doesn't matter here
+        //    if (!WasObjectPressed(1)) // Technique doesn't matter here
         //    {
         //        this.TrialInfo($"Object wasn't pressed");
-        //        var objId = (int)((FrameworkElement)sender).Tag;
-        //        LogEvent(Str.OBJ_RELEASE, objId);
         //        e.Handled = true; // Mark the event as handled to prevent further processing
         //        return; // Do nothing if object wasn't pressed
         //    }
 
-        //    //-- Object is pressed (while marker was over function):
-
+        //    //-- Object is pressed:
+        //    this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
         //    if (_activeTrial.IsTechniqueToMo())
         //    {
         //        int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
@@ -254,6 +340,7 @@ namespace Panel.Select
         //    }
         //    else // MOUSE
         //    {
+        //        this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
         //        _activeTrialRecord.EnableAllFunctions();
         //        _activeTrialRecord.MarkObject(1);
         //        UpdateScene();
@@ -272,7 +359,7 @@ namespace Panel.Select
         //    //{
 
         //    //    case (Technique.TOMO, true, true, _, _, true, _): // ToMo, object pressed, marker on function, function window activated 
-                    
+
         //    //        break;
         //    //    case (Technique.TOMO, _, false, _, _, false, _): // ToMo, marker not on function, _, function window not activated
         //    //        _activeTrialRecord.MarkObject(1);
@@ -281,13 +368,13 @@ namespace Panel.Select
         //    //    case (Technique.TOMO, _, false, _, _, true, _): // ToMo, marker not on function, _, function window activated
         //    //        //EndActiveTrial(Result.MISS);
         //    //        break;
-                
+
         //    //    case (Technique.MOUSE, true, _, _, _, _, _): // MOUSE, object correctly pressed
-                    
+
         //    //        break;
         //    //}
 
-            
+
         //}
 
         //public override void OnFunctionMarked(int funId)
@@ -325,9 +412,6 @@ namespace Panel.Select
         //        return; // Do nothing if start button was not clicked
         //    }
 
-
-        //    //this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
-
         //    // Function id is sender's tag as int
         //    var functionId = (int)((FrameworkElement)sender).Tag;
         //    var device = Utils.GetDevice(_activeBlock.Technique);
@@ -341,7 +425,7 @@ namespace Panel.Select
         //    }
 
         //    //-- Object is marked:
-
+        //    this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
         //    if (_activeTrial.Technique == Technique.MOUSE)
         //    {
         //        _activeTrialRecord.ApplyFunction(functionId, 1);
@@ -354,7 +438,7 @@ namespace Panel.Select
         //        UpdateScene();
         //    }
 
-            
+
         //    e.Handled = true; // Mark the event as handled to prevent further processing
         //}
 
@@ -386,7 +470,7 @@ namespace Panel.Select
         //        Sounder.PlayStartMiss();
         //    }
 
-            
+
 
         //    var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
 

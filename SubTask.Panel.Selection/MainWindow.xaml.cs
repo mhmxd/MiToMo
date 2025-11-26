@@ -45,32 +45,21 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Xml.Linq;
 using WindowsInput;
-using static Panel.Select.BlockHandler;
-using static Panel.Select.Experiment;
-using static Panel.Select.Output;
-using static Panel.Select.Utils;
+using static SubTask.Panel.Selection.BlockHandler;
+using static SubTask.Panel.Selection.Experiment;
+using static SubTask.Panel.Selection.Output;
+using static SubTask.Panel.Selection.Utils;
 using static System.Math;
 using MessageBox = System.Windows.Forms.MessageBox;
 using Seril = Serilog.Log;
 using SysDraw = System.Drawing;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
+
 //using WinForms = System.Windows.Forms; // Alias for Forms namespace
 
-namespace Panel.Select
+namespace SubTask.Panel.Selection
 {
-
-    //public partial class TouchPoint
-    //{
-    //    public int x { get; set; }
-    //    public int y { get; set; }
-    //    public int Value { get; set; }
-
-    //    override public string ToString()
-    //    {
-    //        return string.Format("({0}, {1}): {2}", x, y, Value);
-    //    }
-    //}
 
     /// <summary>
     /// Interaction logic for Window1.xaml
@@ -242,7 +231,7 @@ namespace Panel.Select
         private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)
         private BlockHandler _activeBlockHandler;
         private Rect _objectConstraintRectAbsolue;
-        private List<BlockHandler> _blockHandlers = new List<BlockHandler> ();
+        private List<BlockHandler> _blockHandlers = new List<BlockHandler>();
         private Border _startButton;
         private Rectangle _objectArea;
 
@@ -274,6 +263,34 @@ namespace Panel.Select
             _leftWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
             _rightWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
 
+            // Create grid
+            //_topWindow.KnollHorizontal(6, 12, Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
+            //Func<Grid>[] colCreators = new Func<Grid>[]
+            //{
+            //    () => ColumnFactory.CreateGroupType1(combination: 1),
+            //    () => ColumnFactory.CreateGroupType2(combination: 2),
+            //    () => ColumnFactory.CreateGroupType3(),
+            //    () => ColumnFactory.CreateGroupType1(combination: 3),
+            //    () => ColumnFactory.CreateGroupType2(combination: 1),
+            //    () => ColumnFactory.CreateGroupType1(combination: 6),
+            //    () => ColumnFactory.CreateGroupType3(),
+            //    () => ColumnFactory.CreateGroupType2(combination: 1),
+            //    () => ColumnFactory.CreateGroupType1(combination: 5),
+            //    () => ColumnFactory.CreateGroupType2(combination: 3),
+            //    () => ColumnFactory.CreateGroupType1(combination: 2),
+            //    () => ColumnFactory.CreateGroupType1(combination: 4),
+            //};
+
+            // Starts placed at the two bottom corners (to set max distance from grid buttons)
+            //_topWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
+
+            //_leftWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
+            //_rightWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
+
+            //_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleTopGrid);
+
+            // Create Top-Simple
+            //_topWindow.PlaceGrid(RowFactory.CreateSimpleTopGrid);
 
             UpdateLabelPosition();
 
@@ -310,7 +327,7 @@ namespace Panel.Select
             {
                 // Set the _technique mode in Config
                 //_experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
-                
+
 
                 BeginExperiment();
             }
@@ -320,33 +337,29 @@ namespace Panel.Select
         private void CreateExperiment()
         {
             double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
             double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
-            double startHalfWidth = OBJ_WIDTH_MM / 2;
             double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
-            //double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
-            double objAreaHalfWidth = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
 
             // Distances (v.3)
             // Longest
-            Point leftMostSmallButtonCenterPosition = new Point(
-                padding + smallButtonHalfWidth,
-                padding + smallButtonHalfWidth
-             );
-            Point leftMostSmallButtonCenterAbsolute = Utils.OffsetPosition(
-                leftMostSmallButtonCenterPosition, 
-                _leftWindow.Left, _leftWindow.Top);
+            //Point leftMostSmallButtonCenterPosition = new Point(
+            //    padding + smallButtonHalfWidth,
+            //    padding + smallButtonHalfWidth
+            // );
+            //Point leftMostSmallButtonCenterAbsolute = Utils.OffsetPosition(
+            //    leftMostSmallButtonCenterPosition,
+            //    _leftWindow.Left, _leftWindow.Top);
 
-            Point rightMostObjAreaCenterAbsolute = new Point(
-                _mainWinRect.Right - padding - objAreaHalfWidth,
-                _mainWinRect.Top + padding - objAreaHalfWidth
-            );
+            //Point rightMostObjAreaCenterAbsolute = new Point(
+            //    _mainWinRect.Right - padding - objAreaHalfWidth,
+            //    _mainWinRect.Top + padding - objAreaHalfWidth
+            //);
             //Point rightMostObjAreaCenterAbsolute = Utils.OffsetPosition(
             //    rightMostObjAreaCenterPosition, 
             //    this.Left, this.Top);
 
-            double longestDistMM = Utils.DistInMM(leftMostSmallButtonCenterAbsolute, rightMostObjAreaCenterAbsolute);
-            this.TrialInfo($"Main Rect: {_mainWinRect.ToString()}");
+            //double longestDistMM = Utils.DistInMM(leftMostSmallButtonCenterAbsolute, rightMostObjAreaCenterAbsolute);
+            //this.TrialInfo($"Main Rect: {_mainWinRect.ToString()}");
             //ShowPoint(rightMostObjAreaCenterPosition);
             //_leftWindow.ShowPoint(leftMostSmallButtonCenterPosition);
             //double longestDistMM =
@@ -355,28 +368,28 @@ namespace Panel.Select
 
 
             // Shortest
-            Point topLeftButtonCenterPosition = new Point(
-                padding + smallButtonHalfWidth,
-                padding + smallButtonHalfWidth
-            );
-            Point topLeftButtonCenterAbsolute = Utils.OffsetPosition(topLeftButtonCenterPosition, _topWindow.Left, _topWindow.Top);
+            //Point topLeftButtonCenterPosition = new Point(
+            //    padding + smallButtonHalfWidth,
+            //    padding + smallButtonHalfWidth
+            //);
+            //Point topLeftButtonCenterAbsolute = Utils.OffsetPosition(topLeftButtonCenterPosition, _topWindow.Left, _topWindow.Top);
 
-            Point topLeftObjAreaCenterPosition = new Point(
-                padding + objAreaHalfWidth,
-                padding + objAreaHalfWidth
-            );
-            Point topLeftObjAreaCenterAbsolute = Utils.OffsetPosition(topLeftObjAreaCenterPosition, this.Left, this.Top);
+            //Point topLeftObjAreaCenterPosition = new Point(
+            //    padding + objAreaHalfWidth,
+            //    padding + objAreaHalfWidth
+            //);
+            //Point topLeftObjAreaCenterAbsolute = Utils.OffsetPosition(topLeftObjAreaCenterPosition, this.Left, this.Top);
 
-            double shortestDistMM = Utils.DistInMM(topLeftButtonCenterAbsolute, topLeftObjAreaCenterAbsolute);
+            //double shortestDistMM = Utils.DistInMM(topLeftButtonCenterAbsolute, topLeftObjAreaCenterAbsolute);
 
             //double topLeftStartCenterLeft = Config.SIDE_WINDOW_WIDTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
             //double topLeftStartCenterTop = Config.TOP_WINDOW_HEIGTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
             //Point topLeftStartCenterAbsolute = new Point(topLeftStartCenterLeft, topLeftStartCenterTop);
 
-            this.TrialInfo($"topLeftObjAreaCenterPosition: {topLeftButtonCenterAbsolute.ToStr()}");
-            this.TrialInfo($"Shortest Dist = {shortestDistMM:F2}mm | Longest Dist = {longestDistMM:F2}mm");
+            //this.TrialInfo($"topLeftObjAreaCenterPosition: {topLeftButtonCenterAbsolute.ToStr()}");
+            //this.TrialInfo($"Shortest Dist = {shortestDistMM:F2}mm | Longest Dist = {longestDistMM:F2}mm");
 
-            _experiment = new Experiment(shortestDistMM, longestDistMM);
+            _experiment = new Experiment();
         }
 
         private async void BeginExperiment()
@@ -412,7 +425,7 @@ namespace Panel.Select
             // TEMP: for logging purposes
             if (Keyboard.IsKeyDown(Key.Space))
             {
-                _activeBlockHandler.LogAverageTimeOnDistances();
+                // Nothing for now
             }
 
             // Exit on Shift + F5
@@ -636,7 +649,7 @@ namespace Panel.Select
         {
 
             _activeBlockHandler.OnMainWindowMouseUp(sender, e);
-            
+
         }
 
         //private void AuxWindow_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
@@ -646,7 +659,7 @@ namespace Panel.Select
         //        Side side = window.Side;
         //        _activeBlockHandler.OnAuxWindowMouseEnter(side, sender, e);
         //    }
-            
+
 
         //}
 
@@ -709,7 +722,7 @@ namespace Panel.Select
             }
 
             //long timeStamp = stopwatch.ElapsedMilliseconds;
-            //gestureVector.Add((e.Image.Select(b => b / 255.0f).ToArray(), timeStamp));
+            //gestureVector.Add((e.Image.Select(bn => bn / 255.0f).ToArray(), timeStamp));
             gestureShot = new byte[13, 15];
             var shotSpan = new Span2D<Byte>(gestureShot);
 
@@ -774,7 +787,7 @@ namespace Panel.Select
             //Block block = _experiment.GetBlock(_activeBlockNum);
             _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
-            ExperiLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique, _activeBlockHandler.GetBlockType());
+            ExperiLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique);
 
             if (Utils.GetDevice(_experiment.Active_Technique) == Technique.TOMO)
             {
@@ -827,8 +840,8 @@ namespace Panel.Select
         //    }
 
         //    // Set the acceptable range for the Target button
-            
-        //    int targetId = trialTargetWindow.SelectRandButtonByConstraints(trial.TargetMultiple, trial.DistancePX);
+
+        //    int targetId = trialTargetWindow.SelectRandButton(trial.TargetMultiple, trial.DistancePX);
         //    _trialTargetIds[trial.Id] = targetId; // Map trial id to target id
 
         //    // Get the absolute position of the target center
@@ -909,7 +922,7 @@ namespace Panel.Select
 
                 _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
                 if (Utils.GetDevice(_experiment.Active_Technique) == Technique.TOMO) _touchSurface.SetGestureHandler(_activeBlockHandler);
-                
+
                 _activeBlockHandler.BeginActiveBlock();
 
                 //if (TaskType == TaskType.REPEATING) _activeBlockHandler = new MultiObjectBlockHandler(this, block);
@@ -939,7 +952,7 @@ namespace Panel.Select
                     }
                 }
             }
-            
+
         }
 
         public void UpdateInfoLabel(int trialNum, int nTrials, int blockNum = 0)
@@ -967,8 +980,8 @@ namespace Panel.Select
 
             // Convert the absolute position to relative position
             Point positionInMain = Utils.Offset(absolutePosition,
-                - this.Left,
-                - this.Top);
+                -this.Left,
+                -this.Top);
 
             // Create the square
             _startRectangle = new Rectangle
@@ -1035,9 +1048,9 @@ namespace Panel.Select
         //    tcs.SetResult(true);
 
         //    // Find positions for all blocks
-        //    for (int b = 1; b <= _experiment.Blocks.Count; b++)
+        //    for (int bn = 1; bn <= _experiment.Blocks.Count; bn++)
         //    {
-        //        Block bl = _experiment.Blocks[b - 1];
+        //        Block bl = _experiment.Blocks[bn - 1];
         //        this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
         //        if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
         //        {
@@ -1054,7 +1067,7 @@ namespace Panel.Select
         //        else // Single-object block
         //        {
         //            this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
-        //            BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl, b);
+        //            BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl, bn);
         //            bool positionsFound = blockHandler.FindPositionsForActiveBlock();
         //            if (positionsFound) _blockHandlers.Add(blockHandler);
         //            else
@@ -1101,40 +1114,15 @@ namespace Panel.Select
             await Task.WhenAll(placementTasks);
 
             // Find positions for all blocks
-            for (int b = 1; b <= _experiment.Blocks.Count; b++)
+            for (int bn = 1; bn <= _experiment.Blocks.Count; bn++)
             {
-                Block bl = _experiment.Blocks[b - 1];
-                this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
+                Block bl = _experiment.Blocks[bn - 1];
+                this.TrialInfo($"Setting up handler for block#{bl.Id}");
 
                 // Use a local variable to store the handler
-                BlockHandler blockHandler = null;
+                BlockHandler blockHandler = new BlockHandler(this, bl, bn);
+                _blockHandlers.Add(blockHandler);
 
-                //if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
-                //{
-                //    this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
-                //    blockHandler = new MultiObjectBlockHandler(this, bl);
-                //}
-                //else // Single-object block
-                //{
-                //    this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
-                //    blockHandler = new SingleObjectBlockHandler(this, bl, b);
-                //}
-
-                bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-
-                if (positionsFound)
-                {
-                    _blockHandlers.Add(blockHandler);
-                }
-                else
-                {
-                    this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-                    // Set the flag to false, but DO NOT set the Task's result yet.
-                    overallSuccess = false;
-
-                    // OPTIONAL: If a single failure should stop processing immediately, use:
-                    // return false; 
-                }
             }
 
             // The method now automatically returns a Task<bool> with the final value of overallSuccess.
@@ -1163,44 +1151,6 @@ namespace Panel.Select
 
             // Add the rectangle to the Canvas
             canvas.Children.Add(_objectArea);
-        }
-
-        public void ShowObjects(List<TrialRecord.TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
-        {
-            this.TrialInfo($"Showing {trialObjects.Count} objects");
-            // Create and position the objects
-            foreach (TrialRecord.TObject trObj in trialObjects)
-            {
-                ShowObject(trObj, objColor, mouseEvents);
-            }
-        }
-
-        private void ShowObject(TrialRecord.TObject tObject, Brush color, MouseEvents mouseEvents)
-        {
-            // Convert the absolute position to relative position
-            Point positionInMain = Utils.Offset(tObject.Position, -this.Left, -this.Top);
-            this.TrialInfo($"Showing object {tObject.Id} at {positionInMain}");
-            // Create the square
-            Rectangle objRectangle = new Rectangle
-            {
-                Tag = tObject.Id,
-                Width = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
-                Fill = color
-            };
-
-            // Position the object on the Canvas
-            Canvas.SetLeft(objRectangle, positionInMain.X);
-            Canvas.SetTop(objRectangle, positionInMain.Y);
-
-            // Assign event handlers
-            objRectangle.MouseEnter += mouseEvents.MouseEnter;
-            objRectangle.MouseDown += mouseEvents.MouseDown;
-            objRectangle.MouseUp += mouseEvents.MouseUp;
-            objRectangle.MouseLeave += mouseEvents.MouseLeave;
-
-            // Add the rectangle to the Canvas
-            canvas.Children.Add(objRectangle);
         }
 
         public void ActivateAuxWindowMarker(Side window)
@@ -1277,7 +1227,7 @@ namespace Panel.Select
             //_targetWindow.MouseDown += windowMouseDownHandler;
             //_targetWindow.MouseUp += windowMouseUpHandler;
 
-            _targetWindow.MouseDown += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseDown(side, sender, e);};
+            _targetWindow.MouseDown += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseDown(side, sender, e); };
             _targetWindow.MouseUp += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseUp(side, sender, e); };
             _targetWindow.MouseEnter += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseEnter(side, sender, e); };
             _targetWindow.MouseLeave += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseExit(side, sender, e); };
@@ -1324,12 +1274,6 @@ namespace Panel.Select
             }
         }
 
-        public void MarkMappedObject(int funcId)
-        {
-            _activeBlockHandler.MarkMappedObject(funcId);
-            _activeBlockHandler.UpdateScene();
-        }
-
         public void SetFunctionAsApplied(int funcId)
         {
             _activeBlockHandler.SetFunctionAsApplied(funcId);
@@ -1367,6 +1311,12 @@ namespace Panel.Select
             _topWindow.ResetButtons();
         }
 
+        public void ColorRandomFunction(Side side, Brush color)
+        {
+            AuxWindow auxWindow = GetAuxWindow(side);
+            auxWindow.FillRandomGridBtn(color);
+        }
+
         public void FillButtonsInAuxWindow(Side side, List<int> buttonIds, Brush color)
         {
             foreach (int buttonId in buttonIds)
@@ -1375,7 +1325,7 @@ namespace Panel.Select
             }
         }
 
-        public void FillButtonInAuxWindow(Side side, int buttonId, Brush color) 
+        public void FillButtonInAuxWindow(Side side, int buttonId, Brush color)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             //auxWindow.ResetButtons();
@@ -1390,8 +1340,8 @@ namespace Panel.Select
             MouseButtonEventHandler nonFunctionDownHandler)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.SetGridButtonHandlers(funcIds, 
-                mouseEnterHandler, mouseDownHandler, mouseUpHandler, 
+            auxWindow.SetGridButtonHandlers(funcIds,
+                mouseEnterHandler, mouseDownHandler, mouseUpHandler,
                 mouseExitHandler, nonFunctionDownHandler);
         }
 
@@ -1407,25 +1357,15 @@ namespace Panel.Select
         public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
             double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
             double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
-            double startHalfWidth = OBJ_WIDTH_MM / 2;
             double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
-            double objAreaHalfWidth = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
 
-            // Find the Rect for the object area
-            Rect objAreaRect = new Rect(
-                this.Left + padding + objAreaHalfWidth,
-                this.Top + padding + objAreaHalfWidth,
-                this.Width - 2 * (padding + objAreaHalfWidth),
-                this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
-            );
             AuxWindow auxWindow = GetAuxWindow(side);
-            int id = auxWindow.SelectRandButtonByConstraints(widthUnits, objAreaRect, dist);
+            int id = auxWindow.SelectRandButton(widthUnits);
             Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
-            
-            return (id,  centerPositionAbsolute); 
+
+            return (id, centerPositionAbsolute);
         }
 
         public TrialRecord.TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
@@ -1476,19 +1416,6 @@ namespace Panel.Select
                 centerPositionInAuxWindow.Y + auxWindow.Top);
         }
 
-        public Rect GetObjAreaCenterConstraintRect()
-        {
-            // Square
-            double padding = Utils.MM2PX(VERTICAL_PADDING);
-            double objAreaHalfWidth = Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2);
-            return new Rect(
-                this.Left + padding + objAreaHalfWidth,
-                this.Top + padding + objAreaHalfWidth,
-                this.Width - 2 * (padding + objAreaHalfWidth),
-                this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
-            );
-        }
-
         public bool IsTechniqueToMo()
         {
             return _experiment.Active_Technique == Technique.TOMO_SWIPE
@@ -1537,89 +1464,40 @@ namespace Panel.Select
             _activeAuxWindow?.StopGridNavigator();
         }
 
-        //public Technique GetActiveTechnique()
-        //{
-        //    return _experiment.Active_Technique;
-        //}
-
-        public void ShowStartTrialButton(Rect objAreaRect, MouseEvents mouseEvents)
+        public void ShowStartBtn(Rect areaRect, Brush btnColor, MouseEvents mouseEvents)
         {
-            //canvas.Children.Clear(); // Clear the canvas before adding the button
-            int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-
-            // Create the "button" as a Border with text inside
+            // Show the start
             _startButton = new Border
             {
                 Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
                 Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
-                Background = Config.LIGHT_PURPLE,
+                Background = Config.START_AVAILABLE_COLOR,
                 BorderBrush = Brushes.Black,
-                //BorderThickness = new Thickness(2),
-                //CornerRadius = new CornerRadius(6)
             };
 
             // Add label inside
             var label = new TextBlock
             {
-                Text = "Start",
+                Text = Str.START_CAP,
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
                 FontSize = Config.TRIAL_START_BUTTON_FONT_SIZE,
                 Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
             };
-
             _startButton.Child = label;
+
+            // Position start in the middle of this window
+            Canvas.SetLeft(_startButton, (this.Width - _startButton.Width) / 2);
+            Canvas.SetTop(_startButton, (this.Height - _startButton.Height) / 2);
 
             // Add event handlers
             _startButton.MouseEnter += mouseEvents.MouseEnter;
+            _startButton.MouseLeave += mouseEvents.MouseLeave;
             _startButton.MouseDown += mouseEvents.MouseDown;
             _startButton.MouseUp += mouseEvents.MouseUp;
-            _startButton.MouseLeave += mouseEvents.MouseLeave;
 
-            // Button is centered-align to the obj area
-            Point startTrialButtonPosition = new Point(0, 0);
-            Point objAreaPosition = new Point(objAreaRect.X - this.Left, objAreaRect.Y - this.Top);
-            startTrialButtonPosition.X = objAreaPosition.X + (objAreaRect.Width - _startButton.Width) / 2;
-
-            // If there is no space above or below the obj area, show the button on the other side
-            double aboveY = objAreaPosition.Y - _startButton.Height;
-            double belowY = objAreaPosition.Y + objAreaRect.Height;
-            bool showAbove = _random.Next(2) == 0; // Randomly decide whether to show above or below
-            if (showAbove)
-            {
-                if (objAreaPosition.Y - _startButton.Height < this.Top + padding) // No space above
-                {
-                    // Show below the area
-                    startTrialButtonPosition.Y = belowY;
-                }
-                else
-                {
-                    // Show above the object area
-                    startTrialButtonPosition.Y = aboveY;
-                }
-            }
-            else // Show below
-            {
-                // If no space below, show above
-                if (objAreaRect.Bottom + _startButton.Height > _mainWinRect.Bottom - padding - infoLabel.Height)
-                {
-                    // Show above the object area
-                    startTrialButtonPosition.Y = aboveY;
-                }
-                else
-                {
-                    // Show below the area
-                    startTrialButtonPosition.Y = belowY;
-                }
-            }
-
-            //Canvas.SetLeft(startTrialButton, (this.Width - startTrialButton.Width) / 2);
-            //Canvas.SetTop(startTrialButton, (this.Height - startTrialButton.Height) / 2);
-            //this.TrialInfo($"Area Position: {objAreaRect.ToString()}; Start Trial button position: {startTrialButtonPosition.ToStr()}");
-            Canvas.SetLeft(_startButton, startTrialButtonPosition.X);
-            Canvas.SetTop(_startButton, startTrialButtonPosition.Y);
-
+            // Add to canvas
             canvas.Children.Add(_startButton);
         }
 
