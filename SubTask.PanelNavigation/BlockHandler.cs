@@ -104,22 +104,19 @@ namespace SubTask.PanelNavigation
             this.TrialInfo(Str.MAJOR_LINE);
             _activeTrialRecord.Result = result;
             LogEvent(Str.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
-            _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
+
+            double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
 
             switch (result)
             {
                 case Result.HIT:
                     Sounder.PlayHit();
-                    double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
                     _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
-
                     break;
                 case Result.MISS:
                     Sounder.PlayTargetMiss();
-
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
-                    _trialRecords[_activeTrial.Id].ClearTimestamps();
-                    _trialRecords[_activeTrial.Id].ResetStates();
+                    _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
                     break;
             }
 
@@ -132,13 +129,7 @@ namespace SubTask.PanelNavigation
         {
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
-                //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
-                _mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
-                _mainWindow.ClearCanvas();
-                _activeTrialRecord.ClearTimestamps();
-                _nSelectedObjects = 0; // Reset the number of selected objects
-                _functionsVisitMap.Clear();
-                _objectsVisitMap.Clear();
+                _mainWindow.DeactivateAuxWindow();
 
                 _activeTrialNum++;
                 _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
@@ -345,16 +336,49 @@ namespace SubTask.PanelNavigation
             LogEvent(Str.STR_PRESS);
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
+            //-- Second press (on END)
+            if (IsStartClicked())
+            {
+                // If marker is on function, change start button color to applied
+                if (_activeTrialRecord.HasFunctionState(ButtonState.MARKED))
+                {
+                    _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_APPLIED_COLOR);
+                    SetFunctionAsApplied(_activeTrialRecord.GetFunctionId());
+                }
+                else
+                {
+                    EndActiveTrial(Result.MISS);
+                }
+            }
+
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
+            
+            //-- Clicking END
+            if (IsStartClicked())
+            {
+                this.TrialInfo($"Function Marked? {_activeTrialRecord.HasFunctionState(ButtonState.APPLIED)}");
+
+                if (_activeTrialRecord.HasFunctionState(ButtonState.APPLIED))
+                {
+                    EndActiveTrial(Result.HIT);
+                }
+                else
+                {
+                    EndActiveTrial(Result.MISS);
+                }
+
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return;
+            }
+
             LogEvent(Str.STR_RELEASE);
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
+            //-- Clicking START
             var startButtonPressed = GetEventCount(Str.STR_PRESS) > 0;
-
             if (startButtonPressed)
             {
                 // Change the START to END and deactivate the button
@@ -385,12 +409,18 @@ namespace SubTask.PanelNavigation
         {
             _activeTrialRecord.MarkFunction(funId);
             LogEvent(Str.FUN_MARKED, funId.ToString());
+
+            // Change the END button color to enabled
+            _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_AVAILABLE_COLOR);
         }
 
         public virtual void OnFunctionUnmarked(int funId)
         {
             _activeTrialRecord.UnmarkFunction(funId);
             LogEvent(Str.FUN_DEMARKED, funId.ToString());
+
+            // Change the END button color to disabled
+            _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_UNAVAILABLE_COLOR);
         }
 
         public void SetFunctionAsEnabled(int funcId)
@@ -502,7 +532,7 @@ namespace SubTask.PanelNavigation
 
         public void IndexMove(TouchPoint indPoint)
         {
-            if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
+            if (IsStartClicked())
             {
                 LogEventOnce(Str.FLICK); // First flick after activation
                 _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked);

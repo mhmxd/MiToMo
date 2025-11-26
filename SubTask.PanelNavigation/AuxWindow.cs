@@ -530,6 +530,11 @@ namespace SubTask.PanelNavigation
             //--> Positioning is handled in the derived classes
         }
 
+        public virtual void RemoveStartBtn()
+        {
+            
+        }
+
         public void ChangeStartBtnColor(Brush newColor)
         {
             if (_startButton != null)
@@ -610,13 +615,13 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void DeactivateGridNavigator()
+        public void DeactivateMarker()
         {
             _gridNavigator.Deactivate(); // Deactivate the grid navigator
             if (_lastMarkedButtonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
             {
                 _buttonInfos[_lastMarkedButtonId].ChangeBackFill();
-                //button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of the last highlighted button
+                _buttonInfos[_lastMarkedButtonId].Button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color
             }
         }
 

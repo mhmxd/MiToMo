@@ -125,8 +125,9 @@ namespace SubTask.PanelNavigation
         public static readonly Brush LIGHT_PURPLE =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B19CD7"));
 
-        public static readonly Brush START_AVAILABLE_COLOR = Brushes.Green;
+        public static readonly Brush START_AVAILABLE_COLOR = Brushes.LightGreen;
         public static readonly Brush START_UNAVAILABLE_COLOR = DARK_ORANGE;
+        public static readonly Brush START_APPLIED_COLOR = Brushes.Green;
 
         public static readonly Brush OBJ_AREA_BG_COLOR = Brushes.White; // Background color of the object area
 

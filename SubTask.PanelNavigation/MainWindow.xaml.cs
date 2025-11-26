@@ -1154,18 +1154,22 @@ namespace SubTask.PanelNavigation
 
         public void ActivateAuxWindowMarker(Side side, int funcId)
         {
-            this.TrialInfo($"Activating aux window: {side}");
-            // Deactivate all aux windows
-            _leftWindow.DeactivateGridNavigator();
-            _topWindow.DeactivateGridNavigator();
-            _rightWindow.DeactivateGridNavigator();
-
-            AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.ActivateMarkerRandomly(funcId);
+            _activeAuxWindow.ActivateMarkerRandomly(funcId);
         }
 
         public void DeactivateAuxWindow()
         {
+            if (_activeAuxWindow != null)
+            {
+                _activeAuxWindow.RemoveStartBtn();
+                _activeAuxWindow.ResetButtons();
+                _activeAuxWindow.DeactivateMarker();
+            }
+            else
+            {
+                this.TrialInfo("Target window is null, cannot reset it.");
+            }
+
             _activeAuxWindow = null;
         }
 
@@ -1276,19 +1280,6 @@ namespace SubTask.PanelNavigation
         public void UpdateScene()
         {
             _activeBlockHandler.UpdateScene();
-        }
-
-        public void ResetTargetWindow(Side side)
-        {
-            if (_targetWindow != null)
-            {
-                _targetWindow.ResetButtons();
-                _targetWindow.DeactivateGridNavigator();
-            }
-            else
-            {
-                this.TrialInfo("Target window is null, cannot reset it.");
-            }
         }
 
         public void ResetAllAuxWindows()
@@ -1436,8 +1427,7 @@ namespace SubTask.PanelNavigation
 
         public bool IsMarkerOnButton(Side side, int buttonId)
         {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            return auxWindow.IsNavigatorOnButton(buttonId);
+            return _activeAuxWindow.IsNavigatorOnButton(buttonId);
         }
 
         public void MoveMarker(TouchPoint touchPoint, Action<int> OnFunctionMarked, Action<int> OnFunctionDeMarked)
@@ -1453,8 +1443,8 @@ namespace SubTask.PanelNavigation
 
         public void ShowStartBtn(Side side, Brush btnColor, MouseEvents mouseEvents)
         {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.ShowStartBtn(btnColor, mouseEvents);
+            _activeAuxWindow = GetAuxWindow(side);
+            _activeAuxWindow.ShowStartBtn(btnColor, mouseEvents);
 
             // Show the start
             //_startButton = new Border

@@ -230,6 +230,12 @@ namespace SubTask.PanelNavigation
             this.TrialInfo($"Function#{id} demarked.");
         }
 
+        public bool HasFunctionState(ButtonState state)
+        {
+            this.TrialInfo($"Function Id = {Functions[0].State}");
+            return Functions[0]?.State == state;
+        }
+
 
         public void EnableAllFunctions()
         {
@@ -282,11 +288,8 @@ namespace SubTask.PanelNavigation
 
         public void ChangeFunctionState(int funcId, ButtonState newState)
         {
-            TFunction func = GetFunctionById(funcId);
-            if (func != null)
-            {
-                func.State = newState;
-            }
+            Functions.FirstOrDefault(f => f.Id == funcId).State = newState;
+
         }
 
         /// <summary>
@@ -678,6 +681,11 @@ namespace SubTask.PanelNavigation
         public List<int> GetFunctionIds()
         {
             return Functions.Select(f => f.Id).ToList();
+        }
+
+        public int GetFunctionId()
+        {
+            return Functions[0].Id;
         }
 
         public List<Point> GetFunctionCenters()

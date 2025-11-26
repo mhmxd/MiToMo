@@ -182,5 +182,10 @@ namespace SubTask.PanelNavigation
 
         }
 
+        public override void RemoveStartBtn()
+        {
+            canvas.Children.Remove(_startButton);
+        }
+
     }
 }
