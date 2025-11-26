@@ -1311,10 +1311,10 @@ namespace SubTask.Panel.Selection
             _topWindow.ResetButtons();
         }
 
-        public void ColorRandomFunction(Side side, Brush color)
+        public TrialRecord.TFunction ColorRandomFunction(Side side, Brush color)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.FillRandomGridBtn(color);
+            return auxWindow.FillRandomGridBtn(color); // Return the chosen function 
         }
 
         public void FillButtonsInAuxWindow(Side side, List<int> buttonIds, Brush color)

@@ -68,15 +68,15 @@ namespace SubTask.Panel.Selection
             }
         }
 
-        public List<int> GetFunctionWidths()
-        {
-            return _functionWidths;
-        }
+        //public List<int> GetFunctionWidths()
+        //{
+        //    return _functionWidths;
+        //}
 
-        public int GetFunctionWidthMM()
-        {
-            return _functionWidths[0] * 4; // Width is in MX (1 MX = 4 mm)
-        }
+        //public int GetFunctionWidthMM()
+        //{
+        //    return _functionWidths[0] * 4; // Width is in MX (1 MX = 4 mm)
+        //}
 
         public int GetNumFunctions()
         {
@@ -85,8 +85,7 @@ namespace SubTask.Panel.Selection
 
         public string ToStr()
         {
-            return $"Trial#{Id} [Target = {FuncSide.ToString()}, " +
-                $"FunctionWidths = {GetFunctionWidths().ToStr()}]";
+            return $"Trial#{Id} [Target = {FuncSide.ToString()}";
         }
 
         public bool IsTechniqueToMo()

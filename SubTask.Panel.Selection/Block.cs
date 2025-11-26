@@ -68,7 +68,8 @@ namespace SubTask.Panel.Selection
             Technique technique,
             int ptc,
             int id,
-            Complexity complexity)
+            Complexity complexity,
+            int nRep)
         {
 
             // Create block
@@ -76,6 +77,46 @@ namespace SubTask.Panel.Selection
 
             // Create and add trials to the block
             int trialNum = 1;
+            bool wasLeft = false;
+            for (int rep = 0; rep < nRep; rep++)
+            {
+                // One Top in reach rep
+                Trial trial = Trial.CreateTrial(
+                            id * 100 + trialNum,
+                            technique,
+                            ptc,
+                            complexity,
+                            Side.Top);
+
+                block._trials.Add(trial);
+                trialNum++;
+
+                // One Left/Right in reach rep (equal number of left and right in all blocks together)
+                if (wasLeft)
+                {
+                    trial = Trial.CreateTrial(
+                            id * 100 + trialNum,
+                            technique,
+                            ptc,
+                            complexity,
+                            Side.Right);
+                    wasLeft = false;
+                }
+                else
+                {
+                    trial = Trial.CreateTrial(
+                            id * 100 + trialNum,
+                            technique,
+                            ptc,
+                            complexity,
+                            Side.Left);
+                    wasLeft = true;
+                }
+
+                block._trials.Add(trial);
+                trialNum++;
+
+            }
             for (int sInd = 0; sInd < 3; sInd++)
             {
                 Side functionSide = (Side)sInd;
@@ -83,15 +124,7 @@ namespace SubTask.Panel.Selection
                 // Get the function widths based on side and complexity
                 List<int> buttonWidths = Experiment.BUTTON_WIDTHS[complexity][functionSide];
 
-                Trial trial = Trial.CreateTrial(
-                            id * 100 + trialNum,
-                            technique,
-                            ptc,
-                            complexity,
-                            functionSide);
-
-                block._trials.Add(trial);
-                trialNum++;
+                
             }
 
             // Shuffle the trials

@@ -21,6 +21,7 @@ namespace SubTask.Panel.Selection
 
         //--- Setting
         private readonly int N_BLOCKS = 3;
+        private readonly int N_REP = 4; // Number of repetitions inside each block (total = 12 repetitions)
         public static int DEFAULT_PTC = 1000;
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
@@ -128,12 +129,9 @@ namespace SubTask.Panel.Selection
             for (int i = 0; i < N_BLOCKS; i++)
             {
                 int blockId = Participant_Number * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, Participant_Number, blockId, complexity);
+                Block block = Block.CreateBlock(Active_Technique, Participant_Number, blockId, complexity, N_REP);
                 _blocks.Add(block);
             }
-
-            //CreateAltBlocks(1, targetMultiples, distRanges);
-            //CreateRepBlocks(1, targetMultiples, distRanges);
         }
 
         public int GetNumBlocks()

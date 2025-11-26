@@ -322,12 +322,22 @@ namespace SubTask.Panel.Selection
 
         }
 
-        public void FillRandomGridBtn(Brush color)
+        public TrialRecord.TFunction FillRandomGridBtn(Brush color)
         {
             // Select a random button
             int buttonInd = _buttonInfos.GetRandomEntry().Key;
             _buttonInfos[buttonInd].ButtonFill = color; // Store the default background color
             _buttonInfos[buttonInd].Button.Background = color; // Change the background color of the button
+
+            TrialRecord.TFunction resultFunction = new
+                (
+                    id: _buttonInfos[buttonInd].Button.Id,
+                    widthInUnit: _buttonInfos[buttonInd].Button.WidthMultiple,
+                    center: GetGridButtonCenter(_buttonInfos[buttonInd].Button.Id),
+                    position: GetGridButtonPosition(_buttonInfos[buttonInd].Button.Id)
+                );
+
+            return resultFunction;
         }
 
         public virtual void FillGridButton(int buttonId, Brush color)

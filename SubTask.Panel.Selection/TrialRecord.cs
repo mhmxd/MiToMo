@@ -41,12 +41,12 @@ namespace SubTask.Panel.Selection
             public int DistanceToObjArea; // in pixels
             public ButtonState State { get; set; }
 
-            public TFunction(int id, int widthInUnits, Point center, Point position)
+            public TFunction(int id, int widthInUnit, Point center, Point position)
             {
                 Id = id;
                 Center = center;
                 Position = position;
-                WidthInUnits = widthInUnits;
+                WidthInUnits = widthInUnit;
                 State = ButtonState.DEFAULT;
 
             }

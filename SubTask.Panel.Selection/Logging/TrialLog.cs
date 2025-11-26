@@ -36,7 +36,7 @@ namespace SubTask.Panel.Selection.Logging
             this.cmplx = trial.Complexity.ToString().ToLower();
             this.tsk_type = Str.TASKTYPE_ABBR[trial.TaskType];
             this.fun_side = trial.FuncSide.ToString().ToLower();
-            this.func_width = trial.GetFunctionWidthMM();
+            this.func_width = trialRecord.Functions[0].WidthInUnits * 4;
             this.n_fun = trial.GetNumFunctions();
             this.result = (int)trialRecord.Result;
         }

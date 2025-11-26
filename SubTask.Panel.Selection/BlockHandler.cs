@@ -361,8 +361,9 @@ namespace SubTask.Panel.Selection
             {
                 _mainWindow.RemoveStartTrialButton();
 
-                // Color a random function button in the aux window to indicate the target function(s)
-                _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, Config.FUNCTION_DEFAULT_COLOR);
+                // Color a random function button in the aux window and set the width in trialRecord
+                TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, Config.FUNCTION_DEFAULT_COLOR);
+                _activeTrialRecord.Functions.Add(selectedFunc);
             }
             else // Pressed outside the button => miss
             {
@@ -481,7 +482,9 @@ namespace SubTask.Panel.Selection
             if (funcOnCorrespondingSide)
             {
                 LogEvent(Str.PNL_SELECT);
-                _mainWindow.ActivateAuxWindowMarker(correspondingSide);
+                //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
+
+                EndActiveTrial(Result.HIT);
             }
             else
             {
@@ -525,7 +528,6 @@ namespace SubTask.Panel.Selection
                 return; // Do nothing if Start was not clicked
             }
 
-            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
             var dirMatchesSide = dir switch
             {
                 Direction.Left => _activeTrial.FuncSide == Side.Left,
@@ -534,18 +536,21 @@ namespace SubTask.Panel.Selection
                 _ => false
             };
 
-            var dirOppositeSide = dir switch
-            {
-                Direction.Left => _activeTrial.FuncSide == Side.Right,
-                Direction.Right => _activeTrial.FuncSide == Side.Left,
-                Direction.Down => _activeTrial.FuncSide == Side.Top,
-                _ => false
-            };
+            //var dirOppositeSide = dir switch
+            //{
+            //    Direction.Left => _activeTrial.FuncSide == Side.Right,
+            //    Direction.Right => _activeTrial.FuncSide == Side.Left,
+            //    Direction.Down => _activeTrial.FuncSide == Side.Top,
+            //    _ => false
+            //};
 
             if (dirMatchesSide)
             {
                 LogEvent(Str.PNL_SELECT);
-                _mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide);
+                //_mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide);
+
+                // End trial
+                EndActiveTrial(Result.HIT);
             }
             else
             {
@@ -574,7 +579,9 @@ namespace SubTask.Panel.Selection
             if (funcOnCorrespondingSide)
             {
                 LogEvent(Str.PNL_SELECT);
-                _mainWindow.ActivateAuxWindowMarker(correspondingSide);
+                //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
+
+                EndActiveTrial(Result.HIT);
             }
             else
             {
@@ -613,7 +620,9 @@ namespace SubTask.Panel.Selection
             if (funcOnCorrespondingSide)
             {
                 LogEvent(Str.PNL_SELECT);
-                _mainWindow.ActivateAuxWindowMarker(correspondingSide);
+                //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
+
+                EndActiveTrial(Result.HIT);
             }
             else
             {
