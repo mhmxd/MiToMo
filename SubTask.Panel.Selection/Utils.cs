@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics.Integration;
+﻿using Common.Constants;
+using MathNet.Numerics.Integration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,7 +96,7 @@ namespace SubTask.Panel.Selection
 
         public static int MM2PX(double mm)
         {
-            return (int)Math.Round(mm / MM_IN_INCH * Config.PPI);
+            return (int)Math.Round(mm / MM_IN_INCH * ExpSizes.PPI);
         }
 
         //public static double MmToDips(double mm)
@@ -110,7 +111,7 @@ namespace SubTask.Panel.Selection
 
         public static double PX2MM(double px)
         {
-            return px * MM_IN_INCH / Config.PPI;
+            return px * MM_IN_INCH / ExpSizes.PPI;
         }
 
 
