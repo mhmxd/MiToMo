@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Common.Constants;
 using static SubTask.FunctionSelection.Experiment;
 using static SubTask.FunctionSelection.TrialRecord;
 using static Tensorflow.TensorShapeProto.Types;
@@ -76,7 +77,11 @@ namespace SubTask.FunctionSelection
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
-            _mainWindow.ShowStart(_activeTrial.FuncSide, startButtonEvents);
+            _mainWindow.ShowStart(
+                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.W),
+                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.H),
+                Experiment.START_INIT_COLOR,
+                startButtonEvents);
 
             // Color the target button and set the handlers
             _activeTrialRecord.AddAllFunctions(_mainWindow.FindRandomFunctions(_activeTrial.FuncSide, _activeTrial.GetFunctionWidths()));

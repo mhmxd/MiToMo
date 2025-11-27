@@ -1302,7 +1302,7 @@ namespace SubTask.ObjectSelection
         //    return _experiment.Active_Technique;
         //}
 
-        public void ShowStartTrialButton(Rect objAreaRect, MouseEvents mouseEvents)
+        public void ShowStartTrialButton(Rect objAreaRect, int btnW, int btnH, Brush btnColor, MouseEvents mouseEvents)
         {
             //canvas.Children.Clear(); // Clear the canvas before adding the button
             int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
@@ -1310,9 +1310,9 @@ namespace SubTask.ObjectSelection
             // Create the "button" as a Border with text inside
             _startButton = new Border
             {
-                Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
-                Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
-                Background = Config.START_AVAILABLE_COLOR,
+                Width = btnW,
+                Height = btnH,
+                Background = btnColor,
                 BorderBrush = Brushes.Black,
                 //BorderThickness = new Thickness(2),
                 //CornerRadius = new CornerRadius(6)

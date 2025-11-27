@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Tensorflow;
+using Common.Constants;
 using static SubTask.FunctionPointSelect.Experiment;
 using static SubTask.FunctionPointSelect.TrialRecord;
 using static Tensorflow.TensorShapeProto.Types;
@@ -223,7 +224,7 @@ namespace SubTask.FunctionPointSelect
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStartBtn(
                 _activeTrialRecord.StartBtnRect,
-                Config.START_AVAILABLE_COLOR,
+                Experiment.START_INIT_COLOR,
                 startButtonEvents);
             //_mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
 

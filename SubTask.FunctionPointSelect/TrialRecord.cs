@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using Common.Constants;
 using static SubTask.FunctionPointSelect.BlockHandler;
 using static SubTask.FunctionPointSelect.Utils;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -71,7 +72,7 @@ namespace SubTask.FunctionPointSelect
             Functions = new List<TFunction>();
             Objects = new List<TObject>();
             ObjFuncMap = new List<Pair>();
-            StartBtnRect = new Rect(0, 0, Config.TRIAL_START_BUTTON_DIM_MM.Width, Config.TRIAL_START_BUTTON_DIM_MM.Height);
+            StartBtnRect = new Rect(0, 0, ExpSizes.START_BUTTON_DIM_MM.W, ExpSizes.START_BUTTON_DIM_MM.H);
             //ObjectAreaRect = new Rect();
             //EventCounts = new Dictionary<string, int>();
             Events = new List<TrialEvent>();

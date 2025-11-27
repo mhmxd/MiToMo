@@ -11,6 +11,7 @@ using System.Windows.Media;
 using static SubTask.PanelNavigation.Experiment;
 using static SubTask.PanelNavigation.TrialRecord;
 using static Tensorflow.TensorShapeProto.Types;
+using Common.Constants;
 
 namespace SubTask.PanelNavigation
 {
@@ -91,7 +92,9 @@ namespace SubTask.PanelNavigation
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStartBtn(
                 _activeTrial.FuncSide,
-                Config.START_AVAILABLE_COLOR,
+                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.W),
+                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.H),
+                Experiment.START_INIT_COLOR,
                 startButtonEvents);
 
             // Update info label

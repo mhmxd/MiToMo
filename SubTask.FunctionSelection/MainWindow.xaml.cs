@@ -821,18 +821,18 @@ namespace SubTask.FunctionSelection
             UpdateLabelPosition();
         }
 
-        public void ShowStart(Side panelSide, MouseEvents mouseEvents)
+        public void ShowStart(int btnW, int btnH, Brush btnColor, MouseEvents mouseEvents)
         {
             // Get the aux window
-            AuxWindow auxWindow = GetAuxWindow(panelSide);
+            //AuxWindow auxWindow = GetAuxWindow(panelSide);
 
             // Show the start
             //auxWindow.ShowStart(mouseEvents);
             _startButton = new Border
             {
-                Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
-                Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
-                Background = Config.START_AVAILABLE_COLOR,
+                Width = btnW,
+                Height = btnH,
+                Background = btnColor,
                 BorderBrush = Brushes.Black,
             };
 

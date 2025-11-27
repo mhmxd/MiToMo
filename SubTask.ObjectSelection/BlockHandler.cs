@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics;
+﻿using Common.Constants;
+using MathNet.Numerics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -95,7 +96,12 @@ namespace SubTask.ObjectSelection
 
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseEnter, OnStartButtonMouseExit);
-            _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
+            _mainWindow.ShowStartTrialButton(
+                _activeTrialRecord.ObjectAreaRect,
+                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.W),
+                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.H),
+                Experiment.START_INIT_COLOR,
+                startButtonEvents);
 
             // Update info label
             _mainWindow.UpdateInfoLabel();

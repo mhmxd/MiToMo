@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics;
+﻿using Common.Constants;
+using MathNet.Numerics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
@@ -90,11 +91,10 @@ namespace SubTask.Panel.Selection
             MouseEvents startButtonEvents = new MouseEvents(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStartBtn(
-                _activeTrialRecord.StartBtnRect,
-                Config.START_AVAILABLE_COLOR,
+                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.W),
+                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.H),    
+                Experiment.START_INIT_COLOR,
                 startButtonEvents);
-
-            
 
             // Update info label
             _mainWindow.UpdateInfoLabel();
@@ -118,10 +118,7 @@ namespace SubTask.Panel.Selection
                     break;
                 case Result.MISS:
                     Sounder.PlayTargetMiss();
-
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
-                    _trialRecords[_activeTrial.Id].ClearTimestamps();
-                    _trialRecords[_activeTrial.Id].ResetStates();
                     break;
             }
 

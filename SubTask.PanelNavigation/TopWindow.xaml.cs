@@ -156,9 +156,9 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public override void ShowStartBtn(Brush btnColor, MouseEvents btnEvents)
+        public override void ShowStartBtn(int btnW, int btnH, Brush btnColor, MouseEvents btnEvents)
         {
-            base.ShowStartBtn(btnColor, btnEvents);
+            base.ShowStartBtn(btnW, btnH, btnColor, btnEvents);
 
             // Show the start button at 10mm distance from the rightmost button of the grid
             if (_buttonsGrid != null)
@@ -167,7 +167,6 @@ namespace SubTask.PanelNavigation
                 double startBtnLeft = gridRight + Utils.MM2PX(Config.START_BTN_DIST_MM); // 10mm to the right of the grid
 
                 // Position the button
-                int btnH = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height);
                 Canvas.SetLeft(_startButton, startBtnLeft);
                 double topPosition = (this.Height - btnH) / 2;
                 Canvas.SetTop(_startButton, topPosition);

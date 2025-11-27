@@ -5,8 +5,10 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using static SubTask.FunctionSelection.Output;
 using static System.Math;
+using Common.Constants;
 
 namespace SubTask.FunctionSelection
 {
@@ -98,7 +100,9 @@ namespace SubTask.FunctionSelection
         public static double START_W_MM = Config.EXCEL_CELL_W;
         public static double START_H_MM = Config.EXCEL_CELL_H;
 
-
+        //-- Colors
+        public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
+            (Color)ColorConverter.ConvertFromString(ExpColors.PURPLE));
 
         //-- Information
 

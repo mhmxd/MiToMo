@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Common.Constants;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using static SubTask.FunctionPointSelect.Output;
 using static System.Math;
 
@@ -93,7 +95,9 @@ namespace SubTask.FunctionPointSelect
         public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
         public static double START_WIDTH_MM = OBJ_WIDTH_MM;
 
-
+        //-- Colors
+        public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
+            (Color)ColorConverter.ConvertFromString(ExpColors.PURPLE));
 
         //-- Information
 

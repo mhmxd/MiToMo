@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Common.Constants;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using static SubTask.ObjectSelection.Output;
 using static System.Math;
 
@@ -39,6 +41,10 @@ namespace SubTask.ObjectSelection
             { Str.x30, 30 },
             { Str.x36, 36 }
         };
+
+        //-- Colors
+        public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
+            (Color)ColorConverter.ConvertFromString(ExpColors.PURPLE));
 
         //-- Information
 

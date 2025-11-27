@@ -1464,14 +1464,14 @@ namespace SubTask.Panel.Selection
             _activeAuxWindow?.StopGridNavigator();
         }
 
-        public void ShowStartBtn(Rect areaRect, Brush btnColor, MouseEvents mouseEvents)
+        public void ShowStartBtn(int btnW, int btnH, Brush btnColor, MouseEvents mouseEvents)
         {
             // Show the start
             _startButton = new Border
             {
-                Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
-                Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
-                Background = Config.START_AVAILABLE_COLOR,
+                Width = btnW,
+                Height = btnH,
+                Background = btnColor,
                 BorderBrush = Brushes.Black,
             };
 

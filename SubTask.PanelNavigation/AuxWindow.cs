@@ -498,13 +498,13 @@ namespace SubTask.PanelNavigation
         //    // Implemented in the derived classes
         //}
 
-        public virtual void ShowStartBtn(Brush btnColor, MouseEvents btnEvents)
+        public virtual void ShowStartBtn(int btnW, int btnH, Brush btnColor, MouseEvents btnEvents)
         {
             // Create the start button
             _startButton = new Border
             {
-                Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
-                Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
+                Width = btnW,
+                Height = btnH,
                 Background = btnColor,
                 BorderBrush = Brushes.Black,
             };

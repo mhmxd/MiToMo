@@ -1165,13 +1165,13 @@ namespace SubTask.FunctionPointSelect
             return overallSuccess;
         }
 
-        public void ShowStartBtn(Rect areaRect, Brush btnColor, MouseEvents mouseEvents)
+        public void ShowStartBtn(Rect btnRect, Brush btnColor, MouseEvents mouseEvents)
         {
             // Create the "button" as a Border with text inside
             _startButton = new Border
             {
-                Width = areaRect.Width,
-                Height = areaRect.Height,
+                Width = btnRect.Width,
+                Height = btnRect.Height,
                 Background = btnColor,
                 BorderBrush = Brushes.Black,
             };
@@ -1190,8 +1190,8 @@ namespace SubTask.FunctionPointSelect
             _startButton.Child = label;
 
             // Position the area rectangle on the Canvas
-            Canvas.SetLeft(_startButton, areaRect.Left - this.Left);
-            Canvas.SetTop(_startButton, areaRect.Top - this.Top);
+            Canvas.SetLeft(_startButton, btnRect.Left - this.Left);
+            Canvas.SetTop(_startButton, btnRect.Top - this.Top);
 
             // Add the event handler
             _startButton.MouseEnter += mouseEvents.MouseEnter;

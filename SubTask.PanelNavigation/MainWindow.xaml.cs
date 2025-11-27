@@ -1441,44 +1441,10 @@ namespace SubTask.PanelNavigation
             _activeAuxWindow?.StopGridNavigator();
         }
 
-        public void ShowStartBtn(Side side, Brush btnColor, MouseEvents mouseEvents)
+        public void ShowStartBtn(Side side, int btnW, int btnH, Brush btnColor, MouseEvents mouseEvents)
         {
             _activeAuxWindow = GetAuxWindow(side);
-            _activeAuxWindow.ShowStartBtn(btnColor, mouseEvents);
-
-            // Show the start
-            //_startButton = new Border
-            //{
-            //    Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
-            //    Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
-            //    Background = Config.START_AVAILABLE_COLOR,
-            //    BorderBrush = Brushes.Black,
-            //};
-
-            //// Add label inside
-            //var label = new TextBlock
-            //{
-            //    Text = Str.START_CAP,
-            //    HorizontalAlignment = SysWin.HorizontalAlignment.Center,
-            //    VerticalAlignment = VerticalAlignment.Center,
-            //    TextAlignment = TextAlignment.Center,
-            //    FontSize = Config.TRIAL_START_BUTTON_FONT_SIZE,
-            //    Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
-            //};
-            //_startButton.Child = label;
-
-            //// Position start in the middle of this window
-            //Canvas.SetLeft(_startButton, (this.Width - _startButton.Width) / 2);
-            //Canvas.SetTop(_startButton, (this.Height - _startButton.Height) / 2);
-
-            //// Add event handlers
-            //_startButton.MouseEnter += mouseEvents.MouseEnter;
-            //_startButton.MouseLeave += mouseEvents.MouseLeave;
-            //_startButton.MouseDown += mouseEvents.MouseDown;
-            //_startButton.MouseUp += mouseEvents.MouseUp;
-
-            //// Add to canvas
-            //canvas.Children.Add(_startButton);
+            _activeAuxWindow.ShowStartBtn(btnW, btnH, btnColor, mouseEvents);
         }
 
         public void ChangeStartBtnColor(Side side, Brush color)

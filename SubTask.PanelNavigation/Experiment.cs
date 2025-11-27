@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using static SubTask.PanelNavigation.Output;
 using static System.Math;
+using Common.Constants;
+using MathNet.Numerics;
 
 namespace SubTask.PanelNavigation
 {
@@ -70,30 +74,15 @@ namespace SubTask.PanelNavigation
             }
         };
 
-        //private static List<double> _distances = new List<double>(); // Generated in constructor
-        //private Range _shortDistRangeMM; // Short distances range (mm)
-        //private Range _midDistRangeMM; // Mid distances range (mm)
-        //private Range _longDistRangeMM; // Long distances range (mm)
 
-        //private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
-
-        //public static double Min_Target_Width_MM = TARGET_WIDTHS_MM.Min();
-        //public static double Max_Target_Width_MM = TARGET_WIDTHS_MM.Max();
-
-        //-- Calculated
-        //public double Longest_Dist_MM;
-        //public double Shortest_Dist_MM;
-        //private double LONGEST_DIST_MM = 293; // BenQ = 293 mm
-        //private double SHORTEST_DIST_MM = 10; // BenQ = 10 mm
-
-        //-- Constants
-        //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
-        //public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
-        //public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
         public static double START_WIDTH_MM = Config.EXCEL_CELL_W;
 
-        //-- Information
+        //-- Colors
+        public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
+            (Color)ColorConverter.ConvertFromString(ExpColors.PURPLE));
 
+
+        //-- Information
         public int Participant_Number { get; set; } // Set in the info dialog
 
         private readonly List<Block> _blocks = new();
