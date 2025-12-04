@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.11.35208.52
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11222.15 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.Research.TouchMouseSensor", "Microsoft.Research.TouchMouseSensor\Microsoft.Research.TouchMouseSensor.csproj", "{3111BBCA-A6F1-4AC1-8F7A-EEBD261607B5}"
 EndProject
@@ -114,8 +114,8 @@ Global
 		{3D5C8E3E-3E0E-43A1-8DEA-291B70400ED6}.Release|x64.Build.0 = Release|x64
 		{2FA25BF3-B63C-41D3-9881-229B316C748B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2FA25BF3-B63C-41D3-9881-229B316C748B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2FA25BF3-B63C-41D3-9881-229B316C748B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{2FA25BF3-B63C-41D3-9881-229B316C748B}.Debug|x64.Build.0 = Debug|Any CPU
+		{2FA25BF3-B63C-41D3-9881-229B316C748B}.Debug|x64.ActiveCfg = Debug|x64
+		{2FA25BF3-B63C-41D3-9881-229B316C748B}.Debug|x64.Build.0 = Debug|x64
 		{2FA25BF3-B63C-41D3-9881-229B316C748B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FA25BF3-B63C-41D3-9881-229B316C748B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2FA25BF3-B63C-41D3-9881-229B316C748B}.Release|x64.ActiveCfg = Release|Any CPU

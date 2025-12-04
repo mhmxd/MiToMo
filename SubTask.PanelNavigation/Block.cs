@@ -77,10 +77,10 @@ namespace SubTask.PanelNavigation
 
             // Create and add trials to the block
             int trialNum = 1;
-            bool wasLeft = false;
+            //bool wasLeft = false;
+            //-- All the tops first, then left
             for (int rep = 0; rep < nRep; rep++)
             {
-                // One Top in reach rep
                 Trial trial = Trial.CreateTrial(
                             id * 100 + trialNum,
                             technique,
@@ -92,43 +92,55 @@ namespace SubTask.PanelNavigation
                 trialNum++;
 
                 // One Left/Right in reach rep (equal number of left and right in all blocks together)
-                if (wasLeft)
-                {
-                    trial = Trial.CreateTrial(
-                            id * 100 + trialNum,
-                            technique,
-                            ptc,
-                            complexity,
-                            Side.Right);
-                    wasLeft = false;
-                }
-                else
-                {
-                    trial = Trial.CreateTrial(
+                //if (wasLeft)
+                //{
+                //    trial = Trial.CreateTrial(
+                //            id * 100 + trialNum,
+                //            technique,
+                //            ptc,
+                //            complexity,
+                //            Side.Right);
+                //    wasLeft = false;
+                //}
+                //else
+                //{
+                //    trial = Trial.CreateTrial(
+                //            id * 100 + trialNum,
+                //            technique,
+                //            ptc,
+                //            complexity,
+                //            Side.Left);
+                //    wasLeft = true;
+                //}
+
+                //block._trials.Add(trial);
+                //trialNum++;
+
+            }
+
+            for (int rep = 0; rep < nRep; rep++)
+            {
+                Trial trial = Trial.CreateTrial(
                             id * 100 + trialNum,
                             technique,
                             ptc,
                             complexity,
                             Side.Left);
-                    wasLeft = true;
-                }
 
                 block._trials.Add(trial);
                 trialNum++;
-
             }
+
             for (int sInd = 0; sInd < 3; sInd++)
             {
                 Side functionSide = (Side)sInd;
 
                 // Get the function widths based on side and complexity
                 List<int> buttonWidths = Experiment.BUTTON_WIDTHS[complexity][functionSide];
-
-
             }
 
             // Shuffle the trials
-            block.ShuffleTrials();
+            //block.ShuffleTrials();
 
             // Return the block
             return block;
