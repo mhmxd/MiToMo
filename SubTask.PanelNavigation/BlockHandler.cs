@@ -97,6 +97,13 @@ namespace SubTask.PanelNavigation
                 Experiment.START_INIT_COLOR,
                 startButtonEvents);
 
+            // Color a random function button in the aux window and set the width in trialRecord
+            TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, Config.FUNCTION_DEFAULT_COLOR);
+            _activeTrialRecord.Functions.Add(selectedFunc);
+
+            // Show the marker on a random function button
+            _mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide, selectedFunc.Id);
+
             // Update info label
             _mainWindow.UpdateInfoLabel();
         }
@@ -387,13 +394,6 @@ namespace SubTask.PanelNavigation
                 // Change the START to END and deactivate the button
                 _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_UNAVAILABLE_COLOR);
                 _mainWindow.ChangeStartBtnLabel(_activeTrial.FuncSide, Str.END_CAP);
-
-                // Color a random function button in the aux window and set the width in trialRecord
-                TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, Config.FUNCTION_DEFAULT_COLOR);
-                _activeTrialRecord.Functions.Add(selectedFunc);
-
-                // Show the marker on a random function button
-                _mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide, selectedFunc.Id);
             }
             else // Pressed outside the button => miss
             {
