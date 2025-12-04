@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using Common.Constants;
+using SkiaSharp;
 using SkiaSharp.Views.WPF;
 using Svg.Skia;
 using System;
@@ -619,6 +620,34 @@ namespace SubTask.PanelNavigation
                 double leftPosition = (this.Width - btnW) / 2;
                 Canvas.SetLeft(_startButton, leftPosition);
                 Canvas.SetTop(_startButton, startBtnTop);
+                // Add to canvas
+                canvas.Children.Add(_startButton);
+            }
+            else
+            {
+                this.TrialInfo("Buttons grid is not initialized, cannot position Start button.");
+            }
+        }
+
+        public override void ShowStartBtn(int largerSide, Brush btnColor, MouseEvents btnEvents)
+        {
+            base.ShowStartBtn(largerSide, btnColor, btnEvents);
+
+            // Set the Start button H
+            _startButton.Height = largerSide;
+            _startButton.Width = this.ActualWidth * 0.8;
+
+            // Position the start button at 10 mm below the bottom button of the grid
+            if (_buttonsGrid != null)
+            {
+                double gridBottom = Canvas.GetTop(_buttonsGrid) + _buttonsGrid.ActualHeight;
+                double startBtnTop = gridBottom + Utils.MM2PX(ExpSizes.START_BUTTON_DIST_MM); // Dist below the grid
+
+                // Position the button
+                double leftPosition = (this.Width - _startButton.Width) / 2;
+                Canvas.SetLeft(_startButton, leftPosition);
+                Canvas.SetTop(_startButton, startBtnTop);
+
                 // Add to canvas
                 canvas.Children.Add(_startButton);
             }
