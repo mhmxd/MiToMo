@@ -80,7 +80,7 @@ namespace SubTask.PanelNavigation
             LogEvent(Str.TRIAL_SHOW, _activeTrial.Id);
 
             // Start logging cursor positions
-            ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
+            ExperiLogger.StartTrialCursorLog(_activeTrial.Id, _activeTrialNum);
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
@@ -357,7 +357,7 @@ namespace SubTask.PanelNavigation
                 }
                 else
                 {
-                    EndActiveTrial(Result.MISS);
+                    // End trial on release
                 }
             }
 

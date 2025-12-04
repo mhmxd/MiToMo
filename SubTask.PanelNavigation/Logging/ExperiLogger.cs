@@ -24,18 +24,6 @@ namespace SubTask.PanelNavigation
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             "SubTask.PanelNavigation.Logs", "sosf_trial_log"
         );
-        private static string _somfTrialLogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.PanelNavigation.Logs", "somf_trial_log"
-        );
-        private static string _mosfTrialLogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.PanelNavigation.Logs", "mosf_trial_log"
-        );
-        private static string _momfTrialLogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.PanelNavigation.Logs", "momf_trial_log"
-        );
         private static string _totalLogFilePath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             "SubTask.PanelNavigation.Logs", "total_trial_log"
@@ -204,7 +192,7 @@ namespace SubTask.PanelNavigation
             return writer;
         }
 
-        public static void StartTrialCursorLog(int trialId)
+        public static void StartTrialCursorLog(int trialId, int trialNum)
         {
             //string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
             //String cursorFileName = $"trial-#{trialId}-cursor-{timestamp}.txt";
@@ -216,10 +204,11 @@ namespace SubTask.PanelNavigation
             _activeTrialId = trialId;
             _trialCursorRecords[_activeTrialId] = new List<CursorRecord>();
 
-            _cursorLogFilePath = System.IO.Path.Combine(
+            _cursorLogFilePath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "SubTask.PanelNavigation.Logs", $"{_ptcId}-{_technique}", "Cursor", $"trial{trialId}-cursor-log"
+                "SubTask.PanelNavigation.Logs", $"{_ptcId}-{_technique}", "Cursor", $"trial{trialId}-{trialNum}-cursor-log"
             );
+
             PrepareFileWithHeader<CursorRecord>(ref _cursorLogFilePath, _cursorLogWriter, CursorRecord.GetHeader());
         }
 
@@ -365,8 +354,8 @@ namespace SubTask.PanelNavigation
             log.arant_arapr = trialRecord.GetLastSeqDuration(Str.ARA_ENTER, Str.ARA_PRESS);
 
             // Testing
-            Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
+            //Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
+            //Output.Conlog<ExperiLogger>(log.ToString());
 
             WriteTrialLog(log, logFilePath, _detailTrialLogWriter);
             //_detailTrialLogWriter?.Dispose();

@@ -13,6 +13,8 @@ namespace SubTask.PanelNavigation
     // A block of trials in the experiment
     public class Block
     {
+        private Random _random = new Random();
+
         private List<Trial> _trials = new List<Trial>();
         public List<Trial> Trials
         {
@@ -166,26 +168,45 @@ namespace SubTask.PanelNavigation
 
         public void ShuffleBackTrial(int trialNum)
         {
-            if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
-            {
-                Trial trialToCopy = _trials[trialNum - 1];
-                Random random = new Random();
-                int insertIndex = random.Next(trialNum + 1, _trials.Count);
+            //if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
+            //{
+            //    Trial trialToCopy = _trials[trialNum - 1];
+            //    int insertIndex = _random.Next(trialNum + 1, _trials.Count);
 
+            //    _trials.Insert(insertIndex, trialToCopy);
+            //}
+            //else if (trialNum == _trials.Count && _trials.Count > 1)
+            //{
+            //    _trials.Insert(trialNum, _trials[trialNum - 1]);
+            //}
+            //else if (_trials.Count <= 1)
+            //{
+            //    Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
+            //}
+            //else
+            //{
+            //    Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
+            //}
+
+            // Shuffle the trial based on its function side
+            Trial trialToCopy = _trials[trialNum - 1];
+            if (trialNum == _trials.Count && _trials.Count > 1)
+            {
+                _trials.Insert(trialNum, trialToCopy);
+            }
+            else if (_trials[trialNum].FuncSide == Side.Top)
+            {
+                // Shuffle among the remaining top trials
+                int insertIndex = _random.Next(trialNum + 1, _trials.Count(t => t.FuncSide == Side.Top) + 1);
                 _trials.Insert(insertIndex, trialToCopy);
-            }
-            else if (trialNum == _trials.Count && _trials.Count > 1)
-            {
-                _trials.Insert(trialNum, _trials[trialNum - 1]);
-            }
-            else if (_trials.Count <= 1)
-            {
-                Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
             }
             else
             {
-                Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
+                // Shuffle among the remaining left trials
+                int insertIndex = _random.Next(trialNum + 1, _trials.Count());
+                _trials.Insert(insertIndex, trialToCopy);
             }
+
         }
 
         public Complexity GetComplexity()
