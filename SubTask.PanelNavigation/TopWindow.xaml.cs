@@ -1,25 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms;
-using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Windows.Threading;
-using static SubTask.PanelNavigation.Output;
-using SysWin = System.Windows;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.PanelNavigation
 {
@@ -28,8 +15,8 @@ namespace SubTask.PanelNavigation
     /// </summary>
     public partial class TopWindow : AuxWindow
     {
-        private double HORIZONTAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-        private double InterGroupGutter = Utils.MM2PX(Config.GUTTER_05MM);
+        private double HORIZONTAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM);
+        private double InterGroupGutter = MM2PX(Config.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -164,7 +151,7 @@ namespace SubTask.PanelNavigation
             if (_buttonsGrid != null)
             {
                 double gridRight = Canvas.GetLeft(_buttonsGrid) + _buttonsGrid.ActualWidth;
-                double startBtnLeft = gridRight + Utils.MM2PX(Config.START_BTN_DIST_MM); // 10mm to the right of the grid
+                double startBtnLeft = gridRight + MM2PX(Config.START_BTN_DIST_MM); // 10mm to the right of the grid
 
                 // Position the button
                 Canvas.SetLeft(_startButton, startBtnLeft);
@@ -193,7 +180,7 @@ namespace SubTask.PanelNavigation
             if (_buttonsGrid != null)
             {
                 double gridRight = Canvas.GetLeft(_buttonsGrid) + _buttonsGrid.ActualWidth;
-                double startBtnLeft = gridRight + Utils.MM2PX(Config.START_BTN_DIST_MM); // 10mm to the right of the grid
+                double startBtnLeft = gridRight + MM2PX(Config.START_BTN_DIST_MM); // 10mm to the right of the grid
 
                 // Position the button
                 Canvas.SetLeft(_startButton, startBtnLeft);

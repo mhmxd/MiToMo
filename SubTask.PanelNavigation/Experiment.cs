@@ -1,16 +1,8 @@
-﻿using System;
+﻿using Common.Constants;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
-using static SubTask.PanelNavigation.Output;
-using static System.Math;
-using Common.Constants;
-using MathNet.Numerics;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.PanelNavigation
 {
@@ -157,7 +149,7 @@ namespace SubTask.PanelNavigation
 
         public static int GetStartHalfWidth()
         {
-            return Utils.MM2PX(START_WIDTH_MM / 2);
+            return MM2PX(START_WIDTH_MM / 2);
         }
     }
 }

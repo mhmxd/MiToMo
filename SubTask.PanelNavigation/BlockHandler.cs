@@ -12,6 +12,7 @@ using static SubTask.PanelNavigation.Experiment;
 using static SubTask.PanelNavigation.TrialRecord;
 using static Tensorflow.TensorShapeProto.Types;
 using Common.Constants;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.PanelNavigation
 {
@@ -92,7 +93,7 @@ namespace SubTask.PanelNavigation
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStartBtn(
                 _activeTrial.FuncSide,
-                Utils.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
+                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
                 Experiment.START_INIT_COLOR,
                 startButtonEvents);
 

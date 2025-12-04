@@ -1,18 +1,9 @@
-﻿using Common.Constants;
-using MathNet.Numerics.Integration;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
-using Tensorflow.Operations;
-using static SubTask.PanelNavigation.Output;
 using static System.Math;
-using static System.Windows.Rect;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.PanelNavigation
 {
@@ -94,10 +85,7 @@ namespace SubTask.PanelNavigation
         //    return Abs(p1.x - p2.x);
         //}
 
-        public static int MM2PX(double mm)
-        {
-            return (int)Math.Round(mm / MM_IN_INCH * ExpSizes.PPI);
-        }
+        
 
         //public static double MmToDips(double mm)
         //{
@@ -109,10 +97,7 @@ namespace SubTask.PanelNavigation
         //    return (dips / DIPS_IN_INCH) * MM_IN_INCH;
         //}
 
-        public static double PX2MM(double px)
-        {
-            return px * MM_IN_INCH / ExpSizes.PPI;
-        }
+        
 
 
 

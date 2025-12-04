@@ -1,28 +1,19 @@
 ﻿using Common.Constants;
-using SkiaSharp;
-using SkiaSharp.Views.WPF;
-using Svg.Skia;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Windows.Threading;
 using WindowsInput;
-using static SubTask.PanelNavigation.Output;
 using Seril = Serilog.Log;
+using static Common.Helpers.ExpUtils;
+using static SubTask.PanelNavigation.Output;
+
 
 namespace SubTask.PanelNavigation
 {
@@ -35,11 +26,11 @@ namespace SubTask.PanelNavigation
 
         private Random _random = new Random();
 
-        private double HorizontalPadding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-        private double VerticalPadding = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
+        private double HorizontalPadding = MM2PX(Config.WINDOW_PADDING_MM);
+        private double VerticalPadding = MM2PX(Config.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
 
-        private double InterGroupGutter = Utils.MM2PX(Config.GUTTER_05MM);
-        private double WithinGroupGutter = Utils.MM2PX(Config.GUTTER_05MM);
+        private double InterGroupGutter = MM2PX(Config.GUTTER_05MM);
+        private double WithinGroupGutter = MM2PX(Config.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -124,14 +115,14 @@ namespace SubTask.PanelNavigation
             // Radius in pixels
             //const double PPI = 109;
             //const double MM_IN_INCH = 25.4;
-            int targetWidth = Utils.MM2PX(widthMM);
+            int targetWidth = MM2PX(widthMM);
 
             // Get canvas dimensions
             int canvasWidth = (int)canvas.ActualWidth;
             int canvasHeight = (int)canvas.ActualHeight;
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            int marginPX = MM2PX(Config.WINDOW_PADDING_MM);
             int minX = marginPX;
             int maxX = canvasWidth - marginPX - targetWidth;
             int minY = marginPX;
@@ -614,7 +605,7 @@ namespace SubTask.PanelNavigation
             if (_buttonsGrid != null)
             {
                 double gridBottom = Canvas.GetTop(_buttonsGrid) + _buttonsGrid.ActualHeight;
-                double startBtnTop = gridBottom + Utils.MM2PX(Config.START_BTN_DIST_MM); // 10mm below the grid
+                double startBtnTop = gridBottom + MM2PX(Config.START_BTN_DIST_MM); // 10mm below the grid
 
                 // Position the button
                 double leftPosition = (this.Width - btnW) / 2;
@@ -641,7 +632,7 @@ namespace SubTask.PanelNavigation
             if (_buttonsGrid != null)
             {
                 double gridBottom = Canvas.GetTop(_buttonsGrid) + _buttonsGrid.ActualHeight;
-                double startBtnTop = gridBottom + Utils.MM2PX(ExpSizes.START_BUTTON_DIST_MM); // Dist below the grid
+                double startBtnTop = gridBottom + MM2PX(ExpSizes.START_BUTTON_DIST_MM); // Dist below the grid
 
                 // Position the button
                 double leftPosition = (this.Width - _startButton.Width) / 2;
