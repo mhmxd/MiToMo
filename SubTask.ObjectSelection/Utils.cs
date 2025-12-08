@@ -1,18 +1,10 @@
 ﻿using Common.Constants;
-using MathNet.Numerics.Integration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
-using Tensorflow.Operations;
-using static SubTask.ObjectSelection.Output;
 using static System.Math;
-using static System.Windows.Rect;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
 {

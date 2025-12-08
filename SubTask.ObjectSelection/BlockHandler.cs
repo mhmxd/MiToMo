@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Common.Helpers.ExpUtils;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
 {
@@ -44,7 +45,7 @@ namespace SubTask.ObjectSelection
         public void BeginActiveBlock()
         {
             this.TrialInfo("------------------- Beginning block ----------------------------");
-            this.TrialInfo(Str.MINOR_LINE);
+            this.TrialInfo(ExpStrs.MINOR_LINE);
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
@@ -62,10 +63,10 @@ namespace SubTask.ObjectSelection
 
         public void ShowActiveTrial()
         {
-            this.TrialInfo(Str.MINOR_LINE);
+            this.TrialInfo(ExpStrs.MINOR_LINE);
             this.TrialInfo($"Showing " + _activeTrial.ToStr());
 
-            LogEvent(Str.TRIAL_SHOW, _activeTrial.Id);
+            LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
 
             // Start logging cursor positions
             ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
@@ -74,13 +75,14 @@ namespace SubTask.ObjectSelection
             _activeTrialRecord.ObjectAreaRect.Location = _mainWindow.FindRandomPositionForObjectArea(_activeTrialRecord.ObjectAreaRect.Size);
 
             // Place objects in the area
-            Point objAreaCenter = new Point(
+            Point objAreaCenter = new(
                 _activeTrialRecord.ObjectAreaRect.X + _activeTrialRecord.ObjectAreaRect.Width / 2,
                 _activeTrialRecord.ObjectAreaRect.Y + _activeTrialRecord.ObjectAreaRect.Height / 2);
+            this.TrialInfo($"Center at: {_activeTrialRecord.ObjectAreaRect.Y}");
             _activeTrialRecord.Objects = PlaceObjectsInArea(
                 objAreaCenter,
                 _activeTrial.NObjects);
-
+            
             // Show the area
             MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseEnter, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
@@ -96,8 +98,8 @@ namespace SubTask.ObjectSelection
             MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseEnter, OnStartButtonMouseExit);
             _mainWindow.ShowStartTrialButton(
                 _activeTrialRecord.ObjectAreaRect,
-                MM2PX(ExpSizes.START_BUTTON_SMALL_MM.W),
-                MM2PX(ExpSizes.START_BUTTON_SMALL_MM.H),
+                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
+                MM2PX(ExpSizes.START_BUTTON_SMALL_H_MM),
                 Experiment.START_INIT_COLOR,
                 startButtonEvents);
 
@@ -108,16 +110,16 @@ namespace SubTask.ObjectSelection
         public virtual void EndActiveTrial(Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
-            this.TrialInfo(Str.MAJOR_LINE);
+            this.TrialInfo(ExpStrs.MAJOR_LINE);
             _activeTrialRecord.Result = result;
-            LogEvent(Str.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
+            LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
 
             switch (result)
             {
                 case Result.HIT:
                     Sounder.PlayHit();
-                    double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
-                    _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                    double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
+                    _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
 
                     break;
                 case Result.MISS:
@@ -183,7 +185,7 @@ namespace SubTask.ObjectSelection
                 {
                     // 1. Generate a random potential center for the new square
                     Point potentialCenter = GenerateRandomPointInSquare(objAreaCenterPosition, areaW, objW);
-
+                    this.TrialInfo($"Object {i + 1}, Attempt {attempt + 1}: Potential center at {potentialCenter}");
                     // Calculate the top-left corner from the potential center
                     Point topLeft = new Point(potentialCenter.X - objW / 2, potentialCenter.Y - objW / 2);
 
@@ -218,7 +220,7 @@ namespace SubTask.ObjectSelection
             double maxX = areaCenter.X + areaHalf - margin;
             double minY = areaCenter.Y - areaHalf + margin;
             double maxY = areaCenter.Y + areaHalf - margin;
-
+            this.TrialInfo($"Valid range X: [{minX}, {maxX}], Y: [{minY}, {maxY}]");
             // Generate a random point inside that range
             double x = minX + _random.NextDouble() * (maxX - minX);
             double y = minY + _random.NextDouble() * (maxY - minY);
@@ -252,7 +254,7 @@ namespace SubTask.ObjectSelection
 
         public virtual void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.MAIN_WIN_PRESS);
+            LogEvent(ExpStrs.MAIN_WIN_PRESS);
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
@@ -267,7 +269,7 @@ namespace SubTask.ObjectSelection
         }
         public void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
         {
-            LogEventOnce(Str.FIRST_MOVE);
+            LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
             ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
@@ -285,12 +287,12 @@ namespace SubTask.ObjectSelection
 
         public void OnAuxWindowMouseEnter(Side side, Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.PNL_ENTER, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_ENTER, side.ToString().ToLower());
         }
 
         public void OnAuxWindowMouseDown(Side side, Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.PNL_PRESS, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_PRESS, side.ToString().ToLower());
 
             if (!IsStartClicked())
             {
@@ -310,7 +312,7 @@ namespace SubTask.ObjectSelection
         }
         public void OnAuxWindowMouseUp(Side side, Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.PNL_RELEASE, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_RELEASE, side.ToString().ToLower());
 
             if (IsStartPressed()) // Pressed in Start, released in aux window
             {
@@ -322,32 +324,32 @@ namespace SubTask.ObjectSelection
 
         public void OnAuxWindowMouseExit(Side side, Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.PNL_EXIT, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_EXIT, side.ToString().ToLower());
         }
 
         public virtual void OnObjectMouseEnter(Object sender, MouseEventArgs e)
         {
             // If the last timestamp was ARA_EXIT, remove that
-            if (_activeTrialRecord.GetLastTrialEventType() == Str.ARA_EXIT) _activeTrialRecord.RemoveLastTimestamp();
+            if (_activeTrialRecord.GetLastTrialEventType() == ExpStrs.ARA_EXIT) _activeTrialRecord.RemoveLastTimestamp();
             var objId = (int)((FrameworkElement)sender).Tag;
 
             // Add the id to the list of visited if not already there (will use the index for the order of visit)
-            LogEvent(Str.OBJ_ENTER, objId);
+            LogEvent(ExpStrs.OBJ_ENTER, objId);
 
             // Log the event
-            LogEvent(Str.OBJ_ENTER, objId);
+            LogEvent(ExpStrs.OBJ_ENTER, objId);
         }
 
         public virtual void OnObjectMouseLeave(Object sender, MouseEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_EXIT, objId);
+            LogEvent(ExpStrs.OBJ_EXIT, objId);
         }
 
         public void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_PRESS, objId);
+            LogEvent(ExpStrs.OBJ_PRESS, objId);
 
             // Pressed on the Object without starting the trial
             if (!IsStartClicked())
@@ -385,7 +387,7 @@ namespace SubTask.ObjectSelection
         public void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_RELEASE, objId);
+            LogEvent(ExpStrs.OBJ_RELEASE, objId);
 
             if (!IsStartClicked())
             {
@@ -429,7 +431,7 @@ namespace SubTask.ObjectSelection
         public virtual void OnObjectAreaMouseEnter(Object sender, MouseEventArgs e)
         {
             // Only log if entered from outside (NOT from the object)
-            if (_activeTrialRecord.GetLastTrialEventType() != Str.OBJ_EXIT) LogEvent(Str.ARA_ENTER);
+            if (_activeTrialRecord.GetLastTrialEventType() != ExpStrs.OBJ_EXIT) LogEvent(ExpStrs.ARA_ENTER);
         }
 
         public virtual void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
@@ -448,14 +450,14 @@ namespace SubTask.ObjectSelection
                 EndActiveTrial(Result.MISS);
             }
 
-            LogEvent(Str.ARA_PRESS);
+            LogEvent(ExpStrs.ARA_PRESS);
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public virtual void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.ARA_RELEASE);
+            LogEvent(ExpStrs.ARA_RELEASE);
 
             if (!IsStartClicked())
             {
@@ -481,17 +483,17 @@ namespace SubTask.ObjectSelection
         public virtual void OnObjectAreaMouseExit(Object sender, MouseEventArgs e)
         {
             // Will be later removed if entered the object
-            LogEvent(Str.ARA_EXIT);
+            LogEvent(ExpStrs.ARA_EXIT);
         }
 
         public void OnStartButtonMouseEnter(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.STR_ENTER);
+            LogEvent(ExpStrs.STR_ENTER);
         }
 
         public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.STR_PRESS);
+            LogEvent(ExpStrs.STR_PRESS);
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -499,10 +501,10 @@ namespace SubTask.ObjectSelection
 
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.STR_RELEASE);
+            LogEvent(ExpStrs.STR_RELEASE);
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
-            var startButtonPressed = GetEventCount(Str.STR_PRESS) > 0;
+            var startButtonPressed = GetEventCount(ExpStrs.STR_PRESS) > 0;
 
             if (startButtonPressed)
             {
@@ -511,7 +513,7 @@ namespace SubTask.ObjectSelection
 
                 // Change the button to END and disable it (option2)
                 //_mainWindow.ChangeStartButtonColor(Config.START_UNAVAILABLE_COLOR);
-                //_mainWindow.ChangeStartButtonText(Str.END);
+                //_mainWindow.ChangeStartButtonText(ExpStrs.END);
 
                 // Make objects available
                 _activeTrialRecord.MakeAllObjectsAvailable(ButtonState.ENABLED);
@@ -529,7 +531,7 @@ namespace SubTask.ObjectSelection
 
         public void OnStartButtonMouseExit(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.STR_EXIT);
+            LogEvent(ExpStrs.STR_EXIT);
         }
 
         public void SetFunctionAsEnabled(int funcId)
@@ -646,18 +648,18 @@ namespace SubTask.ObjectSelection
 
         protected bool IsStartPressed()
         {
-            return GetEventCount(Str.STR_PRESS) > 0;
+            return GetEventCount(ExpStrs.STR_PRESS) > 0;
         }
 
         protected bool IsStartClicked()
         {
-            return GetEventCount(Str.STR_RELEASE) > 0;
+            return GetEventCount(ExpStrs.STR_RELEASE) > 0;
         }
 
         protected bool WasObjectPressed(int objId)
         {
             this.TrialInfo($"Last event: {_activeTrialRecord.GetBeforeLastTrialEvent().ToString()}");
-            return _activeTrialRecord.GetEventIndex(Str.OBJ_PRESS) != -1;
+            return _activeTrialRecord.GetEventIndex(ExpStrs.OBJ_PRESS) != -1;
         }
     }
 

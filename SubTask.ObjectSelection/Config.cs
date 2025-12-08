@@ -71,15 +71,6 @@ namespace SubTask.ObjectSelection
 
         // -------------- Cursors
         public static double MAPPING_GAIN = 1; // Was 50 // Let's not use it (KvF will take care of it)
-                                               // --------------------------------------
-
-        // --------------- Sizes and Margins
-        //public static int TOP_WINDOW_HEIGTH_MM = 28; // ~100px
-        //public static int SIDE_WINDOW_WIDTH_MM = 68; // ~240
-
-        //public static double VERTICAL_PADDING_MM = 4; // 12px
-        //public static double HORIZONTAL_PADDING_MM = 4; // 4px (for the side window)
-        public static double WINDOW_PADDING_MM = 10;
 
         // --------------------------------------
 
@@ -99,9 +90,6 @@ namespace SubTask.ObjectSelection
         // --------------------------------------
 
         // --------------- Movement Thresholds --
-        //public static double TAP_MOVE_LIMIT = 0.2; // Amount of allowed movement for Tap
-        //public static float TAP_X_MOVE_LIMIT = 0.5f; // Amount of allowed x movement for Tap
-        //public static float TAP_Y_MOVE_LIMIT = 0.5f; // Amount of allowed y movement for Tap
         public static readonly (float DX, float DY) TAP_GENERAL_THRESHOLD = (0.2f, 0.2f);
 
         public static readonly (float DX, float DY) TAP_THUMB_THRESHOLD = (0.5f, 0.5f);
@@ -138,10 +126,6 @@ namespace SubTask.ObjectSelection
         public static readonly Brush FUNCTION_ENABLED_COLOR = Brushes.LightGreen;
         public static readonly Brush FUNCTION_APPLIED_COLOR = Brushes.Green;
 
-        //public static readonly Brush TARGET_DEFAULT_COLOR = Brushes.LightGreen;
-        //public static readonly Brush TARGET_AVAILABLE_COLOR = Brushes.Blue;
-        //public static readonly Brush TARGET_UNAVAILABLE_COLOR = Brushes.LightGreen;
-
         public static readonly Brush ELEMENT_HIGHLIGHT_COLOR = Brushes.Black;
         public static readonly Brush GRID_TARGET_COLOR = Brushes.LightGreen;
         public static readonly Brush BUTTON_DEFAULT_FILL_COLOR = Brushes.White;
@@ -152,23 +136,16 @@ namespace SubTask.ObjectSelection
         // --------------------------------------
 
         // --------------- Grid --------------------
-        public static double GUTTER_05MM = 0.5; // Space in-between the grid elements within a group
+        
         public static double GUTTER_TOP_SIMPLE = 4; // mm
         public static double GUTTER_SIDE_SIMPLE_MM = 4; // mm
         public static double GRID_MAX_ELEMENT_WIDTH_MM = 45; // Width of the widest element in the grid
         public static double GRID_MIN_ELEMENT_WIDTH_MM = 3; // Width of the narrowest element in the grid
         public static int ELEMENT_BORDER_THICKNESS = 2; // Thickness of the border around the grid elements
 
-        public static double GRID_UNIT_MM = 1; // Unit of measurement for the grid (1mm = 4px)
-        public static double GRID_ROW_HEIGHT_MM = 6 * GRID_UNIT_MM; // Height of the grid rows (= 24px)
-
         public static int CELL_WIDTH_THRESHOLD = 50; // px
         public static int CELL_HEIGHT_THRESHOLD = 50; // px
         // -----------------------------------------
-
-        public static double SIDE_COL_MAX_WIDTH_MM = 2 * Experiment.BUTTON_MULTIPLES[Str.x15] + GUTTER_05MM;
-        public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * WINDOW_PADDING_MM + GUTTER_05MM;
-        public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GUTTER_05MM + 2 * WINDOW_PADDING_MM;
 
         public static Dimensions TRIAL_START_BUTTON_DIM_MM = new Dimensions(20, 10);
         public static int TRIAL_START_BUTTON_FONT_SIZE = 16;

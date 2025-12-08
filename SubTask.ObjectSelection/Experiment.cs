@@ -1,23 +1,13 @@
 ﻿using Common.Constants;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
-using static SubTask.ObjectSelection.Output;
-using static System.Math;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
 {
     public class Experiment
     {
-
-        //--- Flags
-        public Trial_Action OUTSIDE_OBJECT_PRESS = Trial_Action.CONTINUE;
-        public Trial_Action OUTSIDE_AREA_PRESS = Trial_Action.CONTINUE;
 
         //--- Setting
         private readonly int N_OBJ = 3;
@@ -25,17 +15,6 @@ namespace SubTask.ObjectSelection
         private readonly int N_BLOCKS = 3;
         public static int DEFAULT_PTC = 1000;
         public Technique Active_Technique = Technique.MOUSE; // Set in the info dialog
-
-        public static Dictionary<string, int> BUTTON_MULTIPLES = new Dictionary<string, int>()
-        {
-            { Str.x3, 3 },
-            { Str.x6, 6 },
-            { Str.x12, 12 },
-            { Str.x15, 15 },
-            { Str.x18, 18 },
-            { Str.x30, 30 },
-            { Str.x36, 36 }
-        };
 
         //-- Colors
         public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
@@ -57,17 +36,17 @@ namespace SubTask.ObjectSelection
         {
             this.TrialInfo($"Participant: {ptc}, Technique: {tech}");
             Participant_Number = ptc;
-            if (tech == Str.TOUCH_MOUSE_TAP)
+            if (tech == ExpStrs.TOUCH_MOUSE_TAP)
             {
                 Active_Technique = Technique.TOMO_TAP;
                 Config.SetMode(0);
             }
-            else if (tech == Str.TOUCH_MOUSE_SWIPE)
+            else if (tech == ExpStrs.TOUCH_MOUSE_SWIPE)
             {
                 Active_Technique = Technique.TOMO_SWIPE;
                 Config.SetMode(1);
             }
-            else if (tech == Str.MOUSE)
+            else if (tech == ExpStrs.MOUSE)
             {
                 Active_Technique = Technique.MOUSE;
             }

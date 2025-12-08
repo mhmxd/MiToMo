@@ -6,54 +6,26 @@
 
 using Common.Constants;
 using CommunityToolkit.HighPerformance;
-using CommunityToolkit.HighPerformance.Helpers;
-using Microsoft.ML;
-using Microsoft.ML.Data;
 using Microsoft.Research.TouchMouseSensor;
-using NumSharp;
-using NumSharp.Utilities;
-using Serilog;
-using Serilog.Core;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Reflection;
-using System.Resources;
-using System.Runtime.CompilerServices;
 //using Tensorflow;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Policy;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
 //using static Tensorflow.tensorflow;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Xml.Linq;
 using WindowsInput;
-using static SubTask.ObjectSelection.BlockHandler;
-using static SubTask.ObjectSelection.Experiment;
+using static Common.Constants.ExpEnums;
 using static SubTask.ObjectSelection.Output;
 using static SubTask.ObjectSelection.Utils;
-using static System.Math;
 using MessageBox = System.Windows.Forms.MessageBox;
-using Seril = Serilog.Log;
-using SysDraw = System.Drawing;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
 
@@ -133,11 +105,11 @@ namespace SubTask.ObjectSelection
 
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
-        private int VERTICAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
-        private int HORIZONTAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
+        private int VERTICAL_PADDING = MM2PX(ExpSizes.WINDOW_PADDING_MM); // Padding for the windows
+        private int HORIZONTAL_PADDING = MM2PX(ExpSizes.WINDOW_PADDING_MM); // Padding for the windows
 
-        private int TopWindowHeight = MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
-        private int SideWindowWidth = MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
+        private int TopWindowHeight = MM2PX(ExpSizes.TOP_WINDOW_HEIGTH_MM);
+        private int SideWindowWidth = MM2PX(ExpSizes.SIDE_WINDOW_WIDTH_MM);
 
 
         // Dead zone
@@ -156,7 +128,6 @@ namespace SubTask.ObjectSelection
         private AuxWindow _leftWindow;
         private AuxWindow _rightWindow;
         private AuxWindow _activeAuxWindow;
-        private OverlayWindow _overlayWindow;
 
         private double _monitorHeightMM;
 
@@ -212,15 +183,6 @@ namespace SubTask.ObjectSelection
         private Rect _lefWinRectPadded, _topWinRectPadded, _rightWinRectPadded;
         private int _infoLabelHeight;
 
-        //--- Radiusor
-        private int _actionPointerInd = -1;
-        private Pointer _actionPointer;
-        private Point _lastRotPointerPos = new Point(-1, -1);
-        private Point _lastPlusPointerPos = new Point(-1, -1);
-        private Point _lastMiddlePointerPos = new Point(-1, -1);
-        private int _lastNumMiddleFingers = 0;
-        private bool _radiusorActive = false;
-
         //--- Classes
         //private GestureDetector _gestureDetector;
         private TouchSurface _touchSurface;
@@ -275,35 +237,6 @@ namespace SubTask.ObjectSelection
             //_leftWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
             //_rightWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
 
-            // Create grid
-            //_topWindow.KnollHorizontal(6, 12, Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
-            //Func<Grid>[] colCreators = new Func<Grid>[]
-            //{
-            //    () => ColumnFactory.CreateGroupType1(combination: 1),
-            //    () => ColumnFactory.CreateGroupType2(combination: 2),
-            //    () => ColumnFactory.CreateGroupType3(),
-            //    () => ColumnFactory.CreateGroupType1(combination: 3),
-            //    () => ColumnFactory.CreateGroupType2(combination: 1),
-            //    () => ColumnFactory.CreateGroupType1(combination: 6),
-            //    () => ColumnFactory.CreateGroupType3(),
-            //    () => ColumnFactory.CreateGroupType2(combination: 1),
-            //    () => ColumnFactory.CreateGroupType1(combination: 5),
-            //    () => ColumnFactory.CreateGroupType2(combination: 3),
-            //    () => ColumnFactory.CreateGroupType1(combination: 2),
-            //    () => ColumnFactory.CreateGroupType1(combination: 4),
-            //};
-
-            // Starts placed at the two bottom corners (to set max distance from grid buttons)
-            //_topWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
-
-            //_leftWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
-            //_rightWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
-
-            //_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleTopGrid);
-
-            // Create Top-Simple
-            //_topWindow.PlaceGrid(RowFactory.CreateSimpleTopGrid);
-
             UpdateLabelPosition();
 
             //-- Events
@@ -319,7 +252,7 @@ namespace SubTask.ObjectSelection
 
             MouseLeftButtonDown += Window_MouseLeftButtonDown;
 
-            CreateExperiment(); // Create the experiment (sets _experiment)
+            _experiment = new Experiment();
 
             //--- Show the intro dialog (the choices affect the rest)
             IntroDialog introDialog = new IntroDialog() { Owner = this };
@@ -337,72 +270,9 @@ namespace SubTask.ObjectSelection
             // Set the info from the dialog
             if (result == true)
             {
-                // Set the _technique mode in Config
-                //_experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
-
-
                 BeginExperiment();
             }
 
-        }
-
-        private void CreateExperiment()
-        {
-            //double padding = MM2PX(Config.WINDOW_PADDING_MM);
-            //double objHalfWidth = MM2PX(OBJ_WIDTH_MM) / 2;
-            //double startHalfWidth = OBJ_WIDTH_MM / 2;
-            //double objAreaHalfWidth = MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
-
-            //// Distances (v.3)
-            //// Longest
-            //Point leftMostSmallButtonCenterPosition = new Point(
-            //    padding + smallButtonHalfWidth,
-            //    padding + smallButtonHalfWidth
-            // );
-            //Point leftMostSmallButtonCenterAbsolute = Utils.OffsetPosition(
-            //    leftMostSmallButtonCenterPosition,
-            //    _leftWindow.Left, _leftWindow.Top);
-
-            //Point rightMostObjAreaCenterAbsolute = new Point(
-            //    _mainWinRect.Right - padding - objAreaHalfWidth,
-            //    _mainWinRect.Top + padding - objAreaHalfWidth
-            //);
-            ////Point rightMostObjAreaCenterAbsolute = Utils.OffsetPosition(
-            ////    rightMostObjAreaCenterPosition, 
-            ////    this.Left, this.Top);
-
-            //double longestDistMM = Utils.DistInMM(leftMostSmallButtonCenterAbsolute, rightMostObjAreaCenterAbsolute);
-            //this.TrialInfo($"Main Rect: {_mainWinRect.ToString()}");
-            ////ShowPoint(rightMostObjAreaCenterPosition);
-            ////_leftWindow.ShowPoint(leftMostSmallButtonCenterPosition);
-            ////double longestDistMM =
-            ////    (Config.SIDE_WINDOW_WIDTH_MM - Config.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
-            ////    Utils.PX2MM(this.ActualWidth) - Config.WINDOW_PADDING_MM - startHalfWidth;
-
-
-            //// Shortest
-            //Point topLeftButtonCenterPosition = new Point(
-            //    padding + smallButtonHalfWidth,
-            //    padding + smallButtonHalfWidth
-            //);
-            //Point topLeftButtonCenterAbsolute = Utils.OffsetPosition(topLeftButtonCenterPosition, _topWindow.Left, _topWindow.Top);
-
-            //Point topLeftObjAreaCenterPosition = new Point(
-            //    padding + objAreaHalfWidth,
-            //    padding + objAreaHalfWidth
-            //);
-            //Point topLeftObjAreaCenterAbsolute = Utils.OffsetPosition(topLeftObjAreaCenterPosition, this.Left, this.Top);
-
-            //double shortestDistMM = Utils.DistInMM(topLeftButtonCenterAbsolute, topLeftObjAreaCenterAbsolute);
-
-            ////double topLeftStartCenterLeft = Config.SIDE_WINDOW_WIDTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
-            ////double topLeftStartCenterTop = Config.TOP_WINDOW_HEIGTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
-            ////Point topLeftStartCenterAbsolute = new Point(topLeftStartCenterLeft, topLeftStartCenterTop);
-
-            //this.TrialInfo($"topLeftObjAreaCenterPosition: {topLeftButtonCenterAbsolute.ToStr()}");
-            //this.TrialInfo($"Shortest Dist = {shortestDistMM:F2}mm | Longest Dist = {longestDistMM:F2}mm");
-
-            _experiment = new Experiment();
         }
 
         private void BeginExperiment()
@@ -983,12 +853,18 @@ namespace SubTask.ObjectSelection
 
         public Point FindRandomPositionForObjectArea(Size areaSize)
         {
-            int padding = MM2PX(Config.WINDOW_PADDING_MM);
+            int padding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
+            int startH = MM2PX(ExpSizes.START_BUTTON_SMALL_H_MM);
+
             double maxX = this.Width - padding - areaSize.Width;
-            double maxY = this.Height - padding - areaSize.Height;
+            double maxY = this.Height - padding - areaSize.Height - startH - _infoLabelHeight;
+            
+            double minX = padding;
+            double minY = padding + startH;
+
             // In this window's coordinate system
-            double randX = _random.NextDouble() * maxX;
-            double randY = _random.NextDouble() * maxY;
+            double randX = _random.NextDouble() * maxX + minX;
+            double randY = _random.NextDouble() * maxY + minY;
             
             return new Point(randX, randY);
         }
@@ -1270,7 +1146,7 @@ namespace SubTask.ObjectSelection
         public void ShowStartTrialButton(Rect objAreaRect, int btnW, int btnH, Brush btnColor, MouseEvents mouseEvents)
         {
             //canvas.Children.Clear(); // Clear the canvas before adding the button
-            int padding = MM2PX(Config.WINDOW_PADDING_MM);
+            int padding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
 
             // Create the "button" as a Border with text inside
             _startButton = new Border
@@ -1286,7 +1162,7 @@ namespace SubTask.ObjectSelection
             // Add label inside
             var label = new TextBlock
             {
-                Text = Str.START,
+                Text = ExpStrs.START,
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,

@@ -13,6 +13,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using static SubTask.ObjectSelection.Output;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
 {

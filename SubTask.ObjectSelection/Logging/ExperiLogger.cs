@@ -1,19 +1,15 @@
-﻿using MathNet.Numerics;
-using Serilog;
+﻿using Serilog;
 using Serilog.Core;
 using SubTask.ObjectSelection.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Internal;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using ILogger = Serilog.ILogger;
+using Common.Constants;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
 {
@@ -178,39 +174,39 @@ namespace SubTask.ObjectSelection
             //FillTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log start events
-            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
+            log.trlsh_curmv = trialRecord.GetDuration(ExpStrs.TRIAL_SHOW, ExpStrs.FIRST_MOVE);
+            log.curmv_strnt = trialRecord.GetLastSeqDuration(ExpStrs.FIRST_MOVE, ExpStrs.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetLastSeqDuration(ExpStrs.STR_ENTER, ExpStrs.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetLastSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
-            log.strrl_obj1nt = trialRecord.GetFirstSeqDuration(Str.STR_RELEASE, Str.OBJ_ENTER);
+            log.strrl_obj1nt = trialRecord.GetFirstSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.OBJ_ENTER);
 
             for (int i = 1; i <= trial.NObjects; i++)
             {
                 DynamiclySetFieldValue(
                     log, $"obj{i}nt_obj{i}pr",
-                    trialRecord.GetNthSeqDuration(Str.OBJ_ENTER, Str.OBJ_PRESS, i));
+                    trialRecord.GetNthSeqDuration(ExpStrs.OBJ_ENTER, ExpStrs.OBJ_PRESS, i));
                 DynamiclySetFieldValue(
                     log, $"obj{i}pr_obj{i}rl",
-                    trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE, i));
+                    trialRecord.GetNthSeqDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE, i));
 
                 // Transition to the Next Object (i + 1)
                 if (i < trial.NObjects)
                 {
                     DynamiclySetFieldValue(
                     log, $"obj{i}rl_obj{i + 1}nt",
-                    trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.OBJ_PRESS, i));
+                    trialRecord.GetNthSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_PRESS, i));
                 }
 
             }
 
-            log.objNrl_arapr = trialRecord.GetLastSeqDuration(Str.OBJ_RELEASE, Str.ARA_PRESS);
+            log.objNrl_arapr = trialRecord.GetLastSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.ARA_PRESS);
 
-            log.arapr_ararl = trialRecord.GetLastSeqDuration(Str.ARA_PRESS, Str.ARA_RELEASE);
+            log.arapr_ararl = trialRecord.GetLastSeqDuration(ExpStrs.ARA_PRESS, ExpStrs.ARA_RELEASE);
 
             // Testing
-            Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
+            //Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
+            //Output.Conlog<ExperiLogger>(log.ToString());
 
             WriteTrialLog(log, logFilePath, _detailedTrialLogWriter);
             //_detailedTrialLogWriter?.Dispose();
@@ -226,10 +222,10 @@ namespace SubTask.ObjectSelection
             //FillTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Total time
-            log.trial_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS);
+            log.trial_time = trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS);
             _trialTimes[trial.Id] = log.trial_time;
 
-            log.objs_sel_time = trialRecord.GetDurationFromFirstToLast(Str.OBJ_ENTER, Str.OBJ_RELEASE);
+            log.objs_sel_time = trialRecord.GetDurationFromFirstToLast(ExpStrs.OBJ_ENTER, ExpStrs.OBJ_RELEASE);
 
             WriteTrialLog(log, _totalLogFilePath, _totalTrialLogWriter);
 
