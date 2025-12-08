@@ -4,6 +4,7 @@
 *                                                       *
 ********************************************************/
 
+using Common.Constants;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Helpers;
 using Microsoft.ML;
@@ -132,11 +133,11 @@ namespace SubTask.ObjectSelection
 
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
-        private int VERTICAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
-        private int HORIZONTAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
+        private int VERTICAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
+        private int HORIZONTAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
 
-        private int TopWindowHeight = Utils.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
-        private int SideWindowWidth = Utils.MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
+        private int TopWindowHeight = MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
+        private int SideWindowWidth = MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
 
 
         // Dead zone
@@ -263,16 +264,16 @@ namespace SubTask.ObjectSelection
             InitializeWindows();
 
             // Set object constraint rect here and in aux windows
-            _objectConstraintRectAbsolue = new Rect(
-                _mainWinRect.Left + VERTICAL_PADDING + GetStartHalfWidth(),
-                _mainWinRect.Top + VERTICAL_PADDING + GetStartHalfWidth(),
-                _mainWinRect.Width - 2 * VERTICAL_PADDING,
-                _mainWinRect.Height - 2 * VERTICAL_PADDING - _infoLabelHeight
-             );
+            //_objectConstraintRectAbsolue = new Rect(
+            //    _mainWinRect.Left + VERTICAL_PADDING + GetStartHalfWidth(),
+            //    _mainWinRect.Top + VERTICAL_PADDING + GetStartHalfWidth(),
+            //    _mainWinRect.Width - 2 * VERTICAL_PADDING,
+            //    _mainWinRect.Height - 2 * VERTICAL_PADDING - _infoLabelHeight
+            // );
 
-            _topWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
-            _leftWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
-            _rightWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
+            //_topWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
+            //_leftWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
+            //_rightWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
 
             // Create grid
             //_topWindow.KnollHorizontal(6, 12, Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
@@ -347,10 +348,10 @@ namespace SubTask.ObjectSelection
 
         private void CreateExperiment()
         {
-            //double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            //double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
+            //double padding = MM2PX(Config.WINDOW_PADDING_MM);
+            //double objHalfWidth = MM2PX(OBJ_WIDTH_MM) / 2;
             //double startHalfWidth = OBJ_WIDTH_MM / 2;
-            //double objAreaHalfWidth = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
+            //double objAreaHalfWidth = MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
 
             //// Distances (v.3)
             //// Longest
@@ -878,42 +879,6 @@ namespace SubTask.ObjectSelection
             UpdateLabelPosition();
         }
 
-        public void ShowStart(
-            Point absolutePosition, Brush color,
-            SysIput.MouseEventHandler mouseEnterHandler, SysIput.MouseEventHandler mouseLeaveHandler,
-            MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
-        {
-            // Clear the previous objects
-            canvas.Children.Clear();
-
-            // Convert the absolute position to relative position
-            Point positionInMain = Utils.Offset(absolutePosition,
-                -this.Left,
-                -this.Top);
-
-            // Create the square
-            _startRectangle = new Rectangle
-            {
-                Width = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                Fill = color
-            };
-
-            // Position the Start on the Canvas
-            Canvas.SetLeft(_startRectangle, positionInMain.X);
-            Canvas.SetTop(_startRectangle, positionInMain.Y);
-
-            // Add event
-            _startRectangle.MouseEnter += mouseEnterHandler;
-            _startRectangle.MouseLeave += mouseLeaveHandler;
-            _startRectangle.MouseDown += buttonDownHandler;
-            _startRectangle.MouseUp += buttonUpHandler;
-
-            // Add the circle to the Canvas
-            //canvas.Children.Add(_startCircle);
-            canvas.Children.Add(_startRectangle);
-        }
-
 
         public void ClearCanvas()
         {
@@ -1018,7 +983,7 @@ namespace SubTask.ObjectSelection
 
         public Point FindRandomPositionForObjectArea(Size areaSize)
         {
-            int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            int padding = MM2PX(Config.WINDOW_PADDING_MM);
             double maxX = this.Width - padding - areaSize.Width;
             double maxY = this.Height - padding - areaSize.Height;
             // In this window's coordinate system
@@ -1071,8 +1036,8 @@ namespace SubTask.ObjectSelection
             Rectangle objRectangle = new Rectangle
             {
                 Tag = tObject.Id,
-                Width = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
+                Width = MM2PX(ExpSizes.OBJ_WIDTH_MM),
+                Height = MM2PX(ExpSizes.OBJ_WIDTH_MM),
                 Fill = color
             };
 
@@ -1236,18 +1201,18 @@ namespace SubTask.ObjectSelection
                 centerPositionInAuxWindow.Y + auxWindow.Top);
         }
 
-        public Rect GetObjAreaCenterConstraintRect()
-        {
-            // Square
-            double padding = Utils.MM2PX(VERTICAL_PADDING);
-            double objAreaHalfWidth = Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2);
-            return new Rect(
-                this.Left + padding + objAreaHalfWidth,
-                this.Top + padding + objAreaHalfWidth,
-                this.Width - 2 * (padding + objAreaHalfWidth),
-                this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
-            );
-        }
+        //public Rect GetObjAreaCenterConstraintRect()
+        //{
+        //    // Square
+        //    double padding = MM2PX(VERTICAL_PADDING);
+        //    double objAreaHalfWidth = MM2PX(OBJ_AREA_WIDTH_MM / 2);
+        //    return new Rect(
+        //        this.Left + padding + objAreaHalfWidth,
+        //        this.Top + padding + objAreaHalfWidth,
+        //        this.Width - 2 * (padding + objAreaHalfWidth),
+        //        this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
+        //    );
+        //}
 
         public bool IsTechniqueToMo()
         {
@@ -1305,7 +1270,7 @@ namespace SubTask.ObjectSelection
         public void ShowStartTrialButton(Rect objAreaRect, int btnW, int btnH, Brush btnColor, MouseEvents mouseEvents)
         {
             //canvas.Children.Clear(); // Clear the canvas before adding the button
-            int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            int padding = MM2PX(Config.WINDOW_PADDING_MM);
 
             // Create the "button" as a Border with text inside
             _startButton = new Border

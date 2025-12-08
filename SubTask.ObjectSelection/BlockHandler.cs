@@ -9,9 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using static SubTask.ObjectSelection.Experiment;
-using static SubTask.ObjectSelection.TrialRecord;
-using static Tensorflow.TensorShapeProto.Types;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.ObjectSelection
 {
@@ -98,8 +96,8 @@ namespace SubTask.ObjectSelection
             MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseEnter, OnStartButtonMouseExit);
             _mainWindow.ShowStartTrialButton(
                 _activeTrialRecord.ObjectAreaRect,
-                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.W),
-                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.H),
+                MM2PX(ExpSizes.START_BUTTON_SMALL_MM.W),
+                MM2PX(ExpSizes.START_BUTTON_SMALL_MM.H),
                 Experiment.START_INIT_COLOR,
                 startButtonEvents);
 
@@ -170,8 +168,8 @@ namespace SubTask.ObjectSelection
         private List<TrialRecord.TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
         {
             List<TrialRecord.TObject> placedObjects = new List<TrialRecord.TObject>();
-            double objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
-            double areaW = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM);
+            double objW = MM2PX(ExpSizes.OBJ_WIDTH_MM);
+            double areaW = MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
 
             int maxAttemptsPerObject = 1000; // Limit attempts to prevent infinite loops
 

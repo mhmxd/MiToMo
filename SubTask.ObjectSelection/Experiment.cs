@@ -26,11 +26,6 @@ namespace SubTask.ObjectSelection
         public static int DEFAULT_PTC = 1000;
         public Technique Active_Technique = Technique.MOUSE; // Set in the info dialog
 
-        //-- Constants
-        public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
-        public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
-        public static double START_WIDTH_MM = OBJ_WIDTH_MM;
-
         public static Dictionary<string, int> BUTTON_MULTIPLES = new Dictionary<string, int>()
         {
             { Str.x3, 3 },
@@ -77,7 +72,6 @@ namespace SubTask.ObjectSelection
                 Active_Technique = Technique.MOUSE;
             }
 
-            //List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
             // Create and add blocks
             for (int i = 0; i < N_BLOCKS; i++)
             {
@@ -85,9 +79,6 @@ namespace SubTask.ObjectSelection
                 Block block = Block.CreateBlock(Active_Technique, Participant_Number, blockId, N_REP);
                 _blocks.Add(block);
             }
-
-            //CreateAltBlocks(1, targetMultiples, distRanges);
-            //CreateRepBlocks(1, targetMultiples, distRanges);
         }
 
         public int GetNumBlocks()
@@ -100,11 +91,6 @@ namespace SubTask.ObjectSelection
             int index = blockNum - 1;
             if (index < _blocks.Count()) return _blocks[index];
             else return null;
-        }
-
-        public static int GetStartHalfWidth()
-        {
-            return Utils.MM2PX(OBJ_WIDTH_MM / 2);
         }
     }
 }

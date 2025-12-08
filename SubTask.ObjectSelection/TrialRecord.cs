@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using Common.Constants;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,7 +65,7 @@ namespace SubTask.ObjectSelection
         public TrialRecord(int trialId)
         {
             Objects = new List<TObject>();
-            int objAreaW = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM);
+            int objAreaW = MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
             ObjectAreaRect = new Rect(0, 0, objAreaW, objAreaW);
             //EventCounts = new Dictionary<string, int>();
             Events = new List<TrialEvent>();

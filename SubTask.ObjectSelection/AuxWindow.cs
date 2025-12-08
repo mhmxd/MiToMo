@@ -83,10 +83,6 @@ namespace SubTask.ObjectSelection
         private MouseEventHandler _currentFuncMouseExitHandler;
         private MouseButtonEventHandler _currentNonFuncMouseDownHandler;
 
-        //public abstract void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators);
-
-        public abstract Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding);
-
         public void SetObjectConstraintRect(Rect rect)
         {
             _objectConstraintRectAbsolute = rect;
