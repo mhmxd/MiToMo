@@ -5,56 +5,30 @@
 ********************************************************/
 
 using CommunityToolkit.HighPerformance;
-using CommunityToolkit.HighPerformance.Helpers;
-using Microsoft.ML;
-using Microsoft.ML.Data;
 using Microsoft.Research.TouchMouseSensor;
-using NumSharp;
-using NumSharp.Utilities;
-using Serilog;
-using Serilog.Core;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Reflection;
-using System.Resources;
-using System.Runtime.CompilerServices;
 //using Tensorflow;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Policy;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
 //using static Tensorflow.tensorflow;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Xml.Linq;
 using WindowsInput;
-using static SubTask.Panel.Selection.BlockHandler;
+using MessageBox = System.Windows.Forms.MessageBox;
+using SysIput = System.Windows.Input;
+using SysWin = System.Windows;
 using static SubTask.Panel.Selection.Experiment;
 using static SubTask.Panel.Selection.Output;
 using static SubTask.Panel.Selection.Utils;
-using static System.Math;
-using MessageBox = System.Windows.Forms.MessageBox;
-using Seril = Serilog.Log;
-using SysDraw = System.Drawing;
-using SysIput = System.Windows.Input;
-using SysWin = System.Windows;
+using static Common.Helpers.ExpUtils;
+
 
 //using WinForms = System.Windows.Forms; // Alias for Forms namespace
 
@@ -121,11 +95,11 @@ namespace SubTask.Panel.Selection
 
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
-        private int VERTICAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
-        private int HORIZONTAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
+        private int VERTICAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
+        private int HORIZONTAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
 
-        private int TopWindowHeight = Utils.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
-        private int SideWindowWidth = Utils.MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
+        private int TopWindowHeight = MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
+        private int SideWindowWidth = MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
 
 
         // Dead zone
@@ -336,9 +310,9 @@ namespace SubTask.Panel.Selection
 
         private void CreateExperiment()
         {
-            double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            double padding = MM2PX(Config.WINDOW_PADDING_MM);
             double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
-            double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
+            double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
 
             // Distances (v.3)
             // Longest
@@ -813,7 +787,7 @@ namespace SubTask.Panel.Selection
 
         //private bool FindPosForRepTrial(Trial trial)
         //{
-        //    int startW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
+        //    int startW = MM2PX(Experiment.OBJ_WIDTH_MM);
         //    int startHalfW = startW / 2;
         //    this.TrialInfo($"Finding positions for Trial#{trial.Id} [Target = {trial.FuncSide.ToString()}, " +
         //        $"TargetMult = {trial.TargetMultiple}, D (mm) = {trial.DistanceMM:F2}]");
@@ -986,8 +960,8 @@ namespace SubTask.Panel.Selection
             // Create the square
             _startRectangle = new Rectangle
             {
-                Width = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
+                Width = MM2PX(Experiment.START_WIDTH_MM),
+                Height = MM2PX(Experiment.START_WIDTH_MM),
                 Fill = color
             };
 
@@ -1356,9 +1330,9 @@ namespace SubTask.Panel.Selection
 
         public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
-            double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            double padding = MM2PX(Config.WINDOW_PADDING_MM);
             double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
-            double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
+            double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
 
             AuxWindow auxWindow = GetAuxWindow(side);
             int id = auxWindow.SelectRandButton(widthUnits);

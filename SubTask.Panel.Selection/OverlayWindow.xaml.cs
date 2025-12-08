@@ -3,23 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.UI;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
-using Tensorflow;
-using static SubTask.Panel.Selection.Output;
-using static SubTask.Panel.Selection.Utils;
 using static System.Math;
+using static Common.Helpers.ExpUtils;
 using Seril = Serilog.Log;
 
 namespace SubTask.Panel.Selection
@@ -119,7 +108,7 @@ namespace SubTask.Panel.Selection
             //Seril.Information(Output.ToStr(_lineStart));
 
             // Find the four corners of the main region
-            _sideWinSize = Utils.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
+            _sideWinSize = MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
             _tlPoint = new Point(_sideWinSize, _sideWinSize);
             _trPoint = new Point(this.Width - _sideWinSize, _sideWinSize);
             _blPoint = new Point(_tlPoint.X, this.Height);

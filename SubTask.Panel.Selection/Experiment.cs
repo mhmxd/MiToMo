@@ -1,14 +1,8 @@
 ﻿using Common.Constants;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
-using static SubTask.Panel.Selection.Output;
-using static System.Math;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.Panel.Selection
 {
@@ -154,7 +148,7 @@ namespace SubTask.Panel.Selection
 
         public static int GetStartHalfWidth()
         {
-            return Utils.MM2PX(START_WIDTH_MM / 2);
+            return MM2PX(START_WIDTH_MM / 2);
         }
     }
 }

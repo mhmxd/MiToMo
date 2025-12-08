@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
-using static Microsoft.ML.Data.DataDebuggerPreview;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.Panel.Selection
 {
@@ -14,19 +10,19 @@ namespace SubTask.Panel.Selection
     {
         private static double ROW_HEIGHT = ButtonFactory.GetButtonHeight();
 
-        private static double SMALL_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x6] * Utils.MM2PX(Config.GRID_UNIT_MM);
-        private static double WIDE_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x18] * Utils.MM2PX(Config.GRID_UNIT_MM);
-        private static double WIDER_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x30] * Utils.MM2PX(Config.GRID_UNIT_MM);
-        private static double DROPDOWN_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x3] * Utils.MM2PX(Config.GRID_UNIT_MM);
+        private static double SMALL_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x6] * MM2PX(Config.GRID_UNIT_MM);
+        private static double WIDE_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x18] * MM2PX(Config.GRID_UNIT_MM);
+        private static double WIDER_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x30] * MM2PX(Config.GRID_UNIT_MM);
+        private static double DROPDOWN_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x3] * MM2PX(Config.GRID_UNIT_MM);
 
-        private static double GUTTER_4PX = 1 * Utils.MM2PX(Config.GRID_UNIT_MM);
-        private static double GUTTER_8PX = 2 * Utils.MM2PX(Config.GRID_UNIT_MM);
-        private static double GUTTER_12PX = 3 * Utils.MM2PX(Config.GRID_UNIT_MM);
-        private static double GUTTER_16PX = 4 * Utils.MM2PX(Config.GRID_UNIT_MM);
-        private static double GUTTER_20PX = 5 * Utils.MM2PX(Config.GRID_UNIT_MM);
+        private static double GUTTER_4PX = 1 * MM2PX(Config.GRID_UNIT_MM);
+        private static double GUTTER_8PX = 2 * MM2PX(Config.GRID_UNIT_MM);
+        private static double GUTTER_12PX = 3 * MM2PX(Config.GRID_UNIT_MM);
+        private static double GUTTER_16PX = 4 * MM2PX(Config.GRID_UNIT_MM);
+        private static double GUTTER_20PX = 5 * MM2PX(Config.GRID_UNIT_MM);
 
-        private static double HORIZONTAL_GUTTER = 3 * Utils.MM2PX(Config.GRID_UNIT_MM);
-        private static double VERRTICAL_GUTTER = 3 * Utils.MM2PX(Config.GRID_UNIT_MM);
+        private static double HORIZONTAL_GUTTER = 3 * MM2PX(Config.GRID_UNIT_MM);
+        private static double VERRTICAL_GUTTER = 3 * MM2PX(Config.GRID_UNIT_MM);
 
         private static Rectangle CreateHorizontalGutter(double gutterH)
         {
@@ -81,8 +77,8 @@ namespace SubTask.Panel.Selection
 
         public static Grid CreateModerateSideGrid()
         {
-            double column1Width = 6 * Utils.MM2PX(Config.GRID_UNIT_MM);
-            double column2Width = 30 * Utils.MM2PX(Config.GRID_UNIT_MM);
+            double column1Width = 6 * MM2PX(Config.GRID_UNIT_MM);
+            double column2Width = 30 * MM2PX(Config.GRID_UNIT_MM);
 
             Grid grid = new Grid { UseLayoutRounding = true, Width = column1Width + GUTTER_12PX + column2Width }; // Ensure UseLayoutRounding is on the Grid
 

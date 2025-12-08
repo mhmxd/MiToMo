@@ -83,39 +83,6 @@ namespace SubTask.Panel.Selection
             return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
         }
 
-        public static double DistInMM(Point p1, Point p2)
-        {
-            // Convert pixel distance to mm
-            return PX2MM(Dist(p1, p2));
-        }
-
-        //public static double DistX(Point p1, Point p2)
-        //{
-        //    return Abs(p1.x - p2.x);
-        //}
-
-        public static int MM2PX(double mm)
-        {
-            return (int)Math.Round(mm / MM_IN_INCH * ExpSizes.PPI);
-        }
-
-        //public static double MmToDips(double mm)
-        //{
-        //    return (mm / MM_IN_INCH) * DIPS_IN_INCH;
-        //}
-
-        //public static double DipsToMm(double dips)
-        //{
-        //    return (dips / DIPS_IN_INCH) * MM_IN_INCH;
-        //}
-
-        public static double PX2MM(double px)
-        {
-            return px * MM_IN_INCH / ExpSizes.PPI;
-        }
-
-
-
         public static Point Relative(Point p, Point origin)
         {
             return new Point(p.X - origin.X, p.Y - origin.Y);

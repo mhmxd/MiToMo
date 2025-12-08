@@ -1,17 +1,12 @@
-﻿using Common.Constants;
-using MathNet.Numerics;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using static SubTask.Panel.Selection.Experiment;
+using Common.Constants;
 using static SubTask.Panel.Selection.TrialRecord;
-using static Tensorflow.TensorShapeProto.Types;
+using static Common.Helpers.ExpUtils;
+using System.Windows;
+using System.Windows.Media;
 
 namespace SubTask.Panel.Selection
 {
@@ -88,11 +83,11 @@ namespace SubTask.Panel.Selection
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Show Start Trial button
-            MouseEvents startButtonEvents = new MouseEvents(
+            MouseEvents startButtonEvents = new(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStartBtn(
-                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.W),
-                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.H),    
+                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
+                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),    
                 Experiment.START_INIT_COLOR,
                 startButtonEvents);
 

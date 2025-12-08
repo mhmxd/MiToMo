@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using static Common.Helpers.ExpUtils;
 
 namespace SubTask.Panel.Selection
 {
     internal class ButtonFactory
     {
-        private static double UNIT = Utils.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
+        private static double UNIT = MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         private static double BUTTON_HEIGHT = 6 * UNIT; // Height of each row in pixels
 
         public static SButton CreateButton(int widthX)
