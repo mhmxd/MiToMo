@@ -55,6 +55,7 @@ using Seril = Serilog.Log;
 using SysDraw = System.Drawing;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
+using static Common.Helpers.ExpUtils;
 
 //using WinForms = System.Windows.Forms; // Alias for Forms namespace
 
@@ -120,11 +121,11 @@ namespace SubTask.PanelNavigation
 
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
-        private int VERTICAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
-        private int HORIZONTAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
+        private int VERTICAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
+        private int HORIZONTAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
 
-        private int TopWindowHeight = Utils.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
-        private int SideWindowWidth = Utils.MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
+        private int TopWindowHeight = MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
+        private int SideWindowWidth = MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
 
 
         // Dead zone
@@ -335,9 +336,9 @@ namespace SubTask.PanelNavigation
 
         private void CreateExperiment()
         {
-            double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            double padding = MM2PX(Config.WINDOW_PADDING_MM);
             double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
-            double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
+            double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
 
             // Distances (v.3)
             // Longest
@@ -985,8 +986,8 @@ namespace SubTask.PanelNavigation
             // Create the square
             _startRectangle = new Rectangle
             {
-                Width = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
+                Width = MM2PX(Experiment.START_WIDTH_MM),
+                Height = MM2PX(Experiment.START_WIDTH_MM),
                 Fill = color
             };
 
@@ -1334,9 +1335,9 @@ namespace SubTask.PanelNavigation
 
         public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
-            double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            double padding = MM2PX(Config.WINDOW_PADDING_MM);
             double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
-            double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
+            double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
 
             AuxWindow auxWindow = GetAuxWindow(side);
             int id = auxWindow.SelectRandButton(widthUnits);
@@ -1445,6 +1446,12 @@ namespace SubTask.PanelNavigation
         {
             _activeAuxWindow = GetAuxWindow(side);
             _activeAuxWindow.ShowStartBtn(btnW, btnH, btnColor, mouseEvents);
+        }
+
+        public void ShowStartBtn(Side side, int largerSide, Brush btnColor, MouseEvents mouseEvents)
+        {
+            _activeAuxWindow = GetAuxWindow(side);
+            _activeAuxWindow.ShowStartBtn(largerSide, btnColor, mouseEvents);
         }
 
         public void ChangeStartBtnColor(Side side, Brush color)

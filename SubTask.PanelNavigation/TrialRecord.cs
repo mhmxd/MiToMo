@@ -306,7 +306,7 @@ namespace SubTask.PanelNavigation
             if (type == Str.TAP_UP)
             {
                 long endTime = GetLastFingerActionTime(type);
-                this.TrialInfo($"End Time: {endTime}");
+                //this.TrialInfo($"End Time: {endTime}");
                 var gestureStartTimestamp = Events.LastOrDefault(ts => ts.Type == Str.DOWN && ts.Time < endTime);
                 if (gestureStartTimestamp != null)
                 {
@@ -419,18 +419,18 @@ namespace SubTask.PanelNavigation
         public int GetDuration(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"Start time ({startLabel}): {startTime}");
+            //this.TrialInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time ({endLabel}): {endTime}");
+            //this.TrialInfo($"End time ({endLabel}): {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
         public int GetDurtionToFirstAfter(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"Start time ({startLabel}): {startTime}");
+            //this.TrialInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetFirstAfterLast(startLabel, endLabel);
-            this.TrialInfo($"End time ({endLabel}): {endTime}");
+            //this.TrialInfo($"End time ({endLabel}): {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
@@ -480,12 +480,12 @@ namespace SubTask.PanelNavigation
                 if (Events[i].Type == startType)
                 {
                     occurrenceCount++;
-                    this.TrialInfo($"nOccurences of {startType}: {occurrenceCount}");
+                    //this.TrialInfo($"nOccurences of {startType}: {occurrenceCount}");
                     // 2. Check if this is the N-th occurrence we are looking for
                     if (occurrenceCount == n)
                     {
                         var startTime = Events[i].Time; // Capture the start time
-                        this.TrialInfo($"Start time of {n}th {startType}: {startTime}");
+                        //this.TrialInfo($"Start time of {n}th {startType}: {startTime}");
 
                         // 3. Found the N-th start. Now, look *forward* for the first end event
                         for (int j = i + 1; j < Events.Count; j++)
@@ -494,7 +494,7 @@ namespace SubTask.PanelNavigation
                             {
                                 // Found the corresponding end event
                                 var endTime = Events[j].Time;
-                                this.TrialInfo($"End time of {n}th {endType}: {endTime}");
+                                //this.TrialInfo($"End time of {n}th {endType}: {endTime}");
                                 // 4. Return the calculated duration
                                 return Utils.GetDuration(startTime, endTime);
                             }
@@ -515,13 +515,13 @@ namespace SubTask.PanelNavigation
 
         public int GetLastSeqDuration(string startLabel, string endLabel)
         {
-            this.TrialInfo($"From {startLabel} to {endLabel}");
+            //this.TrialInfo($"From {startLabel} to {endLabel}");
             if (Events == null || Events.Count == 0)
                 return -1;
 
             // find the last occurrence of endType
             int afterIndex = Events.FindLastIndex(t => t.Type == endLabel);
-            this.TrialInfo($"Index of {endLabel}: {afterIndex}");
+            //this.TrialInfo($"Index of {endLabel}: {afterIndex}");
             if (afterIndex < 0)
                 return -1;
 
@@ -530,8 +530,8 @@ namespace SubTask.PanelNavigation
             {
                 if (Events[i].Type == startLabel)
                 {
-                    this.TrialInfo($"Start time {startLabel}: {Events[i].Time}");
-                    this.TrialInfo($"End time {endLabel}: {Events[afterIndex].Time}");
+                    //this.TrialInfo($"Start time {startLabel}: {Events[i].Time}");
+                    //this.TrialInfo($"End time {endLabel}: {Events[afterIndex].Time}");
                     return Utils.GetDuration(
                         Events[i].Time,
                         Events[afterIndex].Time
@@ -545,36 +545,36 @@ namespace SubTask.PanelNavigation
         public int GetDurationToGestureStart(string startLabel, Technique technique)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"StartTime {startLabel}: {startTime}");
+            //this.TrialInfo($"StartTime {startLabel}: {startTime}");
             long endTime = GetGestureStartTime(technique);
-            this.TrialInfo($"End time {technique}: {endTime}");
+            //this.TrialInfo($"End time {technique}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromGestureEnd(Technique technique, string endLabel)
         {
             long startTime = GetGestureEndTimestamp(technique);
-            this.TrialInfo($"Start time {technique}: {startTime}");
+            //this.TrialInfo($"Start time {technique}: {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time {endLabel}: {endTime}");
+            //this.TrialInfo($"End time {endLabel}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
         public int GetDurationToFingerAction(string type, string action)
         {
             long startTime = GetLastTime(type);
-            this.TrialInfo($"Start time {type}: {startTime}");
+            //this.TrialInfo($"Start time {type}: {startTime}");
             long endTime = GetFirstAfterLast(type, action);
-            this.TrialInfo($"End time {action}: {endTime}");
+            //this.TrialInfo($"End time {action}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromFingerAction(string action, string endLabel)
         {
             long startTime = GetLastFingerActionTime(action);
-            this.TrialInfo($"Start time {action}: {startTime}");
+            //this.TrialInfo($"Start time {action}: {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time {endLabel}: {endTime}");
+            //this.TrialInfo($"End time {endLabel}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 

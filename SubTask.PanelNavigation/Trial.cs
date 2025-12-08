@@ -85,7 +85,7 @@ namespace SubTask.PanelNavigation
 
         public string ToStr()
         {
-            return $"Trial#{Id} [Target = {FuncSide.ToString()}";
+            return $"Trial#{Id} [Target = {FuncSide.ToString()}]";
         }
 
         public bool IsTechniqueToMo()

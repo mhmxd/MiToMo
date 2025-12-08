@@ -12,6 +12,7 @@ using static SubTask.PanelNavigation.Experiment;
 using static SubTask.PanelNavigation.TrialRecord;
 using static Tensorflow.TensorShapeProto.Types;
 using Common.Constants;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.PanelNavigation
 {
@@ -79,7 +80,7 @@ namespace SubTask.PanelNavigation
             LogEvent(Str.TRIAL_SHOW, _activeTrial.Id);
 
             // Start logging cursor positions
-            ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
+            ExperiLogger.StartTrialCursorLog(_activeTrial.Id, _activeTrialNum);
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
@@ -92,10 +93,16 @@ namespace SubTask.PanelNavigation
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStartBtn(
                 _activeTrial.FuncSide,
-                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.W),
-                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.H),
+                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
                 Experiment.START_INIT_COLOR,
                 startButtonEvents);
+
+            // Color a random function button in the aux window and set the width in trialRecord
+            TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, Config.FUNCTION_DEFAULT_COLOR);
+            _activeTrialRecord.Functions.Add(selectedFunc);
+
+            // Show the marker on a random function button
+            _mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide, selectedFunc.Id);
 
             // Update info label
             _mainWindow.UpdateInfoLabel();
@@ -350,7 +357,7 @@ namespace SubTask.PanelNavigation
                 }
                 else
                 {
-                    EndActiveTrial(Result.MISS);
+                    // End trial on release
                 }
             }
 
@@ -387,13 +394,6 @@ namespace SubTask.PanelNavigation
                 // Change the START to END and deactivate the button
                 _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_UNAVAILABLE_COLOR);
                 _mainWindow.ChangeStartBtnLabel(_activeTrial.FuncSide, Str.END_CAP);
-
-                // Color a random function button in the aux window and set the width in trialRecord
-                TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, Config.FUNCTION_DEFAULT_COLOR);
-                _activeTrialRecord.Functions.Add(selectedFunc);
-
-                // Show the marker on a random function button
-                _mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide, selectedFunc.Id);
             }
             else // Pressed outside the button => miss
             {

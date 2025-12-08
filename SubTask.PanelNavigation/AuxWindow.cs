@@ -530,6 +530,39 @@ namespace SubTask.PanelNavigation
             //--> Positioning is handled in the derived classes
         }
 
+        public virtual void ShowStartBtn(int largerSide, Brush btnColor, MouseEvents btnEvents)
+        {
+            // Create the start button
+            _startButton = new Border
+            {
+                // Will be changed in the overridden method
+                Width = 0,
+                Height = 0, 
+                Background = btnColor,
+                BorderBrush = Brushes.Black,
+            };
+
+            // Add label inside
+            var label = new TextBlock
+            {
+                Text = Str.START_CAP,
+                HorizontalAlignment = SysWin.HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextAlignment = TextAlignment.Center,
+                FontSize = Config.TRIAL_START_BUTTON_FONT_SIZE,
+                Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
+            };
+            _startButton.Child = label;
+
+            // Add event handlers
+            _startButton.MouseEnter += btnEvents.MouseEnter;
+            _startButton.MouseLeave += btnEvents.MouseLeave;
+            _startButton.MouseDown += btnEvents.MouseDown;
+            _startButton.MouseUp += btnEvents.MouseUp;
+
+            //--> Rest is implemented in the subclass
+        }
+
         public virtual void RemoveStartBtn()
         {
             
