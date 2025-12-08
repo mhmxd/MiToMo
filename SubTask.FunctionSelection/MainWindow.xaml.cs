@@ -5,56 +5,28 @@
 ********************************************************/
 
 using CommunityToolkit.HighPerformance;
-using CommunityToolkit.HighPerformance.Helpers;
-using Microsoft.ML;
-using Microsoft.ML.Data;
 using Microsoft.Research.TouchMouseSensor;
-using NumSharp;
-using NumSharp.Utilities;
-using Serilog;
-using Serilog.Core;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Reflection;
-using System.Resources;
-using System.Runtime.CompilerServices;
-//using Tensorflow;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Policy;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
-//using static Tensorflow.tensorflow;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Xml.Linq;
 using WindowsInput;
-using static SubTask.FunctionSelection.BlockHandler;
-using static SubTask.FunctionSelection.Experiment;
-using static SubTask.FunctionSelection.Output;
-using static SubTask.FunctionSelection.Utils;
-using static System.Math;
+using Common.Constants;
 using MessageBox = System.Windows.Forms.MessageBox;
-using Seril = Serilog.Log;
-using SysDraw = System.Drawing;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
+using static SubTask.FunctionSelection.Experiment;
+using static SubTask.FunctionSelection.Output;
+using static Common.Constants.ExpEnums;
+using static Common.Helpers.ExpUtils;
 
 //using WinForms = System.Windows.Forms; // Alias for Forms namespace
 
@@ -132,11 +104,11 @@ namespace SubTask.FunctionSelection
 
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
-        private int VERTICAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
-        private int HORIZONTAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
+        private int VERTICAL_PADDING = MM2PX(ExpSizes.WINDOW_PADDING_MM); // Padding for the windows
+        private int HORIZONTAL_PADDING = MM2PX(ExpSizes.WINDOW_PADDING_MM); // Padding for the windows
 
-        private int TopWindowHeight = Utils.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
-        private int SideWindowWidth = Utils.MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
+        private int TopWindowHeight = MM2PX(ExpSizes.TOP_WINDOW_HEIGTH_MM);
+        private int SideWindowWidth = MM2PX(ExpSizes.SIDE_WINDOW_WIDTH_MM);
 
 
         // Dead zone
@@ -155,7 +127,6 @@ namespace SubTask.FunctionSelection
         private AuxWindow _leftWindow;
         private AuxWindow _rightWindow;
         private AuxWindow _activeAuxWindow;
-        private OverlayWindow _overlayWindow;
 
         private double _monitorHeightMM;
 
@@ -213,7 +184,6 @@ namespace SubTask.FunctionSelection
 
         //--- Radiusor
         private int _actionPointerInd = -1;
-        private Pointer _actionPointer;
         private Point _lastRotPointerPos = new Point(-1, -1);
         private Point _lastPlusPointerPos = new Point(-1, -1);
         private Point _lastMiddlePointerPos = new Point(-1, -1);
@@ -347,13 +317,13 @@ namespace SubTask.FunctionSelection
 
         private void CreateExperiment()
         {
-            double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
-            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
+            double padding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
+            double objHalfWidth = MM2PX(OBJ_WIDTH_MM) / 2;
+            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double startHalfWidth = OBJ_WIDTH_MM / 2;
-            double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
-            //double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
-            double objAreaHalfWidth = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
+            double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
+            //double objAreaRadius = MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
+            double objAreaHalfWidth = MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
 
             // Distances (v.3)
             // Longest
@@ -839,7 +809,7 @@ namespace SubTask.FunctionSelection
             // Add label inside
             var label = new TextBlock
             {
-                Text = Str.START,
+                Text = ExpStrs.START,
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
@@ -849,7 +819,7 @@ namespace SubTask.FunctionSelection
             _startButton.Child = label;
 
             // Position the start button vertically centered, under the top or next to the side panels
-            //int dist = Utils.MM2PX(10);
+            //int dist = MM2PX(10);
             //switch (panelSide)
             //{
             //    case Side.Left:
@@ -889,7 +859,7 @@ namespace SubTask.FunctionSelection
             // Change the start color
             auxWindow.ChangeStartColor(Config.START_UNAVAILABLE_COLOR);
             // Make the text "End"
-            auxWindow.ChangeStartText(Str.END);
+            auxWindow.ChangeStartText(ExpStrs.END);
         }
 
         public void ClearCanvas()
@@ -1088,12 +1058,12 @@ namespace SubTask.FunctionSelection
 
         public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
-            double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
-            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
+            double padding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
+            double objHalfWidth = MM2PX(OBJ_WIDTH_MM) / 2;
+            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double startHalfWidth = OBJ_WIDTH_MM / 2;
-            double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
-            double objAreaHalfWidth = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
+            double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
+            double objAreaHalfWidth = MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
 
             // Find the Rect for the object area
             Rect objAreaRect = new Rect(
@@ -1173,8 +1143,8 @@ namespace SubTask.FunctionSelection
         public Rect GetObjAreaCenterConstraintRect()
         {
             // Square
-            double padding = Utils.MM2PX(VERTICAL_PADDING);
-            double objAreaHalfWidth = Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2);
+            double padding = MM2PX(VERTICAL_PADDING);
+            double objAreaHalfWidth = MM2PX(OBJ_AREA_WIDTH_MM / 2);
             return new Rect(
                 this.Left + padding + objAreaHalfWidth,
                 this.Top + padding + objAreaHalfWidth,
@@ -1239,13 +1209,13 @@ namespace SubTask.FunctionSelection
         public void ShowStartTrialButton(Rect objAreaRect, MouseEvents mouseEvents)
         {
             //canvas.Children.Clear(); // Clear the canvas before adding the button
-            int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            int padding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
 
             // Create the "button" as a Border with text inside
             _startButton = new Border
             {
-                Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
-                Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
+                Width = MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
+                Height = MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
                 Background = Config.LIGHT_PURPLE,
                 BorderBrush = Brushes.Black,
                 //BorderThickness = new Thickness(2),

@@ -14,6 +14,7 @@ namespace Common.Constants
         public static double GUTTER_05MM = 0.5; // Space in-between the grid elements within a group
         public static double GRID_ROW_HEIGHT_MM = 6 * GRID_UNIT_MM; // Height of the grid rows (= 24px)
         public static double GRID_UNIT_MM = 1; // Unit of measurement for the grid (1mm = 4px)
+        
         public static Dictionary<string, int> BUTTON_MULTIPLES = new Dictionary<string, int>()
         {
             { ExpStrs.x3, 3 },
@@ -25,9 +26,14 @@ namespace Common.Constants
             { ExpStrs.x36, 36 }
         };
 
+        public static readonly double MAX_GROUP_WIDTH_MM = 2 * BUTTON_MULTIPLES[ExpStrs.x18] + GUTTER_05MM; // Max width of a group (mm)
+        public static readonly double COLUMN_HEIGHT_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GUTTER_05MM; // Height of a column (mm)
+        public static double SIDE_COL_MAX_WIDTH_MM = 2 * BUTTON_MULTIPLES[ExpStrs.x15] + GUTTER_05MM;
+
+
         //--- Windows ----------------------------------------------------
         public static readonly double WINDOW_PADDING_MM = 10;
-        public static double SIDE_COL_MAX_WIDTH_MM = 2 * BUTTON_MULTIPLES[ExpStrs.x15] + GUTTER_05MM;
+  
         public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * WINDOW_PADDING_MM + GUTTER_05MM;
         public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GUTTER_05MM + 2 * WINDOW_PADDING_MM;
 

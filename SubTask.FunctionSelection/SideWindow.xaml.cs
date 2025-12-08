@@ -1,25 +1,17 @@
-﻿using SkiaSharp;
-using SkiaSharp.Views.WPF;
-using Svg.Skia;
+﻿using Common.Constants;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Windows.Threading;
 using WindowsInput;
+using static Common.Constants.ExpEnums;
+using static Common.Helpers.ExpUtils;
 using static SubTask.FunctionSelection.Output;
 using Seril = Serilog.Log;
 
@@ -34,11 +26,11 @@ namespace SubTask.FunctionSelection
 
         private Random _random = new Random();
 
-        private double HorizontalPadding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-        private double VerticalPadding = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
+        private double HorizontalPadding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
+        private double VerticalPadding = MM2PX(ExpSizes.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
 
-        private double InterGroupGutter = Utils.MM2PX(Config.GUTTER_05MM);
-        private double WithinGroupGutter = Utils.MM2PX(Config.GUTTER_05MM);
+        private double InterGroupGutter = MM2PX(ExpSizes.GUTTER_05MM);
+        private double WithinGroupGutter = MM2PX(ExpSizes.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -87,7 +79,7 @@ namespace SubTask.FunctionSelection
         {
             InitializeComponent();
             //WindowTitle = title;
-            Side = side;
+            WindowSide = side;
             this.DataContext = this; // Set DataContext for data binding
 
             EnableMouseInPointer(true);
@@ -125,14 +117,14 @@ namespace SubTask.FunctionSelection
             // Radius in pixels
             //const double PPI = 109;
             //const double MM_IN_INCH = 25.4;
-            int targetWidth = Utils.MM2PX(widthMM);
+            int targetWidth = MM2PX(widthMM);
 
             // Get canvas dimensions
             int canvasWidth = (int)canvas.ActualWidth;
             int canvasHeight = (int)canvas.ActualHeight;
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            int marginPX = MM2PX(ExpSizes.WINDOW_PADDING_MM);
             int minX = marginPX;
             int maxX = canvasWidth - marginPX - targetWidth;
             int minY = marginPX;
@@ -613,7 +605,7 @@ namespace SubTask.FunctionSelection
 
             // Position the Start rectangle on the bottom (based on the last button's position)
             int distanceFromEdgeMM = 20; // Distance from the bottom edge in mm
-            double startY = _gridBottomY + Utils.MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
+            double startY = _gridBottomY + MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
             double startX = (this.Width - _startButton.Width) / 2; // Center horizontally
             Canvas.SetLeft(_startButton, startX);
             Canvas.SetTop(_startButton, startY);
@@ -632,7 +624,7 @@ namespace SubTask.FunctionSelection
             //    if (bottommostButton != null)
             //    {
             //        double bottommostY = Canvas.GetTop(bottommostButton) + bottommostButton.ActualHeight;
-            //        double startY = bottommostY + Utils.MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
+            //        double startY = bottommostY + MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
             //        double startX = (this.Width - _startRect.Width) / 2; // Center horizontally
             //        Canvas.SetLeft(_startRect, startX);
             //        Canvas.SetTop(_startRect, startY);

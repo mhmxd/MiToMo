@@ -1,17 +1,12 @@
-﻿using MathNet.Numerics;
+﻿using Common.Constants;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Common.Constants;
-using static SubTask.FunctionSelection.Experiment;
-using static SubTask.FunctionSelection.TrialRecord;
-using static Tensorflow.TensorShapeProto.Types;
+using static Common.Helpers.ExpUtils;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionSelection
 {
@@ -42,7 +37,7 @@ namespace SubTask.FunctionSelection
         public void BeginActiveBlock()
         {
             this.TrialInfo("------------------- Beginning block ----------------------------");
-            this.TrialInfo(Str.MINOR_LINE);
+            this.TrialInfo(ExpStrs.MINOR_LINE);
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
@@ -60,10 +55,10 @@ namespace SubTask.FunctionSelection
 
         public virtual void ShowActiveTrial()
         {
-            this.TrialInfo(Str.MINOR_LINE);
+            this.TrialInfo(ExpStrs.MINOR_LINE);
             this.TrialInfo($"Showing " + _activeTrial.ToStr());
 
-            LogEvent(Str.TRIAL_SHOW, _activeTrial.Id);
+            LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
 
             // Start logging cursor positions
             ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
@@ -75,11 +70,11 @@ namespace SubTask.FunctionSelection
             //_mainWindow.ClearCanvas();
 
             // Show Start Trial button
-            MouseEvents startButtonEvents = new MouseEvents(
+            MouseEvents startButtonEvents = new(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStart(
-                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.W),
-                Utils.MM2PX(ExpSizes.START_BUTTON_DIM_MM.H),
+                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
+                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
                 Experiment.START_INIT_COLOR,
                 startButtonEvents);
 
@@ -101,16 +96,16 @@ namespace SubTask.FunctionSelection
         public virtual void EndActiveTrial(Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
-            this.TrialInfo(Str.MAJOR_LINE);
+            this.TrialInfo(ExpStrs.MAJOR_LINE);
             _activeTrialRecord.Result = result;
-            LogEvent(Str.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
+            LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
 
             switch (result)
             {
                 case Result.HIT:
                     Sounder.PlayHit();
-                    double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
-                    _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                    double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
+                    _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
                 case Result.MISS:
                     Sounder.PlayTargetMiss();
@@ -205,7 +200,7 @@ namespace SubTask.FunctionSelection
 
         public virtual void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.MAIN_WIN_PRESS);
+            LogEvent(ExpStrs.MAIN_WIN_PRESS);
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
@@ -220,7 +215,7 @@ namespace SubTask.FunctionSelection
         }
         public virtual void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
         {
-            LogEventOnce(Str.FIRST_MOVE);
+            LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
             ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
@@ -238,12 +233,12 @@ namespace SubTask.FunctionSelection
 
         public void OnAuxWindowMouseEnter(Side side, Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.PNL_ENTER, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_ENTER, side.ToString().ToLower());
         }
 
         public void OnAuxWindowMouseDown(Side side, Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.PNL_PRESS, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_PRESS, side.ToString().ToLower());
 
             if (!IsStartClicked())
             {
@@ -263,7 +258,7 @@ namespace SubTask.FunctionSelection
         }
         public void OnAuxWindowMouseUp(Side side, Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.PNL_RELEASE, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_RELEASE, side.ToString().ToLower());
 
             if (IsStartPressed()) // Pressed in Start, released in aux window
             {
@@ -275,115 +270,40 @@ namespace SubTask.FunctionSelection
 
         public void OnAuxWindowMouseExit(Side side, Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.PNL_EXIT, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_EXIT, side.ToString().ToLower());
         }
 
         public virtual void OnObjectMouseEnter(Object sender, MouseEventArgs e)
         {
             // If the last timestamp was ARA_EXIT, remove that
-            if (_activeTrialRecord.GetLastTrialEventType() == Str.ARA_EXIT) _activeTrialRecord.RemoveLastTimestamp();
+            if (_activeTrialRecord.GetLastTrialEventType() == ExpStrs.ARA_EXIT) _activeTrialRecord.RemoveLastTimestamp();
             var objId = (int)((FrameworkElement)sender).Tag;
 
             // Add the id to the list of visited if not already there (will use the index for the order of visit)
-            LogEvent(Str.OBJ_ENTER, objId);
+            LogEvent(ExpStrs.OBJ_ENTER, objId);
 
             // Log the event
-            LogEvent(Str.OBJ_ENTER, objId);
+            LogEvent(ExpStrs.OBJ_ENTER, objId);
         }
 
         public virtual void OnObjectMouseLeave(Object sender, MouseEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_EXIT, objId);
+            LogEvent(ExpStrs.OBJ_EXIT, objId);
         }
-
-        //public virtual void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)
-        //{
-        //    var objId = (int)((FrameworkElement)sender).Tag;
-        //    LogEvent(Str.OBJ_PRESS, objId);
-
-        //    // Rest of the handling is done in the derived classes
-        //}
-
-        //public virtual void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
-        //{
-        //    var objId = (int)((FrameworkElement)sender).Tag;
-        //    LogEvent(Str.OBJ_RELEASE, objId);
-
-        //    // Rest of the handling is done in the derived classes
-        //}
-
-        //---- Object area
-        //public virtual void OnObjectAreaMouseEnter(Object sender, MouseEventArgs e)
-        //{
-        //    // Only log if entered from outside (NOT from the object)
-        //    if (_activeTrialRecord.GetLastTrialEventType() != Str.OBJ_EXIT) LogEvent(Str.ARA_ENTER);
-        //}
-
-        //public virtual void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
-        //{
-
-        //    if (!IsStartClicked()) // Start button not clicked yet
-        //    {
-        //        Sounder.PlayStartMiss();
-        //        e.Handled = true; // Mark the event as handled to prevent further processing
-        //        return;
-        //    }
-
-        //    if (!_activeTrialRecord.AreAllObjectsApplied())
-        //    {
-        //        e.Handled = true; // Mark the event as handled to prevent further processing
-        //        EndActiveTrial(Result.MISS);
-        //    }
-
-        //    LogEvent(Str.ARA_PRESS);
-
-        //    e.Handled = true; // Mark the event as handled to prevent further processing
-        //}
-
-        //public virtual void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)
-        //{
-        //    LogEvent(Str.ARA_RELEASE);
-
-        //    if (!IsStartClicked())
-        //    {
-        //        this.TrialInfo($"Start wasn't clicked");
-        //        Sounder.PlayStartMiss();
-        //        e.Handled = true; // Mark the event as handled to prevent further processing
-        //        return; // Do nothing if start button was not clicked
-        //    }
-
-        //    if (_activeTrialRecord.AreAllObjectsApplied())
-        //    {
-        //        EndActiveTrial(Result.HIT);
-        //    }
-        //    else
-        //    {
-        //        this.TrialInfo($"Not all objects applied");
-        //        EndActiveTrial(Result.MISS);
-        //    }
-
-        //    e.Handled = true; // Mark the event as handled to prevent further processing
-        //}
-
-        //public virtual void OnObjectAreaMouseExit(Object sender, MouseEventArgs e)
-        //{
-        //    // Will be later removed if entered the object
-        //    LogEvent(Str.ARA_EXIT);
-        //}
 
         ////---- Function
         public virtual void OnFunctionMouseEnter(Object sender, MouseEventArgs e)
         {
             // Add the id to the list of visited if not already there (will use the index for the order of visit)
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_ENTER, funId);
+            LogEvent(ExpStrs.FUN_ENTER, funId);
         }
 
         public virtual void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_PRESS, funId);
+            LogEvent(ExpStrs.FUN_PRESS, funId);
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
@@ -397,10 +317,10 @@ namespace SubTask.FunctionSelection
         public virtual void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_RELEASE, funId);
+            LogEvent(ExpStrs.FUN_RELEASE, funId);
 
             // If the trial has already ended, ignore further events
-            //if (_activeTrialRecord.GetLastTrialEventType() == Str.TRIAL_END)
+            //if (_activeTrialRecord.GetLastTrialEventType() == ExpStrs.TRIAL_END)
             //{
             //    e.Handled = true;
             //    return;
@@ -416,10 +336,11 @@ namespace SubTask.FunctionSelection
             // Apply the function
             SetFunctionAsApplied(funId);
 
-            // If all functions are applied, make Start button available
+            // If all functions are applied => end trial with HIT
             if (_activeTrialRecord.AreAllFunctionsApplied())
             {
-                _mainWindow.ChangeStartButtonColor(Config.FUNCTION_ENABLED_COLOR);
+                EndActiveTrial(Result.HIT);
+                //_mainWindow.ChangeStartButtonColor(Config.FUNCTION_ENABLED_COLOR);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -428,7 +349,7 @@ namespace SubTask.FunctionSelection
         public virtual void OnFunctionMouseExit(Object sender, MouseEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_EXIT, funId);
+            LogEvent(ExpStrs.FUN_EXIT, funId);
         }
 
         public void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
@@ -446,12 +367,12 @@ namespace SubTask.FunctionSelection
 
         public void OnStartButtonMouseEnter(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.STR_ENTER);
+            LogEvent(ExpStrs.STR_ENTER);
         }
 
         public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.STR_PRESS);
+            LogEvent(ExpStrs.STR_PRESS);
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -459,13 +380,15 @@ namespace SubTask.FunctionSelection
 
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.STR_RELEASE);
+            LogEvent(ExpStrs.STR_RELEASE);
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
-            var startButtonPressed = GetEventCount(Str.STR_PRESS) > 0;
+            var startButtonPressed = GetEventCount(ExpStrs.STR_PRESS) > 0;
             if (startButtonPressed)
             {
-                _mainWindow.SwitchStartToEnd(_activeTrial.FuncSide);
+                //_mainWindow.SwitchStartToEnd(_activeTrial.FuncSide);
+                // Remove the Start
+                _mainWindow.RemoveStartTrialButton();
                 UpdateScene();
             }
             else // Press was outside the button => miss
@@ -484,7 +407,7 @@ namespace SubTask.FunctionSelection
                 _mainWindow.EnableFunctions(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
 
                 // Change START to END and unavailable (until all functions are applied)
-                _mainWindow.ChangeStartButtonText(Str.END);
+                _mainWindow.ChangeStartButtonText(ExpStrs.END);
                 _mainWindow.ChangeStartButtonColor(Config.DARK_ORANGE);
             }
 
@@ -493,13 +416,13 @@ namespace SubTask.FunctionSelection
 
         public void OnStartButtonMouseExit(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.STR_EXIT);
+            LogEvent(ExpStrs.STR_EXIT);
         }
 
         public virtual void OnFunctionMarked(int funId)
         {
             _activeTrialRecord.MarkFunction(funId);
-            LogEvent(Str.FUN_MARKED, funId.ToString());
+            LogEvent(ExpStrs.FUN_MARKED, funId.ToString());
 
             UpdateScene();
         }
@@ -507,7 +430,7 @@ namespace SubTask.FunctionSelection
         public virtual void OnFunctionUnmarked(int funId)
         {
             _activeTrialRecord.UnmarkFunction(funId);
-            LogEvent(Str.FUN_DEMARKED, funId.ToString());
+            LogEvent(ExpStrs.FUN_DEMARKED, funId.ToString());
 
             UpdateScene();
         }
@@ -553,7 +476,7 @@ namespace SubTask.FunctionSelection
                     case ButtonState.MARKED:
                         funcColor = Config.FUNCTION_ENABLED_COLOR;
                         break;
-                    case ButtonState.APPLIED:
+                    case ButtonState.SELECTED:
                         funcColor = Config.FUNCTION_APPLIED_COLOR;
                         break;
                 }
@@ -623,12 +546,12 @@ namespace SubTask.FunctionSelection
 
         protected bool IsStartPressed()
         {
-            return GetEventCount(Str.STR_PRESS) > 0;
+            return GetEventCount(ExpStrs.STR_PRESS) > 0;
         }
 
         protected bool IsStartClicked()
         {
-            return GetEventCount(Str.STR_RELEASE) > 0;
+            return GetEventCount(ExpStrs.STR_RELEASE) > 0;
         }
     }
 

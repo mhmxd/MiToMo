@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using Common.Constants;
+using System;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-//using System.Windows.Forms;
-using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using System.Windows.Threading;
-using static SubTask.FunctionSelection.Output;
+using static Common.Constants.ExpEnums;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.FunctionSelection
 {
@@ -25,8 +17,6 @@ namespace SubTask.FunctionSelection
     /// </summary>
     public partial class TopWindow : AuxWindow
     {
-        private double HORIZONTAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-        private double InterGroupGutter = Utils.MM2PX(Config.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -45,7 +35,7 @@ namespace SubTask.FunctionSelection
         public TopWindow()
         {
             InitializeComponent();
-            Side = Side.Top;
+            WindowSide = Side.Top;
             //this.DataContext = this; // Set DataContext for data binding
 
             EnableMouseInPointer(true);
@@ -135,7 +125,7 @@ namespace SubTask.FunctionSelection
 
             // Position the Start rectangle on the right side (based on the last button's position)
             int distanceFromEdgeMM = 20; // Distance from the right edge in mm
-            double startX = _gridRightX + Utils.MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
+            double startX = _gridRightX + MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
             double startY = (this.Height - _startButton.Height) / 2; // Center vertically
             Canvas.SetLeft(_startButton, startX);
             Canvas.SetTop(_startButton, startY);

@@ -1,18 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms.VisualStyles;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using static SubTask.FunctionSelection.Block;
+using Common.Constants;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionSelection
 {
@@ -35,10 +26,10 @@ namespace SubTask.FunctionSelection
             InitializeComponent();
 
             ParticipantNumberTextBox.Text = Experiment.DEFAULT_PTC.ToString();
-            TechniqueComboBox.ItemsSource = new string[] { Str.TOUCH_MOUSE_TAP, Str.TOUCH_MOUSE_SWIPE, Str.MOUSE };
-            TechniqueComboBox.SelectedValue = Str.MOUSE;
-            ExperimentComboBox.ItemsSource = new string[] { Str.PRACTICE, Str.TEST };
-            ExperimentComboBox.SelectedValue = Str.PRACTICE;
+            TechniqueComboBox.ItemsSource = new string[] { ExpStrs.TOUCH_MOUSE_TAP, ExpStrs.TOUCH_MOUSE_SWIPE, ExpStrs.MOUSE };
+            TechniqueComboBox.SelectedValue = ExpStrs.MOUSE;
+            ExperimentComboBox.ItemsSource = new string[] { ExpStrs.PRACTICE, ExpStrs.TEST };
+            ExperimentComboBox.SelectedValue = ExpStrs.PRACTICE;
         }
 
         private async void BeginButton_ClickAsync(object sender, RoutedEventArgs e)

@@ -1,18 +1,11 @@
 ﻿using Common.Constants;
-using MathNet.Numerics.Integration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
-using Tensorflow.Operations;
-using static SubTask.FunctionSelection.Output;
 using static System.Math;
-using static System.Windows.Rect;
+using static Common.Constants.ExpEnums;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.FunctionSelection
 {
@@ -102,33 +95,6 @@ namespace SubTask.FunctionSelection
             // Convert pixel distance to mm
             return PX2MM(Dist(p1, p2));
         }
-
-        //public static double DistX(Point p1, Point p2)
-        //{
-        //    return Abs(p1.x - p2.x);
-        //}
-
-        public static int MM2PX(double mm)
-        {
-            return (int)Math.Round(mm / MM_IN_INCH * ExpSizes.PPI);
-        }
-
-        //public static double MmToDips(double mm)
-        //{
-        //    return (mm / MM_IN_INCH) * DIPS_IN_INCH;
-        //}
-
-        //public static double DipsToMm(double dips)
-        //{
-        //    return (dips / DIPS_IN_INCH) * MM_IN_INCH;
-        //}
-
-        public static double PX2MM(double px)
-        {
-            return px * MM_IN_INCH / ExpSizes.PPI;
-        }
-
-
 
         public static Point Relative(Point p, Point origin)
         {

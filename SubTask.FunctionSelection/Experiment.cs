@@ -1,14 +1,10 @@
-﻿using System;
+﻿using Common.Constants;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
-using static SubTask.FunctionSelection.Output;
-using static System.Math;
-using Common.Constants;
+using static Common.Constants.ExpEnums;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.FunctionSelection
 {
@@ -34,13 +30,13 @@ namespace SubTask.FunctionSelection
         //public static List<int> TOP_BUTTONS_WIDTH_MULTIPLES = new List<int>() { 3, 6, 15, 18, 30 }; // Multiples of the UNIT (1mm = 4px) widths for top buttons
         public static Dictionary<string, int> BUTTON_MULTIPLES = new Dictionary<string, int>()
         {
-            { Str.x3, 3 },
-            { Str.x6, 6 },
-            { Str.x12, 12 },
-            { Str.x15, 15 },
-            { Str.x18, 18 },
-            { Str.x30, 30 },
-            { Str.x36, 36 }
+            { ExpStrs.x3, 3 },
+            { ExpStrs.x6, 6 },
+            { ExpStrs.x12, 12 },
+            { ExpStrs.x15, 15 },
+            { ExpStrs.x18, 18 },
+            { ExpStrs.x30, 30 },
+            { ExpStrs.x36, 36 }
         };
 
         public static Dictionary<Complexity, Dictionary<Side, List<int>>> BUTTON_WIDTHS = new Dictionary<Complexity, Dictionary<Side, List<int>>>()
@@ -124,9 +120,9 @@ namespace SubTask.FunctionSelection
             double twoThird = Shortest_Dist_MM + distDiff * 2 / 3;
 
             // Set the distRanges
-            _shortDistRangeMM = new Range(Shortest_Dist_MM, oneThird - Dist_PADDING_MM, Str.SHORT_DIST); // Short distances range
-            _midDistRangeMM = new Range(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM, Str.MID_DIST); // Middle distances range (will be set later)
-            _longDistRangeMM = new Range(twoThird + Dist_PADDING_MM, Longest_Dist_MM, Str.LONG_DIST); // Long distances range
+            _shortDistRangeMM = new Range(Shortest_Dist_MM, oneThird - Dist_PADDING_MM, ExpStrs.SHORT_DIST); // Short distances range
+            _midDistRangeMM = new Range(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM, ExpStrs.MID_DIST); // Middle distances range (will be set later)
+            _longDistRangeMM = new Range(twoThird + Dist_PADDING_MM, Longest_Dist_MM, ExpStrs.LONG_DIST); // Long distances range
 
             this.TrialInfo($"Short dist range (mm): {_shortDistRangeMM.ToString()}");
             this.TrialInfo($"Mid dist range (mm): {_midDistRangeMM.ToString()}");
@@ -138,17 +134,17 @@ namespace SubTask.FunctionSelection
         {
             this.TrialInfo($"Participant: {ptc}, Technique: {tech}");
             Participant_Number = ptc;
-            if (tech == Str.TOUCH_MOUSE_TAP)
+            if (tech == ExpStrs.TOUCH_MOUSE_TAP)
             {
                 Active_Technique = Technique.TOMO_TAP;
                 Config.SetMode(0);
             }
-            else if (tech == Str.TOUCH_MOUSE_SWIPE)
+            else if (tech == ExpStrs.TOUCH_MOUSE_SWIPE)
             {
                 Active_Technique = Technique.TOMO_SWIPE;
                 Config.SetMode(1);
             }
-            else if (tech == Str.MOUSE)
+            else if (tech == ExpStrs.MOUSE)
             {
                 Active_Technique = Technique.MOUSE;
             }
@@ -206,7 +202,7 @@ namespace SubTask.FunctionSelection
 
         public static int GetStartHalfWidth()
         {
-            return Utils.MM2PX(OBJ_WIDTH_MM / 2);
+            return MM2PX(OBJ_WIDTH_MM / 2);
         }
     }
 }

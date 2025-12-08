@@ -3,16 +3,20 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
+using Common.Constants;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.FunctionSelection
 {
     internal class RowFactory : Grid
     {
-        private static double UNIT = Utils.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
+        private static double UNIT = MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         private static double ROW_HEIGHT = 6 * UNIT; // Height of each row in pixels
 
+        private static readonly double Gutter05mm = ExpSizes.GUTTER_05MM; // To not change all references
+
         // Helper to represent a "Gutter" in the sequence
-        private static Func<UIElement> CreateBetweenRowsGutterFunc() => () => CreateGutter(Config.GUTTER_05MM);
+        private static Func<UIElement> CreateBetweenRowsGutterFunc() => () => CreateGutter(ExpSizes.GUTTER_05MM);
 
         // Helper to wrap row creation Functions in a Func<UIElement>
         private static Func<UIElement> WrapRowFunc(Func<StackPanel> rowCreator) => () =>
@@ -27,7 +31,7 @@ namespace SubTask.FunctionSelection
         {
             return new Rectangle
             {
-                Width = Utils.MM2PX(gutterMM), // Use WithinGroupGutter for width, not a derived UNIT value unless intentional
+                Width = MM2PX(gutterMM), // Use WithinGroupGutter for width, not a derived UNIT value unless intentional
                 Height = ROW_HEIGHT,
                 //Fill = Brushes.Orange, // <-- Make it highly visible for debugging
                 //Stroke = Brushes.Black, // Add a stroke
@@ -38,7 +42,7 @@ namespace SubTask.FunctionSelection
 
         private static SButton CreateDropdownButton() // The dropdown part!
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x3]; // 3 x Unit
+            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x3]; // 3 x Unit
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -50,7 +54,7 @@ namespace SubTask.FunctionSelection
 
         private static SButton CreateX6Button()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x6];
+            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x6];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -62,7 +66,7 @@ namespace SubTask.FunctionSelection
 
         private static SButton CreateX12Button()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x12];
+            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x12];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -74,7 +78,7 @@ namespace SubTask.FunctionSelection
 
         private static SButton CreateX18Button()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x18];
+            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x18];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -86,7 +90,7 @@ namespace SubTask.FunctionSelection
 
         private static SButton CreateX30Button()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[Str.x30];
+            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x30];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -105,14 +109,14 @@ namespace SubTask.FunctionSelection
             };
 
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX12Button());
             stackPanel.Children.Add(CreateDropdownButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX6Button());
 
             return stackPanel;
@@ -128,9 +132,9 @@ namespace SubTask.FunctionSelection
             };
 
             stackPanel.Children.Add(CreateX18Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX12Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX6Button());
 
             return stackPanel;
@@ -146,11 +150,11 @@ namespace SubTask.FunctionSelection
 
             stackPanel.Children.Add(CreateX6Button());
             stackPanel.Children.Add(CreateDropdownButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX18Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX6Button());
 
             return stackPanel;
@@ -166,14 +170,14 @@ namespace SubTask.FunctionSelection
             };
 
             stackPanel.Children.Add(CreateX12Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX6Button());
 
             return stackPanel;
@@ -201,9 +205,9 @@ namespace SubTask.FunctionSelection
             };
 
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(Gutter05mm));
             stackPanel.Children.Add(CreateX18Button());
 
             return stackPanel;
@@ -368,7 +372,7 @@ namespace SubTask.FunctionSelection
             group.Children.Clear(); // Clear existing if reusing the column Grid
             group.RowDefinitions.Clear(); // Clear existing row definitions
 
-            double WithinGroupGutter = Utils.MM2PX(Config.GUTTER_05MM); // Gutter between rows within a group
+            double WithinGroupGutter = MM2PX(Gutter05mm); // Gutter between rows within a group
 
             int currentRowIndex = 0;
             foreach (var createElementFunc in elementsToAdd)

@@ -1,19 +1,15 @@
-﻿using MathNet.Numerics;
-using Serilog;
+﻿using Serilog;
 using Serilog.Core;
 using SubTask.FunctionSelection.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Internal;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using ILogger = Serilog.ILogger;
+using Common.Constants;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionSelection
 {
@@ -177,28 +173,28 @@ namespace SubTask.FunctionSelection
             DetailedTrialLog log = new DetailedTrialLog(blockNum, trialNum, trial, trialRecord);
 
             // Log start events
-            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetFirstSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetFirstSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
+            log.trlsh_curmv = trialRecord.GetDuration(ExpStrs.TRIAL_SHOW, ExpStrs.FIRST_MOVE);
+            log.curmv_strnt = trialRecord.GetLastSeqDuration(ExpStrs.FIRST_MOVE, ExpStrs.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetFirstSeqDuration(ExpStrs.STR_ENTER, ExpStrs.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetFirstSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
-            log.strrl_pnlnt = trialRecord.GetFirstSeqDuration(Str.STR_RELEASE, Str.PNL_ENTER);
+            log.strrl_pnlnt = trialRecord.GetFirstSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.PNL_ENTER);
 
-            log.pnlnt_fun1nt = trialRecord.GetNthSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER, 1);
+            log.pnlnt_fun1nt = trialRecord.GetNthSeqDuration(ExpStrs.PNL_ENTER, ExpStrs.FUN_ENTER, 1);
 
-            log.fun1nt_fun1pr = trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, 1);
-            log.fun1pr_fun1rl = trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, 1);
-            log.fun1rl_fun2nt = trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.FUN_ENTER, 1);
-            log.fun2nt_fun2pr = trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, 2);
-            log.fun2pr_fun2rl = trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, 2);
-            log.fun2rl_fun3nt = trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.FUN_ENTER, 2);
-            log.fun3nt_fun3pr = trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, 3);
-            log.fun3pr_fun3rl = trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, 3);
+            log.fun1nt_fun1pr = trialRecord.GetNthSeqDuration(ExpStrs.FUN_ENTER, ExpStrs.FUN_PRESS, 1);
+            log.fun1pr_fun1rl = trialRecord.GetNthSeqDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE, 1);
+            log.fun1rl_fun2nt = trialRecord.GetNthSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.FUN_ENTER, 1);
+            log.fun2nt_fun2pr = trialRecord.GetNthSeqDuration(ExpStrs.FUN_ENTER, ExpStrs.FUN_PRESS, 2);
+            log.fun2pr_fun2rl = trialRecord.GetNthSeqDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE, 2);
+            log.fun2rl_fun3nt = trialRecord.GetNthSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.FUN_ENTER, 2);
+            log.fun3nt_fun3pr = trialRecord.GetNthSeqDuration(ExpStrs.FUN_ENTER, ExpStrs.FUN_PRESS, 3);
+            log.fun3pr_fun3rl = trialRecord.GetNthSeqDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE, 3);
 
-            log.fun3rl_pnlex = trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.PNL_EXIT, 3);
-            log.pnlex_endnt = trialRecord.GetLastSeqDuration(Str.PNL_EXIT, Str.STR_ENTER);
-            log.endnt_endpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.endpr_endrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
+            log.fun3rl_pnlex = trialRecord.GetNthSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.PNL_EXIT, 3);
+            log.pnlex_endnt = trialRecord.GetLastSeqDuration(ExpStrs.PNL_EXIT, ExpStrs.STR_ENTER);
+            log.endnt_endpr = trialRecord.GetLastSeqDuration(ExpStrs.STR_ENTER, ExpStrs.STR_PRESS);
+            log.endpr_endrl = trialRecord.GetLastSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
             // Testing
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
@@ -217,10 +213,10 @@ namespace SubTask.FunctionSelection
             //FillTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Total time
-            log.trial_time = trialRecord.GetLastSeqDuration(Str.STR_RELEASE, Str.STR_PRESS);
+            log.trial_time = trialRecord.GetLastSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.STR_PRESS);
             _trialTimes[trial.Id] = log.trial_time;
 
-            log.funcs_sel_time = trialRecord.GetDurationFromFirstToLast(Str.FUN_ENTER, Str.FUN_RELEASE);
+            log.funcs_sel_time = trialRecord.GetDurationFromFirstToLast(ExpStrs.FUN_ENTER, ExpStrs.FUN_RELEASE);
 
             WriteTrialLog(log, _totalLogFilePath, _totalTrialLogWriter);
 

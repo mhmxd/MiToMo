@@ -1,11 +1,6 @@
-﻿using MathNet.Numerics;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionSelection
 {

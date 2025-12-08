@@ -1,13 +1,8 @@
-﻿using OpenTK.Graphics.OpenGL;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using static SubTask.FunctionSelection.BlockHandler;
-using static SubTask.FunctionSelection.Utils;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using Common.Constants;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionSelection
 {
@@ -111,7 +106,7 @@ namespace SubTask.FunctionSelection
         {
             foreach (TFunction func in Functions)
             {
-                if (func.State != ButtonState.APPLIED)
+                if (func.State != ButtonState.SELECTED)
                 {
                     return false; // If any function is not selected, return false
                 }
@@ -138,7 +133,7 @@ namespace SubTask.FunctionSelection
             TFunction func = GetFunctionById(funcId);
             if (func != null)
             {
-                func.State = ButtonState.APPLIED;
+                func.State = ButtonState.SELECTED;
             }
 
         }
@@ -166,7 +161,7 @@ namespace SubTask.FunctionSelection
 
         public void SetFunctionAsApplied(int funcId)
         {
-            ChangeFunctionState(funcId, ButtonState.APPLIED);
+            ChangeFunctionState(funcId, ButtonState.SELECTED);
         }
 
         public void ChangeFunctionState(int funcId, ButtonState newState)
@@ -189,14 +184,14 @@ namespace SubTask.FunctionSelection
             Events.Add(trialEvent);
             this.TrialInfo($"[+] {trialEvent.ToString()}");
 
-            if (type == Str.TAP_UP)
+            if (type == ExpStrs.TAP_UP)
             {
                 long endTime = GetLastFingerActionTime(type);
                 this.TrialInfo($"End Time: {endTime}");
-                var gestureStartTimestamp = Events.LastOrDefault(ts => ts.Type == Str.DOWN && ts.Time < endTime);
+                var gestureStartTimestamp = Events.LastOrDefault(ts => ts.Type == ExpStrs.DOWN && ts.Time < endTime);
                 if (gestureStartTimestamp != null)
                 {
-                    gestureStartTimestamp.Type = Str.TAP_DOWN;
+                    gestureStartTimestamp.Type = ExpStrs.TAP_DOWN;
                 }
             }
         }
@@ -489,16 +484,16 @@ namespace SubTask.FunctionSelection
             switch (gesture)
             {
                 case Technique.TOMO_TAP:
-                    //long tapEndTime = GetLastFingerActionTime(Str.TAP_UP);
-                    //long tapStartTime = GetFingerTimeBefore(Str.DOWN, tapEndTime);
+                    //long tapEndTime = GetLastFingerActionTime(ExpStrs.TAP_UP);
+                    //long tapStartTime = GetFingerTimeBefore(ExpStrs.DOWN, tapEndTime);
                     //return Utils.GetDuration(tapStartTime, tapEndTime);
-                    return GetLastSeqDuration(Str.TAP_DOWN, Str.TAP_UP);
+                    return GetLastSeqDuration(ExpStrs.TAP_DOWN, ExpStrs.TAP_UP);
 
                 case Technique.TOMO_SWIPE:
-                    //long swipeEndTime = GetLastFingerActionTime(Str.SWIPE_END);
-                    //long swipeStartTime = GetFingerTimeBefore(Str.SWIPE_START, swipeEndTime);
+                    //long swipeEndTime = GetLastFingerActionTime(ExpStrs.SWIPE_END);
+                    //long swipeStartTime = GetFingerTimeBefore(ExpStrs.SWIPE_START, swipeEndTime);
                     //return Utils.GetDuration(swipeStartTime, swipeEndTime);
-                    return GetLastSeqDuration(Str.SWIPE_START, Str.SWIPE_END);
+                    return GetLastSeqDuration(ExpStrs.SWIPE_START, ExpStrs.SWIPE_END);
             }
 
             return -1;
@@ -509,10 +504,10 @@ namespace SubTask.FunctionSelection
             switch (technique)
             {
                 case Technique.TOMO_TAP:
-                    return GetLastFingerActionTime(Str.TAP_DOWN);
+                    return GetLastFingerActionTime(ExpStrs.TAP_DOWN);
 
                 case Technique.TOMO_SWIPE:
-                    return GetLastFingerActionTime(Str.SWIPE_START);
+                    return GetLastFingerActionTime(ExpStrs.SWIPE_START);
             }
 
             return -1;
@@ -523,10 +518,10 @@ namespace SubTask.FunctionSelection
             switch (technique)
             {
                 case Technique.TOMO_TAP:
-                    return GetLastFingerActionTime(Str.TAP_UP);
+                    return GetLastFingerActionTime(ExpStrs.TAP_UP);
 
                 case Technique.TOMO_SWIPE:
-                    return GetLastFingerActionTime(Str.SWIPE_END);
+                    return GetLastFingerActionTime(ExpStrs.SWIPE_END);
             }
 
             return -1;

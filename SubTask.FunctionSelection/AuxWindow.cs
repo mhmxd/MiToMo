@@ -2,18 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Shapes;
-using static SubTask.FunctionSelection.Output;
+using Common.Constants;
+using static Common.Constants.ExpEnums;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.FunctionSelection
 {
@@ -58,7 +54,7 @@ namespace SubTask.FunctionSelection
 
         }
 
-        public Side Side { get; set; } // Side of the window (left, right, top)
+        public Side WindowSide { get; set; } // Side of the window (left, right, top)
                                        // 
         protected Grid _buttonsGrid; // The grid containing all buttons
         protected List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
@@ -929,8 +925,8 @@ namespace SubTask.FunctionSelection
             // Create the "button" as a Border with text inside
             _startButton = new Border
             {
-                Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
-                Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
+                Width = MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
+                Height = MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
                 Background = Config.START_AVAILABLE_COLOR,
                 BorderBrush = Brushes.Black,
             };
@@ -938,7 +934,7 @@ namespace SubTask.FunctionSelection
             // Add label inside
             var label = new TextBlock
             {
-                Text = Str.START,
+                Text = ExpStrs.START,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using static Common.Helpers.ExpUtils;
 
 namespace SubTask.FunctionSelection
 {
@@ -57,7 +54,7 @@ namespace SubTask.FunctionSelection
 
         public Range GetPx()
         {
-            return new Range(Utils.MM2PX(_min), Utils.MM2PX(_max), Label);
+            return new Range(MM2PX(_min), MM2PX(_max), Label);
         }
 
         public override string ToString()
