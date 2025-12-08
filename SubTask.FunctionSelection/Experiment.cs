@@ -73,10 +73,6 @@ namespace SubTask.FunctionSelection
         private Range _midDistRangeMM; // Mid distances range (mm)
         private Range _longDistRangeMM; // Long distances range (mm)
 
-        //public static int REP_TRIAL_NUM_PASS = 5; // Trial ends on Start
-        //public static double REP_TRIAL_MAX_DIST_STARTS_MM = Config.EXCEL_CELL_W; // Max distance between Starts in a repeating trial (mm)
-        //public static double REP_TRIAL_OBJ_AREA_RADIUS_MM = Config.EXCEL_CELL_W; // Radius of the object area in repeating trials (mm)
-
 
         private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
 
@@ -86,8 +82,6 @@ namespace SubTask.FunctionSelection
         //-- Calculated
         public double Longest_Dist_MM;
         public double Shortest_Dist_MM;
-        //private double LONGEST_DIST_MM = 293; // BenQ = 293 mm
-        //private double SHORTEST_DIST_MM = 10; // BenQ = 10 mm
 
         //-- Constants
         //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm

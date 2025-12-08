@@ -99,17 +99,18 @@ namespace SubTask.FunctionSelection
             this.TrialInfo(ExpStrs.MAJOR_LINE);
             _activeTrialRecord.Result = result;
             LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
+            double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
 
             switch (result)
             {
                 case Result.HIT:
                     Sounder.PlayHit();
-                    double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
                     _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
                 case Result.MISS:
                     Sounder.PlayTargetMiss();
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
+                    _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
             }
 
@@ -339,8 +340,8 @@ namespace SubTask.FunctionSelection
             // If all functions are applied => end trial with HIT
             if (_activeTrialRecord.AreAllFunctionsApplied())
             {
-                EndActiveTrial(Result.HIT);
-                //_mainWindow.ChangeStartButtonColor(Config.FUNCTION_ENABLED_COLOR);
+                //EndActiveTrial(Result.HIT);
+                _mainWindow.ChangeStartButtonColor(Config.FUNCTION_ENABLED_COLOR);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -386,9 +387,10 @@ namespace SubTask.FunctionSelection
             var startButtonPressed = GetEventCount(ExpStrs.STR_PRESS) > 0;
             if (startButtonPressed)
             {
-                //_mainWindow.SwitchStartToEnd(_activeTrial.FuncSide);
+                // Change Start to End in the main window
+                _mainWindow.SwitchStartToEnd(_activeTrial.FuncSide);
                 // Remove the Start
-                _mainWindow.RemoveStartTrialButton();
+                //_mainWindow.RemoveStartTrialButton();
                 UpdateScene();
             }
             else // Press was outside the button => miss

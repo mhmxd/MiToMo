@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Seril = Serilog.Log;
 using static Common.Constants.ExpEnums;
+using Seril = Serilog.Log;
 
 namespace SubTask.FunctionSelection
 {
     // A block of trials in the experiment
     public class Block
     {
+        private Random _random = new Random();
+
         private List<Trial> _trials = new List<Trial>();
         public List<Trial> Trials
         {
@@ -64,38 +66,62 @@ namespace SubTask.FunctionSelection
             // Create block
             Block block = new Block(ptc, nFun, complexity, id);
 
-            // Create and add trials to the block
+            //-- Create and add trials to the block
             int trialNum = 1;
-            for (int sInd = 0; sInd < 3; sInd++)
+
+            //- All top trials, then left
+            // Get the function widths based on side and complexity
+            // For now all function Ws are the same. We may later create trials with multiple function Ws
+            List<int> topButtonWs = Experiment.BUTTON_WIDTHS[complexity][Side.Top];
+            foreach (int funcW in topButtonWs)
             {
-                Side functionSide = (Side)sInd;
-
-                // Get the function widths based on side and complexity
-                List<int> buttonWidths = Experiment.BUTTON_WIDTHS[complexity][functionSide];
-
-                // For now all function Ws are the same. We may later create trials with multiple function Ws
-                foreach (int funcW in buttonWidths)
+                List<int> functionWidths = new List<int>(nFun);
+                for (int i = 0; i < nFun; i++)
                 {
-                    List<int> functionWidths = new List<int>(nFun);
-                    for (int i = 0; i < nFun; i++)
-                    {
-                        functionWidths.Add(funcW);
-                    }
-
-                    Trial trial = Trial.CreateTrial(
-                        id * 100 + trialNum,
-                        ptc,
-                        complexity,
-                        functionSide,
-                        functionWidths);
-
-                    block._trials.Add(trial);
-                    trialNum++;
+                    functionWidths.Add(funcW);
                 }
+
+                Trial trial = Trial.CreateTrial(
+                    id * 100 + trialNum,
+                    ptc,
+                    complexity,
+                    Side.Top,
+                    functionWidths);
+
+                block._trials.Add(trial);
+                trialNum++;
             }
 
+            List<int> leftButtonWs = Experiment.BUTTON_WIDTHS[complexity][Side.Left];
+            foreach (int funcW in leftButtonWs)
+            {
+                List<int> functionWidths = new List<int>(nFun);
+                for (int i = 0; i < nFun; i++)
+                {
+                    functionWidths.Add(funcW);
+                }
+
+                Trial trial = Trial.CreateTrial(
+                    id * 100 + trialNum,
+                    ptc,
+                    complexity,
+                    Side.Left,
+                    functionWidths);
+
+                block._trials.Add(trial);
+                trialNum++;
+            }
+
+
+            //for (int sInd = 0; sInd < 3; sInd++)
+            //{
+            //    Side functionSide = (Side)sInd;
+
+                
+            //}
+
             // Shuffle the trials
-            block.ShuffleTrials();
+            //block.ShuffleTrials();
 
             // Return the block
             return block;
@@ -121,26 +147,45 @@ namespace SubTask.FunctionSelection
 
         public void ShuffleBackTrial(int trialNum)
         {
+            //Trial trialToCopy = _trials[trialNum - 1];
+
+            //if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
+            //{
+            //    Random random = new Random();
+            //    int insertIndex = random.Next(trialNum + 1, _trials.Count);
+
+            //    _trials.Insert(insertIndex, trialToCopy);
+            //}
+            //else if (trialNum == _trials.Count && _trials.Count > 1)
+            //{
+            //    _trials.Insert(trialNum, trialToCopy);
+            //}
+            //else if (_trials.Count <= 1)
+            //{
+            //    Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
+            //}
+            //else
+            //{
+            //    Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
+            //}
+
+            // Shuffle the trial based on its function side
             Trial trialToCopy = _trials[trialNum - 1];
-
-            if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
-            {
-                Random random = new Random();
-                int insertIndex = random.Next(trialNum + 1, _trials.Count);
-
-                _trials.Insert(insertIndex, trialToCopy);
-            }
-            else if (trialNum == _trials.Count && _trials.Count > 1)
+            if (trialNum == _trials.Count && _trials.Count > 1)
             {
                 _trials.Insert(trialNum, trialToCopy);
             }
-            else if (_trials.Count <= 1)
+            else if (_trials[trialNum].FuncSide == Side.Top)
             {
-                Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
+                // Shuffle among the remaining top trials
+                int insertIndex = _random.Next(trialNum + 1, _trials.Count(t => t.FuncSide == Side.Top) + 1);
+                _trials.Insert(insertIndex, trialToCopy);
             }
             else
             {
-                Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
+                // Shuffle among the remaining left trials
+                int insertIndex = _random.Next(trialNum + 1, _trials.Count());
+                _trials.Insert(insertIndex, trialToCopy);
             }
         }
 
