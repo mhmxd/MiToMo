@@ -1,18 +1,12 @@
-﻿using MathNet.Numerics;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using static SubTask.PanelNavigation.Experiment;
-using static SubTask.PanelNavigation.TrialRecord;
-using static Tensorflow.TensorShapeProto.Types;
 using Common.Constants;
 using static Common.Helpers.ExpUtils;
+using static SubTask.PanelNavigation.TrialRecord;
 
 namespace SubTask.PanelNavigation
 {
@@ -27,6 +21,7 @@ namespace SubTask.PanelNavigation
         protected int _activeTrialNum = 0;
         protected TrialRecord _activeTrialRecord;
         protected int _nSelectedObjects = 0; // Number of clicked objects in the current trial
+        protected int _prevTrialStartDist = 0;
 
         protected List<int> _functionsVisitMap = new List<int>();
         protected List<int> _objectsVisitMap = new List<int>();
@@ -38,6 +33,7 @@ namespace SubTask.PanelNavigation
             _mainWindow = mainWindow;
             _activeBlock = activeBlock;
             _activeBlockNum = activeBlockNum;
+            _prevTrialStartDist = MM2PX(ExpSizes.START_BUTTON_DIST_MM); // Initial distance from the grid
         }
 
         public void BeginActiveBlock()
@@ -88,14 +84,18 @@ namespace SubTask.PanelNavigation
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
-            // Show Start Trial button
+            //-- Show Start Trial button
+            // Calculate a new random distance (different from the previous trial)
             MouseEvents startButtonEvents = new MouseEvents(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
-            _mainWindow.ShowStartBtn(
+            int newStartDist = _mainWindow.ShowStartBtn(
                 _activeTrial.FuncSide,
                 MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
                 Experiment.START_INIT_COLOR,
+                _prevTrialStartDist,
                 startButtonEvents);
+
+            _prevTrialStartDist = newStartDist;
 
             // Color a random function button in the aux window and set the width in trialRecord
             TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, Config.FUNCTION_DEFAULT_COLOR);

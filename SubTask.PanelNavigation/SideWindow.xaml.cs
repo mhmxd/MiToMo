@@ -605,7 +605,7 @@ namespace SubTask.PanelNavigation
             if (_buttonsGrid != null)
             {
                 double gridBottom = Canvas.GetTop(_buttonsGrid) + _buttonsGrid.ActualHeight;
-                double startBtnTop = gridBottom + MM2PX(Config.START_BTN_DIST_MM); // 10mm below the grid
+                double startBtnTop = gridBottom + MM2PX(ExpSizes.START_BUTTON_DIST_MM); // 10mm below the grid
 
                 // Position the button
                 double leftPosition = (this.Width - btnW) / 2;
@@ -620,10 +620,8 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public override void ShowStartBtn(int largerSide, Brush btnColor, MouseEvents btnEvents)
+        public override int PositionStartButton(int largerSide, int prevDist)
         {
-            base.ShowStartBtn(largerSide, btnColor, btnEvents);
-
             // Set the Start button H
             _startButton.Height = largerSide;
             _startButton.Width = this.ActualWidth * 0.8;
@@ -631,8 +629,17 @@ namespace SubTask.PanelNavigation
             // Position the start button at 10 mm below the bottom button of the grid
             if (_buttonsGrid != null)
             {
+                int minDist = MM2PX(ExpSizes.START_BUTTON_DIST_MM);
+                int maxDist = (int)(this.ActualHeight - _buttonsGrid.ActualHeight - largerSide - MM2PX(ExpSizes.WINDOW_PADDING_MM));
+                // Contineously generate a random distance until this Start button has no overlap with previous one
+                int randDist;
+                do
+                {
+                    randDist = _random.Next(minDist, maxDist);
+                } while (Math.Abs(randDist - prevDist) < largerSide);
+
                 double gridBottom = Canvas.GetTop(_buttonsGrid) + _buttonsGrid.ActualHeight;
-                double startBtnTop = gridBottom + MM2PX(ExpSizes.START_BUTTON_DIST_MM); // Dist below the grid
+                double startBtnTop = gridBottom + randDist; // Dist below the grid
 
                 // Position the button
                 double leftPosition = (this.Width - _startButton.Width) / 2;
@@ -646,12 +653,16 @@ namespace SubTask.PanelNavigation
             {
                 this.TrialInfo("Buttons grid is not initialized, cannot position Start button.");
             }
+
+            return 0;
         }
 
         public override void RemoveStartBtn()
         {
             canvas.Children.Remove(_startButton);
         }
+
+        
 
     }
 }

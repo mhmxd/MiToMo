@@ -1448,10 +1448,10 @@ namespace SubTask.PanelNavigation
             _activeAuxWindow.ShowStartBtn(btnW, btnH, btnColor, mouseEvents);
         }
 
-        public void ShowStartBtn(Side side, int largerSide, Brush btnColor, MouseEvents mouseEvents)
+        public int ShowStartBtn(Side side, int largerSide, Brush btnColor, int prevDis, MouseEvents mouseEvents)
         {
             _activeAuxWindow = GetAuxWindow(side);
-            _activeAuxWindow.ShowStartBtn(largerSide, btnColor, mouseEvents);
+            return _activeAuxWindow.CreateStartButton(largerSide, btnColor, prevDis, mouseEvents);
         }
 
         public void ChangeStartBtnColor(Side side, Brush color)
@@ -1478,6 +1478,16 @@ namespace SubTask.PanelNavigation
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             return auxWindow.GetMiddleButtonId();
+        }
+
+        public int GetTopWindowWidth()
+        {
+            return (int)_topWindow.ActualWidth;
+        }
+
+        public int GetSideWindowHeight()
+        {
+            return (int)_leftWindow.ActualHeight;
         }
     }
 }

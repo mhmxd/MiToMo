@@ -174,8 +174,6 @@ namespace SubTask.PanelNavigation
         public static Dimensions TRIAL_START_BUTTON_DIM_MM = new Dimensions(20, 10);
         public static int TRIAL_START_BUTTON_FONT_SIZE = 16;
 
-        public static readonly double START_BTN_DIST_MM = 30; // Distance from the grid to the start button
-
         public static void SetMode(int speed)
         {
             //if (speed == 0)
