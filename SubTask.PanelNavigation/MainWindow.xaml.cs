@@ -1163,7 +1163,7 @@ namespace SubTask.PanelNavigation
             if (_activeAuxWindow != null)
             {
                 _activeAuxWindow.RemoveStartBtn();
-                _activeAuxWindow.ResetButtons();
+                _activeAuxWindow.Reset();
                 _activeAuxWindow.DeactivateMarker();
             }
             else
@@ -1285,9 +1285,9 @@ namespace SubTask.PanelNavigation
 
         public void ResetAllAuxWindows()
         {
-            _leftWindow.ResetButtons();
-            _rightWindow.ResetButtons();
-            _topWindow.ResetButtons();
+            _leftWindow.Reset();
+            _rightWindow.Reset();
+            _topWindow.Reset();
         }
 
         public TrialRecord.TFunction ColorRandomFunction(Side side, Brush color)

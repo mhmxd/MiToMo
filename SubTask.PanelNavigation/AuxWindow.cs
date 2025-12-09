@@ -480,12 +480,19 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public virtual void ResetButtons()
+        public virtual void Reset()
         {
             foreach (int buttonId in _buttonInfos.Keys)
             {
                 _buttonInfos[buttonId].ResetButtonFill();
             }
+
+            // Remove start button
+            RemoveStartBtn();
+
+            // Hide marker
+            DeactivateMarker();
+
         }
 
         //public virtual void MakeTargetAvailable()
