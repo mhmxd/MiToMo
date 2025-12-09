@@ -71,15 +71,6 @@ namespace SubTask.PanelNavigation
 
         // -------------- Cursors
         public static double MAPPING_GAIN = 1; // Was 50 // Let's not use it (KvF will take care of it)
-                                               // --------------------------------------
-
-        // --------------- Sizes and Margins
-        //public static int TOP_WINDOW_HEIGTH_MM = 28; // ~100px
-        //public static int SIDE_WINDOW_WIDTH_MM = 68; // ~240
-
-        //public static double VERTICAL_PADDING_MM = 4; // 12px
-        //public static double HORIZONTAL_PADDING_MM = 4; // 4px (for the side window)
-        public static double WINDOW_PADDING_MM = 4;
 
         // --------------------------------------
 
@@ -167,9 +158,9 @@ namespace SubTask.PanelNavigation
         public static int CELL_HEIGHT_THRESHOLD = 50; // px
         // -----------------------------------------
 
-        public static double SIDE_COL_MAX_WIDTH_MM = 2 * Experiment.BUTTON_MULTIPLES[Str.x15] + GUTTER_05MM;
-        public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * WINDOW_PADDING_MM + GUTTER_05MM;
-        public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GUTTER_05MM + 2 * WINDOW_PADDING_MM;
+        //public static double SIDE_COL_MAX_WIDTH_MM = 2 * Experiment.BUTTON_MULTIPLES[Str.x15] + GUTTER_05MM;
+        //public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * ExpSizes.WINDOW_PADDING_MM + GUTTER_05MM;
+        //public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GUTTER_05MM + 2 * WINDOW_PADDING_MM;
 
         public static Dimensions TRIAL_START_BUTTON_DIM_MM = new Dimensions(20, 10);
         public static int TRIAL_START_BUTTON_FONT_SIZE = 16;

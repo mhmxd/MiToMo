@@ -688,29 +688,6 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        //private void MarkButton(int buttonId)
-        //{
-        //    // Find the button with the specified ID
-        //    if (_buttonInfos.ContainsKey(buttonId))
-        //    {
-        //        _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
-        //                                                                                    // Change the old button background based on the previous state
-        //        if (_buttonInfos[buttonId].Button.Background.Equals(Config.BUTTON_HOVER_FILL_COLOR)) // Gray => White
-        //        {
-        //            //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
-        //            _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
-        //        }
-        //        else if (_buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_ENABLED_COLOR)) // Light green => Orange
-        //        {
-        //            _buttonInfos[buttonId].Button.Background = Config.FUNCTION_DEFAULT_COLOR;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        this.TrialInfo($"Button with ID {buttonId} not found.");
-        //    }
-        //}
-
         public void MarkButton(int buttonId, Action<int> OnFunctionMarked)
         {
             var buttonBgOrange =

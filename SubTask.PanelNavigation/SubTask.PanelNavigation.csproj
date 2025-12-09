@@ -368,9 +368,6 @@
       <DependentUpon>IntroDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Output.cs" />
-    <Compile Include="OverlayWindow.xaml.cs">
-      <DependentUpon>OverlayWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Pointer.cs" />
     <Compile Include="Str.cs" />
     <Compile Include="TestKalman.cs" />
@@ -444,10 +441,6 @@
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="OverlayWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="SideWindow.xaml">
       <SubType>Designer</SubType>

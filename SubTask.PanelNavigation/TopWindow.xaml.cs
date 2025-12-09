@@ -16,8 +16,8 @@ namespace SubTask.PanelNavigation
     /// </summary>
     public partial class TopWindow : AuxWindow
     {
-        private double HORIZONTAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM);
-        private double InterGroupGutter = MM2PX(Config.GUTTER_05MM);
+        private double HORIZONTAL_PADDING = MM2PX(ExpSizes.WINDOW_PADDING_MM);
+        private double InterGroupGutter = MM2PX(ExpSizes.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]

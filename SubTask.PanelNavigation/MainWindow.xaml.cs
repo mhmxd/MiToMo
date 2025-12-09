@@ -56,6 +56,7 @@ using SysDraw = System.Drawing;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
 using static Common.Helpers.ExpUtils;
+using Common.Constants;
 
 //using WinForms = System.Windows.Forms; // Alias for Forms namespace
 
@@ -121,11 +122,11 @@ namespace SubTask.PanelNavigation
 
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
-        private int VERTICAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
-        private int HORIZONTAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
+        private int VERTICAL_PADDING = MM2PX(ExpSizes.WINDOW_PADDING_MM); // Padding for the windows
+        private int HORIZONTAL_PADDING = MM2PX(ExpSizes.WINDOW_PADDING_MM); // Padding for the windows
 
-        private int TopWindowHeight = MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
-        private int SideWindowWidth = MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
+        private int TopWindowHeight = MM2PX(ExpSizes.TOP_WINDOW_HEIGTH_MM);
+        private int SideWindowWidth = MM2PX(ExpSizes.SIDE_WINDOW_WIDTH_MM);
 
 
         // Dead zone
@@ -144,7 +145,6 @@ namespace SubTask.PanelNavigation
         private AuxWindow _leftWindow;
         private AuxWindow _rightWindow;
         private AuxWindow _activeAuxWindow;
-        private OverlayWindow _overlayWindow;
 
         private double _monitorHeightMM;
 
@@ -336,7 +336,7 @@ namespace SubTask.PanelNavigation
 
         private void CreateExperiment()
         {
-            double padding = MM2PX(Config.WINDOW_PADDING_MM);
+            double padding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
             double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
             double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
 
@@ -1335,7 +1335,7 @@ namespace SubTask.PanelNavigation
 
         public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
-            double padding = MM2PX(Config.WINDOW_PADDING_MM);
+            double padding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
             double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
             double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
 

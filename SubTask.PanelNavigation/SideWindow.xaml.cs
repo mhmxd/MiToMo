@@ -26,11 +26,11 @@ namespace SubTask.PanelNavigation
 
         private Random _random = new Random();
 
-        private double HorizontalPadding = MM2PX(Config.WINDOW_PADDING_MM);
-        private double VerticalPadding = MM2PX(Config.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
+        private double HorizontalPadding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
+        private double VerticalPadding = MM2PX(ExpSizes.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
 
-        private double InterGroupGutter = MM2PX(Config.GUTTER_05MM);
-        private double WithinGroupGutter = MM2PX(Config.GUTTER_05MM);
+        private double InterGroupGutter = MM2PX(ExpSizes.GUTTER_05MM);
+        private double WithinGroupGutter = MM2PX(ExpSizes.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -122,7 +122,7 @@ namespace SubTask.PanelNavigation
             int canvasHeight = (int)canvas.ActualHeight;
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = MM2PX(Config.WINDOW_PADDING_MM);
+            int marginPX = MM2PX(ExpSizes.WINDOW_PADDING_MM);
             int minX = marginPX;
             int maxX = canvasWidth - marginPX - targetWidth;
             int minY = marginPX;
