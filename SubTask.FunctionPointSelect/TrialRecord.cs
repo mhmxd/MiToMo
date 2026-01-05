@@ -9,6 +9,7 @@ using Common.Constants;
 using static SubTask.FunctionPointSelect.BlockHandler;
 using static SubTask.FunctionPointSelect.Utils;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionPointSelect
 {
@@ -133,7 +134,7 @@ namespace SubTask.FunctionPointSelect
         {
             foreach (TFunction func in Functions)
             {
-                if (func.State != ButtonState.APPLIED)
+                if (func.State != ButtonState.SELECTED)
                 {
                     return false; // If any function is not selected, return false
                 }
@@ -146,7 +147,7 @@ namespace SubTask.FunctionPointSelect
         {
             foreach (TObject obj in Objects)
             {
-                if (obj.State != ButtonState.APPLIED)
+                if (obj.State != ButtonState.SELECTED)
                 {
                     return false; // If any object is not applied, return false
                 }
@@ -190,7 +191,7 @@ namespace SubTask.FunctionPointSelect
             TFunction func = GetFunctionById(funcId);
             if (func != null)
             {
-                func.State = ButtonState.APPLIED;
+                func.State = ButtonState.SELECTED;
             }
 
             // Apply to the specified object
@@ -260,7 +261,7 @@ namespace SubTask.FunctionPointSelect
 
         public void SetFunctionAsApplied(int funcId)
         {
-            ChangeFunctionState(funcId, ButtonState.APPLIED);
+            ChangeFunctionState(funcId, ButtonState.SELECTED);
         }
 
         public void EnableFunction()

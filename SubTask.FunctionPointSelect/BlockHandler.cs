@@ -12,6 +12,7 @@ using Common.Constants;
 using static SubTask.FunctionPointSelect.Experiment;
 using static SubTask.FunctionPointSelect.TrialRecord;
 using static Tensorflow.TensorShapeProto.Types;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionPointSelect
 {
@@ -824,7 +825,7 @@ namespace SubTask.FunctionPointSelect
                     case ButtonState.MARKED:
                         funcColor = Config.FUNCTION_ENABLED_COLOR;
                         break;
-                    case ButtonState.APPLIED:
+                    case ButtonState.SELECTED:
                         funcColor = Config.FUNCTION_APPLIED_COLOR;
                         break;
                 }
@@ -840,7 +841,7 @@ namespace SubTask.FunctionPointSelect
                     case ButtonState.MARKED:
                         objColor = Config.OBJ_MARKED_COLOR;
                         break;
-                    case ButtonState.APPLIED:
+                    case ButtonState.SELECTED:
                         objColor = Config.OBJ_APPLIED_COLOR;
                         break;
                 }

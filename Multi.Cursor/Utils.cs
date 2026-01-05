@@ -11,6 +11,7 @@ using MathNet.Numerics.Integration;
 using Tensorflow.Operations;
 using static System.Math;
 using static System.Windows.Rect;
+using static Common.Constants.ExpEnums;
 using static Multi.Cursor.Output;
 
 namespace Multi.Cursor

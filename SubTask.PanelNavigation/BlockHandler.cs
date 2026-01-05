@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Common.Constants;
+using static Common.Constants.ExpEnums;
 using static Common.Helpers.ExpUtils;
 using static SubTask.PanelNavigation.TrialRecord;
 
@@ -176,42 +177,42 @@ namespace SubTask.PanelNavigation
             return false;
         }
 
-        protected bool DoesFirstTrialsFunInclMidBtn()
-        {
-            // Get the function Ids of first trial of each side
-            bool leftChecked = false;
-            bool rightChecked = false;
-            bool topChecked = false;
-            foreach (Trial trial in _activeBlock.Trials)
-            {
-                if (trial.FuncSide == Side.Left && !leftChecked)
-                {
-                    leftChecked = true;
-                    List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
-                    int midBtnId = _mainWindow.GetMiddleButtonId(Side.Left);
-                    if (functionIds.Contains(midBtnId)) return true;
-                }
+        //protected bool DoesFirstTrialsFunInclMidBtn()
+        //{
+        //    // Get the function Ids of first trial of each side
+        //    bool leftChecked = false;
+        //    bool rightChecked = false;
+        //    bool topChecked = false;
+        //    foreach (Trial trial in _activeBlock.Trials)
+        //    {
+        //        if (trial.FuncSide == Side.Left && !leftChecked)
+        //        {
+        //            leftChecked = true;
+        //            List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
+        //            int midBtnId = _mainWindow.GetMiddleButtonId(Side.Left);
+        //            if (functionIds.Contains(midBtnId)) return true;
+        //        }
 
-                if (trial.FuncSide == Side.Right && !rightChecked)
-                {
-                    rightChecked = true;
-                    List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
-                    int midBtnId = _mainWindow.GetMiddleButtonId(Side.Right);
-                    if (functionIds.Contains(midBtnId)) return true;
-                }
+        //        if (trial.FuncSide == Side.Right && !rightChecked)
+        //        {
+        //            rightChecked = true;
+        //            List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
+        //            int midBtnId = _mainWindow.GetMiddleButtonId(Side.Right);
+        //            if (functionIds.Contains(midBtnId)) return true;
+        //        }
 
-                if (trial.FuncSide == Side.Top && !topChecked)
-                {
-                    topChecked = true;
-                    List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
-                    int midBtnId = _mainWindow.GetMiddleButtonId(Side.Top);
-                    if (functionIds.Contains(midBtnId)) return true;
-                }
-            }
+        //        if (trial.FuncSide == Side.Top && !topChecked)
+        //        {
+        //            topChecked = true;
+        //            List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
+        //            int midBtnId = _mainWindow.GetMiddleButtonId(Side.Top);
+        //            if (functionIds.Contains(midBtnId)) return true;
+        //        }
+        //    }
 
-            return false;
+        //    return false;
 
-        }
+        //}
 
         public virtual void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
@@ -370,9 +371,9 @@ namespace SubTask.PanelNavigation
             //-- Clicking END
             if (IsStartClicked())
             {
-                this.TrialInfo($"Function Marked? {_activeTrialRecord.HasFunctionState(ButtonState.APPLIED)}");
+                this.TrialInfo($"Function Marked? {_activeTrialRecord.HasFunctionState(ButtonState.SELECTED)}");
 
-                if (_activeTrialRecord.HasFunctionState(ButtonState.APPLIED))
+                if (_activeTrialRecord.HasFunctionState(ButtonState.SELECTED))
                 {
                     EndActiveTrial(Result.HIT);
                 }
@@ -463,7 +464,7 @@ namespace SubTask.PanelNavigation
                     case ButtonState.MARKED:
                         funcColor = Config.FUNCTION_ENABLED_COLOR;
                         break;
-                    case ButtonState.APPLIED:
+                    case ButtonState.SELECTED:
                         funcColor = Config.FUNCTION_APPLIED_COLOR;
                         break;
                 }

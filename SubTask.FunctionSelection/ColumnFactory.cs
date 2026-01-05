@@ -56,7 +56,7 @@ namespace SubTask.FunctionSelection
 
         private static SButton CreateBigButton()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x15];
+            int wMultiple = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x15];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -68,7 +68,7 @@ namespace SubTask.FunctionSelection
 
         private static SButton CreateSmallButton()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x6];
+            int wMultiple = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -80,7 +80,7 @@ namespace SubTask.FunctionSelection
 
         private static SButton CreateDropdownButton()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x3]; // Assuming 0 is the index for dropdown button width
+            int wMultiple = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x3]; // Assuming 0 is the index for dropdown button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -92,7 +92,7 @@ namespace SubTask.FunctionSelection
 
         private static SButton CreateWideButton()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x18]; // Assuming 3 is the index for wide button width
+            int wMultiple = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x18]; // Assuming 3 is the index for wide button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -104,7 +104,7 @@ namespace SubTask.FunctionSelection
 
         private static SButton CreateWiderButton()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x30]; // Assuming 4 is the index for wider button width
+            int wMultiple = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x30]; // Assuming 4 is the index for wider button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -116,7 +116,7 @@ namespace SubTask.FunctionSelection
 
         private static SButton CreateWidestButton()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x36]; // Assuming 4 is the index for wider button width
+            int wMultiple = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x36]; // Assuming 4 is the index for wider button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -209,7 +209,7 @@ namespace SubTask.FunctionSelection
 
         public static Grid CreateSimpleGrid()
         {
-            double columnWidth = MM2PX(Experiment.BUTTON_MULTIPLES[ExpStrs.x36]);
+            double columnWidth = MM2PX(ExpSizes.BUTTON_MULTIPLES[ExpStrs.x36]);
 
             Grid group = new Grid { UseLayoutRounding = true, Width = columnWidth }; // Ensure UseLayoutRounding is on the Grid
 

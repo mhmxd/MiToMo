@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using static System.Math;
+using static Common.Constants.ExpEnums;
 using static Common.Helpers.ExpUtils;
 
 namespace SubTask.PanelNavigation

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using static Common.Constants.ExpEnums;
 using static Multi.Cursor.Experiment;
 using static Multi.Cursor.TrialRecord;
 using static Tensorflow.TensorShapeProto.Types;
@@ -483,7 +484,7 @@ namespace Multi.Cursor
                     case ButtonState.MARKED:
                         funcColor = Config.FUNCTION_ENABLED_COLOR;
                         break;
-                    case ButtonState.APPLIED:
+                    case ButtonState.SELECTED:
                         funcColor = Config.FUNCTION_APPLIED_COLOR;
                         break;
                 }
@@ -499,7 +500,7 @@ namespace Multi.Cursor
                     case ButtonState.MARKED:
                         objColor = Config.OBJ_MARKED_COLOR;
                         break;
-                    case ButtonState.APPLIED:
+                    case ButtonState.SELECTED:
                         objColor = Config.OBJ_APPLIED_COLOR;
                         break;
                 }

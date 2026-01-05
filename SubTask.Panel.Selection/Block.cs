@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.UI.WebControls;
+using static Common.Constants.ExpEnums;
 using Seril = Serilog.Log;
 
 namespace SubTask.Panel.Selection
@@ -116,15 +117,6 @@ namespace SubTask.Panel.Selection
                 block._trials.Add(trial);
                 trialNum++;
 
-            }
-            for (int sInd = 0; sInd < 3; sInd++)
-            {
-                Side functionSide = (Side)sInd;
-
-                // Get the function widths based on side and complexity
-                List<int> buttonWidths = Experiment.BUTTON_WIDTHS[complexity][functionSide];
-
-                
             }
 
             // Shuffle the trials

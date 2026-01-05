@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Constants;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,10 +14,10 @@ namespace SubTask.FunctionPointSelect
     {
         private static double ROW_HEIGHT = ButtonFactory.GetButtonHeight();
 
-        private static double SMALL_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x6] * Utils.MM2PX(Config.GRID_UNIT_MM);
-        private static double WIDE_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x18] * Utils.MM2PX(Config.GRID_UNIT_MM);
-        private static double WIDER_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x30] * Utils.MM2PX(Config.GRID_UNIT_MM);
-        private static double DROPDOWN_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x3] * Utils.MM2PX(Config.GRID_UNIT_MM);
+        private static double SMALL_BUTTON_W = ExpSizes.BUTTON_MULTIPLES[Str.x6] * Utils.MM2PX(Config.GRID_UNIT_MM);
+        private static double WIDE_BUTTON_W = ExpSizes.BUTTON_MULTIPLES[Str.x18] * Utils.MM2PX(Config.GRID_UNIT_MM);
+        private static double WIDER_BUTTON_W = ExpSizes.BUTTON_MULTIPLES[Str.x30] * Utils.MM2PX(Config.GRID_UNIT_MM);
+        private static double DROPDOWN_BUTTON_W = ExpSizes.BUTTON_MULTIPLES[Str.x3] * Utils.MM2PX(Config.GRID_UNIT_MM);
 
         private static double GUTTER_4PX = 1 * Utils.MM2PX(Config.GRID_UNIT_MM);
         private static double GUTTER_8PX = 2 * Utils.MM2PX(Config.GRID_UNIT_MM);

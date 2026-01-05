@@ -11,9 +11,6 @@ namespace SubTask.ObjectSelection
     {
 
         //--- Setting
-        private readonly int N_OBJ = 3;
-        private readonly int N_REP = 10; // Number of repetitions in each block
-        private readonly int N_BLOCKS = 3;
         public Technique Active_Technique = Technique.MOUSE; // Set in the info dialog
 
         //-- Colors
@@ -52,10 +49,10 @@ namespace SubTask.ObjectSelection
             }
 
             // Create and add blocks
-            for (int i = 0; i < N_BLOCKS; i++)
+            for (int i = 0; i < ExpDesign.OS_N_BLOCKS; i++)
             {
                 int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, ExpPtc.PTC_NUM, blockId, N_REP);
+                Block block = Block.CreateBlock(Active_Technique, ExpPtc.PTC_NUM, blockId, ExpDesign.OS_N_REP);
                 _blocks.Add(block);
             }
         }

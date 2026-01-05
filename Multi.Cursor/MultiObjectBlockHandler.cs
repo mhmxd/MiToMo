@@ -1,4 +1,5 @@
-﻿using HarfBuzzSharp;
+﻿using Common.Constants;
+using HarfBuzzSharp;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using static Common.Constants.ExpEnums;
 using static Multi.Cursor.Experiment;
 using static Multi.Cursor.Utils;
 
@@ -74,9 +76,9 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForTrial(Trial trial)
         {
-            int objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
+            int objW = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM);
             int objHalfW = objW / 2;
-            int objAreaW = Utils.MM2PX(OBJ_AREA_WIDTH_MM);
+            int objAreaW = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
             int objAreaHalfW = objAreaW / 2;
             this.TrialInfo($"{trial.ToStr()}");
 
@@ -507,8 +509,8 @@ namespace Multi.Cursor
         private List<TrialRecord.TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
         {
             List<TrialRecord.TObject> placedObjects = new List<TrialRecord.TObject>();
-            double objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
-            double areaW = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM);
+            double objW = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM);
+            double areaW = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
 
             int maxAttemptsPerObject = 1000; // Limit attempts to prevent infinite loops
 

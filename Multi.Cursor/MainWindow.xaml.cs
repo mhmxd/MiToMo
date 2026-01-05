@@ -4,6 +4,7 @@
 *                                                       *
 ********************************************************/
 
+using Common.Constants;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Helpers;
 using Microsoft.ML;
@@ -45,6 +46,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using System.Xml.Linq;
 using WindowsInput;
+using static Common.Constants.ExpEnums;
 using static Multi.Cursor.BlockHandler;
 using static Multi.Cursor.Experiment;
 using static Multi.Cursor.Output;
@@ -348,12 +350,12 @@ namespace Multi.Cursor
         private void CreateExperiment()
         {
             double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
-            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
-            double startHalfWidth = OBJ_WIDTH_MM / 2;
+            double objHalfWidth = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM) / 2;
+            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[Str.x6] / 2;
+            double startHalfWidth = ExpSizes.OBJ_WIDTH_MM / 2;
             double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
             //double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
-            double objAreaHalfWidth = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
+            double objAreaHalfWidth = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM / 2);
 
             // Distances (v.3)
             // Longest
@@ -985,41 +987,41 @@ namespace Multi.Cursor
             UpdateLabelPosition();
         }
 
-        public void ShowStart(
-            Point absolutePosition, Brush color,
-            SysIput.MouseEventHandler mouseEnterHandler, SysIput.MouseEventHandler mouseLeaveHandler,
-            MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
-        {
-            // Clear the previous objects
-            canvas.Children.Clear();
+        //public void ShowStart(
+        //    Point absolutePosition, Brush color,
+        //    SysIput.MouseEventHandler mouseEnterHandler, SysIput.MouseEventHandler mouseLeaveHandler,
+        //    MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
+        //{
+        //    // Clear the previous objects
+        //    canvas.Children.Clear();
 
-            // Convert the absolute position to relative position
-            Point positionInMain = Utils.Offset(absolutePosition,
-                - this.Left,
-                - this.Top);
+        //    // Convert the absolute position to relative position
+        //    Point positionInMain = Utils.Offset(absolutePosition,
+        //        - this.Left,
+        //        - this.Top);
 
-            // Create the square
-            _startRectangle = new Rectangle
-            {
-                Width = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                Fill = color
-            };
+        //    // Create the square
+        //    _startRectangle = new Rectangle
+        //    {
+        //        Width = Utils.MM2PX(ExpSizes.START_WIDTH_MM),
+        //        Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
+        //        Fill = color
+        //    };
 
-            // Position the Start on the Canvas
-            Canvas.SetLeft(_startRectangle, positionInMain.X);
-            Canvas.SetTop(_startRectangle, positionInMain.Y);
+        //    // Position the Start on the Canvas
+        //    Canvas.SetLeft(_startRectangle, positionInMain.X);
+        //    Canvas.SetTop(_startRectangle, positionInMain.Y);
 
-            // Add event
-            _startRectangle.MouseEnter += mouseEnterHandler;
-            _startRectangle.MouseLeave += mouseLeaveHandler;
-            _startRectangle.MouseDown += buttonDownHandler;
-            _startRectangle.MouseUp += buttonUpHandler;
+        //    // Add event
+        //    _startRectangle.MouseEnter += mouseEnterHandler;
+        //    _startRectangle.MouseLeave += mouseLeaveHandler;
+        //    _startRectangle.MouseDown += buttonDownHandler;
+        //    _startRectangle.MouseUp += buttonUpHandler;
 
-            // Add the circle to the Canvas
-            //canvas.Children.Add(_startCircle);
-            canvas.Children.Add(_startRectangle);
-        }
+        //    // Add the circle to the Canvas
+        //    //canvas.Children.Add(_startCircle);
+        //    canvas.Children.Add(_startRectangle);
+        //}
 
 
         public void ClearCanvas()
@@ -1212,8 +1214,8 @@ namespace Multi.Cursor
             Rectangle objRectangle = new Rectangle
             {
                 Tag = tObject.Id,
-                Width = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
+                Width = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM),
+                Height = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM),
                 Fill = color
             };
 
@@ -1435,11 +1437,11 @@ namespace Multi.Cursor
         public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
             double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
-            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
-            double startHalfWidth = OBJ_WIDTH_MM / 2;
+            double objHalfWidth = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM) / 2;
+            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[Str.x6] / 2;
+            double startHalfWidth = ExpSizes.OBJ_WIDTH_MM / 2;
             double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
-            double objAreaHalfWidth = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
+            double objAreaHalfWidth = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM / 2);
 
             // Find the Rect for the object area
             Rect objAreaRect = new Rect(
@@ -1508,7 +1510,7 @@ namespace Multi.Cursor
         {
             // Square
             double padding = Utils.MM2PX(VERTICAL_PADDING);
-            double objAreaHalfWidth = Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2);
+            double objAreaHalfWidth = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM / 2);
             return new Rect(
                 this.Left + padding + objAreaHalfWidth,
                 this.Top + padding + objAreaHalfWidth,

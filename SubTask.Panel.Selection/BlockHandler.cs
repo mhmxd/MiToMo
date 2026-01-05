@@ -7,6 +7,7 @@ using static SubTask.Panel.Selection.TrialRecord;
 using static Common.Helpers.ExpUtils;
 using System.Windows;
 using System.Windows.Media;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.Panel.Selection
 {
@@ -419,7 +420,7 @@ namespace SubTask.Panel.Selection
                     case ButtonState.MARKED:
                         funcColor = Config.FUNCTION_ENABLED_COLOR;
                         break;
-                    case ButtonState.APPLIED:
+                    case ButtonState.SELECTED:
                         funcColor = Config.FUNCTION_APPLIED_COLOR;
                         break;
                 }

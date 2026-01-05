@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using static Common.Constants.ExpEnums;
 using static SubTask.Panel.Selection.Output;
 
 namespace SubTask.Panel.Selection

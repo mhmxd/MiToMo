@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Seril = Serilog.Log;
 using static Common.Constants.ExpEnums;
+using Common.Settings;
 
 namespace SubTask.ObjectSelection
 {
@@ -70,7 +71,7 @@ namespace SubTask.ObjectSelection
                             id * 100 + trialNum,
                             technique,
                             ptc,
-                            3);
+                            ExpDesign.OS_N_OBJS[0]);
 
                 block._trials.Add(trial3);
                 trialNum++;
@@ -79,7 +80,7 @@ namespace SubTask.ObjectSelection
                             id * 100 + trialNum,
                             technique,
                             ptc,
-                            5);
+                            ExpDesign.OS_N_OBJS[1]);
 
                 block._trials.Add(trial5);
                 trialNum++;

@@ -1,6 +1,5 @@
 ﻿using Common.Constants;
 using Common.Settings;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
@@ -12,72 +11,16 @@ namespace SubTask.FunctionSelection
     public class Experiment
     {
 
-        //--- Flags
-        public bool MULTI_FUNC_SAME_W = false;
-
         //--- Setting
-        private readonly int N_FUNC = 3;
-        private readonly int N_BLOCKS = 3;
-
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
 
-        //--- Variables
-        private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
-        //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
-        private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30 }; // BenQ
-        //public static List<int> SIDE_BUTTONS_WIDTH_MULTIPLES = new List<int>() { 3, 6, 18, 30, 52 }; // Multiples of the UNIT (1mm = 4px) widths for grid
-        //public static List<int> TOP_BUTTONS_WIDTH_MULTIPLES = new List<int>() { 3, 6, 15, 18, 30 }; // Multiples of the UNIT (1mm = 4px) widths for top buttons
-        public static Dictionary<string, int> BUTTON_MULTIPLES = new Dictionary<string, int>()
-        {
-            { ExpStrs.x3, 3 },
-            { ExpStrs.x6, 6 },
-            { ExpStrs.x12, 12 },
-            { ExpStrs.x15, 15 },
-            { ExpStrs.x18, 18 },
-            { ExpStrs.x30, 30 },
-            { ExpStrs.x36, 36 }
-        };
-
-        public static Dictionary<Complexity, Dictionary<Side, List<int>>> BUTTON_WIDTHS = new Dictionary<Complexity, Dictionary<Side, List<int>>>()
-        {
-            {
-                Complexity.Simple, new Dictionary<Side, List<int>>()
-                {
-                    { Side.Top, new List<int>() { 6, 18 } },
-                    { Side.Left, new List<int>() { 36 } },
-                    { Side.Right, new List<int>() { 36 } }
-                }
-            },
-
-            {
-                Complexity.Moderate, new Dictionary<Side, List<int>>()
-                {
-                    { Side.Top, new List<int>() { 3, 6, 18 } },
-                    { Side.Left, new List<int>() { 6, 30 } },
-                    { Side.Right, new List<int>() { 6, 30 } }
-                }
-            },
-            {
-                Complexity.Complex, new Dictionary<Side, List<int>>()
-                {
-                    { Side.Top, new List<int>() { 3, 6, 18, 30 } },
-                    { Side.Left, new List<int>() { 3, 6, 18, 30 } },
-                    { Side.Right, new List<int>() { 3, 6, 18, 30 } }
-                }
-            }
-        };
-
-        //private static List<double> _distances = new List<double>(); // Generated in constructor
+        //-- Distance Ranges
         private Range _shortDistRangeMM; // Short distances range (mm)
         private Range _midDistRangeMM; // Mid distances range (mm)
         private Range _longDistRangeMM; // Long distances range (mm)
 
-
         private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
-
-        public static double Min_Target_Width_MM = TARGET_WIDTHS_MM.Min();
-        public static double Max_Target_Width_MM = TARGET_WIDTHS_MM.Max();
 
         //-- Calculated
         public double Longest_Dist_MM;
@@ -85,10 +28,10 @@ namespace SubTask.FunctionSelection
 
         //-- Constants
         //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
-        public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
-        public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
-        public static double START_W_MM = Config.EXCEL_CELL_W;
-        public static double START_H_MM = Config.EXCEL_CELL_H;
+        //public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
+        //public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
+        //public static double START_W_MM = Config.EXCEL_CELL_W;
+        //public static double START_H_MM = Config.EXCEL_CELL_H;
 
         //-- Colors
         public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
@@ -154,10 +97,10 @@ namespace SubTask.FunctionSelection
             };
 
             // Create and add blocks
-            for (int i = 0; i < N_BLOCKS; i++)
+            for (int i = 0; i < ExpDesign.MFS_N_BLOCKS; i++)
             {
                 int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(ExpPtc.PTC_NUM, blockId, complexity, N_FUNC);
+                Block block = Block.CreateBlock(ExpPtc.PTC_NUM, blockId, complexity, ExpDesign.FPS_N_FUN);
                 _blocks.Add(block);
             }
         }
@@ -174,29 +117,9 @@ namespace SubTask.FunctionSelection
             else return null;
         }
 
-        public static double GetMinTargetWidthMM()
-        {
-            return TARGET_WIDTHS_MM.First();
-        }
-
-        public static int GetNumGridTargetWidths()
-        {
-            return GRID_TARGET_WIDTHS_MM.Count;
-        }
-
-        public static List<double> GetGridTargetWidthsMM()
-        {
-            return GRID_TARGET_WIDTHS_MM;
-        }
-
-        public static double GetGridMinTargetWidthMM()
-        {
-            return GRID_TARGET_WIDTHS_MM.Min();
-        }
-
         public static int GetStartHalfWidth()
         {
-            return MM2PX(OBJ_WIDTH_MM / 2);
+            return MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM / 2);
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using static Common.Constants.ExpEnums;
 using static Multi.Cursor.BlockHandler;
 using static Multi.Cursor.Utils;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -130,7 +131,7 @@ namespace Multi.Cursor
         {
             foreach (TFunction func in Functions)
             {
-                if (func.State != ButtonState.APPLIED)
+                if (func.State != ButtonState.SELECTED)
                 {
                     return false; // If any function is not selected, return false
                 }
@@ -143,7 +144,7 @@ namespace Multi.Cursor
         {
             foreach (TObject obj in Objects)
             {
-                if (obj.State != ButtonState.APPLIED)
+                if (obj.State != ButtonState.SELECTED)
                 {
                     return false; // If any object is not applied, return false
                 }
@@ -192,11 +193,11 @@ namespace Multi.Cursor
             TFunction func = GetFunctionById(funcId);
             if (func != null)
             {
-                func.State = ButtonState.APPLIED;
+                func.State = ButtonState.SELECTED;
             }
 
             // Apply to the specified object
-            if (objId != -1) ChangeObjectState(objId, ButtonState.APPLIED);
+            if (objId != -1) ChangeObjectState(objId, ButtonState.SELECTED);
 
             //int nFuncs = Functions.Count;
             //int nObjs = Objects.Count;
@@ -262,7 +263,7 @@ namespace Multi.Cursor
 
         public void SetFunctionAsApplied(int funcId)
         {
-            ChangeFunctionState(funcId, ButtonState.APPLIED);
+            ChangeFunctionState(funcId, ButtonState.SELECTED);
         }
 
         public void MarkMappedObject(int funcId)

@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web.UI;
 using System.Windows;
 using System.Windows.Input;
+using static Common.Constants.ExpEnums;
 using static SubTask.PanelNavigation.Output;
 using static SubTask.PanelNavigation.Utils;
 using static System.Math;

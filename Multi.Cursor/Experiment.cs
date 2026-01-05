@@ -5,70 +5,25 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using Common.Constants;
 using Common.Settings;
 using static System.Math;
+using static Common.Constants.ExpEnums;
 using static Multi.Cursor.Output;
 
 namespace Multi.Cursor
 {
     public class Experiment
     {
-        
-        //--- Flags
-        public bool MULTI_FUNC_SAME_W = false;
-        public Trial_Action OUTSIDE_OBJECT_PRESS = Trial_Action.CONTINUE;
-        public Trial_Action OUTSIDE_AREA_PRESS = Trial_Action.CONTINUE;
-        public Trial_Action MARKER_NOT_ON_FUNCTION_OBJECT_PRESS = Trial_Action.CONTINUE;
 
         //--- Setting
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
 
         //--- Variables
-        private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
-        //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
-        private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30}; // BenQ
-        //public static List<int> SIDE_BUTTONS_WIDTH_MULTIPLES = new List<int>() { 3, 6, 18, 30, 52 }; // Multiples of the UNIT (1mm = 4px) widths for grid
-        //public static List<int> TOP_BUTTONS_WIDTH_MULTIPLES = new List<int>() { 3, 6, 15, 18, 30 }; // Multiples of the UNIT (1mm = 4px) widths for top buttons
-        public static Dictionary<string, int> BUTTON_MULTIPLES = new Dictionary<string, int>()
-        {
-            { Str.x3, 3 },
-            { Str.x6, 6 },
-            { Str.x12, 12 },
-            { Str.x15, 15 },
-            { Str.x18, 18 },
-            { Str.x30, 30 },
-            { Str.x36, 36 }
-        };
-
-        public static Dictionary<Complexity, Dictionary<Side, List<int>>> BUTTON_WIDTHS = new Dictionary<Complexity, Dictionary<Side, List<int>>>()
-        {
-            {
-                Complexity.Simple, new Dictionary<Side, List<int>>()
-                {
-                    { Side.Top, new List<int>() { 6, 18 } },
-                    { Side.Left, new List<int>() { 36 } },
-                    { Side.Right, new List<int>() { 36 } }
-                }
-            },
-
-            {
-                Complexity.Moderate, new Dictionary<Side, List<int>>()
-                {
-                    { Side.Top, new List<int>() { 3, 6, 18 } },
-                    { Side.Left, new List<int>() { 6, 30 } },
-                    { Side.Right, new List<int>() { 6, 30 } }
-                }
-            },
-            {
-                Complexity.Complex, new Dictionary<Side, List<int>>()
-                {
-                    { Side.Top, new List<int>() { 3, 6, 18, 30 } },
-                    { Side.Left, new List<int>() { 3, 6, 18, 30 } },
-                    { Side.Right, new List<int>() { 3, 6, 18, 30 } }
-                }
-            }
-        };
+        //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
+        ////private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
+        //private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30}; // BenQ
 
         //private static List<double> _distances = new List<double>(); // Generated in constructor
         private Range _shortDistRangeMM; // Short distances range (mm)
@@ -82,8 +37,8 @@ namespace Multi.Cursor
 
         private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
 
-        public static double Min_Target_Width_MM = TARGET_WIDTHS_MM.Min();
-        public static double Max_Target_Width_MM = TARGET_WIDTHS_MM.Max();
+        //public static double Min_Target_Width_MM = TARGET_WIDTHS_MM.Min();
+        //public static double Max_Target_Width_MM = TARGET_WIDTHS_MM.Max();
 
         //-- Calculated
         public double Longest_Dist_MM;
@@ -93,9 +48,9 @@ namespace Multi.Cursor
 
         //-- Constants
         //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
-        public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
-        public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
-        public static double START_WIDTH_MM = OBJ_WIDTH_MM;
+        //public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
+        //public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
+        //public static double START_WIDTH_MM = OBJ_WIDTH_MM;
 
 
 
@@ -186,29 +141,9 @@ namespace Multi.Cursor
             else return null;
         }
 
-        public static double GetMinTargetWidthMM()
-        {
-            return TARGET_WIDTHS_MM.First();
-        }
-
-        public static int GetNumGridTargetWidths()
-        {
-            return GRID_TARGET_WIDTHS_MM.Count;
-        }
-
-        public static List<double> GetGridTargetWidthsMM()
-        {
-            return GRID_TARGET_WIDTHS_MM;
-        }
-
-        public static double GetGridMinTargetWidthMM()
-        {
-            return GRID_TARGET_WIDTHS_MM.Min();
-        }
-
         public static int GetStartHalfWidth()
         {
-            return Utils.MM2PX(OBJ_WIDTH_MM / 2);
+            return Utils.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM / 2);
         }
     }
 }

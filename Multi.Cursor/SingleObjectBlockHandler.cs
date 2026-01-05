@@ -1,4 +1,5 @@
-﻿using Google.Protobuf.WellKnownTypes;
+﻿using Common.Constants;
+using Google.Protobuf.WellKnownTypes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,6 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using static Common.Constants.ExpEnums;
 using static Multi.Cursor.Experiment;
 using static Multi.Cursor.Utils;
 
@@ -61,9 +63,9 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForTrial(Trial trial)
         {
-            int objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
+            int objW = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM);
             int objHalfW = objW / 2;
-            int objAreaW = Utils.MM2PX(OBJ_AREA_WIDTH_MM);
+            int objAreaW = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
             int objAreaHalfW = objAreaW / 2;
 
             //this.TrialInfo(trial.ToStr());
@@ -440,7 +442,7 @@ namespace Multi.Cursor
                 // Change obj's color only if all functions are selected
                 if (_activeTrialRecord.AreAllFunctionsApplied())
                 {
-                    _activeTrialRecord.ChangeObjectState(1, ButtonState.APPLIED);
+                    _activeTrialRecord.ChangeObjectState(1, ButtonState.SELECTED);
                 }
 
                 UpdateScene();

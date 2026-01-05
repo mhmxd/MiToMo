@@ -318,12 +318,12 @@ namespace SubTask.FunctionSelection
         private void CreateExperiment()
         {
             double padding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
-            double objHalfWidth = MM2PX(OBJ_WIDTH_MM) / 2;
-            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
-            double startHalfWidth = OBJ_WIDTH_MM / 2;
+            double objHalfWidth = MM2PX(ExpSizes.OBJ_WIDTH_MM) / 2;
+            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
+            double startHalfWidth = ExpSizes.START_BUTTON_LARGER_SIDE_MM / 2;
             double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
             //double objAreaRadius = MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
-            double objAreaHalfWidth = MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
+            double objAreaHalfWidth = MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM / 2);
 
             // Distances (v.3)
             // Longest
@@ -1056,29 +1056,29 @@ namespace SubTask.FunctionSelection
             auxWindow.SetGridButtonHandlers(targetId, mouseDownHandler, mouseUpHandler, nonTargetDownHandler);
         }
 
-        public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
-        {
-            double padding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
-            double objHalfWidth = MM2PX(OBJ_WIDTH_MM) / 2;
-            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
-            double startHalfWidth = OBJ_WIDTH_MM / 2;
-            double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
-            double objAreaHalfWidth = MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
+        //public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
+        //{
+        //    double padding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
+        //    double objHalfWidth = MM2PX(OBJ_WIDTH_MM) / 2;
+        //    double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
+        //    double startHalfWidth = OBJ_WIDTH_MM / 2;
+        //    double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
+        //    double objAreaHalfWidth = MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
 
-            // Find the Rect for the object area
-            Rect objAreaRect = new Rect(
-                this.Left + padding + objAreaHalfWidth,
-                this.Top + padding + objAreaHalfWidth,
-                this.Width - 2 * (padding + objAreaHalfWidth),
-                this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
-            );
-            AuxWindow auxWindow = GetAuxWindow(side);
-            int id = auxWindow.SelectRandButtonByConstraints(widthUnits, objAreaRect, dist);
-            Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
-            Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
+        //    // Find the Rect for the object area
+        //    Rect objAreaRect = new Rect(
+        //        this.Left + padding + objAreaHalfWidth,
+        //        this.Top + padding + objAreaHalfWidth,
+        //        this.Width - 2 * (padding + objAreaHalfWidth),
+        //        this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
+        //    );
+        //    AuxWindow auxWindow = GetAuxWindow(side);
+        //    int id = auxWindow.SelectRandButtonByConstraints(widthUnits, objAreaRect, dist);
+        //    Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
+        //    Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
 
-            return (id, centerPositionAbsolute);
-        }
+        //    return (id, centerPositionAbsolute);
+        //}
 
         //public TrialRecord.TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
         //{
@@ -1144,7 +1144,7 @@ namespace SubTask.FunctionSelection
         {
             // Square
             double padding = MM2PX(VERTICAL_PADDING);
-            double objAreaHalfWidth = MM2PX(OBJ_AREA_WIDTH_MM / 2);
+            double objAreaHalfWidth = MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM / 2);
             return new Rect(
                 this.Left + padding + objAreaHalfWidth,
                 this.Top + padding + objAreaHalfWidth,

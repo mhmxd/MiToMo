@@ -7,6 +7,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using static Common.Helpers.ExpUtils;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.Panel.Selection
 {

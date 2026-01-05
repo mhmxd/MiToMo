@@ -47,7 +47,7 @@ namespace SubTask.PanelNavigation
         public TopWindow()
         {
             InitializeComponent();
-            Side = Side.Top;
+            Side = ExpEnums.Side.Top;
             //this.DataContext = this; // Set DataContext for data binding
 
             EnableMouseInPointer(true);

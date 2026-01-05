@@ -342,7 +342,6 @@
     <Compile Include="Experiment.cs" />
     <Compile Include="FullFinger.cs" />
     <Compile Include="FingerTracker.cs" />
-    <Compile Include="GestureTimesLogRow.cs" />
     <Compile Include="ColumnFactory.cs" />
     <Compile Include="GridNavigator.cs" />
     <Compile Include="Range.cs" />

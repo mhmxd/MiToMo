@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using static Common.Constants.ExpEnums;
 
 namespace SubTask.PanelNavigation
 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using static Common.Constants.ExpEnums;
 
 namespace Common.Constants
 {
@@ -24,6 +25,35 @@ namespace Common.Constants
             { ExpStrs.x18, 18 },
             { ExpStrs.x30, 30 },
             { ExpStrs.x36, 36 }
+        };
+
+        public static Dictionary<Complexity, Dictionary<Side, List<int>>> BUTTON_WIDTHS = new Dictionary<Complexity, Dictionary<Side, List<int>>>()
+        {
+            {
+                Complexity.Simple, new Dictionary<Side, List<int>>()
+                {
+                    { Side.Top, new List<int>() { 6, 18 } },
+                    { Side.Left, new List<int>() { 36 } },
+                    { Side.Right, new List<int>() { 36 } }
+                }
+            },
+
+            {
+                Complexity.Moderate, new Dictionary<Side, List<int>>()
+                {
+                    { Side.Top, new List<int>() { 3, 6, 18 } },
+                    { Side.Left, new List<int>() { 6, 30 } },
+                    { Side.Right, new List<int>() { 6, 30 } }
+                }
+            },
+            {
+                Complexity.Complex, new Dictionary<Side, List<int>>()
+                {
+                    { Side.Top, new List<int>() { 3, 6, 18, 30 } },
+                    { Side.Left, new List<int>() { 3, 6, 18, 30 } },
+                    { Side.Right, new List<int>() { 3, 6, 18, 30 } }
+                }
+            }
         };
 
         public static readonly double MAX_GROUP_WIDTH_MM = 2 * BUTTON_MULTIPLES[ExpStrs.x18] + GUTTER_05MM; // Max width of a group (mm)

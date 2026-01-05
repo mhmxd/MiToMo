@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Constants;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
@@ -10,10 +11,10 @@ namespace SubTask.Panel.Selection
     {
         private static double ROW_HEIGHT = ButtonFactory.GetButtonHeight();
 
-        private static double SMALL_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x6] * MM2PX(Config.GRID_UNIT_MM);
-        private static double WIDE_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x18] * MM2PX(Config.GRID_UNIT_MM);
-        private static double WIDER_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x30] * MM2PX(Config.GRID_UNIT_MM);
-        private static double DROPDOWN_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x3] * MM2PX(Config.GRID_UNIT_MM);
+        private static double SMALL_BUTTON_W = ExpSizes.BUTTON_MULTIPLES[Str.x6] * MM2PX(Config.GRID_UNIT_MM);
+        private static double WIDE_BUTTON_W = ExpSizes.BUTTON_MULTIPLES[Str.x18] * MM2PX(Config.GRID_UNIT_MM);
+        private static double WIDER_BUTTON_W = ExpSizes.BUTTON_MULTIPLES[Str.x30] * MM2PX(Config.GRID_UNIT_MM);
+        private static double DROPDOWN_BUTTON_W = ExpSizes.BUTTON_MULTIPLES[Str.x3] * MM2PX(Config.GRID_UNIT_MM);
 
         private static double GUTTER_4PX = 1 * MM2PX(Config.GRID_UNIT_MM);
         private static double GUTTER_8PX = 2 * MM2PX(Config.GRID_UNIT_MM);

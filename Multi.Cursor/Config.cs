@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Constants;
+using System;
 using System.Linq;
 using System.Security.Policy;
 using System.Windows;
@@ -166,7 +167,7 @@ namespace Multi.Cursor
         public static int CELL_HEIGHT_THRESHOLD = 50; // px
         // -----------------------------------------
 
-        public static double SIDE_COL_MAX_WIDTH_MM = 2 * Experiment.BUTTON_MULTIPLES[Str.x15] + GUTTER_05MM;
+        public static double SIDE_COL_MAX_WIDTH_MM = 2 * ExpSizes.BUTTON_MULTIPLES[Str.x15] + GUTTER_05MM;
         public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * WINDOW_PADDING_MM + GUTTER_05MM;
         public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GUTTER_05MM + 2 * WINDOW_PADDING_MM;
 

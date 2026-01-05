@@ -3,6 +3,7 @@ using Common.Settings;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
+using static Common.Constants.ExpEnums;
 using static Common.Helpers.ExpUtils;
 
 namespace SubTask.PanelNavigation
@@ -11,14 +12,11 @@ namespace SubTask.PanelNavigation
     {
 
         //--- Flags
-        public bool MULTI_FUNC_SAME_W = false;
-        public Trial_Action OUTSIDE_OBJECT_PRESS = Trial_Action.CONTINUE;
-        public Trial_Action OUTSIDE_AREA_PRESS = Trial_Action.CONTINUE;
-        public Trial_Action MARKER_NOT_ON_FUNCTION_OBJECT_PRESS = Trial_Action.CONTINUE;
+        //public Trial_Action OUTSIDE_OBJECT_PRESS = Trial_Action.CONTINUE;
+        //public Trial_Action OUTSIDE_AREA_PRESS = Trial_Action.CONTINUE;
+        //public Trial_Action MARKER_NOT_ON_FUNCTION_OBJECT_PRESS = Trial_Action.CONTINUE;
 
         //--- Setting
-        private readonly int N_BLOCKS = 3;
-        private readonly int N_REP = 4; // Number of repetitions inside each block (total = 12 repetitions)
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
 
@@ -107,10 +105,10 @@ namespace SubTask.PanelNavigation
             Active_Complexity = complexity;
 
             // Create and add blocks
-            for (int i = 0; i < N_BLOCKS; i++)
+            for (int i = 0; i < ExpDesign.PN_N_BLOCKS; i++)
             {
                 int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, ExpPtc.PTC_NUM, blockId, complexity, N_REP);
+                Block block = Block.CreateBlock(Active_Technique, ExpPtc.PTC_NUM, blockId, complexity, ExpDesign.PN_N_REP);
                 _blocks.Add(block);
             }
         }

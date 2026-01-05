@@ -28,6 +28,8 @@ using static SubTask.Panel.Selection.Experiment;
 using static SubTask.Panel.Selection.Output;
 using static SubTask.Panel.Selection.Utils;
 using static Common.Helpers.ExpUtils;
+using static Common.Constants.ExpEnums;
+using Common.Constants;
 
 
 //using WinForms = System.Windows.Forms; // Alias for Forms namespace
@@ -311,7 +313,7 @@ namespace SubTask.Panel.Selection
         private void CreateExperiment()
         {
             double padding = MM2PX(Config.WINDOW_PADDING_MM);
-            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
+            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[Str.x6] / 2;
             double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
 
             // Distances (v.3)
@@ -960,8 +962,8 @@ namespace SubTask.Panel.Selection
             // Create the square
             _startRectangle = new Rectangle
             {
-                Width = MM2PX(Experiment.START_WIDTH_MM),
-                Height = MM2PX(Experiment.START_WIDTH_MM),
+                Width = MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
+                Height = MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
                 Fill = color
             };
 
@@ -1331,7 +1333,7 @@ namespace SubTask.Panel.Selection
         public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
             double padding = MM2PX(Config.WINDOW_PADDING_MM);
-            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
+            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[Str.x6] / 2;
             double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
 
             AuxWindow auxWindow = GetAuxWindow(side);
