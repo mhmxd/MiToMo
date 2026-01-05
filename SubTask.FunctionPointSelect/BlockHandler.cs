@@ -725,20 +725,36 @@ namespace SubTask.FunctionPointSelect
 
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.STR_RELEASE);
+            LogEvent(ExpStrs.STR_RELEASE);
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
-            var startButtonPressed = GetEventCount(Str.STR_PRESS) > 0;
-
+            var startButtonPressed = GetEventCount(ExpStrs.STR_PRESS) > 0;
             if (startButtonPressed)
             {
-                _mainWindow.RemoveStartTrialButton();
-                _activeTrialRecord.EnableFunction();
+                // Change Start to End in the main window
+                _mainWindow.SwitchStartToEnd(_activeTrial.FuncSide);
+                // Remove the Start
+                //_mainWindow.RemoveStartTrialButton();
                 UpdateScene();
             }
-            else // Pressed outside the button => miss
+            else // Press was outside the button => miss
             {
                 EndActiveTrial(Result.MISS);
+            }
+
+            //--- Correctly pressed
+            if (_activeTrialRecord.AreAllFunctionsApplied())
+            {
+                EndActiveTrial(Result.HIT);
+            }
+            else
+            {
+                // Make functions available
+                _mainWindow.EnableFunctions(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
+
+                // Change START to END and unavailable (until all functions are applied)
+                _mainWindow.ChangeStartButtonText(ExpStrs.END);
+                _mainWindow.ChangeStartButtonColor(Config.DARK_ORANGE);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing

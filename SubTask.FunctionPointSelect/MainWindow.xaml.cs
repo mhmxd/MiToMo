@@ -4,6 +4,7 @@
 *                                                       *
 ********************************************************/
 
+using Common.Constants;
 using CommunityToolkit.HighPerformance;
 using CommunityToolkit.HighPerformance.Helpers;
 using Microsoft.Research.TouchMouseSensor;
@@ -271,35 +272,6 @@ namespace SubTask.FunctionPointSelect
             _topWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
             _leftWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
             _rightWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
-
-            // Create grid
-            //_topWindow.KnollHorizontal(6, 12, Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
-            //Func<Grid>[] colCreators = new Func<Grid>[]
-            //{
-            //    () => ColumnFactory.CreateGroupType1(combination: 1),
-            //    () => ColumnFactory.CreateGroupType2(combination: 2),
-            //    () => ColumnFactory.CreateGroupType3(),
-            //    () => ColumnFactory.CreateGroupType1(combination: 3),
-            //    () => ColumnFactory.CreateGroupType2(combination: 1),
-            //    () => ColumnFactory.CreateGroupType1(combination: 6),
-            //    () => ColumnFactory.CreateGroupType3(),
-            //    () => ColumnFactory.CreateGroupType2(combination: 1),
-            //    () => ColumnFactory.CreateGroupType1(combination: 5),
-            //    () => ColumnFactory.CreateGroupType2(combination: 3),
-            //    () => ColumnFactory.CreateGroupType1(combination: 2),
-            //    () => ColumnFactory.CreateGroupType1(combination: 4),
-            //};
-
-            // Starts placed at the two bottom corners (to set max distance from grid buttons)
-            //_topWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
-
-            //_leftWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
-            //_rightWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
-
-            //_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleTopGrid);
-
-            // Create Top-Simple
-            //_topWindow.PlaceGrid(RowFactory.CreateSimpleTopGrid);
 
             UpdateLabelPosition();
 
@@ -758,37 +730,6 @@ namespace SubTask.FunctionPointSelect
             // Make the experiment (incl. creating blocks)
             _experiment.Init(ptc, complexity);
 
-            //// Find positions for all blocks
-            //foreach (Block bl in _experiment.Blocks)
-            //{
-            //    this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
-            //    if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
-            //    {
-            //        this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
-            //        BlockHandler blockHandler = new MultiObjectBlockHandler(this, bl);
-            //        bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-            //        if (positionsFound) _blockHandlers.Add(blockHandler);
-            //        else
-            //        {
-            //            this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-            //            return false;
-            //        }
-            //    }
-            //    else // Single-object block
-            //    {
-            //        this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
-            //        BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl);
-            //        bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-            //        if (positionsFound) _blockHandlers.Add(blockHandler);
-            //        else
-            //        {
-            //            this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-            //            return false;
-            //        }
-            //    }
-            //}
-
-            //bool positionsFound = FindPositionsForAllBlocks();
             return true;
         }
 
@@ -800,92 +741,10 @@ namespace SubTask.FunctionPointSelect
 
             ExperiLogger.Init(_experiment.Participant_Number);
 
-            //if (Utils.GetDevice(_experiment.Active_Technique) == Technique.TOMO)
-            //{
-            //    _isTouchMouseActive = true;
-            //    if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);
-            //    _touchSurface.SetGestureHandler(_activeBlockHandler);
-            //    this.TrialInfo($"TouchSurface Initiated");
-            //}
-
             _stopWatch.Start();
             _activeBlockHandler.BeginActiveBlock();
 
-            //if (TaskType == TaskType.REPEATING) _activeBlockHandler = new MultiObjectBlockHandler(this, block);
-            //else if (TaskType == TaskType.ALTERNATING) _activeBlockHandler = new SingleObjectBlockHandler(this, block);
-
-            //bool positionsFound = _activeBlockHandler.FindPositionsForActiveBlock();
-            //if (positionsFound)
-            //{
-            //    UpdateInfoLabel(1, _activeBlockNum);
-            //    _activeBlockHandler.BeginActiveBlock();
-            //}
         }
-
-        //private bool FindPosForRepTrial(Trial trial)
-        //{
-        //    int startW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
-        //    int startHalfW = startW / 2;
-        //    this.TrialInfo($"Finding positions for Trial#{trial.Id} [Target = {trial.FuncSide.ToString()}, " +
-        //        $"TargetMult = {trial.TargetMultiple}, D (mm) = {trial.DistanceMM:F2}]");
-
-        //    // Get the target window
-        //    AuxWindow trialTargetWindow = null;
-        //    Point trialTargetWindowPosition = new Point(0, 0);
-        //    switch (trial.FuncSide)
-        //    {
-        //        case Side.Left:
-        //            trialTargetWindow = _leftWindow;
-        //            trialTargetWindowPosition = new Point(_leftWinRect.Left, _leftWinRect.Top);
-        //            break;
-        //        case Side.Right:
-        //            trialTargetWindow = _rightWindow;
-        //            trialTargetWindowPosition = new Point(_rightWinRect.Left, _rightWinRect.Top);
-        //            break;
-        //        case Side.Top:
-        //            trialTargetWindow = _topWindow;
-        //            trialTargetWindowPosition = new Point(_topWinRect.Left, _topWinRect.Top);
-        //            break;
-        //        default:
-        //            throw new ArgumentException($"Invalid target side: {trial.FuncSide}");
-        //    }
-
-        //    // Set the acceptable range for the Target button
-
-        //    int targetId = trialTargetWindow.SelectRandButtonByConstraints(trial.TargetMultiple, trial.DistancePX);
-        //    _trialTargetIds[trial.Id] = targetId; // Map trial id to target id
-
-        //    // Get the absolute position of the target center
-        //    Point targetCenterInTargetWindow = trialTargetWindow.GetGridButtonCenter(targetId);
-        //    Point targetCenterAbsolute = targetCenterInTargetWindow
-        //        .OffsetPosition(trialTargetWindowPosition.x, trialTargetWindowPosition.y);
-
-        //    // Find a Start position for each distance in the passes
-        //    _repTrialStartPositions[trial.Id] = new Dictionary<int, Point>(); // Initialize the dict for this trial
-        //    foreach (int dist in trial.Distances)
-        //    {
-        //        // Find a position for the Start
-        //        Point startCenter = FindRandPointWithDist(
-        //            _objectConstraintRectAbsolue,
-        //            targetCenterAbsolute,
-        //            dist,
-        //            trial.FuncSide.GetOpposite());
-        //        Point startPosition = startCenter.OffsetPosition(-startHalfW, -startHalfW);
-        //        Point startPositionInMain = startPosition.OffsetPosition(-thisLeft, -thisTop); // Position relative to the main window
-        //        this.TrialInfo($"Target: {targetCenterAbsolute}; Dist (px): {dist}; Start pos in main: {startPositionInMain}");
-        //        if (startCenter.x == -1 && startCenter.y == -1) // Failed to find a valid position
-        //        {
-        //            this.TrialInfo($"No valid position found for Start for dist {dist}!");
-        //            return false;
-        //        }
-        //        else // Valid position found
-        //        {
-        //            _repTrialStartPositions[trial.Id][dist] = startPositionInMain; // Add the position to the dictionary
-        //        }
-        //    }
-
-        //    return true; // Valid positions found for all distances
-        //}
 
         public Point FindRandPointWithDist(Rect rect, Point src, double dist, Side side)
         {
@@ -1023,75 +882,6 @@ namespace SubTask.FunctionPointSelect
             // Clear the canvas
             canvas.Children.Clear();
         }
-
-        //public async Task<Task<bool>> SetupLayout(Complexity complexity)
-        //{
-        //    // Task to return when everything is set up
-        //    var tcs = new TaskCompletionSource<bool>();
-
-        //    // Create a list to hold the tasks for placing the grids
-        //    var placementTasks = new List<Task>();
-
-        //    switch (complexity)
-        //    {
-        //        case Complexity.Simple:
-        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
-        //            placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
-        //            placementTasks.Add(_rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
-        //            break;
-        //        case Complexity.Moderate:
-        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING));
-        //            placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
-        //            placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
-        //            break;
-        //        case Complexity.Complex:
-        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateTopComplexGrid, -1, HORIZONTAL_PADDING));
-        //            placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1));
-        //            placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1));
-        //            break;
-        //    }
-
-        //    // Await all tasks concurrently.
-        //    // The code will not proceed until all grids have been placed and their Loaded events processed.
-        //    await Task.WhenAll(placementTasks);
-
-        //    // Task is a success by default, unless a block fails to find positions
-        //    tcs.SetResult(true);
-
-        //    // Find positions for all blocks
-        //    for (int b = 1; b <= _experiment.Blocks.Count; b++)
-        //    {
-        //        Block bl = _experiment.Blocks[b - 1];
-        //        this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
-        //        if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
-        //        {
-        //            this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
-        //            BlockHandler blockHandler = new MultiObjectBlockHandler(this, bl);
-        //            bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-        //            if (positionsFound) _blockHandlers.Add(blockHandler);
-        //            else
-        //            {
-        //                this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-        //                tcs.SetResult(false); // Indicate failure
-        //            }
-        //        }
-        //        else // Single-object block
-        //        {
-        //            this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
-        //            BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl, b);
-        //            bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-        //            if (positionsFound) _blockHandlers.Add(blockHandler);
-        //            else
-        //            {
-        //                this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-        //                tcs.SetResult(false); // Indicate failure
-        //            }
-        //        }
-        //    }
-
-        //    return tcs.Task;
-
-        //}
 
         public async Task<bool> SetupLayout(Complexity complexity)
         {
@@ -1676,6 +1466,22 @@ namespace SubTask.FunctionPointSelect
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             return auxWindow.GetMiddleButtonId();
+        }
+
+        internal void ChangeStartButtonText(string text)
+        {
+            if (_startButton != null && _startButton.Child is TextBlock label)
+            {
+                label.Text = text;
+            }
+        }
+
+        internal void ChangeStartButtonColor(Brush color)
+        {
+            if (_startButton != null)
+            {
+                _startButton.Background = color;
+            }
         }
     }
 }

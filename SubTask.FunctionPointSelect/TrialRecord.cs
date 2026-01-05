@@ -72,7 +72,7 @@ namespace SubTask.FunctionPointSelect
             Functions = new List<TFunction>();
             Objects = new List<TObject>();
             ObjFuncMap = new List<Pair>();
-            StartBtnRect = new Rect(0, 0, ExpSizes.START_BUTTON_DIM_MM.W, ExpSizes.START_BUTTON_DIM_MM.H);
+            StartBtnRect = new Rect(0, 0, ExpSizes.START_BUTTON_LARGER_SIDE_MM, ExpSizes.START_BUTTON_LARGER_SIDE_MM);
             //ObjectAreaRect = new Rect();
             //EventCounts = new Dictionary<string, int>();
             Events = new List<TrialEvent>();
