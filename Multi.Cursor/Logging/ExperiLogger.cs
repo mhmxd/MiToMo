@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics;
+﻿using Common.Settings;
+using MathNet.Numerics;
 using Multi.Cursor.Logging;
 using Serilog;
 using Serilog.Core;
@@ -83,9 +84,9 @@ namespace Multi.Cursor
         //    }
         //}
 
-        public static void Init(int participantId, Technique tech, TaskType taskType)
+        public static void Init(Technique tech, TaskType taskType)
         {
-            _ptcId = participantId;
+            _ptcId = ExpPtc.PTC_NUM;
             _technique = tech;
 
             //string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");

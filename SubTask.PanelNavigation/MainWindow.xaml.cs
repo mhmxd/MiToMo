@@ -742,10 +742,10 @@ namespace SubTask.PanelNavigation
 
         }
 
-        public bool SetExperiment(int ptc, string tech, Complexity complexity)
+        public bool SetExperiment(string tech, Complexity complexity)
         {
             // Make the experiment (incl. creating blocks)
-            _experiment.Init(ptc, tech, complexity);
+            _experiment.Init(tech, complexity);
 
             //// Find positions for all blocks
             //foreach (Block bl in _experiment.Blocks)
@@ -787,7 +787,7 @@ namespace SubTask.PanelNavigation
             //Block block = _experiment.GetBlock(_activeBlockNum);
             _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
-            ExperiLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique);
+            ExperiLogger.Init(_experiment.Active_Technique);
 
             if (Utils.GetDevice(_experiment.Active_Technique) == Technique.TOMO)
             {

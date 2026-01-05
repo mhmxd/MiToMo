@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics;
+﻿using Common.Settings;
+using MathNet.Numerics;
 using Serilog;
 using Serilog.Core;
 using SubTask.Panel.Selection.Logging;
@@ -83,9 +84,9 @@ namespace SubTask.Panel.Selection
         //    }
         //}
 
-        public static void Init(int participantId, Technique tech)
+        public static void Init(Technique tech)
         {
-            _ptcId = participantId;
+            _ptcId = ExpPtc.PTC_NUM;
             _technique = tech;
 
             _detailTrialLogWriter = PrepareFile<DetailTrialLog>(_sosfTrialLogFilePath);

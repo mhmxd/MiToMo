@@ -622,10 +622,10 @@ namespace SubTask.ObjectSelection
 
         }
 
-        public bool SetExperiment(int ptc, string tech, Complexity complexity)
+        public bool SetExperiment(string tech, Complexity complexity)
         {
             // Make the experiment (incl. creating blocks)
-            _experiment.Init(ptc, tech, complexity);
+            _experiment.Init(tech, complexity);
 
             // Create block handlers
             for (int b = 1; b <= _experiment.Blocks.Count; b++)
@@ -646,7 +646,7 @@ namespace SubTask.ObjectSelection
             _activeBlockNum = 1;
             _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
-            ExperiLogger.Init(_experiment.Participant_Number, _experiment.Active_Technique);
+            ExperiLogger.Init(_experiment.Active_Technique);
 
             _stopWatch.Start();
             _activeBlockHandler.BeginActiveBlock();

@@ -1,4 +1,5 @@
 ﻿using Common.Constants;
+using Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,6 @@ namespace SubTask.FunctionSelection
         private readonly int N_FUNC = 3;
         private readonly int N_BLOCKS = 3;
 
-        public static int DEFAULT_PTC = 1000;
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
 
@@ -96,14 +96,14 @@ namespace SubTask.FunctionSelection
 
         //-- Information
 
-        public int Participant_Number { get; set; } // Set in the info dialog
+        //public int Participant_Number { get; set; } // Set in the info dialog
 
         private List<Block> _blocks = new List<Block>();
         public List<Block> Blocks { get { return _blocks; } }
 
         public Experiment(double shortDistMM, double longDistMM)
         {
-            Participant_Number = DEFAULT_PTC; // Default
+            //Participant_Number = DEFAULT_PTC; // Default
             Shortest_Dist_MM = shortDistMM;
             Longest_Dist_MM = longDistMM;
 
@@ -124,10 +124,10 @@ namespace SubTask.FunctionSelection
 
         }
 
-        public void Init(int ptc, string tech, Complexity complexity)
+        public void Init(string tech, Complexity complexity)
         {
-            this.TrialInfo($"Participant: {ptc}, Technique: {tech}");
-            Participant_Number = ptc;
+            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}, Technique: {tech}");
+            //Participant_Number = ptc;
             if (tech == ExpStrs.TOUCH_MOUSE_TAP)
             {
                 Active_Technique = Technique.TOMO_TAP;
@@ -156,8 +156,8 @@ namespace SubTask.FunctionSelection
             // Create and add blocks
             for (int i = 0; i < N_BLOCKS; i++)
             {
-                int blockId = Participant_Number * 100 + i + 1;
-                Block block = Block.CreateBlock(Participant_Number, blockId, complexity, N_FUNC);
+                int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
+                Block block = Block.CreateBlock(ExpPtc.PTC_NUM, blockId, complexity, N_FUNC);
                 _blocks.Add(block);
             }
         }

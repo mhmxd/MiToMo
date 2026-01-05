@@ -20,7 +20,7 @@
         </Grid.ColumnDefinitions>
 
         <TextBlock Text="Participant Number:" Grid.Row="0" Grid.Column="0" Margin="10" VerticalAlignment="Center"/>
-        <TextBox Name="ParticipantNumberTextBox" Grid.Row="0" Grid.Column="1" Margin="10"/>
+        <TextBlock Name="ParticipantNumberTextBlock" Grid.Row="0" Grid.Column="1" Margin="10"/>
 
         <TextBlock Text="Technique:" Grid.Row="1" Grid.Column="0" Margin="10" VerticalAlignment="Center"/>
         <ComboBox Name="TechniqueComboBox" Grid.Row="1" Grid.Column="1" Margin="10"/>

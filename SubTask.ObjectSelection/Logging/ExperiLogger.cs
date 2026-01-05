@@ -1,4 +1,6 @@
-﻿using Serilog;
+﻿using Common.Constants;
+using Common.Settings;
+using Serilog;
 using Serilog.Core;
 using SubTask.ObjectSelection.Logging;
 using System;
@@ -8,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows;
-using Common.Constants;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
@@ -51,9 +52,9 @@ namespace SubTask.ObjectSelection
         private static Dictionary<int, List<CursorRecord>> _trialCursorRecords = new Dictionary<int, List<CursorRecord>>();
         private static int _activeTrialId = -1;
 
-        public static void Init(int participantId, Technique tech)
+        public static void Init(Technique tech)
         {
-            _ptcId = participantId;
+            _ptcId = ExpPtc.PTC_NUM;
             _technique = tech;
 
             _detailedTrialLogWriter = PrepareFile<DetailedTrialLog>(_mosfTrialLogFilePath);

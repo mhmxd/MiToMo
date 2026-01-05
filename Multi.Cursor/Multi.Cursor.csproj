@@ -417,6 +417,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{2fa25bf3-b63c-41d3-9881-229b316c748b}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Microsoft.Research.TouchMouseSensor\Microsoft.Research.TouchMouseSensor.csproj">
       <Project>{3111BBCA-A6F1-4AC1-8F7A-EEBD261607B5}</Project>
       <Name>Microsoft.Research.TouchMouseSensor</Name>

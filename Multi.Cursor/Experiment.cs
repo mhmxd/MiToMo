@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using Common.Settings;
 using static System.Math;
 using static Multi.Cursor.Output;
 
@@ -20,10 +21,6 @@ namespace Multi.Cursor
         public Trial_Action MARKER_NOT_ON_FUNCTION_OBJECT_PRESS = Trial_Action.CONTINUE;
 
         //--- Setting
-        private readonly int N_FUNC = 3;
-        private readonly int N_OBJ = 3;
-        private readonly int N_BLOCKS = 3;
-        public static int DEFAULT_PTC = 1000;
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
 
@@ -104,14 +101,14 @@ namespace Multi.Cursor
 
         //-- Information
 
-        public int Participant_Number { get; set; } // Set in the info dialog
+        //public int Participant_Number { get; set; } // Set in the info dialog
         
         private List<Block> _blocks = new List<Block>();
         public List<Block> Blocks { get { return _blocks; } }
 
         public Experiment(double shortDistMM, double longDistMM)
         {
-            Participant_Number = DEFAULT_PTC; // Default
+            //Participant_Number = ExpPtc.PTC_NUM; // Default
             Shortest_Dist_MM = shortDistMM;
             Longest_Dist_MM = longDistMM;
 
@@ -132,10 +129,10 @@ namespace Multi.Cursor
 
         }
 
-        public void Init(int ptc, string tech, Complexity complexity)
+        public void Init(string tech, Complexity complexity)
         {
-            this.TrialInfo($"Participant: {ptc}, Technique: {tech}");
-            Participant_Number = ptc;
+            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}, Technique: {tech}");
+            //Participant_Number = ptc;
             if (tech == Str.TOUCH_MOUSE_TAP)
             {
                 Active_Technique = Technique.TOMO_TAP;
@@ -163,10 +160,13 @@ namespace Multi.Cursor
             
             //List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
             // Create and add blocks
-            for (int i = 0; i < N_BLOCKS; i++)
+            for (int i = 0; i < ExpDesign.LT_N_BLOCKS; i++)
             {
-                int blockId = Participant_Number * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, Participant_Number, blockId, complexity, distRanges, N_FUNC, N_OBJ);
+                int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
+                Block block = Block.CreateBlock(
+                    Active_Technique, ExpPtc.PTC_NUM, 
+                    blockId, complexity, distRanges, 
+                    ExpDesign.LT_N_FUN, ExpDesign.LT_N_OBJ);
                 _blocks.Add(block);
             }
 

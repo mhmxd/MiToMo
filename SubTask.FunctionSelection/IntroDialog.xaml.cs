@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Common.Constants;
+using Common.Settings;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionSelection
@@ -12,7 +13,7 @@ namespace SubTask.FunctionSelection
     /// </summary>
     public partial class IntroDialog : Window
     {
-        public int ParticipantNumber { get; private set; }
+        //public int ParticipantNumber { get; private set; }
         public string Technique { get; private set; }
         public string SelectedExperiment { get; private set; }
         public string SelectedComplexity { get; private set; }
@@ -25,7 +26,7 @@ namespace SubTask.FunctionSelection
         {
             InitializeComponent();
 
-            ParticipantNumberTextBox.Text = Experiment.DEFAULT_PTC.ToString();
+            ParticipantNumberTextBlock.Text = ExpPtc.PTC_NUM.ToString();
             TechniqueComboBox.ItemsSource = new string[] { ExpStrs.TOUCH_MOUSE_TAP, ExpStrs.TOUCH_MOUSE_SWIPE, ExpStrs.MOUSE };
             TechniqueComboBox.SelectedValue = ExpStrs.MOUSE;
             ExperimentComboBox.ItemsSource = new string[] { ExpStrs.PRACTICE, ExpStrs.TEST };
@@ -45,7 +46,7 @@ namespace SubTask.FunctionSelection
             {
                 if (Owner is MainWindow ownerWindow)
                 {
-                    ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
+                    //ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
                     Technique = TechniqueComboBox.SelectedItem as string;
                     SelectedExperiment = ExperimentComboBox.SelectedItem as string;
                     SelectedComplexity = (ComplexityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
@@ -56,7 +57,7 @@ namespace SubTask.FunctionSelection
                     BigButton.Content = "Initializing...";
                     //BigButton.IsEnabled = false;
 
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(ParticipantNumber, Technique.ToString(), complexity));
+                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(Technique.ToString(), complexity));
 
                     if (_experimentSet)
                     {

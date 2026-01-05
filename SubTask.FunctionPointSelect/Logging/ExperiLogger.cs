@@ -1,4 +1,5 @@
-﻿using MathNet.Numerics;
+﻿using Common.Settings;
+using MathNet.Numerics;
 using Serilog;
 using Serilog.Core;
 using SubTask.FunctionPointSelect.Logging;
@@ -70,9 +71,9 @@ namespace SubTask.FunctionPointSelect
         //    }
         //}
 
-        public static void Init(int participantId)
+        public static void Init()
         {
-            _ptcId = participantId;
+            _ptcId = ExpPtc.PTC_NUM;
 
             // Create SOSF trial log if not exists
             _detailTrialLogWriter = PrepareFile<DetailTrialLog>(_detailTrialLogFilePath);

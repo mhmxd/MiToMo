@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Settings;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,7 +22,7 @@ namespace SubTask.Panel.Selection
     /// </summary>
     public partial class IntroDialog : Window
     {
-        public int ParticipantNumber { get; private set; }
+        //public int ParticipantNumber { get; private set; }
         public string Technique { get; private set; }
         public string SelectedExperiment { get; private set; }
         public string SelectedComplexity { get; private set; }
@@ -34,7 +35,7 @@ namespace SubTask.Panel.Selection
         {
             InitializeComponent();
 
-            ParticipantNumberTextBox.Text = Experiment.DEFAULT_PTC.ToString();
+            ParticipantNumberTextBlock.Text = ExpPtc.PTC_NUM.ToString();
             TechniqueComboBox.ItemsSource = new string[] { Str.TOUCH_MOUSE_TAP, Str.TOUCH_MOUSE_SWIPE, Str.MOUSE };
             TechniqueComboBox.SelectedValue = Str.MOUSE;
             ExperimentComboBox.ItemsSource = new string[] { Str.PRACTICE, Str.TEST };
@@ -54,7 +55,7 @@ namespace SubTask.Panel.Selection
             {
                 if (Owner is MainWindow ownerWindow)
                 {
-                    ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
+                    //ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
                     Technique = TechniqueComboBox.SelectedItem as string;
                     SelectedExperiment = ExperimentComboBox.SelectedItem as string;
                     SelectedComplexity = (ComplexityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
@@ -65,7 +66,7 @@ namespace SubTask.Panel.Selection
                     BigButton.Content = "Initializing...";
                     //BigButton.IsEnabled = false;
 
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(ParticipantNumber, Technique.ToString(), complexity));
+                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(Technique.ToString(), complexity));
 
                     if (_experimentSet)
                     {

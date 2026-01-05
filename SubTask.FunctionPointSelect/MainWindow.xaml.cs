@@ -725,10 +725,10 @@ namespace SubTask.FunctionPointSelect
 
         }
 
-        public bool SetExperiment(int ptc, string tech, Complexity complexity)
+        public bool SetExperiment(string tech, Complexity complexity)
         {
             // Make the experiment (incl. creating blocks)
-            _experiment.Init(ptc, complexity);
+            _experiment.Init(complexity);
 
             return true;
         }
@@ -739,7 +739,7 @@ namespace SubTask.FunctionPointSelect
             //Block block = _experiment.GetBlock(_activeBlockNum);
             _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
-            ExperiLogger.Init(_experiment.Participant_Number);
+            ExperiLogger.Init();
 
             _stopWatch.Start();
             _activeBlockHandler.BeginActiveBlock();

@@ -732,7 +732,7 @@ namespace SubTask.FunctionPointSelect
             if (startButtonPressed)
             {
                 // Change Start to End in the main window
-                _mainWindow.SwitchStartToEnd(_activeTrial.FuncSide);
+                //_mainWindow.SwitchStartToEnd(_activeTrial.FuncSide);
                 // Remove the Start
                 //_mainWindow.RemoveStartTrialButton();
                 UpdateScene();
@@ -750,7 +750,7 @@ namespace SubTask.FunctionPointSelect
             else
             {
                 // Make functions available
-                _mainWindow.EnableFunctions(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
+                //_mainWindow.EnableFunctions(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
 
                 // Change START to END and unavailable (until all functions are applied)
                 _mainWindow.ChangeStartButtonText(ExpStrs.END);
