@@ -74,9 +74,9 @@ namespace Multi.Cursor
             double twoThird = Shortest_Dist_MM + distDiff * 2 / 3;
 
             // Set the distRanges
-            _shortDistRangeMM = new Range(Shortest_Dist_MM, oneThird - Dist_PADDING_MM, Str.SHORT_DIST); // Short distances range
-            _midDistRangeMM = new Range(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM, Str.MID_DIST); // Middle distances range (will be set later)
-            _longDistRangeMM = new Range(twoThird + Dist_PADDING_MM, Longest_Dist_MM, Str.LONG_DIST); // Long distances range
+            _shortDistRangeMM = new Range(Shortest_Dist_MM, oneThird - Dist_PADDING_MM, ExpStrs.SHORT_DIST); // Short distances range
+            _midDistRangeMM = new Range(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM, ExpStrs.MID_DIST); // Middle distances range (will be set later)
+            _longDistRangeMM = new Range(twoThird + Dist_PADDING_MM, Longest_Dist_MM, ExpStrs.LONG_DIST); // Long distances range
 
             this.TrialInfo($"Short dist range (mm): {_shortDistRangeMM.ToString()}");
             this.TrialInfo($"Mid dist range (mm): {_midDistRangeMM.ToString()}");
@@ -88,17 +88,17 @@ namespace Multi.Cursor
         {
             this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}, Technique: {tech}");
             //Participant_Number = ptc;
-            if (tech == Str.TOUCH_MOUSE_TAP)
+            if (tech == ExpStrs.TOUCH_MOUSE_TAP)
             {
                 Active_Technique = Technique.TOMO_TAP;
                 Config.SetMode(0);
             }
-            else if (tech == Str.TOUCH_MOUSE_SWIPE)
+            else if (tech == ExpStrs.TOUCH_MOUSE_SWIPE)
             {
                 Active_Technique = Technique.TOMO_SWIPE;
                 Config.SetMode(1);
             }
-            else if (tech == Str.MOUSE)
+            else if (tech == ExpStrs.MOUSE)
             {
                 Active_Technique = Technique.MOUSE;
             }

@@ -22,7 +22,7 @@ namespace SubTask.Panel.Selection
 
         public static SButton CreateDropdownButton() // The dropdown part!
         {
-            int wMultiple = ExpSizes.BUTTON_MULTIPLES[Str.x3]; // 3 x Unit
+            int wMultiple = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x3]; // 3 x Unit
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the widthX of the button in the grid 
@@ -34,7 +34,7 @@ namespace SubTask.Panel.Selection
 
         public static SButton CreateX6Button()
         {
-            int wMultiple = ExpSizes.BUTTON_MULTIPLES[Str.x6];
+            int wMultiple = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the widthX of the button in the grid 
@@ -46,7 +46,7 @@ namespace SubTask.Panel.Selection
 
         public static SButton CreateX18Button()
         {
-            int wMultiple = ExpSizes.BUTTON_MULTIPLES[Str.x18]; // 72 px
+            int wMultiple = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x18]; // 72 px
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the widthX of the button in the grid 
@@ -58,7 +58,7 @@ namespace SubTask.Panel.Selection
 
         public static SButton CreateX30Button()
         {
-            int wMultiple = ExpSizes.BUTTON_MULTIPLES[Str.x30]; // 120 px
+            int wMultiple = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x30]; // 120 px
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the widthX of the button in the grid 
@@ -70,7 +70,7 @@ namespace SubTask.Panel.Selection
 
         public static SButton CreateX36Button()
         {
-            int wMultiple = ExpSizes.BUTTON_MULTIPLES[Str.x36]; // 144 px
+            int wMultiple = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x36]; // 144 px
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the widthX of the button in the grid 

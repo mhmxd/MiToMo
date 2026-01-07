@@ -1,4 +1,5 @@
-﻿using Common.Logs;
+﻿using Common.Constants;
+using Common.Logs;
 using Common.Settings;
 using MathNet.Numerics;
 using Serilog;
@@ -247,7 +248,7 @@ namespace SubTask.FunctionPointSelect
             log.id = trial.Id;
             log.tech = trial.Technique.ToString().ToLower();
             log.cmplx = trial.Complexity.ToString().ToLower();
-            log.tsk_type = Str.TASKTYPE_ABBR[trial.TaskType];
+            log.tsk_type = ExpStrs.TASKTYPE_ABBR[trial.TaskType];
             log.fun_side = trial.FuncSide.ToString().ToLower();
             log.func_width = trial.GetFunctionWidthMM();
             log.n_obj = trial.NObjects;
@@ -266,38 +267,38 @@ namespace SubTask.FunctionPointSelect
                 switch (_technique)
                 {
                     case Technique.MOUSE:
-                        _blockFileLog.Information($"Start Release   -> Obj Enter:   {trialRecord.GetDuration(Str.STR_RELEASE, Str.OBJ_ENTER)}");
-                        _blockFileLog.Information($"Obj Enter       -> Obj Press:   {trialRecord.GetDuration(Str.OBJ_ENTER, Str.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUN_PRESS)}");
-                        _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(Str.FUN_PRESS, Str.FUN_RELEASE)}");
-                        _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(Str.FUN_RELEASE, Str.ARA_PRESS)}");
+                        _blockFileLog.Information($"Start Release   -> Obj Enter:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.OBJ_ENTER)}");
+                        _blockFileLog.Information($"Obj Enter       -> Obj Press:   {trialRecord.GetDuration(ExpStrs.OBJ_ENTER, ExpStrs.OBJ_PRESS)}");
+                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
+                        _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.FUN_PRESS)}");
+                        _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE)}");
+                        _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(ExpStrs.FUN_RELEASE, ExpStrs.ARA_PRESS)}");
                         _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS))}");
+                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
                         _blockFileLog.Information($"==============================================================================================================");
                         break;
 
                     case Technique.TOMO_TAP:
-                        _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDurationToFingerAction(Str.STR_RELEASE, Str.TAP_DOWN)}");
+                        _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDurationToFingerAction(ExpStrs.STR_RELEASE, ExpStrs.TAP_DOWN)}");
                         _blockFileLog.Information($"Tap Down        -> Tap Up:      {trialRecord.GetGestureDuration(Technique.TOMO_TAP)}");
-                        _blockFileLog.Information($"Tap Up          -> Obj Press:   {trialRecord.GetDurationFromFingerAction(Str.TAP_UP, Str.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT)}");
-                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(Str.OBJ_EXIT, Str.ARA_PRESS)}");
+                        _blockFileLog.Information($"Tap Up          -> Obj Press:   {trialRecord.GetDurationFromFingerAction(ExpStrs.TAP_UP, ExpStrs.OBJ_PRESS)}");
+                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
+                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_EXIT)}");
+                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(ExpStrs.OBJ_EXIT, ExpStrs.ARA_PRESS)}");
                         _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS))}");
+                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
                         _blockFileLog.Information($"==============================================================================================================");
                         break;
 
                     case Technique.TOMO_SWIPE:
-                        _blockFileLog.Information($"Start Release   -> Swipe Start: {trialRecord.GetDurationToFingerAction(Str.STR_RELEASE, Str.SWIPE_START)}");
+                        _blockFileLog.Information($"Start Release   -> Swipe Start: {trialRecord.GetDurationToFingerAction(ExpStrs.STR_RELEASE, ExpStrs.SWIPE_START)}");
                         _blockFileLog.Information($"Swipe Start     -> Swipe End:   {trialRecord.GetGestureDuration(Technique.TOMO_SWIPE)}");
-                        _blockFileLog.Information($"Swipe End       -> Obj Press:   {trialRecord.GetDurationFromFingerAction(Str.SWIPE_END, Str.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT)}");
-                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(Str.OBJ_EXIT, Str.ARA_PRESS)}");
+                        _blockFileLog.Information($"Swipe End       -> Obj Press:   {trialRecord.GetDurationFromFingerAction(ExpStrs.SWIPE_END, ExpStrs.OBJ_PRESS)}");
+                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
+                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_EXIT)}");
+                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(ExpStrs.OBJ_EXIT, ExpStrs.ARA_PRESS)}");
                         _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS))}");
+                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
                         _blockFileLog.Information($"==============================================================================================================");
                         break;
                 }
@@ -305,7 +306,7 @@ namespace SubTask.FunctionPointSelect
             else
             {
                 // For now. Later we put detailed log
-                _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS)}");
+                _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS)}");
             }
 
         }
@@ -321,17 +322,17 @@ namespace SubTask.FunctionPointSelect
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log events
-            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
+            log.trlsh_curmv = trialRecord.GetDuration(ExpStrs.TRIAL_SHOW, ExpStrs.FIRST_MOVE);
+            log.curmv_strnt = trialRecord.GetLastSeqDuration(ExpStrs.FIRST_MOVE, ExpStrs.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetLastSeqDuration(ExpStrs.STR_ENTER, ExpStrs.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetLastSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
-            log.strrl_strxt = trialRecord.GetLastSeqDuration(Str.STR_RELEASE, Str.STR_EXIT);
-            log.strxt_pnlnt = trialRecord.GetLastSeqDuration(Str.STR_EXIT, Str.PNL_ENTER);
+            log.strrl_strxt = trialRecord.GetLastSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.STR_EXIT);
+            log.strxt_pnlnt = trialRecord.GetLastSeqDuration(ExpStrs.STR_EXIT, ExpStrs.PNL_ENTER);
 
-            log.pnlnt_funnt = trialRecord.GetLastSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER);
-            log.funnt_funpr = trialRecord.GetLastSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS);
-            log.funpr_funrl = trialRecord.GetLastSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE);
+            log.pnlnt_funnt = trialRecord.GetLastSeqDuration(ExpStrs.PNL_ENTER, ExpStrs.FUN_ENTER);
+            log.funnt_funpr = trialRecord.GetLastSeqDuration(ExpStrs.FUN_ENTER, ExpStrs.FUN_PRESS);
+            log.funpr_funrl = trialRecord.GetLastSeqDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE);
 
 
             // Testing
@@ -352,14 +353,14 @@ namespace SubTask.FunctionPointSelect
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Total time
-            log.trial_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS);
+            log.trial_time = trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS);
             _trialTimes[trial.Id] = log.trial_time;
 
-            log.funcs_sel_time = trialRecord.GetDuration(Str.PNL_ENTER, Str.FUN_RELEASE);
-            log.objs_sel_time = trialRecord.GetDuration(Str.ARA_ENTER, Str.OBJ_RELEASE);
-            log.func_po_sel_time = trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUN_RELEASE);
-            log.panel_sel_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.PNL_SELECT);
-            log.panel_nav_time = trialRecord.GetDuration(Str.PNL_SELECT, Str.OBJ_PRESS);
+            log.funcs_sel_time = trialRecord.GetDuration(ExpStrs.PNL_ENTER, ExpStrs.FUN_RELEASE);
+            log.objs_sel_time = trialRecord.GetDuration(ExpStrs.ARA_ENTER, ExpStrs.OBJ_RELEASE);
+            log.func_po_sel_time = trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.FUN_RELEASE);
+            log.panel_sel_time = trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.PNL_SELECT);
+            log.panel_nav_time = trialRecord.GetDuration(ExpStrs.PNL_SELECT, ExpStrs.OBJ_PRESS);
 
             WriteTrialLog(log, _totalLogFilePath, _totalTrialLogWriter);
 

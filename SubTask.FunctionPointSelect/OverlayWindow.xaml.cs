@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Constants;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -284,7 +285,7 @@ namespace SubTask.FunctionPointSelect
                 Seril.Information($"<Beam> Measure vX = {measureVX:F3}, vY = {measureVY:F3}");
                 Seril.Information($"<Beam> KalmanF vX = {filteredV.fvX:F3}, vY = {filteredV.fvY:F3}");
                 Seril.Information($"<Beam> KalmanFo dX = {kdX:F3}, dY = {kdY:F3}");
-                Seril.Information(Str.MINOR_LINE);
+                Seril.Information(ExpStrs.MINOR_LINE);
 
                 // Update previous state
                 _beamTPPrevPos = tp.GetCenter();
@@ -432,7 +433,7 @@ namespace SubTask.FunctionPointSelect
                 Seril.Information($"<Plus> Measure vX = {measureVX:F3}, vY = {measureVY:F3}");
                 Seril.Information($"<Plus> KF vX = {filteredV.fvX:F3}, vY = {filteredV.fvY:F3}");
                 Seril.Information($"<Plus> KF dX = {kdX:F3}, dY = {kdY:F3}");
-                Seril.Information(Str.MINOR_LINE);
+                Seril.Information(ExpStrs.MINOR_LINE);
 
                 // Update previous state
                 _plusTPPrevPos = tp.GetCenter();

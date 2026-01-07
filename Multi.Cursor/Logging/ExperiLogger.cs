@@ -1,4 +1,5 @@
-﻿using Common.Logs;
+﻿using Common.Constants;
+using Common.Logs;
 using Common.Settings;
 using MathNet.Numerics;
 using Multi.Cursor.Logging;
@@ -340,38 +341,38 @@ namespace Multi.Cursor
                 switch (_technique)
                 {
                     case Technique.MOUSE:
-                        _blockFileLog.Information($"Start Release   -> Obj Enter:   {trialRecord.GetDuration(Str.STR_RELEASE, Str.OBJ_ENTER)}");
-                        _blockFileLog.Information($"Obj Enter       -> Obj Press:   {trialRecord.GetDuration(Str.OBJ_ENTER, Str.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUN_PRESS)}");
-                        _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(Str.FUN_PRESS, Str.FUN_RELEASE)}");
-                        _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(Str.FUN_RELEASE, Str.ARA_PRESS)}");
+                        _blockFileLog.Information($"Start Release   -> Obj Enter:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.OBJ_ENTER)}");
+                        _blockFileLog.Information($"Obj Enter       -> Obj Press:   {trialRecord.GetDuration(ExpStrs.OBJ_ENTER, ExpStrs.OBJ_PRESS)}");
+                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
+                        _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.FUN_PRESS)}");
+                        _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE)}");
+                        _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(ExpStrs.FUN_RELEASE, ExpStrs.ARA_PRESS)}");
                         _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS))}");
+                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
                         _blockFileLog.Information($"==============================================================================================================");
                         break;
 
                     case Technique.TOMO_TAP:
-                        _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDurationToFingerAction(Str.STR_RELEASE, Str.TAP_DOWN)}");
+                        _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDurationToFingerAction(ExpStrs.STR_RELEASE, ExpStrs.TAP_DOWN)}");
                         _blockFileLog.Information($"Tap Down        -> Tap Up:      {trialRecord.GetGestureDuration(Technique.TOMO_TAP)}");
-                        _blockFileLog.Information($"Tap Up          -> Obj Press:   {trialRecord.GetDurationFromFingerAction(Str.TAP_UP, Str.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT)}");
-                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(Str.OBJ_EXIT, Str.ARA_PRESS)}");
+                        _blockFileLog.Information($"Tap Up          -> Obj Press:   {trialRecord.GetDurationFromFingerAction(ExpStrs.TAP_UP, ExpStrs.OBJ_PRESS)}");
+                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
+                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_EXIT)}");
+                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(ExpStrs.OBJ_EXIT, ExpStrs.ARA_PRESS)}");
                         _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS))}");
+                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
                         _blockFileLog.Information($"==============================================================================================================");
                         break;
 
                     case Technique.TOMO_SWIPE:
-                        _blockFileLog.Information($"Start Release   -> Swipe Start: {trialRecord.GetDurationToFingerAction(Str.STR_RELEASE, Str.SWIPE_START)}");
+                        _blockFileLog.Information($"Start Release   -> Swipe Start: {trialRecord.GetDurationToFingerAction(ExpStrs.STR_RELEASE, ExpStrs.SWIPE_START)}");
                         _blockFileLog.Information($"Swipe Start     -> Swipe End:   {trialRecord.GetGestureDuration(Technique.TOMO_SWIPE)}");
-                        _blockFileLog.Information($"Swipe End       -> Obj Press:   {trialRecord.GetDurationFromFingerAction(Str.SWIPE_END, Str.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(Str.OBJ_RELEASE, Str.OBJ_EXIT)}");
-                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(Str.OBJ_EXIT, Str.ARA_PRESS)}");
+                        _blockFileLog.Information($"Swipe End       -> Obj Press:   {trialRecord.GetDurationFromFingerAction(ExpStrs.SWIPE_END, ExpStrs.OBJ_PRESS)}");
+                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
+                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_EXIT)}");
+                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(ExpStrs.OBJ_EXIT, ExpStrs.ARA_PRESS)}");
                         _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS))}");
+                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
                         _blockFileLog.Information($"==============================================================================================================");
                         break;
                 }
@@ -379,7 +380,7 @@ namespace Multi.Cursor
             else
             {
                 // For now. Later we put detailed log
-                _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS)}");
+                _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS)}");
             }
             
         }
@@ -387,7 +388,7 @@ namespace Multi.Cursor
         public static void LogMultipleObjTrialTimes(TrialRecord trialRecord)
         {
             // For now. Later we put detailed log
-            _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS)}");
+            _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS)}");
         }
 
         public static void LogSOSFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -401,38 +402,38 @@ namespace Multi.Cursor
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log start events
-            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
+            log.trlsh_curmv = trialRecord.GetDuration(ExpStrs.TRIAL_SHOW, ExpStrs.FIRST_MOVE);
+            log.curmv_strnt = trialRecord.GetLastSeqDuration(ExpStrs.FIRST_MOVE, ExpStrs.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetLastSeqDuration(ExpStrs.STR_ENTER, ExpStrs.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetLastSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
             // Log the rest of the times
             switch (trial.Technique.GetDevice())
             {
                 case Technique.MOUSE:
-                    log.strrl_objnt = trialRecord.GetLastSeqDuration(Str.STR_RELEASE, Str.OBJ_ENTER);
+                    log.strrl_objnt = trialRecord.GetLastSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.OBJ_ENTER);
 
-                    log.objrl_pnlnt = trialRecord.GetLastSeqDuration(Str.OBJ_RELEASE, Str.PNL_ENTER);
-                    log.pnlnt_funnt = trialRecord.GetLastSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER);
-                    log.funnt_funpr = trialRecord.GetLastSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS);
-                    log.funpr_funrl = trialRecord.GetLastSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE);
-                    log.funrl_arant = trialRecord.GetLastSeqDuration(Str.FUN_RELEASE, Str.ARA_ENTER);
+                    log.objrl_pnlnt = trialRecord.GetLastSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.PNL_ENTER);
+                    log.pnlnt_funnt = trialRecord.GetLastSeqDuration(ExpStrs.PNL_ENTER, ExpStrs.FUN_ENTER);
+                    log.funnt_funpr = trialRecord.GetLastSeqDuration(ExpStrs.FUN_ENTER, ExpStrs.FUN_PRESS);
+                    log.funpr_funrl = trialRecord.GetLastSeqDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE);
+                    log.funrl_arant = trialRecord.GetLastSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.ARA_ENTER);
                     
                 break;
 
                 case Technique.TOMO:
-                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(Str.STR_RELEASE, trial.Technique);
+                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(ExpStrs.STR_RELEASE, trial.Technique);
                     log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
-                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
-                    log.fstfl_funmk = trialRecord.GetDuration(Str.FLICK, Str.FUN_MARKED);
-                    log.funmk_objnt = trialRecord.GetDuration(Str.ARA_ENTER, Str.OBJ_ENTER);
+                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, ExpStrs.FLICK);
+                    log.fstfl_funmk = trialRecord.GetDuration(ExpStrs.FLICK, ExpStrs.FUN_MARKED);
+                    log.funmk_objnt = trialRecord.GetDuration(ExpStrs.ARA_ENTER, ExpStrs.OBJ_ENTER);
                 break;
             }
 
-            log.objnt_objpr = trialRecord.GetLastSeqDuration(Str.OBJ_ENTER, Str.OBJ_PRESS);
-            log.objpr_objrl = trialRecord.GetLastSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE);
+            log.objnt_objpr = trialRecord.GetLastSeqDuration(ExpStrs.OBJ_ENTER, ExpStrs.OBJ_PRESS);
+            log.objpr_objrl = trialRecord.GetLastSeqDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE);
 
-            log.arant_arapr = trialRecord.GetLastSeqDuration(Str.ARA_ENTER, Str.ARA_PRESS);
+            log.arant_arapr = trialRecord.GetLastSeqDuration(ExpStrs.ARA_ENTER, ExpStrs.ARA_PRESS);
 
             // Testing
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
@@ -455,41 +456,41 @@ namespace Multi.Cursor
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log start events
-            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
+            log.trlsh_curmv = trialRecord.GetDuration(ExpStrs.TRIAL_SHOW, ExpStrs.FIRST_MOVE);
+            log.curmv_strnt = trialRecord.GetLastSeqDuration(ExpStrs.FIRST_MOVE, ExpStrs.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetLastSeqDuration(ExpStrs.STR_ENTER, ExpStrs.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetLastSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
             // Log the rest of the times
             switch (trial.Technique.GetDevice())
             {
                 case Technique.MOUSE:
-                    log.strrl_obj1pr = trialRecord.GetFirstSeqDuration(Str.STR_RELEASE, Str.OBJ_PRESS);
+                    log.strrl_obj1pr = trialRecord.GetFirstSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.OBJ_PRESS);
 
                     for (int  i = 1; i <= trial.NObjects; i++)
                     {
                         DynamiclySetFieldValue(
                             log, $"obj{i}pr_obj{i}rl",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.FUN_PRESS, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.OBJ_PRESS, ExpStrs.FUN_PRESS, i));
                         DynamiclySetFieldValue(
                             log, $"obj{i}rl_pnlnt{i}",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.PNL_ENTER, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.PNL_ENTER, i));
                         DynamiclySetFieldValue(
                             log, $"pnlnt{i}_funnt{i}",
-                            trialRecord.GetNthSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.PNL_ENTER, ExpStrs.FUN_ENTER, i));
                         DynamiclySetFieldValue(
                             log, $"funnt{i}_funpr{i}",
-                            trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.FUN_ENTER, ExpStrs.FUN_PRESS, i));
                         DynamiclySetFieldValue(
                             log, $"funpr{i}_funrl{i}",
-                            trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE, i));
 
                         // Transition to the Next Object (i + 1)
                         if (i < trial.NObjects)
                         {
                             DynamiclySetFieldValue(
                             log, $"funrl{i}_obj{i + 1}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.OBJ_PRESS, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.OBJ_PRESS, i));
                         }
                         
                     }
@@ -498,24 +499,24 @@ namespace Multi.Cursor
                     break;
 
                 case Technique.TOMO:
-                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(Str.STR_RELEASE, trial.Technique);
+                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(ExpStrs.STR_RELEASE, trial.Technique);
                     log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
-                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
-                    log.fstfl_funmk = trialRecord.GetDuration(Str.FLICK, Str.FUN_MARKED);
-                    log.funmk_obj1pr = trialRecord.GetFirstSeqDuration(Str.FUN_MARKED, Str.OBJ_PRESS);
+                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, ExpStrs.FLICK);
+                    log.fstfl_funmk = trialRecord.GetDuration(ExpStrs.FLICK, ExpStrs.FUN_MARKED);
+                    log.funmk_obj1pr = trialRecord.GetFirstSeqDuration(ExpStrs.FUN_MARKED, ExpStrs.OBJ_PRESS);
 
                     for (int i = 1; i < trial.NObjects; i++)
                     {
                         DynamiclySetFieldValue(
                             log, $"obj{i}rl_obj{i+1}pr",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.OBJ_PRESS, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_PRESS, i));
 
                         // Transition to the Next Object (i + 1)
                         if (i < trial.NObjects)
                         {
                             DynamiclySetFieldValue(
                             log, $"funrl{i}_obj{i + 1}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.OBJ_PRESS, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.OBJ_PRESS, i));
                         }
                     }
                     break;
@@ -542,73 +543,73 @@ namespace Multi.Cursor
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log start events
-            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
+            log.trlsh_curmv = trialRecord.GetDuration(ExpStrs.TRIAL_SHOW, ExpStrs.FIRST_MOVE);
+            log.curmv_strnt = trialRecord.GetLastSeqDuration(ExpStrs.FIRST_MOVE, ExpStrs.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetLastSeqDuration(ExpStrs.STR_ENTER, ExpStrs.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetLastSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
             // Log the rest of the times
             switch (trial.Technique.GetDevice())
             {
                 case Technique.MOUSE:
-                    log.strrl_objnt = trialRecord.GetFirstSeqDuration(Str.STR_RELEASE, Str.OBJ_ENTER);
-                    log.objnt_objpr = trialRecord.GetDuration(Str.OBJ_ENTER, Str.OBJ_PRESS);
-                    log.objpr_objrl = trialRecord.GetDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE);
-                    log.objrl_pnlnt = trialRecord.GetFirstSeqDuration(Str.OBJ_RELEASE, Str.PNL_ENTER);
+                    log.strrl_objnt = trialRecord.GetFirstSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.OBJ_ENTER);
+                    log.objnt_objpr = trialRecord.GetDuration(ExpStrs.OBJ_ENTER, ExpStrs.OBJ_PRESS);
+                    log.objpr_objrl = trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE);
+                    log.objrl_pnlnt = trialRecord.GetFirstSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.PNL_ENTER);
 
-                    log.pnlnt_fun1nt= trialRecord.GetNthSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER, 1);
+                    log.pnlnt_fun1nt= trialRecord.GetNthSeqDuration(ExpStrs.PNL_ENTER, ExpStrs.FUN_ENTER, 1);
 
                     int i;
                     for (i = 1; i <= trial.GetNumFunctions(); i++)
                     {
                         DynamiclySetFieldValue(
                             log, $"fun{i}nt_fun{i}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.FUN_ENTER, ExpStrs.FUN_PRESS, i));
                         DynamiclySetFieldValue(
                             log, $"fun{i}pr_fun{i}rl",
-                            trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE, i));
 
                         // Transition to the next function (i + 1)
                         if (i < trial.GetNumFunctions())
                         {
                             DynamiclySetFieldValue(
                             log, $"fun{i}rl_fun{i + 1}nt",
-                            trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.FUN_ENTER, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.FUN_ENTER, i));
                         }
                         
                     }
 
-                    log.funNrl_arapr = trialRecord.GetLastSeqDuration(Str.FUN_RELEASE, Str.ARA_PRESS);
+                    log.funNrl_arapr = trialRecord.GetLastSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.ARA_PRESS);
 
                     break;
 
                 case Technique.TOMO:
-                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(Str.STR_RELEASE, trial.Technique);
+                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(ExpStrs.STR_RELEASE, trial.Technique);
                     log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
-                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
+                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, ExpStrs.FLICK);
 
-                    log.fstfl_fun1mk = trialRecord.GetFirstSeqDuration(Str.FLICK, Str.FUN_MARKED);
+                    log.fstfl_fun1mk = trialRecord.GetFirstSeqDuration(ExpStrs.FLICK, ExpStrs.FUN_MARKED);
 
                     for (i = 1; i <= trial.GetNumFunctions(); i++)
                     {
                         DynamiclySetFieldValue(
                             log, $"fun{i}mk_objpr_{i}",
-                            trialRecord.GetNthSeqDuration(Str.FUN_MARKED, Str.OBJ_PRESS, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.FUN_MARKED, ExpStrs.OBJ_PRESS, i));
                         DynamiclySetFieldValue(
                             log, $"objpr_objrl_{i}",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE, i));
 
                         // Transition to the next function (i + 1)
                         if (i < trial.GetNumFunctions())
                         {
                             DynamiclySetFieldValue(
                             log, $"objrl_fun{i + 1}mk",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.FUN_MARKED, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.FUN_MARKED, i));
                         }
 
                     }
 
-                    log.objrl_arapr = trialRecord.GetLastSeqDuration(Str.OBJ_RELEASE, Str.ARA_PRESS);
+                    log.objrl_arapr = trialRecord.GetLastSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.ARA_PRESS);
 
                     break;
             }
@@ -634,43 +635,43 @@ namespace Multi.Cursor
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log start events
-            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
+            log.trlsh_curmv = trialRecord.GetDuration(ExpStrs.TRIAL_SHOW, ExpStrs.FIRST_MOVE);
+            log.curmv_strnt = trialRecord.GetLastSeqDuration(ExpStrs.FIRST_MOVE, ExpStrs.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetLastSeqDuration(ExpStrs.STR_ENTER, ExpStrs.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetLastSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
             switch (trial.Technique.GetDevice())
             {
                 case Technique.MOUSE:
-                    log.strrl_obj1pr = trialRecord.GetFirstSeqDuration(Str.STR_RELEASE, Str.OBJ_PRESS);
+                    log.strrl_obj1pr = trialRecord.GetFirstSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.OBJ_PRESS);
 
                     for (int i = 1; i <= nFun; i++)
                     {
                         DynamiclySetFieldValue(
                             log, $"obj{i}pr_obj{i}rl",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE, i));
                         DynamiclySetFieldValue(
                             log, $"obj{i}rl_pnlnt_{i}",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.PNL_ENTER, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.PNL_ENTER, i));
                         DynamiclySetFieldValue(
                             log, $"pnlnt_fun{i}nt",
-                            trialRecord.GetNthSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.PNL_ENTER, ExpStrs.FUN_ENTER, i));
                         DynamiclySetFieldValue(
                             log, $"fun{i}nt_fun{i}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.FUN_ENTER, ExpStrs.FUN_PRESS, i));
                         DynamiclySetFieldValue(
                             log, $"fun{i}pr_fun{i}rl",
-                            trialRecord.GetNthSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE, i));
 
                         // Transition to the Next Object (i + 1)
                         if (i < trial.NObjects)
                         {
                             DynamiclySetFieldValue(
                             log, $"fun{i}rl_obj{i}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_RELEASE, Str.OBJ_PRESS, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.OBJ_PRESS, i));
                         }
 
-                        log.funNrl_arapr = trialRecord.GetLastSeqDuration(Str.FUN_RELEASE, Str.ARA_PRESS);
+                        log.funNrl_arapr = trialRecord.GetLastSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.ARA_PRESS);
 
                     }
 
@@ -678,32 +679,32 @@ namespace Multi.Cursor
                     break;
 
                 case Technique.TOMO:
-                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(Str.STR_RELEASE, trial.Technique);
+                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(ExpStrs.STR_RELEASE, trial.Technique);
                     log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
-                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
+                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, ExpStrs.FLICK);
 
-                    log.fstfl_fun1mk = trialRecord.GetFirstSeqDuration(Str.FLICK, Str.FUN_MARKED);
+                    log.fstfl_fun1mk = trialRecord.GetFirstSeqDuration(ExpStrs.FLICK, ExpStrs.FUN_MARKED);
 
                     for (int i = 1; i <= trial.GetNumFunctions(); i++)
                     {
                         DynamiclySetFieldValue(
                             log, $"fun{i}mk_obj{i}pr",
-                            trialRecord.GetNthSeqDuration(Str.FUN_MARKED, Str.OBJ_PRESS, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.FUN_MARKED, ExpStrs.OBJ_PRESS, i));
                         DynamiclySetFieldValue(
                             log, $"obj{i}pr_obj{i}rl",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE, i));
 
                         // Transition to the next function (i + 1)
                         if (i < trial.GetNumFunctions())
                         {
                             DynamiclySetFieldValue(
                             log, $"obj{i}rl_fun{i + 1}mk",
-                            trialRecord.GetNthSeqDuration(Str.OBJ_RELEASE, Str.FUN_MARKED, i));
+                            trialRecord.GetNthSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.FUN_MARKED, i));
                         }
 
                     }
 
-                    log.objNrl_arapr = trialRecord.GetLastSeqDuration(Str.OBJ_RELEASE, Str.ARA_PRESS);
+                    log.objNrl_arapr = trialRecord.GetLastSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.ARA_PRESS);
                     break;
             }
 
@@ -726,7 +727,7 @@ namespace Multi.Cursor
         //    log.id = trial.Id;
         //    log.tech = trial.Technique.ToString().ToLower();
         //    log.cmplx = trial.Complexity.ToString().ToLower();
-        //    log.tsk_type = Str.TASKTYPE_ABBR[trial.TaskType];
+        //    log.tsk_type = ExpStrs.TASKTYPE_ABBR[trial.TaskType];
         //    log.fun_side = trial.FuncSide.ToString().ToLower();
         //    log.func_width = trial.GetFunctionWidthMM();
         //    log.n_obj = trial.NObjects;
@@ -744,14 +745,14 @@ namespace Multi.Cursor
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Total time
-            log.trial_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS);
+            log.trial_time = trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS);
             _trialTimes[trial.Id] = log.trial_time;
 
-            log.funcs_sel_time = trialRecord.GetDuration(Str.PNL_ENTER, Str.FUN_RELEASE);
-            log.objs_sel_time = trialRecord.GetDuration(Str.ARA_ENTER, Str.OBJ_RELEASE);
-            log.func_po_sel_time = trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUN_RELEASE);
-            log.panel_sel_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.PNL_SELECT);
-            log.panel_nav_time = trialRecord.GetDuration(Str.PNL_SELECT, Str.OBJ_PRESS);
+            log.funcs_sel_time = trialRecord.GetDuration(ExpStrs.PNL_ENTER, ExpStrs.FUN_RELEASE);
+            log.objs_sel_time = trialRecord.GetDuration(ExpStrs.ARA_ENTER, ExpStrs.OBJ_RELEASE);
+            log.func_po_sel_time = trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.FUN_RELEASE);
+            log.panel_sel_time = trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.PNL_SELECT);
+            log.panel_nav_time = trialRecord.GetDuration(ExpStrs.PNL_SELECT, ExpStrs.OBJ_PRESS);
 
             WriteTrialLog(log, _totalLogFilePath, _totalTrialLogWriter);
 
@@ -783,7 +784,7 @@ namespace Multi.Cursor
             log.id = trial.Id;
             log.tech = trial.Technique.ToString().ToLower();
             log.cmplx = trial.Complexity.ToString().ToLower();
-            log.tsk_type = Str.TASKTYPE_ABBR[trial.TaskType];
+            log.tsk_type = ExpStrs.TASKTYPE_ABBR[trial.TaskType];
             log.fun_side = trial.FuncSide.ToString().ToLower();
             log.func_width = trial.GetFunctionWidthMM();
             log.n_obj = trial.NObjects;
@@ -802,7 +803,7 @@ namespace Multi.Cursor
             log.tech = block.Technique.ToString().ToLower();
             log.cmplx = block.Complexity.ToString().ToLower();
             log.n_trials = block.GetNumTrials();
-            log.tsk_type = Str.TASKTYPE_ABBR[block.TaskType];
+            log.tsk_type = ExpStrs.TASKTYPE_ABBR[block.TaskType];
             log.n_fun = block.NFunctions;
             log.n_obj = block.NObjects;
 

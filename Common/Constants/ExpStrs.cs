@@ -4,8 +4,10 @@ namespace Common.Constants
 {
     public class ExpStrs
     {
-        public static readonly string START = "START";
-        public static readonly string END = "END";
+        public static readonly string START = "start";
+        public static readonly string START_CAP = "START";
+        public static readonly string END = "end";
+        public static readonly string END_CAP = "END";
 
         public static readonly string TRIAL_SHOW = "trial_show";
         public static readonly string FIRST_MOVE = "move";
@@ -114,5 +116,10 @@ namespace Common.Constants
             {TaskType.MULTI_OBJ_ONE_FUNC, MOSF },
             {TaskType.MULTI_OBJ_MULTI_FUNC, MOMF },
         };
+
+        public static string Join(params string[] parts)
+        {
+            return string.Join("_", parts);
+        }
     }
 }

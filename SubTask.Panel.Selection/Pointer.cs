@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Constants;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -90,7 +91,7 @@ namespace SubTask.Panel.Selection
 
                     Seril.Information($"KF Vel.: {filteredV.fvX:F3}, {filteredV.fvY:F3}");
                     Seril.Information($"KF dX, dY: {dX:F3}, {dY:F3}");
-                    Seril.Information(Str.MINOR_LINE);
+                    Seril.Information(ExpStrs.MINOR_LINE);
 
                     // Update previous state
                     _prevPos = tp.GetCenter();

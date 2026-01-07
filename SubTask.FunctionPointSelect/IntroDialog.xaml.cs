@@ -1,4 +1,5 @@
-﻿using Common.Settings;
+﻿using Common.Constants;
+using Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,10 +38,10 @@ namespace SubTask.FunctionPointSelect
             InitializeComponent();
 
             ParticipantNumberTextBlock.Text = ExpPtc.PTC_NUM.ToString();
-            TechniqueComboBox.ItemsSource = new string[] { Str.TOUCH_MOUSE_TAP, Str.TOUCH_MOUSE_SWIPE, Str.MOUSE };
-            TechniqueComboBox.SelectedValue = Str.MOUSE;
-            ExperimentComboBox.ItemsSource = new string[] { Str.PRACTICE, Str.TEST };
-            ExperimentComboBox.SelectedValue = Str.PRACTICE;
+            TechniqueComboBox.ItemsSource = new string[] { ExpStrs.TOUCH_MOUSE_TAP, ExpStrs.TOUCH_MOUSE_SWIPE, ExpStrs.MOUSE };
+            TechniqueComboBox.SelectedValue = ExpStrs.MOUSE;
+            ExperimentComboBox.ItemsSource = new string[] { ExpStrs.PRACTICE, ExpStrs.TEST };
+            ExperimentComboBox.SelectedValue = ExpStrs.PRACTICE;
         }
 
         private async void BeginButton_ClickAsync(object sender, RoutedEventArgs e)

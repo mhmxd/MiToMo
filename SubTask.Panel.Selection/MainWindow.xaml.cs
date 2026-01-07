@@ -313,7 +313,7 @@ namespace SubTask.Panel.Selection
         private void CreateExperiment()
         {
             double padding = MM2PX(Config.WINDOW_PADDING_MM);
-            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[Str.x6] / 2;
+            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
 
             // Distances (v.3)
@@ -1333,7 +1333,7 @@ namespace SubTask.Panel.Selection
         public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
             double padding = MM2PX(Config.WINDOW_PADDING_MM);
-            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[Str.x6] / 2;
+            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
 
             AuxWindow auxWindow = GetAuxWindow(side);
@@ -1454,7 +1454,7 @@ namespace SubTask.Panel.Selection
             // Add label inside
             var label = new TextBlock
             {
-                Text = Str.START_CAP,
+                Text = ExpStrs.START_CAP,
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,

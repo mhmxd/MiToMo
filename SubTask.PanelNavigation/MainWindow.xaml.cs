@@ -310,7 +310,7 @@ namespace SubTask.PanelNavigation
         private void CreateExperiment()
         {
             double padding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
-            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
+            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
 
             // Distances (v.3)
@@ -1309,7 +1309,7 @@ namespace SubTask.PanelNavigation
         public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
             double padding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
-            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[Str.x6] / 2;
+            double smallButtonHalfWidthMM = Experiment.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double smallButtonHalfWidth = MM2PX(smallButtonHalfWidthMM);
 
             AuxWindow auxWindow = GetAuxWindow(side);

@@ -320,7 +320,7 @@ namespace SubTask.FunctionPointSelect
         {
             double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
             double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
-            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[Str.x6] / 2;
+            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double startHalfWidth = OBJ_WIDTH_MM / 2;
             double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
             //double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
@@ -970,7 +970,7 @@ namespace SubTask.FunctionPointSelect
             // Add label inside
             var label = new TextBlock
             {
-                Text = Str.START,
+                Text = ExpStrs.START,
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
@@ -1237,7 +1237,7 @@ namespace SubTask.FunctionPointSelect
         {
             double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
             double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
-            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[Str.x6] / 2;
+            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double startHalfWidth = OBJ_WIDTH_MM / 2;
             double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
             double objAreaHalfWidth = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);

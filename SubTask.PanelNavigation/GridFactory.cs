@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Shapes;
 using static Microsoft.ML.Data.DataDebuggerPreview;
 using static Common.Helpers.ExpUtils;
+using Common.Constants;
 
 namespace SubTask.PanelNavigation
 {
@@ -15,10 +16,10 @@ namespace SubTask.PanelNavigation
     {
         private static double ROW_HEIGHT = ButtonFactory.GetButtonHeight();
 
-        private static double SMALL_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x6] * MM2PX(Config.GRID_UNIT_MM);
-        private static double WIDE_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x18] * MM2PX(Config.GRID_UNIT_MM);
-        private static double WIDER_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x30] * MM2PX(Config.GRID_UNIT_MM);
-        private static double DROPDOWN_BUTTON_W = Experiment.BUTTON_MULTIPLES[Str.x3] * MM2PX(Config.GRID_UNIT_MM);
+        private static double SMALL_BUTTON_W = Experiment.BUTTON_MULTIPLES[ExpStrs.x6] * MM2PX(Config.GRID_UNIT_MM);
+        private static double WIDE_BUTTON_W = Experiment.BUTTON_MULTIPLES[ExpStrs.x18] * MM2PX(Config.GRID_UNIT_MM);
+        private static double WIDER_BUTTON_W = Experiment.BUTTON_MULTIPLES[ExpStrs.x30] * MM2PX(Config.GRID_UNIT_MM);
+        private static double DROPDOWN_BUTTON_W = Experiment.BUTTON_MULTIPLES[ExpStrs.x3] * MM2PX(Config.GRID_UNIT_MM);
 
         private static double GUTTER_4PX = 1 * MM2PX(Config.GRID_UNIT_MM);
         private static double GUTTER_8PX = 2 * MM2PX(Config.GRID_UNIT_MM);

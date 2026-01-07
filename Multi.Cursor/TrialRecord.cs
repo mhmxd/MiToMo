@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using Common.Constants;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -166,7 +167,7 @@ namespace Multi.Cursor
 
         public bool IsObjectClicked(int objId)
         {
-            return Events.Any(ts => ts.Type == Str.OBJ_RELEASE && ts.Id == objId.ToString());
+            return Events.Any(ts => ts.Type == ExpStrs.OBJ_RELEASE && ts.Id == objId.ToString());
         }
 
         public void MarkObject(int id)
@@ -306,14 +307,14 @@ namespace Multi.Cursor
             Events.Add(trialEvent);
             this.TrialInfo($"[+] {trialEvent.ToString()}");
 
-            if (type == Str.TAP_UP)
+            if (type == ExpStrs.TAP_UP)
             {
                 long endTime = GetLastFingerActionTime(type);
                 this.TrialInfo($"End Time: {endTime}");
-                var gestureStartTimestamp = Events.LastOrDefault(ts => ts.Type == Str.DOWN && ts.Time < endTime);
+                var gestureStartTimestamp = Events.LastOrDefault(ts => ts.Type == ExpStrs.DOWN && ts.Time < endTime);
                 if (gestureStartTimestamp != null)
                 {
-                    gestureStartTimestamp.Type = Str.TAP_DOWN;
+                    gestureStartTimestamp.Type = ExpStrs.TAP_DOWN;
                 }
             }
         }
@@ -586,16 +587,16 @@ namespace Multi.Cursor
             switch (gesture)
             {
                 case Technique.TOMO_TAP:
-                    //long tapEndTime = GetLastFingerActionTime(Str.TAP_UP);
-                    //long tapStartTime = GetFingerTimeBefore(Str.DOWN, tapEndTime);
+                    //long tapEndTime = GetLastFingerActionTime(ExpStrs.TAP_UP);
+                    //long tapStartTime = GetFingerTimeBefore(ExpStrs.DOWN, tapEndTime);
                     //return Utils.GetDuration(tapStartTime, tapEndTime);
-                    return GetLastSeqDuration(Str.TAP_DOWN, Str.TAP_UP);
+                    return GetLastSeqDuration(ExpStrs.TAP_DOWN, ExpStrs.TAP_UP);
                 
                 case Technique.TOMO_SWIPE:
-                    //long swipeEndTime = GetLastFingerActionTime(Str.SWIPE_END);
-                    //long swipeStartTime = GetFingerTimeBefore(Str.SWIPE_START, swipeEndTime);
+                    //long swipeEndTime = GetLastFingerActionTime(ExpStrs.SWIPE_END);
+                    //long swipeStartTime = GetFingerTimeBefore(ExpStrs.SWIPE_START, swipeEndTime);
                     //return Utils.GetDuration(swipeStartTime, swipeEndTime);
-                    return GetLastSeqDuration(Str.SWIPE_START, Str.SWIPE_END);
+                    return GetLastSeqDuration(ExpStrs.SWIPE_START, ExpStrs.SWIPE_END);
             }
 
             return -1;
@@ -606,10 +607,10 @@ namespace Multi.Cursor
             switch (technique)
             {
                 case Technique.TOMO_TAP:
-                    return GetLastFingerActionTime(Str.TAP_DOWN);
+                    return GetLastFingerActionTime(ExpStrs.TAP_DOWN);
 
                 case Technique.TOMO_SWIPE:
-                    return GetLastFingerActionTime(Str.SWIPE_START);
+                    return GetLastFingerActionTime(ExpStrs.SWIPE_START);
             }
 
             return -1;
@@ -620,10 +621,10 @@ namespace Multi.Cursor
             switch (technique)
             {
                 case Technique.TOMO_TAP:
-                    return GetLastFingerActionTime(Str.TAP_UP);
+                    return GetLastFingerActionTime(ExpStrs.TAP_UP);
 
                 case Technique.TOMO_SWIPE:
-                    return GetLastFingerActionTime(Str.SWIPE_END);
+                    return GetLastFingerActionTime(ExpStrs.SWIPE_END);
             }
 
             return -1;

@@ -40,7 +40,7 @@ namespace SubTask.PanelNavigation
         public void BeginActiveBlock()
         {
             this.TrialInfo("------------------- Beginning block ----------------------------");
-            this.TrialInfo(Str.MINOR_LINE);
+            this.TrialInfo(ExpStrs.MINOR_LINE);
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
@@ -71,10 +71,10 @@ namespace SubTask.PanelNavigation
 
         public void ShowActiveTrial()
         {
-            this.TrialInfo(Str.MINOR_LINE);
+            this.TrialInfo(ExpStrs.MINOR_LINE);
             this.TrialInfo($"Showing " + _activeTrial.ToStr());
 
-            LogEvent(Str.TRIAL_SHOW, _activeTrial.Id);
+            LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
 
             // Start logging cursor positions
             ExperiLogger.StartTrialCursorLog(_activeTrial.Id, _activeTrialNum);
@@ -112,22 +112,22 @@ namespace SubTask.PanelNavigation
         public virtual void EndActiveTrial(Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
-            this.TrialInfo(Str.MAJOR_LINE);
+            this.TrialInfo(ExpStrs.MAJOR_LINE);
             _activeTrialRecord.Result = result;
-            LogEvent(Str.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
+            LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
 
-            //double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
+            //double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
 
             switch (result)
             {
                 case Result.HIT:
                     Sounder.PlayHit();
-                    //_activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                    //_activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
                 case Result.MISS:
                     Sounder.PlayTargetMiss();
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
-                    //_activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                    //_activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
             }
 
@@ -216,7 +216,7 @@ namespace SubTask.PanelNavigation
 
         public virtual void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.MAIN_WIN_PRESS);
+            LogEvent(ExpStrs.MAIN_WIN_PRESS);
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
@@ -231,7 +231,7 @@ namespace SubTask.PanelNavigation
         }
         public virtual void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
         {
-            LogEventOnce(Str.FIRST_MOVE);
+            LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
             ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
@@ -249,12 +249,12 @@ namespace SubTask.PanelNavigation
 
         public void OnAuxWindowMouseEnter(Side side, Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.PNL_ENTER, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_ENTER, side.ToString().ToLower());
         }
 
         public void OnAuxWindowMouseDown(Side side, Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.PNL_PRESS, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_PRESS, side.ToString().ToLower());
 
             if (!IsStartClicked())
             {
@@ -274,7 +274,7 @@ namespace SubTask.PanelNavigation
         }
         public void OnAuxWindowMouseUp(Side side, Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.PNL_PRESS, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_PRESS, side.ToString().ToLower());
 
             if (IsStartPressed()) // Pressed in Start, released in aux window
             {
@@ -286,7 +286,7 @@ namespace SubTask.PanelNavigation
 
         public void OnAuxWindowMouseExit(Side side, Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.PNL_EXIT, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_EXIT, side.ToString().ToLower());
         }
 
         //---- Function
@@ -294,13 +294,13 @@ namespace SubTask.PanelNavigation
         {
             // Add the id to the list of visited if not already there (will use the index for the order of visit)
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_ENTER, funId);
+            LogEvent(ExpStrs.FUN_ENTER, funId);
         }
 
         public virtual void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_PRESS, funId);
+            LogEvent(ExpStrs.FUN_PRESS, funId);
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
@@ -321,7 +321,7 @@ namespace SubTask.PanelNavigation
         public virtual void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_RELEASE, funId);
+            LogEvent(ExpStrs.FUN_RELEASE, funId);
 
             // Rest of the handling is done in the derived classes
         }
@@ -329,7 +329,7 @@ namespace SubTask.PanelNavigation
         public virtual void OnFunctionMouseExit(Object sender, MouseEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_EXIT, funId);
+            LogEvent(ExpStrs.FUN_EXIT, funId);
         }
 
         public void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
@@ -339,12 +339,12 @@ namespace SubTask.PanelNavigation
 
         public void OnStartButtonMouseEnter(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.STR_ENTER);
+            LogEvent(ExpStrs.STR_ENTER);
         }
 
         public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.STR_PRESS);
+            LogEvent(ExpStrs.STR_PRESS);
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             //-- Second press (on END)
@@ -386,15 +386,15 @@ namespace SubTask.PanelNavigation
                 return;
             }
 
-            LogEvent(Str.STR_RELEASE);
+            LogEvent(ExpStrs.STR_RELEASE);
 
             //-- Clicking START
-            var startButtonPressed = GetEventCount(Str.STR_PRESS) > 0;
+            var startButtonPressed = GetEventCount(ExpStrs.STR_PRESS) > 0;
             if (startButtonPressed)
             {
                 // Change the START to END and deactivate the button
                 _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_UNAVAILABLE_COLOR);
-                _mainWindow.ChangeStartBtnLabel(_activeTrial.FuncSide, Str.END_CAP);
+                _mainWindow.ChangeStartBtnLabel(_activeTrial.FuncSide, ExpStrs.END_CAP);
             }
             else // Pressed outside the button => miss
             {
@@ -406,13 +406,13 @@ namespace SubTask.PanelNavigation
 
         public void OnStartButtonMouseExit(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.STR_EXIT);
+            LogEvent(ExpStrs.STR_EXIT);
         }
 
         public virtual void OnFunctionMarked(int funId)
         {
             _activeTrialRecord.MarkFunction(funId);
-            LogEvent(Str.FUN_MARKED, funId.ToString());
+            LogEvent(ExpStrs.FUN_MARKED, funId.ToString());
 
             // Change the END button color to enabled
             _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_AVAILABLE_COLOR);
@@ -421,7 +421,7 @@ namespace SubTask.PanelNavigation
         public virtual void OnFunctionUnmarked(int funId)
         {
             _activeTrialRecord.UnmarkFunction(funId);
-            LogEvent(Str.FUN_DEMARKED, funId.ToString());
+            LogEvent(ExpStrs.FUN_DEMARKED, funId.ToString());
 
             // Change the END button color to disabled
             _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_UNAVAILABLE_COLOR);
@@ -518,7 +518,7 @@ namespace SubTask.PanelNavigation
 
             if (funcOnCorrespondingSide)
             {
-                LogEvent(Str.PNL_SELECT);
+                LogEvent(ExpStrs.PNL_SELECT);
                 //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
 
                 EndActiveTrial(Result.HIT);
@@ -538,7 +538,7 @@ namespace SubTask.PanelNavigation
         {
             if (IsStartClicked())
             {
-                LogEventOnce(Str.FLICK); // First flick after activation
+                LogEventOnce(ExpStrs.FLICK); // First flick after activation
                 _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked);
             }
 
@@ -547,7 +547,7 @@ namespace SubTask.PanelNavigation
         public void IndexUp()
         {
             _mainWindow.StopAuxNavigator();
-            LogEvent(Str.Join(Str.INDEX, Str.UP));
+            LogEvent(ExpStrs.Join(ExpStrs.INDEX, ExpStrs.UP));
         }
 
         public virtual void ThumbSwipe(Direction dir)
@@ -583,7 +583,7 @@ namespace SubTask.PanelNavigation
 
             if (dirMatchesSide)
             {
-                LogEvent(Str.PNL_SELECT);
+                LogEvent(ExpStrs.PNL_SELECT);
                 //_mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide);
 
                 // End trial
@@ -615,7 +615,7 @@ namespace SubTask.PanelNavigation
 
             if (funcOnCorrespondingSide)
             {
-                LogEvent(Str.PNL_SELECT);
+                LogEvent(ExpStrs.PNL_SELECT);
                 //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
 
                 EndActiveTrial(Result.HIT);
@@ -656,7 +656,7 @@ namespace SubTask.PanelNavigation
 
             if (funcOnCorrespondingSide)
             {
-                LogEvent(Str.PNL_SELECT);
+                LogEvent(ExpStrs.PNL_SELECT);
                 //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
 
                 EndActiveTrial(Result.HIT);
@@ -747,18 +747,18 @@ namespace SubTask.PanelNavigation
 
         protected bool IsStartPressed()
         {
-            return GetEventCount(Str.STR_PRESS) > 0;
+            return GetEventCount(ExpStrs.STR_PRESS) > 0;
         }
 
         protected bool IsStartClicked()
         {
-            return GetEventCount(Str.STR_RELEASE) > 0;
+            return GetEventCount(ExpStrs.STR_RELEASE) > 0;
         }
 
         protected bool WasObjectPressed(int objId)
         {
             this.TrialInfo($"Last event: {_activeTrialRecord.GetBeforeLastTrialEvent().ToString()}");
-            return _activeTrialRecord.GetEventIndex(Str.OBJ_PRESS) != -1;
+            return _activeTrialRecord.GetEventIndex(ExpStrs.OBJ_PRESS) != -1;
         }
     }
 

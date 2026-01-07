@@ -351,7 +351,7 @@ namespace Multi.Cursor
         {
             double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
             double objHalfWidth = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM) / 2;
-            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[Str.x6] / 2;
+            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double startHalfWidth = ExpSizes.OBJ_WIDTH_MM / 2;
             double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
             //double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
@@ -1438,7 +1438,7 @@ namespace Multi.Cursor
         {
             double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
             double objHalfWidth = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM) / 2;
-            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[Str.x6] / 2;
+            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double startHalfWidth = ExpSizes.OBJ_WIDTH_MM / 2;
             double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
             double objAreaHalfWidth = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM / 2);

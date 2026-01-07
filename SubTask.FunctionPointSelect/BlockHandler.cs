@@ -146,7 +146,7 @@ namespace SubTask.FunctionPointSelect
         public void BeginActiveBlock()
         {
             this.TrialInfo("------------------- Beginning block ----------------------------");
-            this.TrialInfo(Str.MINOR_LINE);
+            this.TrialInfo(ExpStrs.MINOR_LINE);
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
@@ -175,10 +175,10 @@ namespace SubTask.FunctionPointSelect
 
         public virtual void ShowActiveTrial()
         {
-            this.TrialInfo(Str.MINOR_LINE);
+            this.TrialInfo(ExpStrs.MINOR_LINE);
             this.TrialInfo($"Showing " + _activeTrial.ToStr());
 
-            LogEvent(Str.TRIAL_SHOW, _activeTrial.Id);
+            LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
 
             // Start logging cursor positions
             ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
@@ -236,9 +236,9 @@ namespace SubTask.FunctionPointSelect
         public virtual void EndActiveTrial(Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
-            this.TrialInfo(Str.MAJOR_LINE);
+            this.TrialInfo(ExpStrs.MAJOR_LINE);
             _activeTrialRecord.Result = result;
-            LogEvent(Str.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
+            LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
             _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
 
             switch (result)
@@ -246,8 +246,8 @@ namespace SubTask.FunctionPointSelect
                 case Result.HIT:
                     Sounder.PlayHit();
 
-                    double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
-                    _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                    double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
+                    _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
 
                 case Result.MISS:
@@ -351,7 +351,7 @@ namespace SubTask.FunctionPointSelect
 
         public virtual void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.MAIN_WIN_PRESS);
+            LogEvent(ExpStrs.MAIN_WIN_PRESS);
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
@@ -366,7 +366,7 @@ namespace SubTask.FunctionPointSelect
         }
         public virtual void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
         {
-            LogEventOnce(Str.FIRST_MOVE);
+            LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
             ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
@@ -374,7 +374,7 @@ namespace SubTask.FunctionPointSelect
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.MAIN_WIN_RELEASE);
+            LogEvent(ExpStrs.MAIN_WIN_RELEASE);
             
             if (IsStartPressed() && !IsStartClicked()) // Start button not clicked yet
             {
@@ -391,12 +391,12 @@ namespace SubTask.FunctionPointSelect
 
         public void OnAuxWindowMouseEnter(Side side, Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.PNL_ENTER, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_ENTER, side.ToString().ToLower());
         }
 
         public void OnAuxWindowMouseDown(Side side, Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.PNL_PRESS, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_PRESS, side.ToString().ToLower());
 
             if (!IsStartClicked())
             {
@@ -416,7 +416,7 @@ namespace SubTask.FunctionPointSelect
         }
         public void OnAuxWindowMouseUp(Side side, Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.PNL_RELEASE, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_RELEASE, side.ToString().ToLower());
 
             if (IsStartPressed()) // Pressed in Start, released in aux window
             {
@@ -428,32 +428,32 @@ namespace SubTask.FunctionPointSelect
 
         public void OnAuxWindowMouseExit(Side side, Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.PNL_EXIT, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_EXIT, side.ToString().ToLower());
         }
 
         public void OnObjectMouseEnter(Object sender, MouseEventArgs e)
         {
             // If the last timestamp was ARA_EXIT, remove that
-            if (_activeTrialRecord.GetLastTrialEventType() == Str.ARA_EXIT) _activeTrialRecord.RemoveLastTimestamp();
+            if (_activeTrialRecord.GetLastTrialEventType() == ExpStrs.ARA_EXIT) _activeTrialRecord.RemoveLastTimestamp();
             var objId = (int)((FrameworkElement)sender).Tag;
 
             // Add the id to the list of visited if not already there (will use the index for the order of visit)
-            LogEvent(Str.OBJ_ENTER, objId);
+            LogEvent(ExpStrs.OBJ_ENTER, objId);
 
             // Log the event
-            LogEvent(Str.OBJ_ENTER, objId);
+            LogEvent(ExpStrs.OBJ_ENTER, objId);
         }
 
         public void OnObjectMouseLeave(Object sender, MouseEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_EXIT, objId);
+            LogEvent(ExpStrs.OBJ_EXIT, objId);
         }
 
         public void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_PRESS, objId);
+            LogEvent(ExpStrs.OBJ_PRESS, objId);
 
             // Pressed on the Object without starting the trial
             if (!IsStartClicked())
@@ -482,7 +482,7 @@ namespace SubTask.FunctionPointSelect
         public void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
         {
             var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.OBJ_RELEASE, objId);
+            LogEvent(ExpStrs.OBJ_RELEASE, objId);
 
             if (!IsStartClicked())
             {
@@ -532,7 +532,7 @@ namespace SubTask.FunctionPointSelect
         public virtual void OnObjectAreaMouseEnter(Object sender, MouseEventArgs e)
         {
             // Only log if entered from outside (NOT from the object)
-            if (_activeTrialRecord.GetLastTrialEventType() != Str.OBJ_EXIT) LogEvent(Str.ARA_ENTER);
+            if (_activeTrialRecord.GetLastTrialEventType() != ExpStrs.OBJ_EXIT) LogEvent(ExpStrs.ARA_ENTER);
         }
 
         public virtual void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
@@ -551,14 +551,14 @@ namespace SubTask.FunctionPointSelect
                 EndActiveTrial(Result.MISS);
             }
 
-            LogEvent(Str.ARA_PRESS);
+            LogEvent(ExpStrs.ARA_PRESS);
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public virtual void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.ARA_RELEASE);
+            LogEvent(ExpStrs.ARA_RELEASE);
 
             if (!IsStartClicked())
             {
@@ -584,7 +584,7 @@ namespace SubTask.FunctionPointSelect
         public virtual void OnObjectAreaMouseExit(Object sender, MouseEventArgs e)
         {
             // Will be later removed if entered the object
-            LogEvent(Str.ARA_EXIT);
+            LogEvent(ExpStrs.ARA_EXIT);
         }
 
         //---- Function
@@ -592,7 +592,7 @@ namespace SubTask.FunctionPointSelect
         {
             // Add the id to the list of visited if not already there (will use the index for the order of visit)
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_ENTER, funId);
+            LogEvent(ExpStrs.FUN_ENTER, funId);
         }
 
         public virtual void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
@@ -613,7 +613,7 @@ namespace SubTask.FunctionPointSelect
             //    return;
             //}
 
-            LogEvent(Str.FUN_PRESS, funId);
+            LogEvent(ExpStrs.FUN_PRESS, funId);
 
             // Change state to APPLIED
             _activeTrialRecord.SetFunctionAsApplied(funId);
@@ -626,10 +626,10 @@ namespace SubTask.FunctionPointSelect
         public virtual void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
             int funcId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_RELEASE, funcId);
+            LogEvent(ExpStrs.FUN_RELEASE, funcId);
 
             // If the trial has already ended, ignore further events
-            if (_activeTrialRecord.GetLastTrialEventType() == Str.TRIAL_END)
+            if (_activeTrialRecord.GetLastTrialEventType() == ExpStrs.TRIAL_END)
             {
                 e.Handled = true;
                 return;
@@ -658,7 +658,7 @@ namespace SubTask.FunctionPointSelect
             // Function id is sender's tag as int
             //var functionId = (int)((FrameworkElement)sender).Tag;
             //var device = Utils.GetDevice(_activeBlock.Technique);
-            //var objectMarked = GetEventCount(Str.OBJ_RELEASE) > 0;
+            //var objectMarked = GetEventCount(ExpStrs.OBJ_RELEASE) > 0;
 
             //if (!objectMarked) // Technique doesn't matter here
             //{
@@ -688,7 +688,7 @@ namespace SubTask.FunctionPointSelect
         public virtual void OnFunctionMouseExit(Object sender, MouseEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_EXIT, funId);
+            LogEvent(ExpStrs.FUN_EXIT, funId);
         }
 
         public void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
@@ -713,12 +713,12 @@ namespace SubTask.FunctionPointSelect
 
         public void OnStartButtonMouseEnter(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.STR_ENTER);
+            LogEvent(ExpStrs.STR_ENTER);
         }
 
         public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.STR_PRESS);
+            LogEvent(ExpStrs.STR_PRESS);
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -763,13 +763,13 @@ namespace SubTask.FunctionPointSelect
 
         public void OnStartButtonMouseExit(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.STR_EXIT);
+            LogEvent(ExpStrs.STR_EXIT);
         }
 
         public virtual void OnFunctionMarked(int funId)
         {
             _activeTrialRecord.MarkFunction(funId);
-            LogEvent(Str.FUN_MARKED, funId.ToString());
+            LogEvent(ExpStrs.FUN_MARKED, funId.ToString());
 
             _activeTrialRecord.MarkObject(1);
             UpdateScene();
@@ -778,7 +778,7 @@ namespace SubTask.FunctionPointSelect
         public virtual void OnFunctionUnmarked(int funId)
         {
             _activeTrialRecord.UnmarkFunction(funId);
-            LogEvent(Str.FUN_DEMARKED, funId.ToString());
+            LogEvent(ExpStrs.FUN_DEMARKED, funId.ToString());
 
             _activeTrialRecord.UnmarkObject(1);
             UpdateScene();
@@ -895,7 +895,7 @@ namespace SubTask.FunctionPointSelect
 
             if (funcOnCorrespondingSide)
             {
-                LogEvent(Str.PNL_SELECT);
+                LogEvent(ExpStrs.PNL_SELECT);
                 _mainWindow.ActivateAuxWindowMarker(correspondingSide);
             }
             else
@@ -913,7 +913,7 @@ namespace SubTask.FunctionPointSelect
         {
             if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
             {
-                LogEventOnce(Str.FLICK); // First flick after activation
+                LogEventOnce(ExpStrs.FLICK); // First flick after activation
                 _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked);
             }
 
@@ -922,7 +922,7 @@ namespace SubTask.FunctionPointSelect
         public void IndexUp()
         {
             _mainWindow.StopAuxNavigator();
-            LogEvent(Str.Join(Str.INDEX, Str.UP));
+            LogEvent(ExpStrs.Join(ExpStrs.INDEX, ExpStrs.UP));
         }
 
         public virtual void ThumbSwipe(Direction dir)
@@ -959,7 +959,7 @@ namespace SubTask.FunctionPointSelect
 
             if (dirMatchesSide)
             {
-                LogEvent(Str.PNL_SELECT);
+                LogEvent(ExpStrs.PNL_SELECT);
                 _mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide);
             }
             else
@@ -988,7 +988,7 @@ namespace SubTask.FunctionPointSelect
 
             if (funcOnCorrespondingSide)
             {
-                LogEvent(Str.PNL_SELECT);
+                LogEvent(ExpStrs.PNL_SELECT);
                 _mainWindow.ActivateAuxWindowMarker(correspondingSide);
             }
             else
@@ -1027,7 +1027,7 @@ namespace SubTask.FunctionPointSelect
 
             if (funcOnCorrespondingSide)
             {
-                LogEvent(Str.PNL_SELECT);
+                LogEvent(ExpStrs.PNL_SELECT);
                 _mainWindow.ActivateAuxWindowMarker(correspondingSide);
             }
             else
@@ -1092,7 +1092,7 @@ namespace SubTask.FunctionPointSelect
         //{
         //    string what = type.Split('_')[0];
         //    this.TrialInfo($"What: {what}");
-        //    if (what == Str.FUN)
+        //    if (what == ExpStrs.FUN)
         //    {
         //        // Check the Id in the visited list. If visited, log the event.
         //        if (!_functionsVisitMap.Contains(id)) // Function NOT visited before
@@ -1101,10 +1101,10 @@ namespace SubTask.FunctionPointSelect
         //        }
 
         //        int visitIndex = _functionsVisitMap.IndexOf(id);
-        //        LogEvent(Str.GetIndexedStr(type, visitIndex + 1)); // Use 1-based indexing
+        //        LogEvent(ExpStrs.GetIndexedStr(type, visitIndex + 1)); // Use 1-based indexing
         //    }
 
-        //    if (what == Str.OBJ)
+        //    if (what == ExpStrs.OBJ)
         //    {
         //        // Check the Id in the visited list. If visited, log the event.
         //        if (!_objectsVisitMap.Contains(id)) // Function NOT visited before
@@ -1113,7 +1113,7 @@ namespace SubTask.FunctionPointSelect
         //        }
 
         //        int visitIndex = _objectsVisitMap.IndexOf(id);
-        //        LogEvent(Str.GetIndexedStr(type, visitIndex + 1)); // Use 1-based indexing
+        //        LogEvent(ExpStrs.GetIndexedStr(type, visitIndex + 1)); // Use 1-based indexing
         //    }
         //}
 
@@ -1128,7 +1128,7 @@ namespace SubTask.FunctionPointSelect
         //        _trialRecords[_activeTrial.Id].EventCounts[type] = 1;
         //    }
 
-        //    string logStr = Str.GetCountedStr(type, _trialRecords[_activeTrial.Id].EventCounts[type]);
+        //    string logStr = ExpStrs.GetCountedStr(type, _trialRecords[_activeTrial.Id].EventCounts[type]);
         //    _activeTrialRecord.RecordEvent(logStr); // Let them have the same name. We know the count from EventCounts
         //}
 
@@ -1205,14 +1205,14 @@ namespace SubTask.FunctionPointSelect
             foreach (int trialId in _trialRecords.Keys)
             {
                 Trial trial = _activeBlock.GetTrialById(trialId);
-                if (trial != null && _trialRecords[trialId].HasTime(Str.TRIAL_TIME))
+                if (trial != null && _trialRecords[trialId].HasTime(ExpStrs.TRIAL_TIME))
                 {
-                    if (trial.DistRangeMM.Label == Str.SHORT_DIST)
-                        shortDistTimes.Add(_trialRecords[trialId].GetTime(Str.TRIAL_TIME));
-                    if (trial.DistRangeMM.Label == Str.MID_DIST)
-                        midDistTimes.Add(_trialRecords[trialId].GetTime(Str.TRIAL_TIME));
-                    if (trial.DistRangeMM.Label == Str.LONG_DIST)
-                        longDistTimes.Add(_trialRecords[trialId].GetTime(Str.TRIAL_TIME));
+                    if (trial.DistRangeMM.Label == ExpStrs.SHORT_DIST)
+                        shortDistTimes.Add(_trialRecords[trialId].GetTime(ExpStrs.TRIAL_TIME));
+                    if (trial.DistRangeMM.Label == ExpStrs.MID_DIST)
+                        midDistTimes.Add(_trialRecords[trialId].GetTime(ExpStrs.TRIAL_TIME));
+                    if (trial.DistRangeMM.Label == ExpStrs.LONG_DIST)
+                        longDistTimes.Add(_trialRecords[trialId].GetTime(ExpStrs.TRIAL_TIME));
                 }
             }
 
@@ -1238,23 +1238,23 @@ namespace SubTask.FunctionPointSelect
 
         protected bool IsStartPressed()
         {
-            return GetEventCount(Str.STR_PRESS) > 0;
+            return GetEventCount(ExpStrs.STR_PRESS) > 0;
         }
 
         protected bool IsStartClicked()
         {
-            return GetEventCount(Str.STR_RELEASE) > 0;
+            return GetEventCount(ExpStrs.STR_RELEASE) > 0;
         }
 
         protected bool IsFuncPressed()
         {
-            return GetEventCount(Str.FUN_PRESS) > 0;
+            return GetEventCount(ExpStrs.FUN_PRESS) > 0;
         }
 
         protected bool WasObjectPressed(int objId)
         {
             this.TrialInfo($"Last event: {_activeTrialRecord.GetBeforeLastTrialEvent().ToString()}");
-            return _activeTrialRecord.GetEventIndex(Str.OBJ_PRESS) != -1;
+            return _activeTrialRecord.GetEventIndex(ExpStrs.OBJ_PRESS) != -1;
         }
     }
 

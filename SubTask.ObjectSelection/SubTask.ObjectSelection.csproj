@@ -360,7 +360,6 @@
       <DependentUpon>IntroDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Output.cs" />
-    <Compile Include="Str.cs" />
     <Compile Include="TestKalman.cs" />
     <Compile Include="TouchPoint.cs" />
     <Compile Include="KalmanFilter.cs" />

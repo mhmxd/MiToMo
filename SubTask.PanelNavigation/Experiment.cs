@@ -26,13 +26,13 @@ namespace SubTask.PanelNavigation
         private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30 }; // BenQ
         public static Dictionary<string, int> BUTTON_MULTIPLES = new Dictionary<string, int>()
         {
-            { Str.x3, 3 },
-            { Str.x6, 6 },
-            { Str.x12, 12 },
-            { Str.x15, 15 },
-            { Str.x18, 18 },
-            { Str.x30, 30 },
-            { Str.x36, 36 }
+            { ExpStrs.x3, 3 },
+            { ExpStrs.x6, 6 },
+            { ExpStrs.x12, 12 },
+            { ExpStrs.x15, 15 },
+            { ExpStrs.x18, 18 },
+            { ExpStrs.x30, 30 },
+            { ExpStrs.x36, 36 }
         };
 
         public static Dictionary<Complexity, Dictionary<Side, List<int>>> BUTTON_WIDTHS = new Dictionary<Complexity, Dictionary<Side, List<int>>>()
@@ -87,17 +87,17 @@ namespace SubTask.PanelNavigation
         {
             this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}, Technique: {tech}");
             //Participant_Number = ptc;
-            if (tech == Str.TOUCH_MOUSE_TAP)
+            if (tech == ExpStrs.TOUCH_MOUSE_TAP)
             {
                 Active_Technique = Technique.TOMO_TAP;
                 Config.SetMode(0);
             }
-            else if (tech == Str.TOUCH_MOUSE_SWIPE)
+            else if (tech == ExpStrs.TOUCH_MOUSE_SWIPE)
             {
                 Active_Technique = Technique.TOMO_SWIPE;
                 Config.SetMode(1);
             }
-            else if (tech == Str.MOUSE)
+            else if (tech == ExpStrs.MOUSE)
             {
                 Active_Technique = Technique.MOUSE;
             }

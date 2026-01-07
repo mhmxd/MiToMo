@@ -38,7 +38,7 @@ namespace SubTask.Panel.Selection
         public void BeginActiveBlock()
         {
             this.TrialInfo("------------------- Beginning block ----------------------------");
-            this.TrialInfo(Str.MINOR_LINE);
+            this.TrialInfo(ExpStrs.MINOR_LINE);
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
@@ -69,10 +69,10 @@ namespace SubTask.Panel.Selection
 
         public void ShowActiveTrial()
         {
-            this.TrialInfo(Str.MINOR_LINE);
+            this.TrialInfo(ExpStrs.MINOR_LINE);
             this.TrialInfo($"Showing " + _activeTrial.ToStr());
 
-            LogEvent(Str.TRIAL_SHOW, _activeTrial.Id);
+            LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
 
             // Start logging cursor positions
             ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
@@ -99,17 +99,17 @@ namespace SubTask.Panel.Selection
         public virtual void EndActiveTrial(Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
-            this.TrialInfo(Str.MAJOR_LINE);
+            this.TrialInfo(ExpStrs.MAJOR_LINE);
             _activeTrialRecord.Result = result;
-            LogEvent(Str.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
+            LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
             _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
 
             switch (result)
             {
                 case Result.HIT:
                     Sounder.PlayHit();
-                    double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
-                    _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                    double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
+                    _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
 
                     break;
                 case Result.MISS:
@@ -209,7 +209,7 @@ namespace SubTask.Panel.Selection
 
         public virtual void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.MAIN_WIN_PRESS);
+            LogEvent(ExpStrs.MAIN_WIN_PRESS);
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
@@ -224,7 +224,7 @@ namespace SubTask.Panel.Selection
         }
         public virtual void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
         {
-            LogEventOnce(Str.FIRST_MOVE);
+            LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
             ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
@@ -242,12 +242,12 @@ namespace SubTask.Panel.Selection
 
         public void OnAuxWindowMouseEnter(Side side, Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.PNL_ENTER, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_ENTER, side.ToString().ToLower());
         }
 
         public void OnAuxWindowMouseDown(Side side, Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.PNL_PRESS, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_PRESS, side.ToString().ToLower());
 
             if (!IsStartClicked())
             {
@@ -267,7 +267,7 @@ namespace SubTask.Panel.Selection
         }
         public void OnAuxWindowMouseUp(Side side, Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.PNL_PRESS, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_PRESS, side.ToString().ToLower());
 
             if (IsStartPressed()) // Pressed in Start, released in aux window
             {
@@ -279,7 +279,7 @@ namespace SubTask.Panel.Selection
 
         public void OnAuxWindowMouseExit(Side side, Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.PNL_EXIT, side.ToString().ToLower());
+            LogEvent(ExpStrs.PNL_EXIT, side.ToString().ToLower());
         }
 
         //---- Function
@@ -287,13 +287,13 @@ namespace SubTask.Panel.Selection
         {
             // Add the id to the list of visited if not already there (will use the index for the order of visit)
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_ENTER, funId);
+            LogEvent(ExpStrs.FUN_ENTER, funId);
         }
 
         public virtual void OnFunctionMouseDown(Object sender, MouseButtonEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_PRESS, funId);
+            LogEvent(ExpStrs.FUN_PRESS, funId);
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
@@ -314,7 +314,7 @@ namespace SubTask.Panel.Selection
         public virtual void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_RELEASE, funId);
+            LogEvent(ExpStrs.FUN_RELEASE, funId);
 
             // Rest of the handling is done in the derived classes
         }
@@ -322,7 +322,7 @@ namespace SubTask.Panel.Selection
         public virtual void OnFunctionMouseExit(Object sender, MouseEventArgs e)
         {
             int funId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(Str.FUN_EXIT, funId);
+            LogEvent(ExpStrs.FUN_EXIT, funId);
         }
 
         public void OnNonTargetMouseDown(Object sender, MouseButtonEventArgs e)
@@ -332,12 +332,12 @@ namespace SubTask.Panel.Selection
 
         public void OnStartButtonMouseEnter(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.STR_ENTER);
+            LogEvent(ExpStrs.STR_ENTER);
         }
 
         public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.STR_PRESS);
+            LogEvent(ExpStrs.STR_PRESS);
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -345,10 +345,10 @@ namespace SubTask.Panel.Selection
 
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(Str.STR_RELEASE);
+            LogEvent(ExpStrs.STR_RELEASE);
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
-            var startButtonPressed = GetEventCount(Str.STR_PRESS) > 0;
+            var startButtonPressed = GetEventCount(ExpStrs.STR_PRESS) > 0;
 
             if (startButtonPressed)
             {
@@ -368,19 +368,19 @@ namespace SubTask.Panel.Selection
 
         public void OnStartButtonMouseExit(Object sender, MouseEventArgs e)
         {
-            LogEvent(Str.STR_EXIT);
+            LogEvent(ExpStrs.STR_EXIT);
         }
 
         public virtual void OnFunctionMarked(int funId)
         {
             _activeTrialRecord.MarkFunction(funId);
-            LogEvent(Str.FUN_MARKED, funId.ToString());
+            LogEvent(ExpStrs.FUN_MARKED, funId.ToString());
         }
 
         public virtual void OnFunctionUnmarked(int funId)
         {
             _activeTrialRecord.UnmarkFunction(funId);
-            LogEvent(Str.FUN_DEMARKED, funId.ToString());
+            LogEvent(ExpStrs.FUN_DEMARKED, funId.ToString());
         }
 
         public void SetFunctionAsEnabled(int funcId)
@@ -474,7 +474,7 @@ namespace SubTask.Panel.Selection
 
             if (funcOnCorrespondingSide)
             {
-                LogEvent(Str.PNL_SELECT);
+                LogEvent(ExpStrs.PNL_SELECT);
                 //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
 
                 EndActiveTrial(Result.HIT);
@@ -494,7 +494,7 @@ namespace SubTask.Panel.Selection
         {
             if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
             {
-                LogEventOnce(Str.FLICK); // First flick after activation
+                LogEventOnce(ExpStrs.FLICK); // First flick after activation
                 _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked);
             }
 
@@ -503,7 +503,7 @@ namespace SubTask.Panel.Selection
         public void IndexUp()
         {
             _mainWindow.StopAuxNavigator();
-            LogEvent(Str.Join(Str.INDEX, Str.UP));
+            LogEvent(ExpStrs.Join(ExpStrs.INDEX, ExpStrs.UP));
         }
 
         public virtual void ThumbSwipe(Direction dir)
@@ -539,7 +539,7 @@ namespace SubTask.Panel.Selection
 
             if (dirMatchesSide)
             {
-                LogEvent(Str.PNL_SELECT);
+                LogEvent(ExpStrs.PNL_SELECT);
                 //_mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide);
 
                 // End trial
@@ -571,7 +571,7 @@ namespace SubTask.Panel.Selection
 
             if (funcOnCorrespondingSide)
             {
-                LogEvent(Str.PNL_SELECT);
+                LogEvent(ExpStrs.PNL_SELECT);
                 //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
 
                 EndActiveTrial(Result.HIT);
@@ -612,7 +612,7 @@ namespace SubTask.Panel.Selection
 
             if (funcOnCorrespondingSide)
             {
-                LogEvent(Str.PNL_SELECT);
+                LogEvent(ExpStrs.PNL_SELECT);
                 //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
 
                 EndActiveTrial(Result.HIT);
@@ -703,18 +703,18 @@ namespace SubTask.Panel.Selection
 
         protected bool IsStartPressed()
         {
-            return GetEventCount(Str.STR_PRESS) > 0;
+            return GetEventCount(ExpStrs.STR_PRESS) > 0;
         }
 
         protected bool IsStartClicked()
         {
-            return GetEventCount(Str.STR_RELEASE) > 0;
+            return GetEventCount(ExpStrs.STR_RELEASE) > 0;
         }
 
         protected bool WasObjectPressed(int objId)
         {
             this.TrialInfo($"Last event: {_activeTrialRecord.GetBeforeLastTrialEvent().ToString()}");
-            return _activeTrialRecord.GetEventIndex(Str.OBJ_PRESS) != -1;
+            return _activeTrialRecord.GetEventIndex(ExpStrs.OBJ_PRESS) != -1;
         }
     }
 

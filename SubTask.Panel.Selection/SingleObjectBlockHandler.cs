@@ -183,13 +183,13 @@ namespace SubTask.Panel.Selection
         ////    {
         ////        case Result.HIT:
         ////            Sounder.PlayHit();
-        ////            //double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
-        ////            double trialTime = GetDuration(Str.OBJ_RELEASE + "_1", Str.TRIAL_END);
-        ////            _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+        ////            //double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
+        ////            double trialTime = GetDuration(ExpStrs.OBJ_RELEASE + "_1", ExpStrs.TRIAL_END);
+        ////            _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
 
         ////            //this.TrialInfo($"Trial Time = {trialTime:F2}s");
         ////            //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial Time = {trialTime:F2}s");
-        ////            this.TrialInfo(Str.MAJOR_LINE);
+        ////            this.TrialInfo(ExpStrs.MAJOR_LINE);
         ////            GoToNextTrial();
         ////            break;
         ////        case Result.MISS:
@@ -198,7 +198,7 @@ namespace SubTask.Panel.Selection
         ////            _activeBlock.ShuffleBackTrial(_activeTrialNum);
         ////            _trialRecords[_activeTrial.Id].ClearTimestamps();
         ////            _trialRecords[_activeTrial.Id].ResetStates();
-        ////            this.TrialInfo(Str.MAJOR_LINE);
+        ////            this.TrialInfo(ExpStrs.MAJOR_LINE);
         ////            GoToNextTrial();
         ////            break;
         ////    }
@@ -275,7 +275,7 @@ namespace SubTask.Panel.Selection
 
         //    //var objId = (int)((FrameworkElement)sender).Tag;
 
-        //    //var startButtonClicked = (GetEventCount(Str.STR_RELEASE) > 0);
+        //    //var startButtonClicked = (GetEventCount(ExpStrs.STR_RELEASE) > 0);
         //    //var device = Utils.GetDevice(_activeBlock.Technique);
         //    //int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
         //    //var markerOverEnabledFunc = funcIdUnderMarker != -1;
@@ -397,7 +397,7 @@ namespace SubTask.Panel.Selection
         //public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         //{
         //    // If the trial has already ended, ignore further events
-        //    if (_activeTrialRecord.GetLastTrialEventType() == Str.TRIAL_END)
+        //    if (_activeTrialRecord.GetLastTrialEventType() == ExpStrs.TRIAL_END)
         //    {
         //        e.Handled = true;
         //        return;
@@ -415,7 +415,7 @@ namespace SubTask.Panel.Selection
         //    // Function id is sender's tag as int
         //    var functionId = (int)((FrameworkElement)sender).Tag;
         //    var device = Utils.GetDevice(_activeBlock.Technique);
-        //    var objectMarked = GetEventCount(Str.OBJ_RELEASE) > 0;
+        //    var objectMarked = GetEventCount(ExpStrs.OBJ_RELEASE) > 0;
 
         //    if (!objectMarked) // Technique doesn't matter here
         //    {

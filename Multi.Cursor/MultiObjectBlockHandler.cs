@@ -229,16 +229,16 @@ namespace Multi.Cursor
         //public override void EndActiveTrial(Result result)
         //{
         //    this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
-        //    this.TrialInfo(Str.MAJOR_LINE);
-        //    LogEvent(Str.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
+        //    this.TrialInfo(ExpStrs.MAJOR_LINE);
+        //    LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
         //    _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
 
         //    switch (result)
         //    {
         //        case Result.HIT:
         //            Sounder.PlayHit();
-        //            double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
-        //            _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+        //            double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
+        //            _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     
         //            //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial Time = {trialTime:F2}s");
         //            GoToNextTrial();
@@ -334,7 +334,7 @@ namespace Multi.Cursor
         public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
             // If the trial has already ended, ignore further events
-            if (_activeTrialRecord.GetLastTrialEventType() == Str.TRIAL_END)
+            if (_activeTrialRecord.GetLastTrialEventType() == ExpStrs.TRIAL_END)
             {
                 e.Handled = true;
                 return;
@@ -636,7 +636,7 @@ namespace Multi.Cursor
 
                 
 
-            //var startButtonClicked = GetEventCount(Str.STR_RELEASE) > 0;
+            //var startButtonClicked = GetEventCount(ExpStrs.STR_RELEASE) > 0;
             //var device = Utils.GetDevice(_activeBlock.Technique);
             //int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             //var markerOverFunction = funcIdUnderMarker != -1;
@@ -730,7 +730,7 @@ namespace Multi.Cursor
         //public override void OnObjectAreaMouseEnter(object sender, MouseEventArgs e)
         //{
         //    // Only log if entered from outside (NOT from the object)
-        //    if (_activeTrialRecord.GetLastTrialEventType() != Str.OBJ_EXIT) LogEvent(Str.ARA_ENTER);
+        //    if (_activeTrialRecord.GetLastTrialEventType() != ExpStrs.OBJ_EXIT) LogEvent(ExpStrs.ARA_ENTER);
         //}
 
         //public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
@@ -742,7 +742,7 @@ namespace Multi.Cursor
 
         //public override void OnObjectAreaMouseUp(object sender, MouseButtonEventArgs e)
         //{
-        //    LogEvent(Str.ARA_RELEASE);
+        //    LogEvent(ExpStrs.ARA_RELEASE);
 
         //    if (!IsStartClicked())
         //    {
@@ -755,7 +755,7 @@ namespace Multi.Cursor
 
         //public override void OnObjectAreaMouseExit(object sender, MouseEventArgs e)
         //{
-        //    LogEvent(Str.ARA_EXIT);
+        //    LogEvent(ExpStrs.ARA_EXIT);
         //}
 
         

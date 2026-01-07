@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using Common.Constants;
 using static System.Math;
 using static Common.Helpers.ExpUtils;
 using Seril = Serilog.Log;
@@ -273,7 +274,7 @@ namespace SubTask.Panel.Selection
                 Seril.Information($"<Beam> Measure vX = {measureVX:F3}, vY = {measureVY:F3}");
                 Seril.Information($"<Beam> KalmanF vX = {filteredV.fvX:F3}, vY = {filteredV.fvY:F3}");
                 Seril.Information($"<Beam> KalmanFo dX = {kdX:F3}, dY = {kdY:F3}");
-                Seril.Information(Str.MINOR_LINE);
+                Seril.Information(ExpStrs.MINOR_LINE);
 
                 // Update previous state
                 _beamTPPrevPos = tp.GetCenter();
@@ -421,7 +422,7 @@ namespace SubTask.Panel.Selection
                 Seril.Information($"<Plus> Measure vX = {measureVX:F3}, vY = {measureVY:F3}");
                 Seril.Information($"<Plus> KF vX = {filteredV.fvX:F3}, vY = {filteredV.fvY:F3}");
                 Seril.Information($"<Plus> KF dX = {kdX:F3}, dY = {kdY:F3}");
-                Seril.Information(Str.MINOR_LINE);
+                Seril.Information(ExpStrs.MINOR_LINE);
 
                 // Update previous state
                 _plusTPPrevPos = tp.GetCenter();

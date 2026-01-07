@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Constants;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -520,7 +521,7 @@ namespace SubTask.PanelNavigation
             // Add label inside
             var label = new TextBlock
             {
-                Text = Str.START_CAP,
+                Text = ExpStrs.START_CAP,
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
@@ -553,7 +554,7 @@ namespace SubTask.PanelNavigation
             // Add label inside
             var label = new TextBlock
             {
-                Text = Str.START_CAP,
+                Text = ExpStrs.START_CAP,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
