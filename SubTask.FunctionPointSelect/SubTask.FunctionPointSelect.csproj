@@ -245,11 +245,8 @@
     </ApplicationDefinition>
     <Compile Include="ButtonFactory.cs" />
     <Compile Include="GridFactory.cs" />
-    <Compile Include="Logging\CursorRecord.cs" />
     <Compile Include="Logging\DetailTrialLog.cs" />
-    <Compile Include="Logging\TopLog.cs" />
     <Compile Include="Logging\TotalTrialLog.cs" />
-    <Compile Include="Logging\TrialLog.cs" />
     <Compile Include="MouseEvents.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>

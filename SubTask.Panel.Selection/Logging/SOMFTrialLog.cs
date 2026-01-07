@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Logs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -87,10 +88,5 @@ namespace SubTask.Panel.Selection.Logging
         public int strrl_gstst;     // start release -\ gesture start (tap: down, swipe: start)
         public int gstst_gstnd;     // gesture start -\ gesture end (tap: up, swipe: end)
         public int gstnd_fstfl;     // gesture end -\ first flick (moving the finger over surface)
-
-        public SOMFTrialLog(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-            : base(blockNum, trialNum, trial, trialRecord)
-        {
-        }
     }
 }

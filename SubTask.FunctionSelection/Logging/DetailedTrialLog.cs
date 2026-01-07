@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Common.Logs;
 
 namespace SubTask.FunctionSelection.Logging
 {
@@ -39,10 +34,5 @@ namespace SubTask.FunctionSelection.Logging
         public int pnlex_endnt;   // panel exit -\ end enter
         public int endnt_endpr;   // end enter -\ end press
         public int endpr_endrl;   // end press -\ end release (trial end)
-
-        public DetailedTrialLog(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-            : base(blockNum, trialNum, trial, trialRecord)
-        {
-        }
     }
 }

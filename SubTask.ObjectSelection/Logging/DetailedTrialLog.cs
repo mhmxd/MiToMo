@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Logs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -46,10 +47,5 @@ namespace SubTask.ObjectSelection.Logging
 
         public int objNrl_arapr;    // last object release -\ object area press
         public int arapr_ararl;     // object area press -\ object area release (trial end)
-
-        public DetailedTrialLog(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-            : base(blockNum, trialNum, trial, trialRecord)
-        {
-        }
     }
 }

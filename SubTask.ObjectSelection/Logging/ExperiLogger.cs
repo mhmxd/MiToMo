@@ -165,15 +165,33 @@ namespace SubTask.ObjectSelection
             _blockFileLog.Information(message);
         }
 
+        private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
+        {
+            log.ptc = trial.PtcNum;
+            log.block = blockNum;
+            log.trial = trialNum;
+            log.id = trial.Id;
+            log.tech = trial.Technique.ToString().ToLower();
+            log.cmplx = trial.Complexity.ToString().ToLower();
+            //log.tsk_type = Str.TASKTYPE_ABBR[trial.TaskType];
+            log.fun_side = trial.FuncSide.ToString().ToLower();
+            //log.func_width = trial.GetFunctionWidthMM();
+            log.n_obj = trial.NObjects;
+            //log.n_fun = trial.GetNumFunctions();
+            log.dist_lvl = trial.DistRangeMM.Label.Split('-')[0].ToLower();
+            //log.dist = $"{trialRecord.AvgDistanceMM:F2}";
+            log.result = (int)trialRecord.Result;
+        }
+
         public static void LogDetailedTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
             string logFilePath = _mosfTrialLogFilePath; // Passed to the writer
 
             Output.Conlog<ExperiLogger>("Logging Trial");
-            DetailedTrialLog log = new DetailedTrialLog(blockNum, trialNum, trial, trialRecord);
+            DetailedTrialLog log = new DetailedTrialLog();
 
             // Information
-            //FillTrialInfo(log, blockNum, trialNum, trial, trialRecord);
+            LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log start events
             log.trlsh_curmv = trialRecord.GetDuration(ExpStrs.TRIAL_SHOW, ExpStrs.FIRST_MOVE);
@@ -218,10 +236,10 @@ namespace SubTask.ObjectSelection
 
         private static void LogTotalTrialTime(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            TotalTrialLog log = new TotalTrialLog(blockNum, trialNum, trial, trialRecord);
+            TotalTrialLog log = new TotalTrialLog();
 
             // Information
-            //FillTrialInfo(log, blockNum, trialNum, trial, trialRecord);
+            LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Total time
             log.trial_time = trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS);
@@ -330,7 +348,7 @@ namespace SubTask.ObjectSelection
 
         public static void LogCursorPosition(Point cursorPos)
         {
-            _trialCursorRecords[_activeTrialId].Add(new CursorRecord(cursorPos));
+            _trialCursorRecords[_activeTrialId].Add(new CursorRecord(cursorPos.X, cursorPos.Y));
         }
 
         private static void Dispose()

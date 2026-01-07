@@ -1,4 +1,6 @@
-﻿namespace SubTask.PanelNavigation.Logging
+﻿using Common.Logs;
+
+namespace SubTask.PanelNavigation.Logging
 {
     internal class DetailTrialLog : TrialLog
     {
@@ -19,10 +21,5 @@
         // string, so that we can long only two decimal places
         public string swipe_xlen; // (Swipe) length of the movement along Xaxis (mm)
         public string swipe_ylen; // (Swipe) length of the movement along Yaxis (mm)
-
-        public DetailTrialLog(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-        : base(blockNum, trialNum, trial, trialRecord)
-        {
-        }
     }
 }

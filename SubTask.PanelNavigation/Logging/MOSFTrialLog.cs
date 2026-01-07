@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Common.Logs;
 
 namespace SubTask.PanelNavigation.Logging
 {
@@ -78,11 +74,5 @@ namespace SubTask.PanelNavigation.Logging
         public int obj4rl_obj5pr;    // object4 exit -\ object5 enter
 
         public int objNrl_arapr;    // last object release -\ object area press (trial end)
-
-
-        public MOSFTrialLog(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-            : base(blockNum, trialNum, trial, trialRecord)
-        {
-        }
     }
 }

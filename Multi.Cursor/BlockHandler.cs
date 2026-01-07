@@ -1,17 +1,9 @@
-﻿using MathNet.Numerics;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
-using static Multi.Cursor.Experiment;
-using static Multi.Cursor.TrialRecord;
-using static Tensorflow.TensorShapeProto.Types;
 
 namespace Multi.Cursor
 {

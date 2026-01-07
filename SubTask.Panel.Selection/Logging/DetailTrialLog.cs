@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Logs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,10 +30,5 @@ namespace SubTask.Panel.Selection.Logging
         public int gstnd_fstfl;     // gesture end -\ first flick (moving the finger over surface)
         public int fstfl_funmk;     // first flick -\ marker on function
         public int funmk_objnt;     // marker on function -\ object enter
-
-        public DetailTrialLog(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-        : base(blockNum, trialNum, trial, trialRecord)
-        {
-        }
     }
 }
