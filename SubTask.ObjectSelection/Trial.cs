@@ -116,6 +116,8 @@ namespace SubTask.ObjectSelection
             trial.PtcNum = ptc;
             trial.NObjects = nObj;
 
+            trial.TaskType = TaskType.OBJECT_SELECT;
+
             return trial;
         }
 

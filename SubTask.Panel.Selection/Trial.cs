@@ -53,6 +53,8 @@ namespace SubTask.Panel.Selection
             trial.Complexity = complexity;
             trial.FuncSide = side;
 
+            trial.TaskType = TaskType.PANEL_SELECT;
+
             return trial;
         }
 

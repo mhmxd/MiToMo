@@ -40,7 +40,13 @@ namespace Common.Constants
             MULTI_OBJ_ONE_FUNC = 4, // Multiple objects, one function
             MULTI_OBJ_MULTI_FUNC = 5, // Multiple objects, multiple functions
             MULTI_OBJECT = 6,
-            MULTI_FUNCTION = 7
+            MULTI_FUNCTION = 7,
+            // Subtasks
+            FUNCTION_POINT_SELECT = 8,
+            MULTI_FUNCTION_SELECT = 9,
+            OBJECT_SELECT = 10,
+            PANEL_SELECT = 11,
+            PANEL_NAVIGATE = 12
         }
 
         public enum Result

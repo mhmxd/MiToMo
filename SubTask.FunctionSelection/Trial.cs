@@ -69,6 +69,8 @@ namespace SubTask.FunctionSelection
             trial.FuncSide = side;
             trial.AddFunctionWidths(functionWidthsMX);
 
+            trial.TaskType = TaskType.MULTI_FUNCTION_SELECT;
+
             return trial;
         }
 

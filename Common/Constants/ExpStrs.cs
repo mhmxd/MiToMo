@@ -102,11 +102,16 @@ namespace Common.Constants
         public static readonly string SWIPE_XLEN = "swipe_xlen";
         public static readonly string SWIPE_YLEN = "swipe_ylen";
 
-        // Trial types
+        // Task types
         public static readonly string SOSF = "sosf";
         public static readonly string SOMF = "somf";
         public static readonly string MOSF = "mosf";
         public static readonly string MOMF = "momf";
+        public static readonly string FPS = "fps";
+        public static readonly string MFS = "mfs";
+        public static readonly string OBS = "obs";
+        public static readonly string PNS = "pns";
+        public static readonly string PNV = "pnv";
 
         // Task type abbreviations
         public static Dictionary<TaskType, string> TASKTYPE_ABBR = new Dictionary<TaskType, string>
@@ -115,6 +120,12 @@ namespace Common.Constants
             {TaskType.ONE_OBJ_MULTI_FUNC, SOMF },
             {TaskType.MULTI_OBJ_ONE_FUNC, MOSF },
             {TaskType.MULTI_OBJ_MULTI_FUNC, MOMF },
+
+            {TaskType.FUNCTION_POINT_SELECT, FPS },
+            {TaskType.MULTI_FUNCTION_SELECT, MFS },
+            {TaskType.OBJECT_SELECT, OBS },
+            {TaskType.PANEL_SELECT, PNS },
+            {TaskType.PANEL_NAVIGATE, PNV },
         };
 
         public static string Join(params string[] parts)

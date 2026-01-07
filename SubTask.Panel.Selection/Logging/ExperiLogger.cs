@@ -1,23 +1,17 @@
 ﻿using Common.Constants;
 using Common.Logs;
 using Common.Settings;
-using MathNet.Numerics;
 using Serilog;
 using Serilog.Core;
 using SubTask.Panel.Selection.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Internal;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using static Common.Constants.ExpEnums;
-using ILogger = Serilog.ILogger;
 
 namespace SubTask.Panel.Selection
 {

@@ -125,6 +125,8 @@ namespace SubTask.FunctionPointSelect
             trial.DistRangeMM = distRangeMM;
             trial.AddFunctionWidths(functionWidthsMX);
 
+            trial.TaskType = TaskType.FUNCTION_POINT_SELECT;
+
             return trial;
         }
 

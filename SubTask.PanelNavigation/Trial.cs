@@ -53,6 +53,8 @@ namespace SubTask.PanelNavigation
             trial.Complexity = complexity;
             trial.FuncSide = side;
 
+            trial.TaskType = TaskType.PANEL_NAVIGATE;
+
             return trial;
         }
 
