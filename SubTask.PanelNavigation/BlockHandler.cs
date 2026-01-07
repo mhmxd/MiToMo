@@ -116,18 +116,18 @@ namespace SubTask.PanelNavigation
             _activeTrialRecord.Result = result;
             LogEvent(Str.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
 
-            double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
+            //double trialTime = GetDuration(Str.STR_RELEASE + "_1", Str.TRIAL_END);
 
             switch (result)
             {
                 case Result.HIT:
                     Sounder.PlayHit();
-                    _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                    //_activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
                     break;
                 case Result.MISS:
                     Sounder.PlayTargetMiss();
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
-                    _activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
+                    //_activeTrialRecord.AddTime(Str.TRIAL_TIME, trialTime);
                     break;
             }
 

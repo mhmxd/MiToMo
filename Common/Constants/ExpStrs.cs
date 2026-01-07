@@ -95,6 +95,10 @@ namespace Common.Constants
         public static readonly string SWIPE_START = "swipe_start";
         public static readonly string SWIPE_END = "swipe_end";
         public static readonly string FLICK = "flick";
+        public static readonly string TAP_XLEN = "tap_xlen";
+        public static readonly string TAP_YLEN = "tap_ylen";
+        public static readonly string SWIPE_XLEN = "swipe_xlen";
+        public static readonly string SWIPE_YLEN = "swipe_ylen";
 
         // Trial types
         public static readonly string SOSF = "sosf";

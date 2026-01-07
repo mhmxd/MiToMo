@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SubTask.PanelNavigation.Logging
 {
-    internal class MOMFTrialLong : TrialLog
+    internal class MOMFTrialLog : TrialLog
     {
         public int trlsh_curmv;    // trial show -\ first move
         public int curmv_strnt;   // first move -\ start entered *Last* (before press)
@@ -88,7 +88,7 @@ namespace SubTask.PanelNavigation.Logging
         public int gstnd_fstfl;      // gesture end -> first flick
 
 
-        public MOMFTrialLong(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
+        public MOMFTrialLog(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
             : base(blockNum, trialNum, trial, trialRecord)
         {
         }

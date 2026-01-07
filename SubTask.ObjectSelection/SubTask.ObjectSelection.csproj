@@ -309,7 +309,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Logging\BlockLog.cs" />
     <Compile Include="Logging\CursorRecord.cs" />
     <Compile Include="Logging\MOMFTrialLong.cs" />
     <Compile Include="Logging\DetailedTrialLog.cs" />

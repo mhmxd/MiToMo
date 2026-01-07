@@ -1,21 +1,17 @@
-﻿using Common.Settings;
-using MathNet.Numerics;
+﻿using Common.Constants;
+using Common.Logs;
+using Common.Settings;
 using Serilog;
 using Serilog.Core;
 using SubTask.PanelNavigation.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Internal;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using static Common.Constants.ExpEnums;
-using ILogger = Serilog.ILogger;
 
 namespace SubTask.PanelNavigation
 {
@@ -322,38 +318,30 @@ namespace SubTask.PanelNavigation
             //FillTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log start events
-            log.trlsh_curmv = trialRecord.GetDuration(Str.TRIAL_SHOW, Str.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(Str.FIRST_MOVE, Str.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(Str.STR_ENTER, Str.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(Str.STR_PRESS, Str.STR_RELEASE);
+            log.trlsh_curmv = trialRecord.GetDuration(ExpStrs.TRIAL_SHOW, ExpStrs.FIRST_MOVE);
+            log.curmv_strnt = trialRecord.GetLastSeqDuration(ExpStrs.FIRST_MOVE, ExpStrs.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetLastSeqDuration(ExpStrs.STR_ENTER, ExpStrs.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetLastSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
             // Log the rest of the times
             switch (trial.Technique.GetDevice())
             {
-                case Technique.MOUSE:
-                    log.strrl_objnt = trialRecord.GetLastSeqDuration(Str.STR_RELEASE, Str.OBJ_ENTER);
 
-                    log.objrl_pnlnt = trialRecord.GetLastSeqDuration(Str.OBJ_RELEASE, Str.PNL_ENTER);
-                    log.pnlnt_funnt = trialRecord.GetLastSeqDuration(Str.PNL_ENTER, Str.FUN_ENTER);
-                    log.funnt_funpr = trialRecord.GetLastSeqDuration(Str.FUN_ENTER, Str.FUN_PRESS);
-                    log.funpr_funrl = trialRecord.GetLastSeqDuration(Str.FUN_PRESS, Str.FUN_RELEASE);
-                    log.funrl_arant = trialRecord.GetLastSeqDuration(Str.FUN_RELEASE, Str.ARA_ENTER);
-
+                case Technique.TOMO_TAP:
+                    log.strrl_fngup = trialRecord.GetLastSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.UP);
+                    log.fngup_fngdn = trialRecord.GetLastSeqDuration(ExpStrs.UP, ExpStrs.TAP_DOWN);
+                    log.fngdn_fngup = trialRecord.GetLastSeqDuration(ExpStrs.TAP_DOWN, ExpStrs.TAP_UP);
+                    log.tap_xlen = trialRecord.GetLength(ExpStrs.TAP_XLEN).ToString("F2");
+                    log.tap_ylen = trialRecord.GetLength(ExpStrs.TAP_YLEN).ToString("F2");
                     break;
 
-                case Technique.TOMO:
-                    log.strrl_gstst = trialRecord.GetDurationToGestureStart(Str.STR_RELEASE, trial.Technique);
-                    log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
-                    log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, Str.FLICK);
-                    log.fstfl_funmk = trialRecord.GetDuration(Str.FLICK, Str.FUN_MARKED);
-                    log.funmk_objnt = trialRecord.GetDuration(Str.ARA_ENTER, Str.OBJ_ENTER);
+                case Technique.TOMO_SWIPE:
+                    log.strrl_fngmv = trialRecord.GetLastSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.SWIPE_START);
+                    log.fngmv_swpthr = trialRecord.GetLastSeqDuration(ExpStrs.SWIPE_START, ExpStrs.SWIPE_END);
+                    log.swipe_xlen = trialRecord.GetLength(ExpStrs.SWIPE_XLEN).ToString("F2");
+                    log.swipe_ylen = trialRecord.GetLength(ExpStrs.SWIPE_YLEN).ToString("F2");
                     break;
             }
-
-            log.objnt_objpr = trialRecord.GetLastSeqDuration(Str.OBJ_ENTER, Str.OBJ_PRESS);
-            log.objpr_objrl = trialRecord.GetLastSeqDuration(Str.OBJ_PRESS, Str.OBJ_RELEASE);
-
-            log.arant_arapr = trialRecord.GetLastSeqDuration(Str.ARA_ENTER, Str.ARA_PRESS);
 
             // Testing
             //Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
@@ -376,11 +364,8 @@ namespace SubTask.PanelNavigation
             log.trial_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.ARA_PRESS);
             _trialTimes[trial.Id] = log.trial_time;
 
-            log.funcs_sel_time = trialRecord.GetDuration(Str.PNL_ENTER, Str.FUN_RELEASE);
-            log.objs_sel_time = trialRecord.GetDuration(Str.ARA_ENTER, Str.OBJ_RELEASE);
-            log.func_po_sel_time = trialRecord.GetDuration(Str.OBJ_RELEASE, Str.FUN_RELEASE);
-            log.panel_sel_time = trialRecord.GetDuration(Str.STR_RELEASE, Str.PNL_SELECT);
-            log.panel_nav_time = trialRecord.GetDuration(Str.PNL_SELECT, Str.OBJ_PRESS);
+            log.gesture_start_time = trialRecord.GetDurationToGestureStart(ExpStrs.STR_RELEASE, trial.Technique);
+            log.gesture_duration = trialRecord.GetGestureDuration(trial.Technique);
 
             WriteTrialLog(log, _totalLogFilePath, _totalTrialLogWriter);
 
@@ -487,37 +472,6 @@ namespace SubTask.PanelNavigation
         {
             _trialCursorRecords[_activeTrialId].Add(new CursorRecord(cursorPos));
         }
-
-        //private static void WriteTotalTrialLog<T>(T totalTrialLog)
-        //{
-        //    //var fields = typeof(T).GetFields();
-        //    //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
-        //    //_detailTrialLogWriter.WriteLine(string.Join(";", values));
-        //    //_detailTrialLogWriter.Flush();
-
-        //    var type = typeof(T);
-        //    var baseType = type.BaseType;
-
-        //    // 1. Get fields from the base class (parent)
-        //    // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
-        //    var parentFields = baseType != null && baseType != typeof(object)
-        //        ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-        //        : Enumerable.Empty<FieldInfo>();
-
-        //    // 2. Get fields from the derived class (child)
-        //    var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-        //    // 3. Combine them: Parent fields first, then Child fields.
-        //    var orderedFields = parentFields.Concat(childFields);
-
-        //    // 4. Get values in the same order.
-        //    var values = orderedFields
-        //        .Select(f => f.GetValue(totalTrialLog)?.ToString() ?? "");
-
-        //    // 5. Write the values.
-        //    _totalTrialLogWriter.WriteLine(string.Join(";", values));
-        //    _totalTrialLogWriter.Flush();
-        //}
 
         private static void Dispose()
         {

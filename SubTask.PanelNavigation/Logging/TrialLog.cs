@@ -1,11 +1,8 @@
-﻿using Serilog;
+﻿using Common.Logs;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Security.RightsManagement;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SubTask.PanelNavigation.Logging
 {
@@ -22,8 +19,6 @@ namespace SubTask.PanelNavigation.Logging
         public int n_fun;       // number of functions
         public string fun_side; // t, l, r
         public int func_width;  // mm
-        public string dist_lvl; // s, m, l
-        public string dist;     // mm
         public int result;      // hit (1), miss (0)
 
         public TrialLog(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)

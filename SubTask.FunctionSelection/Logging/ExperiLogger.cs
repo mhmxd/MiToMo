@@ -1,4 +1,5 @@
 ﻿using Common.Constants;
+using Common.Logs;
 using Common.Settings;
 using Serilog;
 using Serilog.Core;

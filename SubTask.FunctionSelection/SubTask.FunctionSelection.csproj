@@ -309,7 +309,6 @@
     </ApplicationDefinition>
     <Compile Include="ButtonFactory.cs" />
     <Compile Include="GridFactory.cs" />
-    <Compile Include="Logging\BlockLog.cs" />
     <Compile Include="Logging\CursorRecord.cs" />
     <Compile Include="Logging\DetailedTrialLog.cs" />
     <Compile Include="Logging\TopLog.cs" />

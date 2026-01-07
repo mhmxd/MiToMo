@@ -63,7 +63,8 @@ namespace SubTask.PanelNavigation
         public Rect StartBtnRect;
         //public Dictionary<string, int> EventCounts;
         private List<TrialEvent> Events;
-        private Dictionary<string, double> Times;
+        private Dictionary<string, long> Times;
+        private Dictionary<string, double> Lengths; // e.g., swipe length (all in mm)
 
         public Result Result;
 
@@ -72,7 +73,9 @@ namespace SubTask.PanelNavigation
             Functions = new List<TFunction>();
             //EventCounts = new Dictionary<string, int>();
             Events = new List<TrialEvent>();
-            Times = new Dictionary<string, double>();
+            Times = new Dictionary<string, long>();
+            Lengths = new Dictionary<string, double>();
+
             TrialId = trialId;
             StartBtnRect = new Rect(0, 0, Config.TRIAL_START_BUTTON_DIM_MM.Width, Config.TRIAL_START_BUTTON_DIM_MM.Height);
         }
@@ -314,6 +317,11 @@ namespace SubTask.PanelNavigation
                     gestureStartTimestamp.Type = Str.TAP_DOWN;
                 }
             }
+        }
+
+        public void AddLength(string label, double length)
+        {
+            Lengths[label] = length;
         }
 
         public string TrialEventsToString()
@@ -670,15 +678,6 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void Reset()
-        {
-            Functions.Clear();
-            Objects.Clear();
-            ObjFuncMap.Clear();
-            Events.Clear();
-            Times.Clear();
-        }
-
         public List<int> GetFunctionIds()
         {
             return Functions.Select(f => f.Id).ToList();
@@ -694,7 +693,7 @@ namespace SubTask.PanelNavigation
             return Functions.Select(f => f.Center).ToList();
         }
 
-        public void AddTime(string label, double time)
+        public void AddTime(string label, long time)
         {
             Times[label] = time;
         }
@@ -707,6 +706,24 @@ namespace SubTask.PanelNavigation
         public int CountEvent(string type)
         {
             return Events.Count(ts => ts.Type == type);
+        }
+
+        public double GetLength(string label)
+        {
+            if (Lengths.Any(l => l.Key == label))
+            {
+                return Lengths[label];
+            }
+            return -1;
+        }
+
+        public void Reset()
+        {
+            Functions.Clear();
+            Objects.Clear();
+            ObjFuncMap.Clear();
+            Events.Clear();
+            Times.Clear();
         }
 
 

@@ -1,4 +1,5 @@
-﻿using Common.Settings;
+﻿using Common.Logs;
+using Common.Settings;
 using MathNet.Numerics;
 using Serilog;
 using Serilog.Core;
