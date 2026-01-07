@@ -309,10 +309,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Logging\MOMFTrialLong.cs" />
     <Compile Include="Logging\DetailedTrialLog.cs" />
-    <Compile Include="Logging\SOMFTrialLog.cs" />
-    <Compile Include="Logging\SOSFTrialLog.cs" />
     <Compile Include="Logging\TotalTrialLog.cs" />
     <Compile Include="MouseEvents.cs" />
     <Compile Include="App.xaml.cs">
