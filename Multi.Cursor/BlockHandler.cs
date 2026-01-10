@@ -66,7 +66,7 @@ namespace Multi.Cursor
 
         private void TrialInfo(object mINOR_LINE)
         {
-            throw new NotImplementedException();
+            //
         }
 
         public virtual void ShowActiveTrial()

@@ -26,7 +26,7 @@ namespace SubTask.Panel.Selection
 
         #region Public Grid Entries (Simple, Moderate, Complex)
 
-        public static Grid CreateSimpleTopGrid() => BuildManifestGrid(new[] { SimpleTopRow }, ROW_HEIGHT, 0);
+        public static Grid CreateSimpleTopGrid() => BuildManifestGrid(new[] { SimpleTopRow }, ROW_HEIGHT, GUTTER_8PX);
 
         public static Grid CreateModerateTopGrid() => BuildManifestGrid(new[] { ModerateTopRow1, ModerateTopRow2 }, ROW_HEIGHT, GUTTER_8PX);
 

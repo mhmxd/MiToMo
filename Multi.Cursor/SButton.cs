@@ -1,13 +1,8 @@
-﻿using System;
+﻿using Common.Helpers;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
 
 namespace Multi.Cursor
 {
@@ -26,6 +21,9 @@ namespace Multi.Cursor
         public int RightId { get; private set; } = -1;
         public int TopId { get; private set; } = -1;
         public int BottomId { get; private set; } = -1;
+
+        // Position in the grid
+        public ExpGridPos RowCol { get; set; }
 
         public static readonly DependencyProperty DisableBackgroundHoverProperty =
          DependencyProperty.Register("DisableBackgroundHover", typeof(bool), typeof(SButton), new PropertyMetadata(false));

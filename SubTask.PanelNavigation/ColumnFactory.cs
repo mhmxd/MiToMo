@@ -1,17 +1,10 @@
 ﻿//using ExCSS;
+using Common.Constants;
+using Common.Settings;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.SessionState;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Shapes;
-using Common.Constants;
-using Tensorflow.Operations.Activation;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static Common.Helpers.ExpUtils;
 
 namespace SubTask.PanelNavigation
@@ -22,7 +15,7 @@ namespace SubTask.PanelNavigation
         private static double UNIT = MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         private static double ROW_HEIGHT = MM2PX(Config.GRID_ROW_HEIGHT_MM); // Height of each row in pixels
 
-        public static double MAX_GROUP_WITH = MM2PX(2 * Experiment.BUTTON_MULTIPLES[ExpStrs.x15] + Config.GUTTER_05MM); // Maximum width of the group in pixels
+        public static double MAX_GROUP_WITH = MM2PX(2 * ExpLayouts.BUTTON_MULTIPLES[ExpStrs.x15] + Config.GUTTER_05MM); // Maximum width of the group in pixels
         public static double COLUMN_HEIGHT = MM2PX(3 * Config.GRID_ROW_HEIGHT_MM + 2 * Config.GUTTER_05MM);
 
         private static Rectangle CreateInRowGutter()
@@ -65,7 +58,7 @@ namespace SubTask.PanelNavigation
 
         private static SButton CreateBigButton()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x15];
+            int wMultiple = ExpLayouts.BUTTON_MULTIPLES[ExpStrs.x15];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -77,7 +70,7 @@ namespace SubTask.PanelNavigation
 
         private static SButton CreateSmallButton()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x6];
+            int wMultiple = ExpLayouts.BUTTON_MULTIPLES[ExpStrs.x6];
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -89,7 +82,7 @@ namespace SubTask.PanelNavigation
 
         private static SButton CreateDropdownButton()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x3]; // Assuming 0 is the index for dropdown button width
+            int wMultiple = ExpLayouts.BUTTON_MULTIPLES[ExpStrs.x3]; // Assuming 0 is the index for dropdown button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -101,7 +94,7 @@ namespace SubTask.PanelNavigation
 
         private static SButton CreateWideButton()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x18]; // Assuming 3 is the index for wide button width
+            int wMultiple = ExpLayouts.BUTTON_MULTIPLES[ExpStrs.x18]; // Assuming 3 is the index for wide button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -113,7 +106,7 @@ namespace SubTask.PanelNavigation
 
         private static SButton CreateWiderButton()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x30]; // Assuming 4 is the index for wider button width
+            int wMultiple = ExpLayouts.BUTTON_MULTIPLES[ExpStrs.x30]; // Assuming 4 is the index for wider button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -125,7 +118,7 @@ namespace SubTask.PanelNavigation
 
         private static SButton CreateWidestButton()
         {
-            int wMultiple = Experiment.BUTTON_MULTIPLES[ExpStrs.x36]; // Assuming 4 is the index for wider button width
+            int wMultiple = ExpLayouts.BUTTON_MULTIPLES[ExpStrs.x36]; // Assuming 4 is the index for wider button width
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
@@ -218,7 +211,7 @@ namespace SubTask.PanelNavigation
 
         public static Grid CreateSimpleGrid()
         {
-            double columnWidth = MM2PX(Experiment.BUTTON_MULTIPLES[ExpStrs.x36]);
+            double columnWidth = MM2PX(ExpLayouts.BUTTON_MULTIPLES[ExpStrs.x36]);
 
             Grid group = new Grid { UseLayoutRounding = true, Width = columnWidth }; // Ensure UseLayoutRounding is on the Grid
 

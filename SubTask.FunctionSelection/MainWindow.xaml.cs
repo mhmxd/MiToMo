@@ -890,9 +890,9 @@ namespace SubTask.FunctionSelection
                     placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
                     break;
                 case Complexity.Complex:
-                    placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateTopComplexGrid, -1, HORIZONTAL_PADDING));
-                    placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1));
-                    placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateSideComplexGrid, VERTICAL_PADDING, -1));
+                    placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING));
+                    placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
+                    placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
                     break;
             }
 
