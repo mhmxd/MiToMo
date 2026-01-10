@@ -9,17 +9,10 @@ namespace SubTask.PanelNavigation.Logging
         public int strnt_strpr;    // Start enter \ Start press
         public int strpr_strrl;     // Start press \ Start release
         
-        public int strrl_fngup; // (Tap) Start release \ finger up | (Swipe) doesn't matter
-        public int fngup_fngdn; // (Tap) finger up \ finger down) | (Swipe) doesn't matter
-        public int fngdn_fngup; // (Tap) finger down \ finger up | (Swipe) doesn't matter
-        // string, so that we can long only two decimal places
-        public string tap_xlen; // (Tap) length of the touch area along Xaxis (mm)
-        public string tap_ylen; // (Tap) length of the touch area along Yaxis (mm)
-        
-        public int strrl_fngmv; // (Swipe) Start release \ finger start moving to swipe | (Tap) doesn't matter
-        public int fngmv_swpthr; // (Swipe) finger start moving \ swipe threshold reaches
-        // string, so that we can long only two decimal places
-        public string swipe_xlen; // (Swipe) length of the movement along Xaxis (mm)
-        public string swipe_ylen; // (Swipe) length of the movement along Yaxis (mm)
+        public int strrl_fngmv; // Start release \ finger start moving
+        public int fngmv_mrkmv; // finger start moving \ marker starts moving
+        public int mrkmv_mrksp; // marker starts moving \ marker stops
+        public int mrksp_btnpr; // marker stops \ ToMo button press
+        public int btnpr_btnrl; // ToMo button press \ button release
     }
 }

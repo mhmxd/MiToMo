@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Web.UI;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Common.Constants;
+using Common.Helpers;
 using static Common.Constants.ExpEnums;
 using static Common.Helpers.ExpUtils;
 using static SubTask.PanelNavigation.TrialRecord;
@@ -409,19 +412,19 @@ namespace SubTask.PanelNavigation
             LogEvent(ExpStrs.STR_EXIT);
         }
 
-        public virtual void OnFunctionMarked(int funId)
+        public virtual void OnFunctionMarked(int funId, ExpGridPos funcRowCol)
         {
             _activeTrialRecord.MarkFunction(funId);
-            LogEvent(ExpStrs.FUN_MARKED, funId.ToString());
+            LogEvent(ExpStrs.FUN_MARKED, JsonSerializer.Serialize(funcRowCol));
 
             // Change the END button color to enabled
             _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_AVAILABLE_COLOR);
         }
 
-        public virtual void OnFunctionUnmarked(int funId)
+        public virtual void OnFunctionUnmarked(int funId, ExpGridPos funcRowCol)
         {
             _activeTrialRecord.UnmarkFunction(funId);
-            LogEvent(ExpStrs.FUN_DEMARKED, funId.ToString());
+            LogEvent(ExpStrs.FUN_DEMARKED, JsonSerializer.Serialize(funcRowCol));
 
             // Change the END button color to disabled
             _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_UNAVAILABLE_COLOR);
@@ -547,7 +550,7 @@ namespace SubTask.PanelNavigation
         public void IndexUp()
         {
             _mainWindow.StopAuxNavigator();
-            LogEvent(ExpStrs.Join(ExpStrs.INDEX, ExpStrs.UP));
+            LogEvent(ExpStrs.JoinUs(ExpStrs.INDEX, ExpStrs.UP));
         }
 
         public virtual void ThumbSwipe(Direction dir)

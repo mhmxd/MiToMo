@@ -27,25 +27,13 @@ namespace Multi.Cursor
         public TaskType TaskType { get; set; }
         public Complexity Complexity { get; set; }
 
-        // Target circle diameter
-        private double _targetWidthMM;
-        public double TargetWidthMM 
-        {
-            get => _targetWidthMM;
-            set => _targetWidthMM = value;
-        }
-        public double TargetWidthPX => Utils.MM2PX(TargetWidthMM);
-
-        // AvgDistanceMM to the target center, from start's center
-        //private double _distanceMM;
-        //public double AvgDistanceMM
+        //private double _targetWidthMM;
+        //public double TargetWidthMM 
         //{
-        //    get => _distanceMM;
-        //    set => _distanceMM = value;
+        //    get => _targetWidthMM;
+        //    set => _targetWidthMM = value;
         //}
-        //public int DistancePX => Utils.MM2PX(AvgDistanceMM);
-
-        //public List<double> Distances = new List<double>(); // Distances in px
+        //public double TargetWidthPX => Utils.MM2PX(TargetWidthMM);
 
         public Range DistRangeMM { get; set; }
         public Range DistRangePX => DistRangeMM.GetPx(); // AvgDistanceMM range in px

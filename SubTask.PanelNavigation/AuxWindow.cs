@@ -1,20 +1,15 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using static Common.Constants.ExpEnums;
-using static SubTask.PanelNavigation.Output;
 using SysWin = System.Windows;
 
 namespace SubTask.PanelNavigation
@@ -596,7 +591,7 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void ShowMarker(Action<int> OnFunctionMarked)
+        public void ShowMarker(Action<int, ExpGridPos> OnFunctionMarked)
         {
             int buttonId = _lastMarkedButtonId;
             if (buttonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
@@ -635,8 +630,9 @@ namespace SubTask.PanelNavigation
             if (possibleButtons.Count > 0)
             {
                 int randomButtonId = possibleButtons.GetRandomElement();
+                ExpGridPos pos = _buttonInfos[randomButtonId].Button.RowCol;
                 _gridNavigator.Activate(); // Activate the grid navigator
-                MarkButton(randomButtonId, (id) => { }); // Highlight the button
+                MarkButton(randomButtonId, (id, pos) => { }); // Highlight the button
             }
             else
             {
@@ -644,7 +640,7 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void ActivateMarker(Action<int> OnFunctionMarked)
+        public void ActivateMarker(Action<int, ExpGridPos> OnFunctionMarked)
         {
             this.TrialInfo($"Last highlight = {_lastMarkedButtonId}");
 
@@ -690,7 +686,7 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void MarkButton(int buttonId, Action<int> OnFunctionMarked)
+        public void MarkButton(int buttonId, Action<int, ExpGridPos> OnFunctionMarked)
         {
             var buttonBgOrange =
                 _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_DEFAULT_COLOR);
@@ -720,27 +716,8 @@ namespace SubTask.PanelNavigation
                     this.TrialInfo($"Set {_buttonInfos[buttonId].Button.Id} to Enabled");
                     _buttonInfos[buttonId].Button.Background = Config.FUNCTION_ENABLED_COLOR;
                     // Call the event
-                    OnFunctionMarked(_buttonInfos[buttonId].Button.Id);
+                    OnFunctionMarked(_buttonInfos[buttonId].Button.Id, _buttonInfos[buttonId].Button.RowCol);
                 }
-
-
-                // Change the background to selected (green) if orange or light green
-                //if (buttonBgOrange || buttonBgLightGreen)
-                //{
-                //    _buttonInfos[buttonId].Button.Background = Config.FUNCTION_APPLIED_COLOR;
-
-                //    // Tell the MainWindow to mark the mapped object and set function as applied
-                //    ((MainWindow)this.Owner).MarkMappedObject(buttonId);
-                //    ((MainWindow)this.Owner).SetFunctionAsApplied(buttonId);
-                //}
-                //else if (buttonBgDarkGreen) // Don't change if already dark green
-                //{
-                //    // Do nothing, stay dark green
-                //}
-                //else // Change to default hover color
-                //{
-                //    _buttonInfos[buttonId].Button.Background = Config.BUTTON_HOVER_FILL_COLOR;
-                //}
 
                 _lastMarkedButtonId = buttonId; // Store the ID of the highlighted button
             }
@@ -750,7 +727,7 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void MoveMarker(TouchPoint tp, Action<int> OnFunctionMarked, Action<int> OnFunctionDeMarked)
+        public void MoveMarker(TouchPoint tp, Action<int, ExpGridPos> OnFunctionMarked, Action<int, ExpGridPos> OnFunctionDeMarked)
         {
             // Update the grid navigator with the current touch point
             var (dGridX, dGridY) = _gridNavigator.Update(tp);
@@ -770,6 +747,7 @@ namespace SubTask.PanelNavigation
                     if (markedButton.RightId == -1) break; // Hit the edge
                     markedButton = _buttonInfos[markedButton.RightId].Button;
                 }
+
             }
             else // Move Left
             {
@@ -816,23 +794,11 @@ namespace SubTask.PanelNavigation
                     else if (oldButton.Background.Equals(Config.FUNCTION_ENABLED_COLOR)) // Light green => Orange
                     {
                         oldButton.Background = Config.FUNCTION_DEFAULT_COLOR;
-                        OnFunctionDeMarked(oldButton.Id); // Call the event
+                        OnFunctionDeMarked(oldButton.Id, oldButton.RowCol); // Call the event
                     }
 
                     // Change the new button background based on its previous state
                     MarkButton(markedButton.Id, OnFunctionMarked);
-                    //if (markedButton.Background.Equals(Config.BUTTON_DEFAULT_FILL_COLOR)) // Moved over a normal button
-                    //{
-                    //    //this.TrialInfo($"Set {markedButton.Id} to Hover Fill");
-                    //    markedButton.Background = Config.BUTTON_HOVER_FILL_COLOR;
-                    //}
-                    //else if (markedButton.Background.Equals(Config.FUNCTION_DEFAULT_COLOR)) // Moved over a function
-                    //{
-                    //    this.TrialInfo($"Set {markedButton.Id} to Enabled");
-                    //    markedButton.Background = Config.FUNCTION_ENABLED_COLOR;
-                    //    // Call the event
-                    //    OnFunctionMarked(markedButton.Id);
-                    //}
                 }
 
                 // STEP 2: Update the last marked button ID

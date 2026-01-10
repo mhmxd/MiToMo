@@ -389,6 +389,8 @@ namespace SubTask.PanelNavigation
 
             if (_frames.Count > 1) // Need at least two frames
             {
+                TrackTapIndex();
+
                 //TouchFrame lastFrame = _frames.Last;
                 //TouchFrame beforeLastFrame = _frames.BeforeLast;
 
@@ -406,23 +408,20 @@ namespace SubTask.PanelNavigation
                 //--- REMOVED: Only track multiple fingers if multiple fingers are present!
                 // Presence checks are done inside the methods
 
-                if (_activeTechnique == Technique.TOMO_TAP)
-                {
-                    TrackTapThumb();
-                    TrackTapIndex();
-                    TrackTapMiddle();
-                    TrackTapRing();
-                    TrackTapPinky();
-                }
+                //if (_activeTechnique == Technique.TOMO_TAP)
+                //{
+                //    TrackTapThumb();
+                //    TrackTapIndex();
+                //    TrackTapMiddle();
+                //    TrackTapRing();
+                //    TrackTapPinky();
+                //}
 
-                if (_activeTechnique == Technique.TOMO_SWIPE)
-                {
-                    TrackThumbSwipe();
-                    TrackIndexSwipe();
-                    //SwipeTechTrackMiddle();
-                    //SwipeTechTrackRing();
-                    //SwipeTechTrackLittle();
-                }
+                //if (_activeTechnique == Technique.TOMO_SWIPE)
+                //{
+                //    TrackThumbSwipe();
+                //    TrackIndexSwipe();
+                //}
 
 
             }

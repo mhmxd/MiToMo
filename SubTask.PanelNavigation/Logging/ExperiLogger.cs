@@ -17,19 +17,24 @@ namespace SubTask.PanelNavigation
 {
     internal class ExperiLogger
     {
+        //private static int _ptcId = ExpPtc.PTC_NUM; // Participant ID
+        private static readonly Technique Technique = Technique.TOMO; // Technique
+
+        private static readonly string Namespace = typeof(ExperiLogger).Namespace;
+        private static readonly string LogsFolderName = ExpStrs.JoinDot(Namespace, ExpStrs.Logs);
+        private static readonly string MyDocumentsPath =
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
         // Set for each log (in constructor)
-        private static string _sosfTrialLogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.PanelNavigation.Logs", "sosf_trial_log"
-        );
-        private static string _totalLogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.PanelNavigation.Logs", "total_trial_log"
-        );
-        private static string _blockLogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.PanelNavigation.Logs", "blocks_log"
-        );
+        private static readonly string _detiledTrialLogPath = Path.Combine(
+            MyDocumentsPath, LogsFolderName,
+            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.TRIALS_DETAIL_C);
+        private static readonly string _totalTrialLogPath = Path.Combine(
+            MyDocumentsPath, LogsFolderName,
+            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.TRIALS_TOTAL_C);
+        private static readonly string _blockLogPath = Path.Combine(
+            MyDocumentsPath, LogsFolderName,
+            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.BLOCKS_C);
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
 
@@ -41,115 +46,28 @@ namespace SubTask.PanelNavigation
         private static StreamWriter _cursorLogWriter;
         private static StreamWriter _blockLogWriter;
 
-        private static Dictionary<string, int> _trialLogs = new Dictionary<string, int>();
-
-        private static int _ptcId = 0; // Participant ID
-        private static Technique _technique = Technique.MOUSE; // Technique
-
-        private static bool _headerWritten = false;
-
         private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
 
-        private static Dictionary<int, List<CursorRecord>> _trialCursorRecords = new Dictionary<int, List<CursorRecord>>();
+        private static Dictionary<int, List<PositionRecord>> _trialCursorRecords = new Dictionary<int, List<PositionRecord>>();
+        private static Dictionary<int, List<PositionRecord>> _trialMarkerRecords = new Dictionary<int, List<PositionRecord>>();
         private static int _activeTrialId = -1;
 
-        //public static void Init(int participantId, Technique tech)
-        //{
-        //    _ptcId = participantId;
-        //    _technique = tech;
-
-        //    bool fileExists = File.Exists(_sosfTrialLogFilePath);
-        //    bool fileIsEmpty = !fileExists || new FileInfo(_sosfTrialLogFilePath).Length == 0;
-
-        //    _detailTrialLogWriter = new StreamWriter(_sosfTrialLogFilePath, append: true, Encoding.UTF8);
-
-        //    if (fileIsEmpty)
-        //    {
-        //        WriteHeader<TrialLog>();
-        //    }
-        //}
-
-        public static void Init(Technique tech)
+        public static void Init()
         {
-            _ptcId = ExpPtc.PTC_NUM;
-            _technique = tech;
-
-            _detailTrialLogWriter = PrepareFile<DetailTrialLog>(_sosfTrialLogFilePath);
-
-
-            //_detailTrialLogWriter.AutoFlush = true;
+            // Create detailed trial log if not exists
+            _detailTrialLogWriter = PrepareFile<DetailTrialLog>(_detiledTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
 
             // Create total log if not exists
-            _totalTrialLogWriter = PrepareFile<TotalTrialLog>(_totalLogFilePath);
-            //string totalLogFilePath = $"{_totalLogFilePath}_{timestamp}.csv";
-            //bool totalFileExists = File.Exists(totalLogFilePath);
-            //bool totalFileIsEmpty = !totalFileExists || new FileInfo(totalLogFilePath).Length == 0;
-            //_totalTrialLogWriter = new StreamWriter(totalLogFilePath, append: true, Encoding.UTF8);
-            //_totalTrialLogWriter.AutoFlush = true;
-            //if (totalFileIsEmpty)
-            //{
-            //    WriteHeader<TotalTrialLog>(_totalTrialLogWriter);
-            //}
+            _totalTrialLogWriter = PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
 
             // Create block log if not exists
-            _blockLogWriter = PrepareFile<BlockLog>(_blockLogFilePath);
-            //string blockLogFilePath = $"{_blockLogFilePath}_{timestamp}.csv";
-            //bool blockFileExists = File.Exists(blockLogFilePath);
-            //bool timedFileIsEmpty = !blockFileExists || new FileInfo(blockLogFilePath).Length == 0;
-            //_blockLogWriter = new StreamWriter(blockLogFilePath, append: true, Encoding.UTF8);
-            //_blockLogWriter.AutoFlush = true;
-            //if (timedFileIsEmpty)
-            //{
-            //    WriteHeader<BlockLog>(_blockLogWriter);
-            //}
+            _blockLogWriter = PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
         }
-
-        //public static void StartBlockLog(int blockId, TaskType blockType, Complexity blockComplexity)
-        //{
-        //    String blockFileName = $"Block-{blockId}-{blockType}.txt";
-        //    string blockFilePath = System.IO.Path.Combine(
-        //        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-        //        "SubTask.PanelNavigation.Logs", $"{_ptcId}-{_technique}", blockFileName
-        //    );
-
-        //    //_blockFileLog = new LoggerConfiguration()
-        //    //    .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
-        //    //    outputTemplate: "{TrialEvent:HH:mm:ss.fff} {Message:lj}{NewLine}"))
-        //    //    .CreateLogger();
-
-        //    _blockFileLog = new LoggerConfiguration()
-        //        .WriteTo.Async(a => a.File(blockFilePath, rollingInterval: RollingInterval.Day,
-        //        outputTemplate: "{Message:lj}{NewLine}"))
-        //        .CreateLogger();
-
-        //    _blockFileLog.Information($"--- Technique: {_technique} | Block#: {blockId} | Type: {blockType} | Complexity: {blockComplexity} ---");
-        //}
-
-        //private static void PrepareFile<T>(ref string filePath, StreamWriter writer)
-        //{
-        //    string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-        //    filePath = $"{filePath}_{timestamp}.csv";
-
-        //    string directoryPath = Path.GetDirectoryName(filePath);
-        //    if (!Directory.Exists(directoryPath))
-        //    {
-        //        Directory.CreateDirectory(directoryPath);
-        //    }
-
-        //    bool timedFileExists = File.Exists(filePath);
-        //    bool timedFileIsEmpty = !timedFileExists || new FileInfo(filePath).Length == 0;
-        //    writer = new StreamWriter(filePath, append: true, Encoding.UTF8);
-        //    writer.AutoFlush = true;
-        //    if (timedFileIsEmpty)
-        //    {
-        //        WriteHeader<T>(writer);
-        //    }
-        //}
 
         private static void PrepareFileWithHeader<T>(ref string filePath, StreamWriter writer, string header)
         {
-            string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-            filePath = $"{filePath}_{timestamp}.csv";
+            string timestamp = DateTime.Now.ToString(ExpStrs.DATE_TIME_FORMAT);
+            filePath = $"{filePath}-{timestamp}.csv";
 
             string directoryPath = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directoryPath))
@@ -167,20 +85,20 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        private static StreamWriter PrepareFile<T>(string filePath)
+        private static StreamWriter PrepareFile<T>(string filePath, string fileName)
         {
-            string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-            string timedFilePath = $"{filePath}_{timestamp}.csv";
-
-            string directoryPath = Path.GetDirectoryName(timedFilePath);
-            if (!Directory.Exists(directoryPath))
+            //string directoryPath = Path.GetDirectoryName(timedFilePath);
+            if (!Directory.Exists(filePath))
             {
-                Directory.CreateDirectory(directoryPath);
+                Directory.CreateDirectory(filePath);
             }
 
-            bool timedFileExists = File.Exists(timedFilePath);
-            bool timedFileIsEmpty = !timedFileExists || new FileInfo(timedFilePath).Length == 0;
-            StreamWriter writer = new StreamWriter(timedFilePath, append: true, Encoding.UTF8);
+            string timestamp = DateTime.Now.ToString(ExpStrs.DATE_TIME_FORMAT);
+            filePath = Path.Combine(filePath, $"{fileName}-{timestamp}.csv");
+
+            bool timedFileExists = File.Exists(filePath);
+            bool timedFileIsEmpty = !timedFileExists || new FileInfo(filePath).Length == 0;
+            StreamWriter writer = new StreamWriter(filePath, append: true, Encoding.UTF8);
             writer.AutoFlush = true;
             if (timedFileIsEmpty)
             {
@@ -192,50 +110,15 @@ namespace SubTask.PanelNavigation
 
         public static void StartTrialCursorLog(int trialId, int trialNum)
         {
-            //string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-            //String cursorFileName = $"trial-#{trialId}-cursor-{timestamp}.txt";
-            //string cursorFilePath = System.IO.Path.Combine(
-            //    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            //    "SubTask.PanelNavigation.Logs", $"{_ptcId}-{_technique}", "Cursor", cursorFileName
-            //);
-
             _activeTrialId = trialId;
-            _trialCursorRecords[_activeTrialId] = new List<CursorRecord>();
+            _trialCursorRecords[_activeTrialId] = new List<PositionRecord>();
 
             _cursorLogFilePath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "SubTask.PanelNavigation.Logs", $"{_ptcId}-{_technique}", "Cursor", $"trial{trialId}-{trialNum}-cursor-log"
+                MyDocumentsPath, LogsFolderName, 
+                $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.CURSOR_C, $"trial-id{trialId}-n{trialNum}-{ExpStrs.CURSOR_S}"
             );
 
-            PrepareFileWithHeader<CursorRecord>(ref _cursorLogFilePath, _cursorLogWriter, CursorRecord.GetHeader());
-        }
-
-        public static void StartTrialLog(Trial trial)
-        {
-            //_blockFileLog.Information($"{trial.ToString()}");
-            //_blockFileLog.Information($"----------------------------------------------------------------------------------");
-        }
-
-        public static void StartTrialLogs(int trialNum, int trialId, double targetWidthMM, double distanceMM, Point startPos, Point targetPos)
-        {
-            String gestureFileName = $"trial-{trialNum}-#{trialId}-gestures-.txt";
-
-
-            string gesturesFilePath = System.IO.Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "SubTask.PanelNavigation.Logs", $"{_ptcId}-{_technique}", gestureFileName
-            );
-
-
-            _gestureFileLog = new LoggerConfiguration()
-                    .WriteTo.Async(a => a.File(gesturesFilePath, rollingInterval: RollingInterval.Day,
-                    outputTemplate: "{Timestamp:HH:mm:ss.fff} {Message:lj}{NewLine}"))
-                    .CreateLogger();
-
-
-
-            // Enter log info
-            _gestureFileLog.Information($"TgtW: {targetWidthMM}, Dist: {distanceMM}, StPos: {startPos.ToStr()}, TgPos: {targetPos.ToStr()}");
+            PrepareFileWithHeader<PositionRecord>(ref _cursorLogFilePath, _cursorLogWriter, PositionRecord.GetHeader());
         }
 
         public static void LogGestureEvent(string message)
@@ -248,64 +131,6 @@ namespace SubTask.PanelNavigation
             _blockFileLog.Information(message);
         }
 
-        public static void LogSingleObjTrialTimes(TrialRecord trialRecord)
-        {
-            int nFunctions = trialRecord.Functions.Count;
-
-            if (nFunctions == 1)
-            {
-                switch (_technique)
-                {
-                    case Technique.MOUSE:
-                        _blockFileLog.Information($"Start Release   -> Obj Enter:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.OBJ_ENTER)}");
-                        _blockFileLog.Information($"Obj Enter       -> Obj Press:   {trialRecord.GetDuration(ExpStrs.OBJ_ENTER, ExpStrs.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.FUN_PRESS)}");
-                        _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE)}");
-                        _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(ExpStrs.FUN_RELEASE, ExpStrs.ARA_PRESS)}");
-                        _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
-                        _blockFileLog.Information($"==============================================================================================================");
-                        break;
-
-                    case Technique.TOMO_TAP:
-                        _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDurationToFingerAction(ExpStrs.STR_RELEASE, ExpStrs.TAP_DOWN)}");
-                        _blockFileLog.Information($"Tap Down        -> Tap Up:      {trialRecord.GetGestureDuration(Technique.TOMO_TAP)}");
-                        _blockFileLog.Information($"Tap Up          -> Obj Press:   {trialRecord.GetDurationFromFingerAction(ExpStrs.TAP_UP, ExpStrs.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_EXIT)}");
-                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(ExpStrs.OBJ_EXIT, ExpStrs.ARA_PRESS)}");
-                        _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
-                        _blockFileLog.Information($"==============================================================================================================");
-                        break;
-
-                    case Technique.TOMO_SWIPE:
-                        _blockFileLog.Information($"Start Release   -> Swipe Start: {trialRecord.GetDurationToFingerAction(ExpStrs.STR_RELEASE, ExpStrs.SWIPE_START)}");
-                        _blockFileLog.Information($"Swipe Start     -> Swipe End:   {trialRecord.GetGestureDuration(Technique.TOMO_SWIPE)}");
-                        _blockFileLog.Information($"Swipe End       -> Obj Press:   {trialRecord.GetDurationFromFingerAction(ExpStrs.SWIPE_END, ExpStrs.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_EXIT)}");
-                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(ExpStrs.OBJ_EXIT, ExpStrs.ARA_PRESS)}");
-                        _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
-                        _blockFileLog.Information($"==============================================================================================================");
-                        break;
-                }
-            }
-            else
-            {
-                // For now. Later we put detailed log
-                _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS)}");
-            }
-
-        }
-
-        public static void LogMultipleObjTrialTimes(TrialRecord trialRecord)
-        {
-            // For now. Later we put detailed log
-            _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS)}");
-        }
         private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
             log.ptc = trial.PtcNum;
@@ -316,18 +141,17 @@ namespace SubTask.PanelNavigation
             log.cmplx = trial.Complexity.ToString().ToLower();
             log.tsk_type = ExpStrs.TASKTYPE_ABBR[trial.TaskType];
             log.fun_side = trial.FuncSide.ToString().ToLower();
-            //log.func_width = trial.GetFunctionWidthMM();
-            //log.n_obj = trial.NObjects;
+            log.func_width = -1;
+            log.n_obj = -1;
             log.n_fun = trial.GetNumFunctions();
-            //log.dist_lvl = trial.DistRangeMM.Label.Split('-')[0].ToLower();
-            //log.dist = $"{trialRecord.AvgDistanceMM:F2}";
+            log.dist_lvl = "-";
+            log.dist = "-";
             log.result = (int)trialRecord.Result;
         }
 
         public static void LogDetailTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            string logFilePath = _sosfTrialLogFilePath; // Passed to the writer
-
+            
             Output.Conlog<ExperiLogger>("Logging Trial");
             DetailTrialLog log = new DetailTrialLog();
 
@@ -341,30 +165,17 @@ namespace SubTask.PanelNavigation
             log.strpr_strrl = trialRecord.GetLastSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
             // Log the rest of the times
-            switch (trial.Technique.GetDevice())
-            {
-
-                case Technique.TOMO_TAP:
-                    log.strrl_fngup = trialRecord.GetLastSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.UP);
-                    log.fngup_fngdn = trialRecord.GetLastSeqDuration(ExpStrs.UP, ExpStrs.TAP_DOWN);
-                    log.fngdn_fngup = trialRecord.GetLastSeqDuration(ExpStrs.TAP_DOWN, ExpStrs.TAP_UP);
-                    log.tap_xlen = trialRecord.GetLength(ExpStrs.TAP_XLEN).ToString("F2");
-                    log.tap_ylen = trialRecord.GetLength(ExpStrs.TAP_YLEN).ToString("F2");
-                    break;
-
-                case Technique.TOMO_SWIPE:
-                    log.strrl_fngmv = trialRecord.GetLastSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.SWIPE_START);
-                    log.fngmv_swpthr = trialRecord.GetLastSeqDuration(ExpStrs.SWIPE_START, ExpStrs.SWIPE_END);
-                    log.swipe_xlen = trialRecord.GetLength(ExpStrs.SWIPE_XLEN).ToString("F2");
-                    log.swipe_ylen = trialRecord.GetLength(ExpStrs.SWIPE_YLEN).ToString("F2");
-                    break;
-            }
+            log.strrl_fngmv = trialRecord.GetLastSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.SWIPE_START);
+            log.fngmv_mrkmv = -1;
+            log.mrkmv_mrksp = -1;
+            log.mrksp_btnpr = -1;
+            log.btnpr_btnrl = -1;
 
             // Testing
             //Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             //Output.Conlog<ExperiLogger>(log.ToString());
 
-            WriteTrialLog(log, logFilePath, _detailTrialLogWriter);
+            WriteTrialLog(log, _detiledTrialLogPath, _detailTrialLogWriter);
             //_detailTrialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
@@ -378,13 +189,10 @@ namespace SubTask.PanelNavigation
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Total time
-            log.trial_time = trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS);
+            
             _trialTimes[trial.Id] = log.trial_time;
 
-            log.gesture_start_time = trialRecord.GetDurationToGestureStart(ExpStrs.STR_RELEASE, trial.Technique);
-            log.gesture_duration = trialRecord.GetGestureDuration(trial.Technique);
-
-            WriteTrialLog(log, _totalLogFilePath, _totalTrialLogWriter);
+            WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
 
             // Write cursor records
             //using (StreamWriter writer = new StreamWriter(_cursorLogFilePath, append: false, Encoding.UTF8))
@@ -421,7 +229,7 @@ namespace SubTask.PanelNavigation
             double avgTime = _trialTimes.Values.Average() / 1000;
             log.block_time = $"{avgTime:F2}";
 
-            WriteTrialLog(log, _blockLogFilePath, _blockLogWriter);
+            WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 
         }
 
@@ -487,7 +295,12 @@ namespace SubTask.PanelNavigation
 
         public static void LogCursorPosition(Point cursorPos)
         {
-            _trialCursorRecords[_activeTrialId].Add(new CursorRecord(cursorPos.X, cursorPos.Y));
+            _trialCursorRecords[_activeTrialId].Add(new PositionRecord(cursorPos.X, cursorPos.Y));
+        }
+
+        public static void LogMarkerPosition(int row, int column)
+        {
+            _trialMarkerRecords[_activeTrialId].Add(new PositionRecord(row, column));
         }
 
         private static void Dispose()

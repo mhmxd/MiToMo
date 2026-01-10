@@ -11,29 +11,15 @@ namespace SubTask.PanelNavigation
     public class Experiment
     {
 
-        //--- Flags
-        //public Trial_Action OUTSIDE_OBJECT_PRESS = Trial_Action.CONTINUE;
-        //public Trial_Action OUTSIDE_AREA_PRESS = Trial_Action.CONTINUE;
-        //public Trial_Action MARKER_NOT_ON_FUNCTION_OBJECT_PRESS = Trial_Action.CONTINUE;
-
         //--- Setting
-        public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
-        public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
+        public Technique Active_Technique = Technique.TOMO; // Set in the intro dialog
+        public Complexity Active_Complexity = Complexity.Simple; // Set in the intro dialog
 
         //--- Variables
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
         //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
         private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30 }; // BenQ
-        public static Dictionary<string, int> BUTTON_MULTIPLES = new Dictionary<string, int>()
-        {
-            { ExpStrs.x3, 3 },
-            { ExpStrs.x6, 6 },
-            { ExpStrs.x12, 12 },
-            { ExpStrs.x15, 15 },
-            { ExpStrs.x18, 18 },
-            { ExpStrs.x30, 30 },
-            { ExpStrs.x36, 36 }
-        };
+        
 
         public static Dictionary<Complexity, Dictionary<Side, List<int>>> BUTTON_WIDTHS = new Dictionary<Complexity, Dictionary<Side, List<int>>>()
         {
@@ -83,24 +69,24 @@ namespace SubTask.PanelNavigation
             //Participant_Number = DEFAULT_PTC; // Default
         }
 
-        public void Init(string tech, Complexity complexity)
+        public void Init(Complexity complexity)
         {
-            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}, Technique: {tech}");
+            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}");
             //Participant_Number = ptc;
-            if (tech == ExpStrs.TOUCH_MOUSE_TAP)
-            {
-                Active_Technique = Technique.TOMO_TAP;
-                Config.SetMode(0);
-            }
-            else if (tech == ExpStrs.TOUCH_MOUSE_SWIPE)
-            {
-                Active_Technique = Technique.TOMO_SWIPE;
-                Config.SetMode(1);
-            }
-            else if (tech == ExpStrs.MOUSE)
-            {
-                Active_Technique = Technique.MOUSE;
-            }
+            //if (tech == ExpStrs.TOUCH_MOUSE_TAP)
+            //{
+            //    Active_Technique = Technique.TOMO_TAP;
+            //    Config.SetMode(0);
+            //}
+            //else if (tech == ExpStrs.TOUCH_MOUSE_SWIPE)
+            //{
+            //    Active_Technique = Technique.TOMO_SWIPE;
+            //    Config.SetMode(1);
+            //}
+            //else if (tech == ExpStrs.MOUSE)
+            //{
+            //    Active_Technique = Technique.MOUSE;
+            //}
 
             Active_Complexity = complexity;
 

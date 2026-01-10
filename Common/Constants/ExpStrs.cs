@@ -113,6 +113,18 @@ namespace Common.Constants
         public static readonly string PNS = "pns";
         public static readonly string PNV = "pnv";
 
+        // Logs
+        public static readonly string TRIALS_DETAIL_S = "trials-detail";
+        public static readonly string TRIALS_DETAIL_C = "Trials-Detail";
+        public static readonly string TRIALS_TOTAL_S = "trials-total";
+        public static readonly string TRIALS_TOTAL_C = "Trials-Total";
+        public static readonly string BLOCKS_S = "blocks";
+        public static readonly string BLOCKS_C = "Blocks";
+        public static readonly string Logs = "Logs";
+        public static readonly string CURSOR_S = "cursor";
+        public static readonly string CURSOR_C = "Cursor";
+        public static readonly string DATE_TIME_FORMAT = "yyyyMMdd-HHmm";
+
         // Task type abbreviations
         public static Dictionary<TaskType, string> TASKTYPE_ABBR = new Dictionary<TaskType, string>
         {
@@ -128,9 +140,14 @@ namespace Common.Constants
             {TaskType.PANEL_NAVIGATE, PNV },
         };
 
-        public static string Join(params string[] parts)
+        public static string JoinUs(params string[] parts)
         {
             return string.Join("_", parts);
+        }
+
+        public static string JoinDot(params string[] parts)
+        {
+            return string.Join(".", parts);
         }
     }
 }

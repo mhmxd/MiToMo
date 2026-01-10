@@ -503,7 +503,7 @@ namespace SubTask.Panel.Selection
         public void IndexUp()
         {
             _mainWindow.StopAuxNavigator();
-            LogEvent(ExpStrs.Join(ExpStrs.INDEX, ExpStrs.UP));
+            LogEvent(ExpStrs.JoinUs(ExpStrs.INDEX, ExpStrs.UP));
         }
 
         public virtual void ThumbSwipe(Direction dir)

@@ -27,8 +27,6 @@ namespace SubTask.PanelNavigation
             InitializeComponent();
 
             ParticipantNumberTextBlock.Text = ExpPtc.PTC_NUM.ToString();
-            TechniqueComboBox.ItemsSource = new string[] { ExpStrs.TOUCH_MOUSE_TAP, ExpStrs.TOUCH_MOUSE_SWIPE, ExpStrs.MOUSE };
-            TechniqueComboBox.SelectedValue = ExpStrs.MOUSE;
             ExperimentComboBox.ItemsSource = new string[] { ExpStrs.PRACTICE, ExpStrs.TEST };
             ExperimentComboBox.SelectedValue = ExpStrs.PRACTICE;
         }
@@ -47,7 +45,6 @@ namespace SubTask.PanelNavigation
                 if (Owner is MainWindow ownerWindow)
                 {
                     //ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
-                    Technique = TechniqueComboBox.SelectedItem as string;
                     SelectedExperiment = ExperimentComboBox.SelectedItem as string;
                     SelectedComplexity = (ComplexityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
                     Complexity complexity = (Complexity)Enum.Parse(typeof(Complexity), SelectedComplexity, true);
@@ -57,7 +54,7 @@ namespace SubTask.PanelNavigation
                     BigButton.Content = "Initializing...";
                     //BigButton.IsEnabled = false;
 
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(Technique.ToString(), complexity));
+                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(complexity));
 
                     if (_experimentSet)
                     {

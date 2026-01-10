@@ -82,24 +82,6 @@ namespace SubTask.ObjectSelection
         }
 
         /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="targetWidthMM"> Target width in mm</param>
-        /// <param name="distMM">Distance to target in mm</param>
-        //public Trial(int id, int functionWidthMX, double distMM, Side sideWin)
-        //{
-        //    _id = id;
-        //    //_targetWidthMM = targetWidthMM;
-        //    //_targetMultiple = functionWidthMX;
-        //    _functionWidths.Add(functionWidthMX);
-        //    _distanceMM = distMM;
-        //    _funcSide = sideWin;
-        //    //Side[] validDirections = { Side.Top, Side.Left, Side.Right };
-        //    //_sideWindow = validDirections[Utils.Random.Next(validDirections.Length)];
-        //    //_straightPath = true;
-        //}
-
-        /// <summary>
         /// Create trials
         /// What sets single/multi functions is the number of functionWidthsMX
         /// </summary>

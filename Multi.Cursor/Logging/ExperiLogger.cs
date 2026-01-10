@@ -68,7 +68,7 @@ namespace Multi.Cursor
 
         private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
 
-        private static Dictionary<int, List<CursorRecord>> _trialCursorRecords = new Dictionary<int, List<CursorRecord>>();
+        private static Dictionary<int, List<PositionRecord>> _trialCursorRecords = new Dictionary<int, List<PositionRecord>>();
         private static int _activeTrialId = -1;
 
         //public static void Init(int participantId, Technique tech)
@@ -285,13 +285,13 @@ namespace Multi.Cursor
             //);
 
             _activeTrialId = trialId;
-            _trialCursorRecords[_activeTrialId] = new List<CursorRecord>();
+            _trialCursorRecords[_activeTrialId] = new List<PositionRecord>();
 
             _cursorLogFilePath = System.IO.Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 "Multi.Cursor.Logs", $"{_ptcId}-{_technique}", "Cursor", $"trial{trialId}-cursor-log"
             );
-            PrepareFileWithHeader<CursorRecord>(ref _cursorLogFilePath, _cursorLogWriter, CursorRecord.GetHeader());
+            PrepareFileWithHeader<PositionRecord>(ref _cursorLogFilePath, _cursorLogWriter, PositionRecord.GetHeader());
         }
 
         public static void StartTrialLog(Trial trial)
@@ -876,7 +876,7 @@ namespace Multi.Cursor
 
         public static void LogCursorPosition(Point cursorPos)
         {
-            _trialCursorRecords[_activeTrialId].Add(new CursorRecord(cursorPos.X, cursorPos.Y));
+            _trialCursorRecords[_activeTrialId].Add(new PositionRecord(cursorPos.X, cursorPos.Y));
         }
 
         //private static void WriteTotalTrialLog<T>(T totalTrialLog)

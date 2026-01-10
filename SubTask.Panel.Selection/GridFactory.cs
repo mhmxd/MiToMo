@@ -1,1190 +1,217 @@
 ﻿using Common.Constants;
+using SubTask.Panel.Selection;
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
 using static Common.Helpers.ExpUtils;
+using static Common.Settings.ExpLayouts;
 
 namespace SubTask.Panel.Selection
 {
     internal class GridFactory
     {
-        private static double ROW_HEIGHT = ButtonFactory.GetButtonHeight();
+        #region Constants & Dimensions
+        private static readonly double ROW_HEIGHT = ButtonFactory.GetButtonHeight();
 
-        private static double SMALL_BUTTON_W = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] * MM2PX(Config.GRID_UNIT_MM);
-        private static double WIDE_BUTTON_W = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x18] * MM2PX(Config.GRID_UNIT_MM);
-        private static double WIDER_BUTTON_W = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x30] * MM2PX(Config.GRID_UNIT_MM);
-        private static double DROPDOWN_BUTTON_W = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x3] * MM2PX(Config.GRID_UNIT_MM);
+        // Grid Unit Helpers
+        private static double GridMM(double units) => units * MM2PX(Config.GRID_UNIT_MM);
 
-        private static double GUTTER_4PX = 1 * MM2PX(Config.GRID_UNIT_MM);
-        private static double GUTTER_8PX = 2 * MM2PX(Config.GRID_UNIT_MM);
-        private static double GUTTER_12PX = 3 * MM2PX(Config.GRID_UNIT_MM);
-        private static double GUTTER_16PX = 4 * MM2PX(Config.GRID_UNIT_MM);
-        private static double GUTTER_20PX = 5 * MM2PX(Config.GRID_UNIT_MM);
+        private static readonly double GUTTER_4PX = GridMM(1);
+        private static readonly double GUTTER_8PX = GridMM(2);
+        private static readonly double GUTTER_12PX = GridMM(3);
+        private static readonly double GUTTER_20PX = GridMM(5);
+        #endregion
 
-        private static double HORIZONTAL_GUTTER = 3 * MM2PX(Config.GRID_UNIT_MM);
-        private static double VERRTICAL_GUTTER = 3 * MM2PX(Config.GRID_UNIT_MM);
+        #region Public Grid Entries (Simple, Moderate, Complex)
 
-        private static Rectangle CreateHorizontalGutter(double gutterH)
-        {
-            return new Rectangle
-            {
-                Width = 2, // Doesn't matter
-                Height = gutterH,
-                //Fill = Brushes.Orange, // <-- Make it highly visible for debugging
-                //Stroke = Brushes.Black, // Add a stroke
-                //StrokeThickness = 0.5,
-                HorizontalAlignment = HorizontalAlignment.Stretch // This will stretch the gutter to fill the row height
-            };
-        }
+        public static Grid CreateSimpleTopGrid() => BuildManifestGrid(new[] { SimpleTopRow }, ROW_HEIGHT, 0);
 
-        private static Rectangle CreateVerticalGutter(double gutterW)
-        {
-            return new Rectangle
-            {
-                Width = gutterW,
-                Height = 2, // Doesn't matter
-                //Fill = Brushes.Orange, // <-- Make it highly visible for debugging
-                //Stroke = Brushes.Black, // Add a stroke
-                //StrokeThickness = 0.5,
-                HorizontalAlignment = HorizontalAlignment.Stretch // This will stretch the gutter to fill the row height
-            };
-        }
-
-        public static Grid CreateModerateTopGrid()
-        {
-            Grid grid = new Grid { UseLayoutRounding = true, Height = ROW_HEIGHT * 2 + GUTTER_8PX }; // Ensure UseLayoutRounding is on the Grid
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            UIElement element = CreateModerateRow1();
-            Grid.SetRow(element, 0);
-            grid.Children.Add(element);
-
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_8PX) });
-            element = CreateHorizontalGutter(GUTTER_8PX);
-            Grid.SetRow(element, 1);
-            grid.Children.Add(element);
-
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            element = CreateModerateRow2();
-            Grid.SetRow(element, 2);
-            grid.Children.Add(element);
-
-            return grid;
-        }
+        public static Grid CreateModerateTopGrid() => BuildManifestGrid(new[] { ModerateTopRow1, ModerateTopRow2 }, ROW_HEIGHT, GUTTER_8PX);
 
         public static Grid CreateModerateSideGrid()
         {
-            double column1Width = 6 * MM2PX(Config.GRID_UNIT_MM);
-            double column2Width = 30 * MM2PX(Config.GRID_UNIT_MM);
-
-            Grid grid = new Grid { UseLayoutRounding = true, Width = column1Width + GUTTER_12PX + column2Width }; // Ensure UseLayoutRounding is on the Grid
-
-            // Column1
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(column1Width) });
-            UIElement element = CreateModerateColumn1();
-            Grid.SetColumn(element, 0);
-            grid.Children.Add(element);
-
-            // Vertical gutter
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(GUTTER_12PX) });
-            element = CreateVerticalGutter(GUTTER_12PX);
-            Grid.SetColumn(element, 1);
-            grid.Children.Add(element);
-
-            // Column2
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(column2Width) });
-            element = CreateModerateColumn2();
-            Grid.SetColumn(element, 2);
-            grid.Children.Add(element);
-
-            return grid;
-        }
-
-        // ============================== Simple =================================================================================
-        public static Grid CreateSimpleTopGrid()
-        {
-            Grid group = new Grid { UseLayoutRounding = true, Height = ROW_HEIGHT }; // Ensure UseLayoutRounding is on the Grid
-
-            group.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            UIElement element = CreateSimpleTopRow();
-            Grid.SetRow(element, 0);
-            group.Children.Add(element);
-
-            return group;
-        }
-
-        public static StackPanel CreateSimpleTopRow()
-        {
-            StackPanel stackPanel = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Stretch
-            };
-
-            Func<SButton> smallButtonCreator = () => ButtonFactory.CreateX6Button();
-            Func<SButton> wideButtonCreator = () => ButtonFactory.CreateX18Button();
-
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_16PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-
-            return stackPanel;
-        }
-
-        public static Grid CreateTopComplexGrid()
-        {
-            double height = 3 * SMALL_BUTTON_W + 2 * GUTTER_4PX;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            Rectangle gutter;
-            Grid group;
+            var grid = new Grid { UseLayoutRounding = true };
             int colInd = -1;
 
-            //-- Add groups and gutters
-            // Group1
-            group = CreateTopComplexGroup1();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetColumn(group, ++colInd);
-            grid.Children.Add(group);
-            // Vertical gutter
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(GUTTER_20PX) });
-            gutter = CreateVerticalGutter(GUTTER_20PX);
-            Grid.SetColumn(gutter, ++colInd);
-            grid.Children.Add(gutter);
-            // Group2
-            group = CreateTopComplexGroup2();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetColumn(group, ++colInd);
-            grid.Children.Add(group);
-            // Vertical gutter
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(GUTTER_20PX) });
-            gutter = CreateVerticalGutter(GUTTER_20PX);
-            Grid.SetColumn(gutter, ++colInd);
-            grid.Children.Add(gutter);
-            // Group3
-            group = CreateTopComplexGroup3();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetColumn(group, ++colInd);
-            grid.Children.Add(group);
-            // Vertical gutter
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(GUTTER_20PX) });
-            gutter = CreateVerticalGutter(GUTTER_20PX);
-            Grid.SetColumn(gutter, ++colInd);
-            grid.Children.Add(gutter);
-            // Group4
-            group = CreateTopComplexGroup4();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetColumn(group, ++colInd);
-            grid.Children.Add(group);
-            // Vertical gutter
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(GUTTER_20PX) });
-            gutter = CreateVerticalGutter(GUTTER_20PX);
-            Grid.SetColumn(gutter, ++colInd);
-            grid.Children.Add(gutter);
-            // Group5
-            group = CreateTopComplexGroup5();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetColumn(group, ++colInd);
-            grid.Children.Add(group);
-            // Vertical gutter
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(GUTTER_20PX) });
-            gutter = CreateVerticalGutter(GUTTER_20PX);
-            Grid.SetColumn(gutter, ++colInd);
-            grid.Children.Add(gutter);
-            // Group6
-            group = CreateTopComplexGroup6();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetColumn(group, ++colInd);
-            grid.Children.Add(group);
-            // Vertical gutter
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(GUTTER_20PX) });
-            gutter = CreateVerticalGutter(GUTTER_20PX);
-            Grid.SetColumn(gutter, ++colInd);
-            grid.Children.Add(gutter);
-            // Group7
-            group = CreateTopComplexGroup7();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetColumn(group, ++colInd);
-            grid.Children.Add(group);
-            // Vertical gutter
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(GUTTER_20PX) });
-            gutter = CreateVerticalGutter(GUTTER_20PX);
-            Grid.SetColumn(gutter, ++colInd);
-            grid.Children.Add(gutter);
-            // Group8
-            group = CreateTopComplexGroup8();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetColumn(group, ++colInd);
-            grid.Children.Add(group);
-            // Vertical gutter
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(GUTTER_20PX) });
-            gutter = CreateVerticalGutter(GUTTER_20PX);
-            Grid.SetColumn(gutter, ++colInd);
-            grid.Children.Add(gutter);
-            // Group9
-            group = CreateTopComplexGroup9();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetColumn(group, ++colInd);
-            grid.Children.Add(group);
+            // Custom vertical columns
+            AddGroupWithGutter(grid, CreateVerticalManifestStack(ModerateSideCol1, GUTTER_12PX), ref colInd, GUTTER_12PX);
+            AddGroupWithGutter(grid, CreateVerticalManifestStack(ModerateSideCol2, GUTTER_12PX), ref colInd);
 
             return grid;
-
         }
 
-        public static Grid CreateSideComplexGrid()
+        public static Grid CreateComplexTopGrid()
         {
-            double maxW = 5 * SMALL_BUTTON_W + WIDE_BUTTON_W + DROPDOWN_BUTTON_W + 5 * GUTTER_4PX;
+            var grid = new Grid { UseLayoutRounding = true };
+            int colInd = -1;
 
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            Rectangle gutter;
-            Grid group;
+            var creators = new List<Func<FrameworkElement>> {
+            CreateComplexTopGroup1, CreateComplexTopGroup2, CreateComplexTopGroup3,
+            CreateComplexTopGroup4, CreateComplexTopGroup5, CreateComplexTopGroup6,
+            CreateComplexTopGroup7, CreateComplexTopGroup8, CreateComplexTopGroup9
+        };
+
+            for (int i = 0; i < creators.Count; i++)
+                AddGroupWithGutter(grid, creators[i](), ref colInd, (i == creators.Count - 1) ? -1 : GUTTER_20PX);
+
+            return grid;
+        }
+
+        public static Grid CreateComplexSideGrid()
+        {
+            var grid = new Grid { UseLayoutRounding = true };
             int rowInd = -1;
 
-            //-- Add groups and gutters
-            // Group1
-            group = CreateSideComplexGroup1();
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetRow(group, ++rowInd);
-            grid.Children.Add(group);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_20PX) });
-            gutter = CreateHorizontalGutter(GUTTER_20PX);
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Group2
-            group = CreateSideComplexGroup2();
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetRow(group, ++rowInd);
-            grid.Children.Add(group);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_20PX) });
-            gutter = CreateHorizontalGutter(GUTTER_20PX);
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Group3
-            group = CreateSideComplexGroup3();
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetRow(group, ++rowInd);
-            grid.Children.Add(group);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_20PX) });
-            gutter = CreateHorizontalGutter(GUTTER_20PX);
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Group4
-            group = CreateSideComplexGroup4();
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetRow(group, ++rowInd);
-            grid.Children.Add(group);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_20PX) });
-            gutter = CreateHorizontalGutter(GUTTER_20PX);
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Group5
-            group = CreateSideComplexGroup5();
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetRow(group, ++rowInd);
-            grid.Children.Add(group);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_20PX) });
-            gutter = CreateHorizontalGutter(GUTTER_20PX);
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Group6
-            group = CreateSideComplexGroup6();
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
-            Grid.SetRow(group, ++rowInd);
-            grid.Children.Add(group);
+            var sideCreators = new List<Func<FrameworkElement>> {
+            CreateComplexSideGroup1, CreateComplexSideGroup2, CreateComplexSideGroup3,
+            CreateComplexSideGroup4, CreateComplexSideGroup5, CreateComplexSideGroup6
+        };
 
+            for (int i = 0; i < sideCreators.Count; i++)
+                AddRowGroupWithGutter(grid, sideCreators[i](), ref rowInd, (i == sideCreators.Count - 1) ? -1 : GUTTER_20PX);
 
             return grid;
         }
+        #endregion
 
-        // ============================== Moderate =================================================================================
+        #region Complex Group Creators (Logic-Driven)
 
-        private static StackPanel CreateModerateRow1()
+        private static Grid CreateComplexSideGroup1() => BuildManifestGrid(new[] { ComplexSideGroup1Row1, ComplexSideGroup1Row2, ComplexSideGroup1Row3 }, ROW_HEIGHT, GUTTER_4PX);
+        private static Grid CreateComplexSideGroup2() => BuildManifestGrid(new[] { ComplexSideGroup2Row1, ComplexSideGroup2Row2 }, ROW_HEIGHT, GUTTER_4PX);
+        private static Grid CreateComplexSideGroup3() => BuildManifestGrid(new[] { ComplexSideGroup3Row1 }, ROW_HEIGHT, GUTTER_4PX);
+        private static Grid CreateComplexSideGroup4() => BuildManifestGrid(new[] { ComplexSideGroup4Row1, ComplexSideGroup4Row2, ComplexSideGroup4Row3 }, ROW_HEIGHT, GUTTER_4PX);
+        private static Grid CreateComplexSideGroup5() => BuildManifestGrid(new[] { ComplexSideGroup5Row1, ComplexSideGroup5Row2 }, ROW_HEIGHT, GUTTER_4PX);
+        private static Grid CreateComplexSideGroup6() => BuildManifestGrid(new[] { ComplexSideGroup6Row1 }, ROW_HEIGHT, GUTTER_4PX);
+
+        private static Grid CreateComplexTopGroup1() => BuildSequenceGrid(new List<Func<StackPanel>> { CreateComplexTopRowType1, CreateComplexTopRowType2, CreateComplexTopRowType3 });
+        private static Grid CreateComplexTopGroup2() => BuildSequenceGrid(new List<Func<StackPanel>> { CreateComplexTopRowType3, CreateComplexTopRowType4, CreateComplexTopRowType4 });
+        private static Grid CreateComplexTopGroup3() => BuildSequenceGrid(new List<Func<StackPanel>> { CreateComplexTopRowType2, CreateComplexTopRowType1, CreateComplexTopRowType3 });
+        private static Grid CreateComplexTopGroup4() => BuildSequenceGrid(new List<Func<StackPanel>> { CreateComplexTopRowType2, CreateComplexTopRowType3, CreateComplexTopRowType1 });
+        private static Grid CreateComplexTopGroup5() => BuildSequenceGrid(new List<Func<StackPanel>> { CreateComplexTopRowType4, CreateComplexTopRowType3, CreateComplexTopRowType4 });
+        private static Grid CreateComplexTopGroup6() => BuildSequenceGrid(new List<Func<StackPanel>> { CreateComplexTopRowType3, CreateComplexTopRowType2, CreateComplexTopRowType1 });
+        private static Grid CreateComplexTopGroup7() => BuildSequenceGrid(new List<Func<StackPanel>> { CreateComplexTopRowType4, CreateComplexTopRowType4, CreateComplexTopRowType3 });
+        private static Grid CreateComplexTopGroup8() => BuildSequenceGrid(new List<Func<StackPanel>> { CreateComplexTopRowType1, CreateComplexTopRowType3, CreateComplexTopRowType2 });
+        private static Grid CreateComplexTopGroup9() => BuildSequenceGrid(new List<Func<StackPanel>> { CreateComplexTopRowType3, CreateComplexTopRowType1, CreateComplexTopRowType2 });
+        #endregion
+
+        #region Row Factories (StackPanels)
+
+        private static StackPanel CreateComplexTopRowType1() => CreateManifestStack(new[] { ExpStrs.x6, ExpStrs.x18, ExpStrs.x3 }, GUTTER_4PX);
+        private static StackPanel CreateComplexTopRowType2() => CreateManifestStack(new[] { ExpStrs.x6, ExpStrs.x6, ExpStrs.x6, ExpStrs.x3, ExpStrs.x6 }, GUTTER_4PX);
+        private static StackPanel CreateComplexTopRowType3() => CreateManifestStack(new[] { ExpStrs.x30 }, 0);
+        private static StackPanel CreateComplexTopRowType4() => CreateManifestStack(new[] { ExpStrs.x18 }, 0);
+
+        #endregion
+
+        #region Core Rendering Engines (The "Assembly Line")
+
+        /// <summary>
+        /// Engine A: Build a Grid from a collection of string manifests (Button Rows)
+        /// </summary>
+        private static Grid BuildManifestGrid(string[][] rows, double rowH, double rowGutter)
         {
-            StackPanel stackPanel = new StackPanel
+            var grid = new Grid { UseLayoutRounding = true };
+            int rowIdx = -1;
+
+            for (int i = 0; i < rows.Length; i++)
             {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Stretch
-            };
+                var rowPanel = CreateManifestStack(rows[i], rowGutter);
+                AddElementToGridRow(grid, rowPanel, ref rowIdx, new GridLength(rowH));
 
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-
-            return stackPanel;
-        }
-
-        private static StackPanel CreateModerateRow2()
-        {
-            StackPanel stackPanel = new StackPanel
-            {
-                Orientation = Orientation.Horizontal,
-                HorizontalAlignment = HorizontalAlignment.Stretch
-            };
-
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_8PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-
-            return stackPanel;
-        }
-
-        private static StackPanel CreateModerateColumn1()
-        {
-            StackPanel stackPanel = new StackPanel
-            {
-                Orientation = Orientation.Vertical,
-                //VerticalAlignment = VerticalAlignment.Stretch
-            };
-
-            for (int i = 0; i < 9; i++)
-            {
-                stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-                stackPanel.Children.Add(CreateHorizontalGutter(GUTTER_12PX));
+                if (i < rows.Length - 1 && rowGutter > 0)
+                    AddElementToGridRow(grid, CreateHorizontalGutter(rowGutter), ref rowIdx, new GridLength(rowGutter));
             }
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-
-            return stackPanel;
+            return grid;
         }
 
-        private static StackPanel CreateModerateColumn2()
+        /// <summary>
+        /// Engine B: Build a Grid from a sequence of Panel-creating methods
+        /// </summary>
+        private static Grid BuildSequenceGrid(List<Func<StackPanel>> creators)
         {
-            StackPanel stackPanel = new StackPanel
+            var grid = new Grid { UseLayoutRounding = true };
+            int rowIdx = -1;
+            for (int i = 0; i < creators.Count; i++)
             {
-                Orientation = Orientation.Vertical,
-                //VerticalAlignment = VerticalAlignment.Stretch
-            };
-
-            for (int i = 0; i < 9; i++)
-            {
-                stackPanel.Children.Add(ButtonFactory.CreateX30Button());
-                stackPanel.Children.Add(CreateHorizontalGutter(GUTTER_12PX));
+                AddCustomRowWithGutter(grid, creators[i](), ref rowIdx, ROW_HEIGHT, (i == creators.Count - 1) ? -1 : GUTTER_4PX);
             }
-            stackPanel.Children.Add(ButtonFactory.CreateX30Button());
-
-            return stackPanel;
-        }
-
-        private static Grid CreateSideComplexGroup1()
-        {
-            double maxW = 2 * SMALL_BUTTON_W + 2 * WIDE_BUTTON_W + DROPDOWN_BUTTON_W + 3 * GUTTER_4PX;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = 0;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX30Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            Grid.SetRow(stackPanel, rowInd);
-            grid.Children.Add(stackPanel);
-
-            rowInd++;
-
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, rowInd);
-            grid.Children.Add(gutter);
-
-            rowInd++;
-
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            Grid.SetRow(stackPanel, rowInd);
-            grid.Children.Add(stackPanel);
-
-            rowInd++;
-
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, rowInd);
-            grid.Children.Add(gutter);
-
-            rowInd++;
-
-            // Row3
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            Grid.SetRow(stackPanel, rowInd);
-            grid.Children.Add(stackPanel);
-
             return grid;
         }
 
-        private static Grid CreateSideComplexGroup2()
+        /// <summary>
+        /// Engine C: Build a horizontal StackPanel from a single row manifest
+        /// </summary>
+        private static StackPanel CreateManifestStack(string[] layout, double gutterW)
         {
-            double maxW = 5 * SMALL_BUTTON_W + WIDE_BUTTON_W + 5 * GUTTER_4PX;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = 0;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            for (int i = 0; i < 4; i++)
+            var panel = new StackPanel { Orientation = Orientation.Horizontal };
+            for (int i = 0; i < layout.Length; i++)
             {
-                stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-                stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
+                bool isLast = (i == layout.Length - 1);
+                bool nextIsDropdown = (!isLast && layout[i + 1] == ExpStrs.x3);
+                double currentGutter = (isLast || nextIsDropdown) ? -1 : gutterW;
+
+                panel.Children.Add(ButtonFactory.CreateButton(layout[i], 0, i)); // Logical coords handled by factory
+                if (currentGutter > 0) panel.Children.Add(CreateVerticalGutter(currentGutter));
             }
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            Grid.SetRow(stackPanel, rowInd);
-            grid.Children.Add(stackPanel);
-
-            rowInd++;
-
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, rowInd);
-            grid.Children.Add(gutter);
-
-            rowInd++;
-
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX30Button());
-            Grid.SetRow(stackPanel, rowInd);
-            grid.Children.Add(stackPanel);
-
-            return grid;
+            return panel;
         }
 
-        private static Grid CreateSideComplexGroup3()
+        /// <summary>
+        /// Engine D: Build a vertical StackPanel from a manifest (used for Side Grids)
+        /// </summary>
+        private static StackPanel CreateVerticalManifestStack(string[] layout, double gutterH)
         {
-            double maxW = 5 * SMALL_BUTTON_W + WIDE_BUTTON_W + DROPDOWN_BUTTON_W + 5 * GUTTER_4PX;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = 0;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-
-            Grid.SetRow(stackPanel, rowInd);
-            grid.Children.Add(stackPanel);
-
-            return grid;
+            var panel = new StackPanel { Orientation = Orientation.Vertical };
+            foreach (var type in layout)
+            {
+                panel.Children.Add(ButtonFactory.CreateButton(type, 0, 0));
+                panel.Children.Add(CreateHorizontalGutter(gutterH));
+            }
+            return panel;
         }
+        #endregion
 
-        private static Grid CreateSideComplexGroup4()
+        #region Low-Level UI Helpers
+
+        private static void AddElementToGridRow(Grid grid, FrameworkElement element, ref int rowIdx, GridLength height)
         {
-            double maxW = WIDE_BUTTON_W + SMALL_BUTTON_W + WIDER_BUTTON_W + 2 * GUTTER_4PX;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = -1;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX30Button());
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-
-            // Row3
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX30Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-            return grid;
+            grid.RowDefinitions.Add(new RowDefinition { Height = height });
+            Grid.SetRow(element, ++rowIdx);
+            grid.Children.Add(element);
         }
 
-        private static Grid CreateSideComplexGroup5()
+        private static void AddCustomRowWithGutter(Grid grid, StackPanel row, ref int rowIdx, double h, double gH)
         {
-            double maxW = 2 * SMALL_BUTTON_W + 2 * WIDE_BUTTON_W + DROPDOWN_BUTTON_W + 3 * GUTTER_4PX;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = -1;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX30Button());
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-            return grid;
+            AddElementToGridRow(grid, row, ref rowIdx, new GridLength(h));
+            if (gH > 0) AddElementToGridRow(grid, CreateHorizontalGutter(gH), ref rowIdx, new GridLength(gH));
         }
 
-        private static Grid CreateSideComplexGroup6()
+        private static void AddGroupWithGutter(Grid grid, FrameworkElement group, ref int colIdx, double gW = -1)
         {
-            double maxW = 2 * SMALL_BUTTON_W + 2 * WIDE_BUTTON_W + DROPDOWN_BUTTON_W + 3 * GUTTER_4PX;
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            Grid.SetColumn(group, ++colIdx);
+            grid.Children.Add(group);
 
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = -1;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX30Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-
-            return grid;
+            if (gW > 0)
+            {
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(gW) });
+                var gutter = CreateVerticalGutter(gW);
+                Grid.SetColumn(gutter, ++colIdx);
+                grid.Children.Add(gutter);
+            }
         }
 
-        private static StackPanel CreateTopComplexRowType1()
+        private static void AddRowGroupWithGutter(Grid grid, FrameworkElement group, ref int rowIdx, double gH = -1)
         {
-            StackPanel stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateHorizontalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-
-            return stackPanel;
-
+            AddElementToGridRow(grid, group, ref rowIdx, GridLength.Auto);
+            if (gH > 0) AddElementToGridRow(grid, CreateHorizontalGutter(gH), ref rowIdx, new GridLength(gH));
         }
 
-        public static StackPanel CreateTopComplexRowType2()
-        {
-            StackPanel stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
+        private static Rectangle CreateHorizontalGutter(double h) => new Rectangle { Height = h, HorizontalAlignment = HorizontalAlignment.Stretch };
+        private static Rectangle CreateVerticalGutter(double w) => new Rectangle { Width = w, VerticalAlignment = VerticalAlignment.Stretch };
 
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-            stackPanel.Children.Add(ButtonFactory.CreateDropdownButton());
-            stackPanel.Children.Add(CreateVerticalGutter(GUTTER_4PX));
-            stackPanel.Children.Add(ButtonFactory.CreateX6Button());
-
-            return stackPanel;
-        }
-
-        public static StackPanel CreateTopComplexRowType3()
-        {
-            StackPanel stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX30Button());
-            return stackPanel;
-        }
-
-        public static StackPanel CreateTopComplexRowType4()
-        {
-            StackPanel stackPanel = new StackPanel { Orientation = Orientation.Horizontal };
-            stackPanel.Children.Add(ButtonFactory.CreateX18Button());
-            return stackPanel;
-        }
-
-        private static Grid CreateTopComplexGroup1()
-        {
-            double maxW = WIDER_BUTTON_W;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = -1;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType1();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType2();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row3
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType3();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-
-            return grid;
-        }
-
-        private static Grid CreateTopComplexGroup2()
-        {
-            double maxW = WIDER_BUTTON_W;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = -1;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType3();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType4();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row3
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType4();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-
-            return grid;
-        }
-
-        private static Grid CreateTopComplexGroup3()
-        {
-            double maxW = WIDER_BUTTON_W;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = -1;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType2();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType1();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row3
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType3();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-
-            return grid;
-        }
-
-        private static Grid CreateTopComplexGroup4()
-        {
-            double maxW = WIDER_BUTTON_W;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = -1;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType2();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType3();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row3
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType1();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-
-            return grid;
-        }
-
-        private static Grid CreateTopComplexGroup5()
-        {
-            double maxW = WIDER_BUTTON_W;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = -1;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType4();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType3();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row3
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType4();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-
-            return grid;
-        }
-
-        private static Grid CreateTopComplexGroup6()
-        {
-            double maxW = WIDER_BUTTON_W;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = -1;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType3();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType2();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row3
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType1();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-
-            return grid;
-        }
-
-        private static Grid CreateTopComplexGroup7()
-        {
-            double maxW = WIDER_BUTTON_W;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = -1;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType4();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType4();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row3
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType3();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-
-            return grid;
-        }
-
-        private static Grid CreateTopComplexGroup8()
-        {
-            double maxW = WIDER_BUTTON_W;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = -1;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType1();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType3();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row3
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType2();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-
-            return grid;
-        }
-
-        private static Grid CreateTopComplexGroup9()
-        {
-            double maxW = WIDER_BUTTON_W;
-
-            Grid grid = new Grid { UseLayoutRounding = true }; // Ensure UseLayoutRounding is on the Grid
-            StackPanel stackPanel;
-            Rectangle gutter;
-
-            int rowInd = -1;
-
-            // Row1
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType3();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row2
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType1();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-            // Horizontal gutter
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(GUTTER_4PX) });
-            gutter = new Rectangle { Height = GUTTER_4PX };
-            Grid.SetRow(gutter, ++rowInd);
-            grid.Children.Add(gutter);
-            // Row3
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(ROW_HEIGHT) });
-            stackPanel = CreateTopComplexRowType2();
-            Grid.SetRow(stackPanel, ++rowInd);
-            grid.Children.Add(stackPanel);
-
-
-            return grid;
-        }
-
-
-
-
+        #endregion
     }
 }

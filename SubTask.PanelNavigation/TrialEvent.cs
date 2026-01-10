@@ -9,54 +9,49 @@ namespace SubTask.PanelNavigation
     public class TrialEvent
     {
         public string Type; // e.g., "obj_enter", "fun_press", etc.
-        public string Id; // e.g., object or function ID
+        public string Value; // e.g., object or function ID
         public long Time; // timestamp in milliseconds
 
-        public TrialEvent(string type, string id)
+        public TrialEvent(string type, string val)
         {
             this.Type = type;
-            this.Id = id;
+            this.Value = val;
             this.Time = Timer.GetCurrentMillis();
         }
 
-        public TrialEvent(string type, string id, long time)
+        public TrialEvent(string type, string val, long time)
         {
             this.Type = type;
-            this.Id = id;
+            this.Value = val;
             this.Time = time;
         }
 
-        public bool HasTypeId(string type, string id)
+        public bool HasTypeVal(string type, string val)
         {
-            return this.Type == type && this.Id == id;
-        }
-
-        public bool HasTypeAndId(string type, int id)
-        {
-            return this.Type == type && this.Id == id.ToString();
+            return this.Type == type && this.Value == val;
         }
 
         public override string ToString()
         {
-            if (Id == "")
+            if (Value == "")
             {
                 return $"{Type}: {Time}";
             }
             else
             {
-                return $"{Type}-{Id}: {Time}";
+                return $"{Type}-{Value}: {Time}";
             }
         }
 
-        public string GetTypeId()
+        public string GetTypeVal()
         {
-            if (Id == "")
+            if (Value == "")
             {
                 return $"{Type}";
             }
             else
             {
-                return $"{Type}-{Id}";
+                return $"{Type}-{Value}";
             }
         }
     }

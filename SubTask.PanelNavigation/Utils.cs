@@ -727,7 +727,9 @@ namespace SubTask.PanelNavigation
 
         public static Technique GetDevice(this Technique tech)
         {
-            return tech == Technique.TOMO_SWIPE || tech == Technique.TOMO_TAP ? Technique.TOMO : Technique.MOUSE;
+            return tech == Technique.TOMO_SWIPE || tech == Technique.TOMO_TAP || tech == Technique.TOMO 
+                ? Technique.TOMO 
+                : Technique.MOUSE;
         }
 
         public static int GetDuration(long start, long end)
