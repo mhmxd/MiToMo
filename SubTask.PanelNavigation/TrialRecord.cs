@@ -198,29 +198,6 @@ namespace SubTask.PanelNavigation
             // Apply to the specified object
             if (objId != -1) ChangeObjectState(objId, ButtonState.SELECTED);
 
-            //int nFuncs = Functions.Count;
-            //int nObjs = Objects.Count;
-
-            ////this.TrialInfo($"nFunc: {nFuncs}; nObj: {nObjs}");
-
-            //switch (nFuncs, nObjs) 
-            //{
-            //    case (1, 1): // One function and one object => apply the function to the object
-            //        ChangeObjectState(1, ButtonState.APPLIED);
-            //        break;
-            //    case (1, _): // One function and multiple objects => apply the function to the marked/enabled object
-            //        int markedObjId = Objects.FirstOrDefault(o => o.State == ButtonState.MARKED)?.Id ?? -1;
-            //        ChangeObjectState(markedObjId, ButtonState.APPLIED);
-            //        break;
-            //    case (_, 1): // Multiple functions and one object => apply the function to the single object
-            //        //ChangeObjectState(1, ButtonState.APPLIED);
-            //        break;
-            //    default: // Multiple functions and multiple objects => apply the function to the object mapped to the function
-            //        int mappedObjId = FindMappedObjectId(funcId);
-            //        ChangeObjectState(mappedObjId, ButtonState.APPLIED);
-            //        break;
-            //}
-
         }
 
         public void MarkFunction(int id)
@@ -429,9 +406,9 @@ namespace SubTask.PanelNavigation
         public int GetDuration(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            //this.TrialInfo($"Start time ({startLabel}): {startTime}");
+            this.TrialInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetLastTime(endLabel);
-            //this.TrialInfo($"End time ({endLabel}): {endTime}");
+            this.TrialInfo($"End time ({endLabel}): {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
@@ -540,8 +517,8 @@ namespace SubTask.PanelNavigation
             {
                 if (Events[i].Type == startLabel)
                 {
-                    //this.TrialInfo($"Start time {startLabel}: {Events[i].Time}");
-                    //this.TrialInfo($"End time {endLabel}: {Events[afterIndex].Time}");
+                    this.TrialInfo($"Start time {startLabel}: {Events[i].Time}");
+                    this.TrialInfo($"End time {endLabel}: {Events[afterIndex].Time}");
                     return Utils.GetDuration(
                         Events[i].Time,
                         Events[afterIndex].Time
@@ -636,6 +613,15 @@ namespace SubTask.PanelNavigation
             return -1;
         }
 
+        public int GetSequenceDuration(string label)
+        {
+            long startTime = GetFirstTime(label);
+            this.TrialInfo($"Start time {label}: {startTime}");
+            long endTime = GetLastTime(label);
+            this.TrialInfo($"End time {label}: {startTime}");
+            return Utils.GetDuration(startTime, endTime);
+        }
+
         public double GetTime(string label)
         {
             if (Times.Any(t => t.Key == label))
@@ -687,6 +673,16 @@ namespace SubTask.PanelNavigation
         public int GetFunctionId()
         {
             return Functions[0].Id;
+        }
+
+        public int GetFunctionWidthInUnits(int index)
+        {
+            if (index < 0 || index >= Functions.Count)
+            {
+                return -1; // Invalid index
+            }
+
+            return Functions[index].WidthInUnits;
         }
 
         public List<Point> GetFunctionCenters()

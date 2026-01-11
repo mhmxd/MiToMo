@@ -10,7 +10,7 @@ namespace Common.Constants
         public static readonly string END_CAP = "END";
 
         public static readonly string TRIAL_SHOW = "trial_show";
-        public static readonly string FIRST_MOVE = "move";
+        public static readonly string FIRST_MOVE = "first_move";
 
         public static readonly string OBJ = "obj";
         public static readonly string FUN = "fun";
@@ -34,6 +34,11 @@ namespace Common.Constants
         public static readonly string STR_PRESS = "str_press";
         public static readonly string STR_RELEASE = "str_release";
 
+        public static readonly string END_ENTER = "end_enter";
+        public static readonly string END_EXIT = "end_exit";
+        public static readonly string END_PRESS = "end_press";
+        public static readonly string END_RELEASE = "end_release";
+
         public static readonly string ARA_ENTER = "ara_enter";
         public static readonly string ARA_PRESS = "ara_press";
         public static readonly string ARA_RELEASE = "ara_release";
@@ -46,6 +51,7 @@ namespace Common.Constants
 
         public static readonly string PNL_SELECT = "pnl_select"; // For ToMo (when gesture is registered)
         public static readonly string FUN_MARKED = "fun_marked";
+        public static readonly string BTN_MARKED = "btn_marked";
 
         public static readonly string MAIN_WIN_PRESS = "main_win_press";
         public static readonly string MAIN_WIN_RELEASE = "main_win_release";

@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Common.Constants;
 using Common.Helpers;
+using Tensorflow;
 using static Common.Constants.ExpEnums;
 using static Common.Helpers.ExpUtils;
 using static SubTask.PanelNavigation.TrialRecord;
@@ -347,12 +348,14 @@ namespace SubTask.PanelNavigation
 
         public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            LogEvent(ExpStrs.STR_PRESS);
+            
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             //-- Second press (on END)
             if (IsStartClicked())
             {
+                LogEvent(ExpStrs.END_PRESS);
+
                 // If marker is on function, change start button color to applied
                 if (_activeTrialRecord.HasFunctionState(ButtonState.MARKED))
                 {
@@ -364,16 +367,23 @@ namespace SubTask.PanelNavigation
                     // End trial on release
                 }
             }
+            else //-- First press (on START)
+            {
+                LogEvent(ExpStrs.STR_PRESS);
+            }
 
-            e.Handled = true; // Mark the event as handled to prevent further processing
+                e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
             
+
             //-- Clicking END
             if (IsStartClicked())
             {
+                LogEvent(ExpStrs.END_RELEASE);
+
                 this.TrialInfo($"Function Marked? {_activeTrialRecord.HasFunctionState(ButtonState.SELECTED)}");
 
                 if (_activeTrialRecord.HasFunctionState(ButtonState.SELECTED))
@@ -389,12 +399,12 @@ namespace SubTask.PanelNavigation
                 return;
             }
 
-            LogEvent(ExpStrs.STR_RELEASE);
-
             //-- Clicking START
             var startButtonPressed = GetEventCount(ExpStrs.STR_PRESS) > 0;
             if (startButtonPressed)
             {
+                LogEvent(ExpStrs.STR_RELEASE);
+
                 // Change the START to END and deactivate the button
                 _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_UNAVAILABLE_COLOR);
                 _mainWindow.ChangeStartBtnLabel(_activeTrial.FuncSide, ExpStrs.END_CAP);
@@ -419,6 +429,11 @@ namespace SubTask.PanelNavigation
 
             // Change the END button color to enabled
             _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_AVAILABLE_COLOR);
+        }
+
+        public void OnPaneButtonMarked(ExpGridPos btnPos)
+        {
+            LogEvent(ExpStrs.BTN_MARKED, JsonSerializer.Serialize(btnPos));
         }
 
         public virtual void OnFunctionUnmarked(int funId, ExpGridPos funcRowCol)
@@ -542,7 +557,7 @@ namespace SubTask.PanelNavigation
             if (IsStartClicked())
             {
                 LogEventOnce(ExpStrs.FLICK); // First flick after activation
-                _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked);
+                _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked, OnPaneButtonMarked);
             }
 
         }

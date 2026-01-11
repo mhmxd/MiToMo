@@ -12,7 +12,7 @@ namespace SubTask.PanelNavigation.Logging
         public int strrl_fngmv; // Start release \ finger start moving
         public int fngmv_mrkmv; // finger start moving \ marker starts moving
         public int mrkmv_mrksp; // marker starts moving \ marker stops
-        public int mrksp_btnpr; // marker stops \ ToMo button press
-        public int btnpr_btnrl; // ToMo button press \ button release
+        public int mrksp_endpr; // marker stops \ End button press
+        public int endpr_endrl; // End button press \ button release
     }
 }

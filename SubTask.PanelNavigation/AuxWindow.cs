@@ -259,17 +259,6 @@ namespace SubTask.PanelNavigation
                     return possibleButtons.GetRandomElement();
                 }
 
-
-                //if (button != null)
-                //{
-                //    //this.TrialInfo($"Selected button id: {button.Id}");
-                //    return button.Id;
-                //}
-                //else
-                //{
-                //    this.TrialInfo($"No buttons found for width multiple {widthMult}.");
-                //    return -1; // Return an invalid point if no buttons are found
-                //}
             }
             else
             {
@@ -727,7 +716,10 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void MoveMarker(TouchPoint tp, Action<int, ExpGridPos> OnFunctionMarked, Action<int, ExpGridPos> OnFunctionDeMarked)
+        public void MoveMarker(
+            TouchPoint tp, 
+            Action<int, ExpGridPos> OnFunctionMarked, Action<int, ExpGridPos> OnFunctionDeMarked,
+            Action<ExpGridPos> OnButtonMarked)
         {
             // Update the grid navigator with the current touch point
             var (dGridX, dGridY) = _gridNavigator.Update(tp);
@@ -785,11 +777,14 @@ namespace SubTask.PanelNavigation
                     oldButton.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR;
                     markedButton.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR;
 
+                    OnButtonMarked(markedButton.RowCol); // Call the event
+
                     // Change the old button background based on the previous state
                     if (oldButton.Background.Equals(Config.BUTTON_HOVER_FILL_COLOR)) // Gray => White
                     {
                         //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
                         oldButton.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
+                        
                     }
                     else if (oldButton.Background.Equals(Config.FUNCTION_ENABLED_COLOR)) // Light green => Orange
                     {

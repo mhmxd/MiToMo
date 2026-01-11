@@ -141,9 +141,9 @@ namespace SubTask.PanelNavigation
             log.cmplx = trial.Complexity.ToString().ToLower();
             log.tsk_type = ExpStrs.TASKTYPE_ABBR[trial.TaskType];
             log.fun_side = trial.FuncSide.ToString().ToLower();
-            log.func_width = -1;
-            log.n_obj = -1;
-            log.n_fun = trial.GetNumFunctions();
+            log.func_width = trialRecord.GetFunctionWidthInUnits(0);
+            log.n_obj = 0;
+            log.n_fun = 1;
             log.dist_lvl = "-";
             log.dist = "-";
             log.result = (int)trialRecord.Result;
@@ -165,11 +165,11 @@ namespace SubTask.PanelNavigation
             log.strpr_strrl = trialRecord.GetLastSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
             // Log the rest of the times
-            log.strrl_fngmv = trialRecord.GetLastSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.SWIPE_START);
-            log.fngmv_mrkmv = -1;
-            log.mrkmv_mrksp = -1;
-            log.mrksp_btnpr = -1;
-            log.btnpr_btnrl = -1;
+            log.strrl_fngmv = trialRecord.GetLastSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.FLICK);
+            log.fngmv_mrkmv = trialRecord.GetFirstSeqDuration(ExpStrs.FLICK, ExpStrs.BTN_MARKED);
+            log.mrkmv_mrksp = trialRecord.GetSequenceDuration(ExpStrs.BTN_MARKED);
+            log.mrksp_endpr = trialRecord.GetDuration(ExpStrs.BTN_MARKED, ExpStrs.END_PRESS);
+            log.endpr_endrl = trialRecord.GetDuration(ExpStrs.END_PRESS, ExpStrs.END_RELEASE);
 
             // Testing
             //Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
@@ -189,7 +189,9 @@ namespace SubTask.PanelNavigation
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Total time
-            
+            log.trial_time = trialRecord.GetLastSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.BTN_MARKED);
+            log.marker_move_time = trialRecord.GetSequenceDuration(ExpStrs.BTN_MARKED);
+
             _trialTimes[trial.Id] = log.trial_time;
 
             WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);

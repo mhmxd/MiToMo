@@ -247,9 +247,9 @@ namespace SubTask.PanelNavigation
             this.MouseWheel += Window_MouseWheel;
             this.KeyDown += Window_KeyDown;
 
-            //_leftWindow.MouseMove += Window_MouseMove;
-            //_rightWindow.MouseMove += Window_MouseMove;
-            //_topWindow.MouseMove += Window_MouseMove;
+            _leftWindow.MouseMove += Window_MouseMove;
+            _rightWindow.MouseMove += Window_MouseMove;
+            _topWindow.MouseMove += Window_MouseMove;
 
             MouseLeftButtonDown += Window_MouseLeftButtonDown;
 
@@ -1153,9 +1153,10 @@ namespace SubTask.PanelNavigation
 
         public void MoveMarker(
             TouchPoint touchPoint, 
-            Action<int, ExpGridPos> OnFunctionMarked, Action<int, ExpGridPos> OnFunctionDeMarked)
+            Action<int, ExpGridPos> OnFunctionMarked, Action<int, ExpGridPos> OnFunctionDeMarked,
+            Action<ExpGridPos> OnButtonMarked)
         {
-            _activeAuxWindow?.MoveMarker(touchPoint, OnFunctionMarked, OnFunctionDeMarked);
+            _activeAuxWindow?.MoveMarker(touchPoint, OnFunctionMarked, OnFunctionDeMarked, OnButtonMarked);
         }
 
         public void StopAuxNavigator()
