@@ -58,9 +58,9 @@ namespace Common.Constants
 
         public static readonly string TRIAL_END = "trial_end"; // Second release on Start
 
-        public static readonly string TOUCH_MOUSE_TAP = "Touch-Mouse-Tap";
-        public static readonly string TOUCH_MOUSE_SWIPE = "Touch-Mouse-Swipe";
-        public static readonly string MOUSE = "Mouse";
+        public static readonly string TAP_C = "Tap";
+        public static readonly string SWIPE_C = "Swipe";
+        public static readonly string MOUSE_C = "Mouse";
 
         public static readonly string PRACTICE = "Practice";
         public static readonly string TEST = "Test";

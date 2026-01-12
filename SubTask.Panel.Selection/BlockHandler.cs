@@ -515,7 +515,6 @@ namespace SubTask.Panel.Selection
             }
 
             //-- SWIPE:
-
             if (!IsStartClicked())
             {
                 return; // Do nothing if Start was not clicked
@@ -528,14 +527,6 @@ namespace SubTask.Panel.Selection
                 Direction.Up => _activeTrial.FuncSide == Side.Top,
                 _ => false
             };
-
-            //var dirOppositeSide = dir switch
-            //{
-            //    Direction.Left => _activeTrial.FuncSide == Side.Right,
-            //    Direction.Right => _activeTrial.FuncSide == Side.Left,
-            //    Direction.Down => _activeTrial.FuncSide == Side.Top,
-            //    _ => false
-            //};
 
             if (dirMatchesSide)
             {

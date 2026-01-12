@@ -1,21 +1,10 @@
 ﻿using Common.Constants;
 using Common.Settings;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms.VisualStyles;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using static Common.Constants.ExpEnums;
-using static SubTask.Panel.Selection.Block;
 
 namespace SubTask.Panel.Selection
 {
@@ -38,8 +27,8 @@ namespace SubTask.Panel.Selection
             InitializeComponent();
 
             ParticipantNumberTextBlock.Text = ExpPtc.PTC_NUM.ToString();
-            TechniqueComboBox.ItemsSource = new string[] { ExpStrs.TOUCH_MOUSE_TAP, ExpStrs.TOUCH_MOUSE_SWIPE, ExpStrs.MOUSE };
-            TechniqueComboBox.SelectedValue = ExpStrs.MOUSE;
+            TechniqueComboBox.ItemsSource = new string[] { ExpStrs.TAP_C, ExpStrs.SWIPE_C};
+            TechniqueComboBox.SelectedValue = ExpStrs.TAP_C;
             ExperimentComboBox.ItemsSource = new string[] { ExpStrs.PRACTICE, ExpStrs.TEST };
             ExperimentComboBox.SelectedValue = ExpStrs.PRACTICE;
         }

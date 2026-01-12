@@ -1,15 +1,9 @@
 ﻿using Common.Constants;
-using OpenTK.Graphics.OpenGL;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using static Common.Constants.ExpEnums;
-using static SubTask.Panel.Selection.BlockHandler;
 using static SubTask.Panel.Selection.Utils;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace SubTask.Panel.Selection
 {
@@ -78,13 +72,14 @@ namespace SubTask.Panel.Selection
             StartBtnRect = new Rect(0, 0, Config.TRIAL_START_BUTTON_DIM_MM.Width, Config.TRIAL_START_BUTTON_DIM_MM.Height);
         }
 
-        public void MapObjectToFunction(int objectId, int functionId)
+        public int GetFunctionWidthInUnits(int index)
         {
-            var pair = new Pair(objectId, functionId);
-            if (!ObjFuncMap.Contains(pair))
+            if (index < 0 || index >= Functions.Count)
             {
-                ObjFuncMap.Add(pair);
+                return -1; // Invalid index
             }
+
+            return Functions[index].WidthInUnits;
         }
 
         public TFunction GetFunctionById(int id)
@@ -105,13 +100,6 @@ namespace SubTask.Panel.Selection
             }
 
             return -1;
-        }
-
-        public int FindMappedFunctionId(int objectId)
-        {
-            // Find the first function that is mapped to the given object funcId
-            var pair = ObjFuncMap.FirstOrDefault(p => p.First == objectId);
-            return pair != null ? pair.Second : -1; // Return -1 if no mapping found
         }
 
         public int FindMappedObjectId(int functionId)
@@ -183,43 +171,6 @@ namespace SubTask.Panel.Selection
             }
         }
 
-        public void ApplyFunction(int funcId, int objId)
-        {
-            this.TrialInfo($"FuncId: {funcId}");
-            TFunction func = GetFunctionById(funcId);
-            if (func != null)
-            {
-                func.State = ButtonState.SELECTED;
-            }
-
-            // Apply to the specified object
-            if (objId != -1) ChangeObjectState(objId, ButtonState.SELECTED);
-
-            //int nFuncs = Functions.Count;
-            //int nObjs = Objects.Count;
-
-            ////this.TrialInfo($"nFunc: {nFuncs}; nObj: {nObjs}");
-
-            //switch (nFuncs, nObjs) 
-            //{
-            //    case (1, 1): // One function and one object => apply the function to the object
-            //        ChangeObjectState(1, ButtonState.APPLIED);
-            //        break;
-            //    case (1, _): // One function and multiple objects => apply the function to the marked/enabled object
-            //        int markedObjId = Objects.FirstOrDefault(o => o.State == ButtonState.MARKED)?.Id ?? -1;
-            //        ChangeObjectState(markedObjId, ButtonState.APPLIED);
-            //        break;
-            //    case (_, 1): // Multiple functions and one object => apply the function to the single object
-            //        //ChangeObjectState(1, ButtonState.APPLIED);
-            //        break;
-            //    default: // Multiple functions and multiple objects => apply the function to the object mapped to the function
-            //        int mappedObjId = FindMappedObjectId(funcId);
-            //        ChangeObjectState(mappedObjId, ButtonState.APPLIED);
-            //        break;
-            //}
-
-        }
-
         public void MarkFunction(int id)
         {
             ChangeFunctionState(id, ButtonState.MARKED);
@@ -241,45 +192,9 @@ namespace SubTask.Panel.Selection
             }
         }
 
-        public void MarkAllObjects()
-        {
-            foreach (TObject obj in Objects)
-            {
-                obj.State = ButtonState.MARKED;
-            }
-        }
-
-        public void UnmarkAllObjects()
-        {
-            foreach (TObject obj in Objects)
-            {
-                obj.State = ButtonState.DEFAULT;
-            }
-        }
-
         public void SetFunctionAsApplied(int funcId)
         {
             ChangeFunctionState(funcId, ButtonState.SELECTED);
-        }
-
-        public void MarkMappedObject(int funcId)
-        {
-            int objId = FindMappedObjectId(funcId);
-            if (objId != -1)
-            {
-                ChangeObjectState(objId, ButtonState.MARKED);
-            }
-        }
-
-        public void ChangeObjectState(int objId, ButtonState newState)
-        {
-            this.TrialInfo($"Change Obj#{objId} to {newState}");
-            TObject markedObj = Objects.FirstOrDefault(o => o.Id == objId);
-            if (markedObj != null)
-            {
-                this.TrialInfo($"Changed Obj#{objId} to {newState}");
-                markedObj.State = newState;
-            }
         }
 
         public void ChangeFunctionState(int funcId, ButtonState newState)
