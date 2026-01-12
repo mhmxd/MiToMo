@@ -26,9 +26,5 @@ namespace Multi.Cursor.Logging
         public int fstfl_funmk;     // first flick -\ marker on function
         public int funmk_objnt;     // marker on function -\ object enter
 
-        //public SOSFTrialLog(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-        //: base(blockNum, trialNum, trial, trialRecord)
-        //{
-        //}
     }
 }

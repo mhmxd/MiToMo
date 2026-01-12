@@ -25,7 +25,7 @@ namespace SubTask.PanelNavigation
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         // Set for each log (in constructor)
-        private static readonly string _detilTrialLogPath = Path.Combine(
+        private static readonly string _detailTrialLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
             $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.TRIALS_DETAIL_C);
         private static readonly string _totalTrialLogPath = Path.Combine(
@@ -54,7 +54,7 @@ namespace SubTask.PanelNavigation
         public static void Init()
         {
             // Create detailed trial log if not exists
-            _detailTrialLogWriter = PrepareFile<DetailTrialLog>(_detilTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
+            _detailTrialLogWriter = PrepareFile<DetailTrialLog>(_detailTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
 
             // Create total log if not exists
             _totalTrialLogWriter = PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
@@ -174,7 +174,7 @@ namespace SubTask.PanelNavigation
             //Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             //Output.Conlog<ExperiLogger>(log.ToString());
 
-            WriteTrialLog(log, _detilTrialLogPath, _detailTrialLogWriter);
+            WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
             //_detailTrialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
@@ -302,12 +302,6 @@ namespace SubTask.PanelNavigation
         public static void LogMarkerPosition(int row, int column)
         {
             _trialMarkerRecords[_activeTrialId].Add(new PositionRecord(row, column));
-        }
-
-        private static void Dispose()
-        {
-            _detailTrialLogWriter?.Dispose();
-            _detailTrialLogWriter = null;
         }
 
         public static void DynamiclySetFieldValue(TrialLog instance, string fieldName, int newValue)

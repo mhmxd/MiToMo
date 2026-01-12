@@ -1,11 +1,4 @@
-﻿using MathNet.Numerics;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Collections.Generic;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.PanelNavigation
@@ -70,16 +63,6 @@ namespace SubTask.PanelNavigation
                 AddFunctionWidth(functionWidth);
             }
         }
-
-        //public List<int> GetFunctionWidths()
-        //{
-        //    return _functionWidths;
-        //}
-
-        //public int GetFunctionWidthMM()
-        //{
-        //    return _functionWidths[0] * 4; // Width is in MX (1 MX = 4 mm)
-        //}
 
         public int GetNumFunctions()
         {

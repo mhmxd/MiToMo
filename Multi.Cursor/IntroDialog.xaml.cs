@@ -27,8 +27,8 @@ namespace Multi.Cursor
             InitializeComponent();
 
             ParticipantNumberTextBlock.Text = ExpPtc.PTC_NUM.ToString();
-            TechniqueComboBox.ItemsSource = new string[] { ExpStrs.TOUCH_MOUSE_TAP, ExpStrs.TOUCH_MOUSE_SWIPE, ExpStrs.MOUSE };
-            TechniqueComboBox.SelectedValue = ExpStrs.MOUSE;
+            TechniqueComboBox.ItemsSource = new string[] { ExpStrs.TAP_C, ExpStrs.SWIPE_C, ExpStrs.MOUSE_C };
+            TechniqueComboBox.SelectedValue = ExpStrs.MOUSE_C;
             ExperimentComboBox.ItemsSource = new string[] { ExpStrs.PRACTICE, ExpStrs.TEST };
             ExperimentComboBox.SelectedValue = ExpStrs.PRACTICE;
         }
@@ -57,7 +57,7 @@ namespace Multi.Cursor
                     BigButton.Content = "Initializing...";
                     //BigButton.IsEnabled = false;
 
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(Technique.ToString(), complexity));
+                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(Technique, complexity));
 
                     if (_experimentSet)
                     {
