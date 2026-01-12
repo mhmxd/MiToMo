@@ -2,7 +2,7 @@
 
 namespace SubTask.FunctionSelection.Logging
 {
-    internal class DetailedTrialLog : TrialLog
+    internal class DetailTrialLog : TrialLog
     {
         public int trlsh_curmv;    // trial show -\ first move
         public int curmv_strnt;   // first move -\ start entered *Last* (before press)

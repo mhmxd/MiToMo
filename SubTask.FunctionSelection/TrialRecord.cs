@@ -571,6 +571,16 @@ namespace SubTask.FunctionSelection
             return Functions.Select(f => f.Id).ToList();
         }
 
+        public int GetFunctionWidthInUnits(int index)
+        {
+            if (index < 0 || index >= Functions.Count)
+            {
+                return -1; // Invalid index
+            }
+
+            return Functions[index].WidthInUnits;
+        }
+
         public List<Point> GetFunctionCenters()
         {
             return Functions.Select(f => f.Center).ToList();

@@ -1,7 +1,7 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using Common.Logs;
 using Common.Settings;
-using Serilog;
 using Serilog.Core;
 using SubTask.FunctionSelection.Logging;
 using System;
@@ -17,35 +17,33 @@ namespace SubTask.FunctionSelection
 {
     internal class ExperiLogger
     {
-        private static string _trialLogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.FunctionSelection.Logs", "detailed_trial_log"
-        );
-        private static string _totalLogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.FunctionSelection.Logs", "total_trial_log"
-        );
-        private static string _blockLogFilePath = System.IO.Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            "SubTask.FunctionSelection.Logs", "blocks_log"
-        );
+        private static readonly Technique Technique = Technique.MOUSE; // Technique
+
+        private static readonly string Namespace = typeof(ExperiLogger).Namespace;
+        private static readonly string LogsFolderName = ExpStrs.JoinDot(Namespace, ExpStrs.Logs);
+        private static readonly string MyDocumentsPath =
+            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+        // Set for each log (in constructor)
+        private static readonly string _detiledTrialLogPath = Path.Combine(
+            MyDocumentsPath, LogsFolderName,
+            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.TRIALS_DETAIL_C);
+        private static readonly string _totalTrialLogPath = Path.Combine(
+            MyDocumentsPath, LogsFolderName,
+            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.TRIALS_TOTAL_C);
+        private static readonly string _blockLogPath = Path.Combine(
+            MyDocumentsPath, LogsFolderName,
+            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.BLOCKS_C);
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
 
         private static Logger _gestureFileLog;
         private static Logger _blockFileLog;
 
-        private static StreamWriter _trialLogWriter;
+        private static StreamWriter _detailTrialLogWriter;
         private static StreamWriter _totalTrialLogWriter;
         private static StreamWriter _cursorLogWriter;
         private static StreamWriter _blockLogWriter;
-
-        private static Dictionary<string, int> _trialLogs = new Dictionary<string, int>();
-
-        private static int _ptcId = 0; // Participant ID
-        private static Technique _technique = Technique.MOUSE; // Technique
-
-        private static bool _headerWritten = false;
 
         private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
 
@@ -54,16 +52,14 @@ namespace SubTask.FunctionSelection
 
         public static void Init()
         {
-            _ptcId = ExpPtc.PTC_NUM;
-
             // Create detailed trial log if not exists
-            _trialLogWriter = PrepareFile<DetailedTrialLog>(_trialLogFilePath);
+            _detailTrialLogWriter = ExpIO.PrepareFile<DetailTrialLog>(_detiledTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
 
             // Create total log if not exists
-            _totalTrialLogWriter = PrepareFile<TotalTrialLog>(_totalLogFilePath);
+            _totalTrialLogWriter = ExpIO.PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
 
             // Create block log if not exists
-            _blockLogWriter = PrepareFile<BlockLog>(_blockLogFilePath);
+            _blockLogWriter = ExpIO.PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
         }
 
         private static void PrepareFileWithHeader<T>(ref string filePath, StreamWriter writer, string header)
@@ -87,74 +83,17 @@ namespace SubTask.FunctionSelection
             }
         }
 
-        private static StreamWriter PrepareFile<T>(string filePath)
+        public static void StartTrialCursorLog(int trialId, int trialNum)
         {
-            string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-            string timedFilePath = $"{filePath}_{timestamp}.csv";
-
-            string directoryPath = Path.GetDirectoryName(timedFilePath);
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            bool timedFileExists = File.Exists(timedFilePath);
-            bool timedFileIsEmpty = !timedFileExists || new FileInfo(timedFilePath).Length == 0;
-            StreamWriter writer = new StreamWriter(timedFilePath, append: true, Encoding.UTF8);
-            writer.AutoFlush = true;
-            if (timedFileIsEmpty)
-            {
-                WriteHeader<T>(writer);
-            }
-
-            return writer;
-        }
-
-        public static void StartTrialCursorLog(int trialId)
-        {
-            //string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-            //String cursorFileName = $"trial-#{trialId}-cursor-{timestamp}.txt";
-            //string cursorFilePath = System.IO.Path.Combine(
-            //    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-            //    "SubTask.FunctionSelection.Logs", $"{_ptcId}-{_technique}", "Cursor", cursorFileName
-            //);
-
             _activeTrialId = trialId;
             _trialCursorRecords[_activeTrialId] = new List<PositionRecord>();
 
-            _cursorLogFilePath = System.IO.Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "SubTask.FunctionSelection.Logs", $"{_ptcId}-{_technique}", "Cursor", $"trial{trialId}-cursor-log"
+            _cursorLogFilePath = Path.Combine(
+                MyDocumentsPath, LogsFolderName,
+                $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.CURSOR_C, $"trial-id{trialId}-n{trialNum}-{ExpStrs.CURSOR_S}"
             );
+
             PrepareFileWithHeader<PositionRecord>(ref _cursorLogFilePath, _cursorLogWriter, PositionRecord.GetHeader());
-        }
-
-        public static void StartTrialLog(Trial trial)
-        {
-            //_blockFileLog.Information($"{trial.ToString()}");
-            //_blockFileLog.Information($"----------------------------------------------------------------------------------");
-        }
-
-        public static void StartTrialLogs(int trialNum, int trialId, double targetWidthMM, double distanceMM, Point startPos, Point targetPos)
-        {
-            String gestureFileName = $"trial-{trialNum}-#{trialId}-gestures-.txt";
-
-
-            string gesturesFilePath = System.IO.Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "SubTask.FunctionSelection.Logs", $"{_ptcId}-{_technique}", gestureFileName
-            );
-
-
-            _gestureFileLog = new LoggerConfiguration()
-                    .WriteTo.Async(a => a.File(gesturesFilePath, rollingInterval: RollingInterval.Day,
-                    outputTemplate: "{Timestamp:HH:mm:ss.fff} {Message:lj}{NewLine}"))
-                    .CreateLogger();
-
-
-
-            // Enter log info
-            _gestureFileLog.Information($"TgtW: {targetWidthMM}, Dist: {distanceMM}, StPos: {startPos.ToStr()}, TgPos: {targetPos.ToStr()}");
         }
 
         public static void LogGestureEvent(string message)
@@ -177,21 +116,20 @@ namespace SubTask.FunctionSelection
             log.cmplx = trial.Complexity.ToString().ToLower();
             log.tsk_type = ExpStrs.TASKTYPE_ABBR[trial.TaskType];
             log.fun_side = trial.FuncSide.ToString().ToLower();
-            log.func_width = trial.GetFunctionWidthMM();
-            log.n_obj = trial.NObjects;
-            //log.n_fun = trial.GetNumFunctions();
-            log.dist_lvl = trial.DistRangeMM.Label.Split('-')[0].ToLower();
-            //log.dist = $"{trialRecord.AvgDistanceMM:F2}";
+            log.func_width = trialRecord.GetFunctionWidthInUnits(0);
+            log.n_obj = 0;
+            log.n_fun = 1;
+            log.dist_lvl = "-";
+            log.dist = "-";
             log.result = (int)trialRecord.Result;
         }
 
-        public static void LogDetailed(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
+        public static void LogDetailTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            string logFilePath = _trialLogFilePath; // Passed to the writer
+            Output.Conlog<ExperiLogger>("Logging Trial");
+            DetailTrialLog log = new DetailTrialLog();
 
-            Output.Conlog<ExperiLogger>("Logging SOMF Trial");
-            DetailedTrialLog log = new DetailedTrialLog();
-
+            // Information
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
             // Log start events
@@ -222,7 +160,7 @@ namespace SubTask.FunctionSelection
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             Output.Conlog<ExperiLogger>(log.ToString());
 
-            WriteTrialLog(log, logFilePath, _trialLogWriter);
+            WriteTrialLog(log, _detiledTrialLogPath, _detailTrialLogWriter);
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
         }
@@ -240,7 +178,7 @@ namespace SubTask.FunctionSelection
 
             log.funcs_sel_time = trialRecord.GetDurationFromFirstToLast(ExpStrs.FUN_ENTER, ExpStrs.FUN_RELEASE);
 
-            WriteTrialLog(log, _totalLogFilePath, _totalTrialLogWriter);
+            WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
 
             // Write cursor records
             //using (StreamWriter writer = new StreamWriter(_cursorLogFilePath, append: false, Encoding.UTF8))
@@ -276,7 +214,7 @@ namespace SubTask.FunctionSelection
             double avgTime = _trialTimes.Values.Average() / 1000;
             log.block_time = $"{avgTime:F2}";
 
-            WriteTrialLog(log, _blockLogFilePath, _blockLogWriter);
+            WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 
         }
 
@@ -343,12 +281,6 @@ namespace SubTask.FunctionSelection
         public static void LogCursorPosition(Point cursorPos)
         {
             _trialCursorRecords[_activeTrialId].Add(new PositionRecord(cursorPos.X, cursorPos.Y));
-        }
-
-        private static void Dispose()
-        {
-            _trialLogWriter?.Dispose();
-            _trialLogWriter = null;
         }
 
         public static void DynamiclySetFieldValue(TrialLog instance, string fieldName, int newValue)

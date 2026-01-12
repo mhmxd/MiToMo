@@ -1,13 +1,8 @@
 ﻿using Common.Logs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SubTask.ObjectSelection.Logging
 {
-    internal class DetailedTrialLog : TrialLog
+    internal class DetailTrialLog : TrialLog
     {
         public int trlsh_curmv;    // trial show -\ first move
         public int curmv_strnt;   // first move -\ start entered *Last* (before press)

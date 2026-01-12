@@ -29,24 +29,10 @@ namespace SubTask.ObjectSelection
             //Participant_Number = DEFAULT_PTC; // Default
         }
 
-        public void Init(string tech, Complexity complexity)
+        public void Init()
         {
-            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}, Technique: {tech}");
+            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}");
             //Participant_Number = ptc;
-            if (tech == ExpStrs.TOUCH_MOUSE_TAP)
-            {
-                Active_Technique = Technique.TOMO_TAP;
-                Config.SetMode(0);
-            }
-            else if (tech == ExpStrs.TOUCH_MOUSE_SWIPE)
-            {
-                Active_Technique = Technique.TOMO_SWIPE;
-                Config.SetMode(1);
-            }
-            else if (tech == ExpStrs.MOUSE)
-            {
-                Active_Technique = Technique.MOUSE;
-            }
 
             // Create and add blocks
             for (int i = 0; i < ExpDesign.OS_N_BLOCKS; i++)

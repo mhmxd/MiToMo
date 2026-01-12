@@ -679,10 +679,10 @@ namespace SubTask.FunctionSelection
 
         }
 
-        public bool SetExperiment(string tech, Complexity complexity)
+        public bool SetExperiment(Complexity complexity)
         {
             // Make the experiment (incl. creating blocks)
-            _experiment.Init(tech, complexity);
+            _experiment.Init(complexity);
 
             //// Find positions for all blocks
             //foreach (Block bl in _experiment.Blocks)

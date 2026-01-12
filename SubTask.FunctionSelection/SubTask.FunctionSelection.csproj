@@ -309,7 +309,7 @@
     </ApplicationDefinition>
     <Compile Include="ButtonFactory.cs" />
     <Compile Include="GridFactory.cs" />
-    <Compile Include="Logging\DetailedTrialLog.cs" />
+    <Compile Include="Logging\DetailTrialLog.cs" />
     <Compile Include="Logging\TotalTrialLog.cs" />
     <Compile Include="MouseEvents.cs" />
     <Compile Include="App.xaml.cs">

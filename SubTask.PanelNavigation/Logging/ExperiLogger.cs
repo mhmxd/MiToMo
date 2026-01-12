@@ -17,7 +17,6 @@ namespace SubTask.PanelNavigation
 {
     internal class ExperiLogger
     {
-        //private static int _ptcId = ExpPtc.PTC_NUM; // Participant ID
         private static readonly Technique Technique = Technique.TOMO; // Technique
 
         private static readonly string Namespace = typeof(ExperiLogger).Namespace;

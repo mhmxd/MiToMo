@@ -1,15 +1,9 @@
 ﻿using Common.Constants;
-using OpenTK.Graphics.OpenGL;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using static Common.Constants.ExpEnums;
-using static SubTask.PanelNavigation.BlockHandler;
 using static SubTask.PanelNavigation.Utils;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace SubTask.PanelNavigation
 {

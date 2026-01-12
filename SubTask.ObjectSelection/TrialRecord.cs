@@ -98,38 +98,6 @@ namespace SubTask.ObjectSelection
             }
         }
 
-        public void ApplyFunction(int funcId, int objId)
-        {
-            this.TrialInfo($"FuncId: {funcId}");
-
-            // Apply to the specified object
-            if (objId != -1) ChangeObjectState(objId, ButtonState.SELECTED);
-
-            //int nFuncs = Functions.Count;
-            //int nObjs = Objects.Count;
-
-            ////this.TrialInfo($"nFunc: {nFuncs}; nObj: {nObjs}");
-
-            //switch (nFuncs, nObjs) 
-            //{
-            //    case (1, 1): // One function and one object => apply the function to the object
-            //        ChangeObjectState(1, ButtonState.SELECTED);
-            //        break;
-            //    case (1, _): // One function and multiple objects => apply the function to the marked/enabled object
-            //        int markedObjId = Objects.FirstOrDefault(o => o.State == ButtonState.MARKED)?.Id ?? -1;
-            //        ChangeObjectState(markedObjId, ButtonState.SELECTED);
-            //        break;
-            //    case (_, 1): // Multiple functions and one object => apply the function to the single object
-            //        //ChangeObjectState(1, ButtonState.SELECTED);
-            //        break;
-            //    default: // Multiple functions and multiple objects => apply the function to the object mapped to the function
-            //        int mappedObjId = FindMappedObjectId(funcId);
-            //        ChangeObjectState(mappedObjId, ButtonState.SELECTED);
-            //        break;
-            //}
-
-        }
-
         public void MarkAllObjects()
         {
             foreach (TObject obj in Objects)

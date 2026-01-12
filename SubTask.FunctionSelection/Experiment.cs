@@ -67,24 +67,9 @@ namespace SubTask.FunctionSelection
 
         }
 
-        public void Init(string tech, Complexity complexity)
+        public void Init(Complexity complexity)
         {
-            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}, Technique: {tech}");
-            //Participant_Number = ptc;
-            if (tech == ExpStrs.TOUCH_MOUSE_TAP)
-            {
-                Active_Technique = Technique.TOMO_TAP;
-                Config.SetMode(0);
-            }
-            else if (tech == ExpStrs.TOUCH_MOUSE_SWIPE)
-            {
-                Active_Technique = Technique.TOMO_SWIPE;
-                Config.SetMode(1);
-            }
-            else if (tech == ExpStrs.MOUSE)
-            {
-                Active_Technique = Technique.MOUSE;
-            }
+            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}");
 
             Active_Complexity = complexity;
 

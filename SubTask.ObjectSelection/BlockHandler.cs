@@ -132,7 +132,7 @@ namespace SubTask.ObjectSelection
             }
 
             //-- Log
-            ExperiLogger.LogDetailedTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
 
             GoToNextTrial();
         }
