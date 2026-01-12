@@ -726,7 +726,7 @@ namespace SubTask.FunctionPointSelect
 
         }
 
-        public bool SetExperiment(string tech, Complexity complexity)
+        public bool SetExperiment(Complexity complexity)
         {
             // Make the experiment (incl. creating blocks)
             _experiment.Init(complexity);
@@ -970,7 +970,7 @@ namespace SubTask.FunctionPointSelect
             // Add label inside
             var label = new TextBlock
             {
-                Text = ExpStrs.START,
+                Text = ExpStrs.START_CAP,
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,

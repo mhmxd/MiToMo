@@ -1,21 +1,10 @@
 ﻿using Common.Constants;
 using Common.Settings;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Forms.VisualStyles;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using static Common.Constants.ExpEnums;
-using static SubTask.FunctionPointSelect.Block;
 
 namespace SubTask.FunctionPointSelect
 {
@@ -38,8 +27,6 @@ namespace SubTask.FunctionPointSelect
             InitializeComponent();
 
             ParticipantNumberTextBlock.Text = ExpPtc.PTC_NUM.ToString();
-            TechniqueComboBox.ItemsSource = new string[] { ExpStrs.TOUCH_MOUSE_TAP, ExpStrs.TOUCH_MOUSE_SWIPE, ExpStrs.MOUSE };
-            TechniqueComboBox.SelectedValue = ExpStrs.MOUSE;
             ExperimentComboBox.ItemsSource = new string[] { ExpStrs.PRACTICE, ExpStrs.TEST };
             ExperimentComboBox.SelectedValue = ExpStrs.PRACTICE;
         }
@@ -57,8 +44,6 @@ namespace SubTask.FunctionPointSelect
             {
                 if (Owner is MainWindow ownerWindow)
                 {
-                    //ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
-                    Technique = TechniqueComboBox.SelectedItem as string;
                     SelectedExperiment = ExperimentComboBox.SelectedItem as string;
                     SelectedComplexity = (ComplexityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
                     Complexity complexity = (Complexity)Enum.Parse(typeof(Complexity), SelectedComplexity, true);
@@ -68,7 +53,7 @@ namespace SubTask.FunctionPointSelect
                     BigButton.Content = "Initializing...";
                     //BigButton.IsEnabled = false;
 
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(Technique.ToString(), complexity));
+                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(complexity));
 
                     if (_experimentSet)
                     {

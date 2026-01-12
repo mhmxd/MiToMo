@@ -25,7 +25,7 @@ namespace SubTask.PanelNavigation
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         // Set for each log (in constructor)
-        private static readonly string _detiledTrialLogPath = Path.Combine(
+        private static readonly string _detilTrialLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
             $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.TRIALS_DETAIL_C);
         private static readonly string _totalTrialLogPath = Path.Combine(
@@ -54,7 +54,7 @@ namespace SubTask.PanelNavigation
         public static void Init()
         {
             // Create detailed trial log if not exists
-            _detailTrialLogWriter = PrepareFile<DetailTrialLog>(_detiledTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
+            _detailTrialLogWriter = PrepareFile<DetailTrialLog>(_detilTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
 
             // Create total log if not exists
             _totalTrialLogWriter = PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
@@ -174,7 +174,7 @@ namespace SubTask.PanelNavigation
             //Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             //Output.Conlog<ExperiLogger>(log.ToString());
 
-            WriteTrialLog(log, _detiledTrialLogPath, _detailTrialLogWriter);
+            WriteTrialLog(log, _detilTrialLogPath, _detailTrialLogWriter);
             //_detailTrialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);

@@ -260,7 +260,7 @@ namespace SubTask.FunctionPointSelect
             }
 
             //-- Log
-            ExperiLogger.LogDetails(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
 
             GoToNextTrial();
         }
@@ -754,7 +754,7 @@ namespace SubTask.FunctionPointSelect
                 //_mainWindow.EnableFunctions(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
 
                 // Change START to END and unavailable (until all functions are applied)
-                _mainWindow.ChangeStartButtonText(ExpStrs.END);
+                _mainWindow.ChangeStartButtonText(ExpStrs.END_CAP);
                 _mainWindow.ChangeStartButtonColor(Config.DARK_ORANGE);
             }
 
