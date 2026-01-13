@@ -114,6 +114,7 @@ namespace SubTask.FunctionSelection
             log.id = trial.Id;
             log.tech = trial.Technique.ToString().ToLower();
             log.cmplx = trial.Complexity.ToString().ToLower();
+            log.exptype = trial.ExpType.ToString().ToLower();
             log.tsk_type = ExpStrs.TASKTYPE_ABBR[trial.TaskType];
             log.fun_side = trial.FuncSide.ToString().ToLower();
             log.func_width = trialRecord.GetFunctionWidthInUnits(0);
@@ -208,6 +209,7 @@ namespace SubTask.FunctionSelection
             log.ptc = block.PtcNum;
             log.id = block.Id;
             log.cmplx = block.Complexity.ToString().ToLower();
+            log.exptype = block.ExpType.ToString().ToLower();
             log.n_trials = block.GetNumTrials();
             log.n_fun = block.NFunctions;
 

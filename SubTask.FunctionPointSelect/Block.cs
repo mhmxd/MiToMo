@@ -34,15 +34,23 @@ namespace SubTask.FunctionPointSelect
             set => _complexity = value;
         }
 
+        private ExperimentType _expType = ExperimentType.Practice;
+        public ExperimentType ExpType
+        {
+            get => _expType;
+            set => _expType = value;
+        }
+
         public int NFunctions;
 
         public int PtcNum { get; set; }
 
-        public Block(int ptcNum, Complexity complexity, int id)
+        public Block(int ptcNum, Complexity complexity, ExperimentType expType, int id)
         {
             this.Id = id;
             PtcNum = ptcNum;
             _complexity = complexity;
+            _expType = expType;
         }
 
         /// <summary>
@@ -89,11 +97,12 @@ namespace SubTask.FunctionPointSelect
             int ptc,
             int id,
             Complexity complexity,
+            ExperimentType expType,
             List<Range> distRanges)
         {
 
             // Create block
-            Block block = new Block(ptc, complexity, id);
+            Block block = new Block(ptc, complexity, expType, id);
 
             // Create and add trials to the block
             int trialNum = 1;
@@ -116,6 +125,7 @@ namespace SubTask.FunctionPointSelect
                             id * 100 + trialNum,
                             ptc,
                             complexity,
+                            expType,
                             functionSide,
                             range,
                             functionWidths);

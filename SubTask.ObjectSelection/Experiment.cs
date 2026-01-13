@@ -18,9 +18,6 @@ namespace SubTask.ObjectSelection
             (Color)ColorConverter.ConvertFromString(ExpColors.PURPLE));
 
         //-- Information
-
-        //public int Participant_Number { get; set; } // Set in the info dialog
-
         private List<Block> _blocks = new List<Block>();
         public List<Block> Blocks { get { return _blocks; } }
 

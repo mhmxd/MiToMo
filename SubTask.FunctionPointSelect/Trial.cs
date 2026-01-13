@@ -25,6 +25,7 @@ namespace SubTask.FunctionPointSelect
 
         public TaskType TaskType { get; set; }
         public Complexity Complexity { get; set; }
+        public ExperimentType ExpType { get; set; }
 
         // Target circle diameter
         private double _targetWidthMM;
@@ -115,12 +116,13 @@ namespace SubTask.FunctionPointSelect
         /// <param name="functionWidthsMX"></param>
         /// <returns></returns>
         public static Trial CreateTrial(
-            int id, int ptc, Complexity complexity,
+            int id, int ptc, Complexity complexity, ExperimentType expType,
             Side side, Range distRangeMM, List<int> functionWidthsMX)
         {
             Trial trial = new Trial(id);
             trial.PtcNum = ptc;
             trial.Complexity = complexity;
+            trial.ExpType = expType;
             trial.FuncSide = side;
             trial.DistRangeMM = distRangeMM;
             trial.AddFunctionWidths(functionWidthsMX);

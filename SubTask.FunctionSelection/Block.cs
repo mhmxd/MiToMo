@@ -32,16 +32,24 @@ namespace SubTask.FunctionSelection
             set => _complexity = value;
         }
 
+        private ExperimentType _expType = ExperimentType.Practice;
+        public ExperimentType ExpType
+        {
+            get => _expType;
+            set => _expType = value;
+        }
+
         public int NFunctions;
 
         public int PtcNum { get; set; }
 
-        private Block(int ptcNum, int nFunc, Complexity complexity, int id)
+        private Block(int ptcNum, int nFunc, Complexity complexity, ExperimentType expType, int id)
         {
             this.Id = id;
             PtcNum = ptcNum;
             NFunctions = nFunc;
             _complexity = complexity;
+            _expType = expType;
         }
 
         public void ShuffleTrials()
@@ -61,11 +69,12 @@ namespace SubTask.FunctionSelection
             int ptc,
             int id,
             Complexity complexity,
+            ExperimentType expType,
             int nFun)
         {
 
             // Create block
-            Block block = new Block(ptc, nFun, complexity, id);
+            Block block = new Block(ptc, nFun, complexity, expType, id);
 
             //-- Create and add trials to the block
             int trialNum = 1;
@@ -86,6 +95,7 @@ namespace SubTask.FunctionSelection
                     id * 100 + trialNum,
                     ptc,
                     complexity,
+                    expType,
                     Side.Top,
                     functionWidths);
 
@@ -106,6 +116,7 @@ namespace SubTask.FunctionSelection
                     id * 100 + trialNum,
                     ptc,
                     complexity,
+                    expType,
                     Side.Left,
                     functionWidths);
 
@@ -148,27 +159,6 @@ namespace SubTask.FunctionSelection
 
         public void ShuffleBackTrial(int trialNum)
         {
-            //Trial trialToCopy = _trials[trialNum - 1];
-
-            //if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
-            //{
-            //    Random random = new Random();
-            //    int insertIndex = random.Next(trialNum + 1, _trials.Count);
-
-            //    _trials.Insert(insertIndex, trialToCopy);
-            //}
-            //else if (trialNum == _trials.Count && _trials.Count > 1)
-            //{
-            //    _trials.Insert(trialNum, trialToCopy);
-            //}
-            //else if (_trials.Count <= 1)
-            //{
-            //    Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
-            //}
-            //else
-            //{
-            //    Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
-            //}
 
             // Shuffle the trial based on its function side
             Trial trialToCopy = _trials[trialNum - 1];

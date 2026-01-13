@@ -679,10 +679,10 @@ namespace SubTask.FunctionSelection
 
         }
 
-        public bool SetExperiment(Complexity complexity)
+        public bool SetExperiment(Complexity complexity, ExperimentType expType)
         {
             // Make the experiment (incl. creating blocks)
-            _experiment.Init(complexity);
+            _experiment.Init(complexity, expType);
 
             //// Find positions for all blocks
             //foreach (Block bl in _experiment.Blocks)
@@ -809,7 +809,7 @@ namespace SubTask.FunctionSelection
             // Add label inside
             var label = new TextBlock
             {
-                Text = ExpStrs.START,
+                Text = ExpStrs.START_CAP,
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,

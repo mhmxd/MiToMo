@@ -67,7 +67,7 @@ namespace SubTask.FunctionSelection
 
         }
 
-        public void Init(Complexity complexity)
+        public void Init(Complexity complexity, ExperimentType expType)
         {
             this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}");
 
@@ -85,7 +85,7 @@ namespace SubTask.FunctionSelection
             for (int i = 0; i < ExpDesign.MFS_N_BLOCKS; i++)
             {
                 int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(ExpPtc.PTC_NUM, blockId, complexity, ExpDesign.FPS_N_FUN);
+                Block block = Block.CreateBlock(ExpPtc.PTC_NUM, blockId, complexity, expType, ExpDesign.FPS_N_FUN);
                 _blocks.Add(block);
             }
         }

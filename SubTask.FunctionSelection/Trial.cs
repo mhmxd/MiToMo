@@ -20,6 +20,7 @@ namespace SubTask.FunctionSelection
 
         public TaskType TaskType { get; set; }
         public Complexity Complexity { get; set; }
+        public ExperimentType ExpType { get; set; }
 
         public Range DistRangeMM { get; set; }
         public Range DistRangePX => DistRangeMM.GetPx(); // Distance range in px
@@ -60,12 +61,14 @@ namespace SubTask.FunctionSelection
         /// <param name="functionWidthsMX"></param>
         /// <returns></returns>
         public static Trial CreateTrial(
-            int id, int ptc, Complexity complexity,
+            int id, int ptc, 
+            Complexity complexity, ExperimentType expType,
             Side side, List<int> functionWidthsMX)
         {
             Trial trial = new Trial(id);
             trial.PtcNum = ptc;
             trial.Complexity = complexity;
+            trial.ExpType = expType;
             trial.FuncSide = side;
             trial.AddFunctionWidths(functionWidthsMX);
 

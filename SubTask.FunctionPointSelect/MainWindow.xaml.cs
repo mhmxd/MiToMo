@@ -726,10 +726,10 @@ namespace SubTask.FunctionPointSelect
 
         }
 
-        public bool SetExperiment(Complexity complexity)
+        public bool SetExperiment(Complexity complexity, ExperimentType expType)
         {
             // Make the experiment (incl. creating blocks)
-            _experiment.Init(complexity);
+            _experiment.Init(complexity, expType);
 
             return true;
         }
