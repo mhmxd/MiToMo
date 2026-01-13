@@ -42,6 +42,13 @@ namespace Multi.Cursor
             set => _complexity = value;
         }
 
+        private ExperimentType _expType = ExperimentType.Practice;
+        public ExperimentType ExpType
+        {
+            get => _expType;
+            set => _expType = value;
+        }
+
         public Technique _technique = Technique.MOUSE;
 
         public Technique Technique
@@ -54,7 +61,12 @@ namespace Multi.Cursor
 
         public int PtcNum { get; set; }
 
-        public Block(int ptcNum, Technique technique, TaskType type, int nFunc, int nObj, Complexity complexity, int id)
+        public Block(
+            int ptcNum, Technique technique, TaskType type, 
+            int nFunc, int nObj, 
+            Complexity complexity, 
+            ExperimentType expType,
+            int id)
         {
             this.Id = id;
             PtcNum = ptcNum;
@@ -63,6 +75,7 @@ namespace Multi.Cursor
             NFunctions = nFunc;
             NObjects = nObj;
             _complexity = complexity;
+            _expType = expType;
         }
 
         /// <summary>
@@ -110,6 +123,7 @@ namespace Multi.Cursor
             int ptc,
             int id,
             Complexity complexity,
+            ExperimentType expType,
             List<Range> distRanges,
             int nFun,
             int nObj)
@@ -136,7 +150,7 @@ namespace Multi.Cursor
             }
 
             // Create block
-            Block block = new Block(ptc, technique, type, nFun, nObj, complexity, id);
+            Block block = new Block(ptc, technique, type, nFun, nObj, complexity, expType, id);
 
             // Create and add trials to the block
             int trialNum = 1;
@@ -164,6 +178,7 @@ namespace Multi.Cursor
                             ptc,
                             type,
                             complexity,
+                            expType,
                             functionSide,
                             range,
                             nObj,

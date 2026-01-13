@@ -26,6 +26,7 @@ namespace Multi.Cursor
 
         public TaskType TaskType { get; set; }
         public Complexity Complexity { get; set; }
+        public ExperimentType ExpType { get; set; }
 
         //private double _targetWidthMM;
         //public double TargetWidthMM 
@@ -104,14 +105,20 @@ namespace Multi.Cursor
         /// <param name="functionWidthsMX"></param>
         /// <returns></returns>
         public static Trial CreateTrial(
-            int id, Technique tech, int ptc, TaskType type, Complexity complexity, 
-            Side side, Range distRangeMM, int nObj, List<int> functionWidthsMX)
+            int id, Technique tech, int ptc, 
+            TaskType type, 
+            Complexity complexity,
+            ExperimentType expType,
+            Side side, Range distRangeMM, 
+            int nObj, 
+            List<int> functionWidthsMX)
         {
             Trial trial = new Trial(id);
             trial.Technique = tech;
             trial.PtcNum = ptc;
             trial.TaskType = type;
             trial.Complexity = complexity;
+            trial.ExpType = expType;
             trial.FuncSide = side;
             trial.DistRangeMM = distRangeMM;
             trial.AddFunctionWidths(functionWidthsMX);

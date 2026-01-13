@@ -592,6 +592,7 @@ namespace Multi.Cursor
             log.id = trial.Id;
             log.tech = trial.Technique.ToString().ToLower();
             log.cmplx = trial.Complexity.ToString().ToLower();
+            log.exptype = trial.ExpType.ToString().ToLower();
             log.tsk_type = ExpStrs.TASKTYPE_ABBR[trial.TaskType];
             log.fun_side = trial.FuncSide.ToString().ToLower();
             log.func_width = trial.GetFunctionWidthMM();
@@ -610,6 +611,7 @@ namespace Multi.Cursor
             log.id = block.Id;
             log.tech = block.Technique.ToString().ToLower();
             log.cmplx = block.Complexity.ToString().ToLower();
+            log.exptype = block.ExpType.ToString().ToLower();
             log.n_trials = block.GetNumTrials();
             log.tsk_type = ExpStrs.TASKTYPE_ABBR[block.TaskType];
             log.n_fun = block.NFunctions;

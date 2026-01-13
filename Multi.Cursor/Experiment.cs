@@ -84,7 +84,7 @@ namespace Multi.Cursor
 
         }
 
-        public void Init(string tech, Complexity complexity)
+        public void Init(string tech, Complexity complexity, ExperimentType expType)
         {
             this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}, Technique: {tech}");
             //Participant_Number = ptc;
@@ -120,7 +120,10 @@ namespace Multi.Cursor
                 int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
                 Block block = Block.CreateBlock(
                     Active_Technique, ExpPtc.PTC_NUM, 
-                    blockId, complexity, distRanges, 
+                    blockId, 
+                    complexity,
+                    expType,
+                    distRanges, 
                     ExpDesign.LT_N_FUN, ExpDesign.LT_N_OBJ);
                 _blocks.Add(block);
             }
