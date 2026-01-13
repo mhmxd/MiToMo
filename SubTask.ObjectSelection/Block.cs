@@ -31,13 +31,21 @@ namespace SubTask.ObjectSelection
             set => _technique = value;
         }
 
+        private ExperimentType _expType = ExperimentType.Practice;
+        public ExperimentType ExpType
+        {
+            get => _expType;
+            set => _expType = value;
+        }
+
         public int PtcNum { get; set; }
 
-        public Block(int ptcNum, Technique technique, int id)
+        public Block(int ptc, Technique technique, int id, ExperimentType expType)
         {
             this.Id = id;
-            PtcNum = ptcNum;
+            PtcNum = ptc;
             _technique = technique;
+            _expType = expType;
         }
 
         public void ShuffleTrials()
@@ -57,11 +65,12 @@ namespace SubTask.ObjectSelection
             Technique technique,
             int ptc,
             int id,
+            ExperimentType expType,
             int nRep)
         {
 
             // Create block
-            Block block = new Block(ptc, technique, id);
+            Block block = new Block(ptc, technique, id, expType);
 
             // Create the same number of 3 and 5 object trials in each block
             int trialNum = 1;
@@ -70,7 +79,8 @@ namespace SubTask.ObjectSelection
                 Trial trial3 = Trial.CreateTrial(
                             id * 100 + trialNum,
                             technique,
-                            ptc,
+                            expType,
+                            ExpPtc.PTC_NUM,
                             ExpDesign.OS_N_OBJS[0]);
 
                 block._trials.Add(trial3);
@@ -79,7 +89,8 @@ namespace SubTask.ObjectSelection
                 Trial trial5 = Trial.CreateTrial(
                             id * 100 + trialNum,
                             technique,
-                            ptc,
+                            expType,
+                            ExpPtc.PTC_NUM,
                             ExpDesign.OS_N_OBJS[1]);
 
                 block._trials.Add(trial5);

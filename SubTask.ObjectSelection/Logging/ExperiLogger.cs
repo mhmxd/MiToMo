@@ -119,6 +119,7 @@ namespace SubTask.ObjectSelection
             log.id = trial.Id;
             log.tech = trial.Technique.ToString().ToLower();
             log.cmplx = trial.Complexity.ToString().ToLower();
+            log.exptype = trial.ExpType.ToString().ToLower();
             log.tsk_type = ExpStrs.TASKTYPE_ABBR[trial.TaskType];
             log.fun_side = trial.FuncSide.ToString().ToLower();
             log.func_width = 0;
@@ -212,6 +213,7 @@ namespace SubTask.ObjectSelection
             log.id = block.Id;
             log.tech = block.Technique.ToString().ToLower();
             log.cmplx = "-";
+            log.exptype = block.ExpType.ToString().ToLower();
             log.n_fun = 1;
             log.n_trials = block.GetNumTrials();
 

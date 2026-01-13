@@ -20,6 +20,7 @@ namespace SubTask.ObjectSelection
 
         public TaskType TaskType { get; set; }
         public Complexity Complexity { get; set; }
+        public ExperimentType ExpType { get; set; }
 
         // Target circle diameter
         private double _targetWidthMM;
@@ -91,10 +92,11 @@ namespace SubTask.ObjectSelection
         /// <param name="nObj"></param>
         /// <param name="functionWidthsMX"></param>
         /// <returns></returns>
-        public static Trial CreateTrial(int id, Technique tech, int ptc, int nObj)
+        public static Trial CreateTrial(int id, Technique tech, ExperimentType expType, int ptc, int nObj)
         {
             Trial trial = new Trial(id);
             trial.Technique = tech;
+            trial.ExpType = expType;
             trial.PtcNum = ptc;
             trial.NObjects = nObj;
 

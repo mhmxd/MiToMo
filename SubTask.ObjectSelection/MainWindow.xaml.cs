@@ -622,10 +622,10 @@ namespace SubTask.ObjectSelection
 
         }
 
-        public bool SetExperiment()
+        public bool SetExperiment(ExperimentType expType)
         {
             // Make the experiment (incl. creating blocks)
-            _experiment.Init();
+            _experiment.Init(expType);
 
             // Create block handlers
             for (int b = 1; b <= _experiment.Blocks.Count; b++)

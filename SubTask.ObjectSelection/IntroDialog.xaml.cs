@@ -45,11 +45,12 @@ namespace SubTask.ObjectSelection
                 if (Owner is MainWindow ownerWindow)
                 {
                     SelectedExperiment = ExperimentComboBox.SelectedItem as string;
+                    ExperimentType expType = (ExperimentType)Enum.Parse(typeof(ExperimentType), SelectedExperiment, true);
 
                     BigButton.Content = "Initializing...";
                     //BigButton.IsEnabled = false;
 
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment());
+                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(expType));
 
                     if (_experimentSet)
                     {

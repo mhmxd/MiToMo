@@ -29,7 +29,7 @@ namespace SubTask.ObjectSelection
             //Participant_Number = DEFAULT_PTC; // Default
         }
 
-        public void Init()
+        public void Init(ExperimentType expType)
         {
             this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}");
             //Participant_Number = ptc;
@@ -38,7 +38,7 @@ namespace SubTask.ObjectSelection
             for (int i = 0; i < ExpDesign.OS_N_BLOCKS; i++)
             {
                 int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, ExpPtc.PTC_NUM, blockId, ExpDesign.OS_N_REP);
+                Block block = Block.CreateBlock(Active_Technique, ExpPtc.PTC_NUM, blockId, expType, ExpDesign.OS_N_REP);
                 _blocks.Add(block);
             }
         }
