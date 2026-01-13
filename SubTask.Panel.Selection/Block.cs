@@ -1,13 +1,8 @@
-﻿using MathNet.Numerics;
-using System;
+﻿using Seril = Serilog.Log;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using static Common.Constants.ExpEnums;
-using Seril = Serilog.Log;
+using System.Linq;
+using System;
 
 namespace SubTask.Panel.Selection
 {
@@ -34,6 +29,13 @@ namespace SubTask.Panel.Selection
             set => _complexity = value;
         }
 
+        private ExperimentType _expType = ExperimentType.Practice;
+        public ExperimentType ExpType
+        {
+            get => _expType;
+            set => _expType = value;
+        }
+
         public Technique _technique = Technique.MOUSE;
 
         public Technique Technique
@@ -44,12 +46,13 @@ namespace SubTask.Panel.Selection
 
         public int PtcNum { get; set; }
 
-        public Block(int ptcNum, Technique technique, Complexity complexity, int id)
+        public Block(int ptcNum, Technique technique, Complexity complexity, ExperimentType expType, int id)
         {
             this.Id = id;
             PtcNum = ptcNum;
             _technique = technique;
             _complexity = complexity;
+            _expType = expType;
         }
 
         public void ShuffleTrials()
@@ -70,11 +73,12 @@ namespace SubTask.Panel.Selection
             int ptc,
             int id,
             Complexity complexity,
+            ExperimentType expType,
             int nRep)
         {
 
             // Create block
-            Block block = new Block(ptc, technique, complexity, id);
+            Block block = new Block(ptc, technique, complexity, expType, id);
 
             // Create and add trials to the block
             int trialNum = 1;
@@ -87,6 +91,7 @@ namespace SubTask.Panel.Selection
                             technique,
                             ptc,
                             complexity,
+                            expType,
                             Side.Top);
 
                 block._trials.Add(trial);
@@ -100,6 +105,7 @@ namespace SubTask.Panel.Selection
                             technique,
                             ptc,
                             complexity,
+                            expType,
                             Side.Right);
                     wasLeft = false;
                 }
@@ -110,6 +116,7 @@ namespace SubTask.Panel.Selection
                             technique,
                             ptc,
                             complexity,
+                            expType,
                             Side.Left);
                     wasLeft = true;
                 }

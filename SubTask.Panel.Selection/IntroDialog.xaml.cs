@@ -49,6 +49,7 @@ namespace SubTask.Panel.Selection
                     //ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
                     Technique = TechniqueComboBox.SelectedItem as string;
                     SelectedExperiment = ExperimentComboBox.SelectedItem as string;
+                    ExperimentType expType = (ExperimentType)Enum.Parse(typeof(ExperimentType), SelectedExperiment, true);
                     SelectedComplexity = (ComplexityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
                     Complexity complexity = (Complexity)Enum.Parse(typeof(Complexity), SelectedComplexity, true);
 
@@ -57,7 +58,7 @@ namespace SubTask.Panel.Selection
                     BigButton.Content = "Initializing...";
                     //BigButton.IsEnabled = false;
 
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(Technique.ToString(), complexity));
+                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(Technique.ToString(), complexity, expType));
 
                     if (_experimentSet)
                     {

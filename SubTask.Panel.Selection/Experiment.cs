@@ -30,7 +30,7 @@ namespace SubTask.Panel.Selection
             //Participant_Number = DEFAULT_PTC; // Default
         }
 
-        public void Init(string tech, Complexity complexity)
+        public void Init(string tech, Complexity complexity, ExperimentType expType)
         {
             this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}, Technique: {tech}");
             //Participant_Number = ptc;
@@ -51,7 +51,9 @@ namespace SubTask.Panel.Selection
             for (int i = 0; i < ExpDesign.PN_N_BLOCKS; i++)
             {
                 int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, ExpPtc.PTC_NUM, blockId, complexity, ExpDesign.PS_N_REP);
+                Block block = Block.CreateBlock(
+                    Active_Technique, ExpPtc.PTC_NUM, blockId, 
+                    complexity, expType, ExpDesign.PS_N_REP);
                 _blocks.Add(block);
             }
         }

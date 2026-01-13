@@ -225,6 +225,7 @@ namespace SubTask.PanelNavigation
             log.id = block.Id;
             log.tech = block.Technique.ToString().ToLower();
             log.cmplx = block.Complexity.ToString().ToLower();
+            log.exptype = block.ExpType.ToString().ToLower();
             log.n_fun = 1;
             log.n_trials = block.GetNumTrials();
 
