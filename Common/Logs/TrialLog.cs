@@ -11,6 +11,7 @@ namespace Common.Logs
         public int id;                  // number
         public string tech = "";        // technique
         public string cmplx = "";       // complexity
+        public string exptype = "";     // experiment type (practice, test)
         public string tsk_type = "";    // sosf, somf, mosf, momf 
         public int n_obj;               // number of objects
         public int n_fun;               // number of functions

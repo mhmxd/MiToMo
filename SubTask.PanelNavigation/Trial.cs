@@ -19,6 +19,7 @@ namespace SubTask.PanelNavigation
 
         public TaskType TaskType { get; set; }
         public Complexity Complexity { get; set; }
+        public ExperimentType ExpType { get; set; }
 
         private Side _funcSide; // Side window to show target in
         public Side FuncSide
@@ -37,13 +38,15 @@ namespace SubTask.PanelNavigation
         }
 
         public static Trial CreateTrial(
-            int id, Technique tech, int ptc, Complexity complexity,
+            int id, Technique tech, int ptc, 
+            Complexity complexity, ExperimentType expType,
             Side side)
         {
             Trial trial = new Trial(id);
             trial.Technique = tech;
             trial.PtcNum = ptc;
             trial.Complexity = complexity;
+            trial.ExpType = expType;
             trial.FuncSide = side;
 
             trial.TaskType = TaskType.PANEL_NAVIGATE;

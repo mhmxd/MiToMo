@@ -14,6 +14,7 @@ namespace SubTask.PanelNavigation
         //--- Setting
         public Technique Active_Technique = Technique.TOMO; // Set in the intro dialog
         public Complexity Active_Complexity = Complexity.Simple; // Set in the intro dialog
+        public ExperimentType Active_Type = ExperimentType.Practice; // Set from the intro dialog
 
         //--- Variables
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
@@ -69,7 +70,7 @@ namespace SubTask.PanelNavigation
             //Participant_Number = DEFAULT_PTC; // Default
         }
 
-        public void Init(Complexity complexity)
+        public void Init(Complexity complexity, ExperimentType expType)
         {
             this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}");
             //Participant_Number = ptc;
@@ -89,12 +90,16 @@ namespace SubTask.PanelNavigation
             //}
 
             Active_Complexity = complexity;
+            Active_Type = expType;
 
             // Create and add blocks
             for (int i = 0; i < ExpDesign.PN_N_BLOCKS; i++)
             {
                 int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, ExpPtc.PTC_NUM, blockId, complexity, ExpDesign.PN_N_REP);
+                Block block = Block.CreateBlock(
+                    Active_Technique, ExpPtc.PTC_NUM, 
+                    blockId, complexity, expType, 
+                    ExpDesign.PN_N_REP);
                 _blocks.Add(block);
             }
         }

@@ -36,6 +36,13 @@ namespace SubTask.PanelNavigation
             set => _complexity = value;
         }
 
+        private ExperimentType _expType = ExperimentType.Practice;
+        public ExperimentType ExpType
+        {
+            get => _expType;
+            set => _expType = value;
+        }
+
         public Technique _technique = Technique.MOUSE;
 
         public Technique Technique
@@ -46,12 +53,13 @@ namespace SubTask.PanelNavigation
 
         public int PtcNum { get; set; }
 
-        public Block(int ptcNum, Technique technique, Complexity complexity, int id)
+        public Block(int ptcNum, Technique technique, Complexity complexity, ExperimentType expType, int id)
         {
             this.Id = id;
             PtcNum = ptcNum;
             _technique = technique;
             _complexity = complexity;
+            _expType = expType;
         }
 
         public void ShuffleTrials()
@@ -72,11 +80,12 @@ namespace SubTask.PanelNavigation
             int ptc,
             int id,
             Complexity complexity,
+            ExperimentType expType,
             int nRep)
         {
 
             // Create block
-            Block block = new Block(ptc, technique, complexity, id);
+            Block block = new Block(ptc, technique, complexity, expType, id);
 
             // Create and add trials to the block
             int trialNum = 1;
@@ -89,6 +98,7 @@ namespace SubTask.PanelNavigation
                             technique,
                             ptc,
                             complexity,
+                            expType,
                             Side.Top);
 
                 block._trials.Add(trial);
@@ -128,6 +138,7 @@ namespace SubTask.PanelNavigation
                             technique,
                             ptc,
                             complexity,
+                            expType,
                             Side.Left);
 
                 block._trials.Add(trial);

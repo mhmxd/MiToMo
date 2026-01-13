@@ -6,6 +6,11 @@ namespace Common.Constants
 {
     public class ExpEnums
     {
+        public enum ExperimentType
+        {
+            Practice, Test
+        }
+
         public enum Side
         {
             Left, Top, Right, Down, Middle
