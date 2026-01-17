@@ -1,15 +1,8 @@
-﻿using System;
+﻿using Common.Constants;
+using Common.Settings;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using Common.Constants;
-using Common.Settings;
-using static System.Math;
 using static Common.Constants.ExpEnums;
-using static Multi.Cursor.Output;
 
 namespace Multi.Cursor
 {
