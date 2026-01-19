@@ -1,4 +1,5 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -64,11 +65,6 @@ namespace Multi.Cursor
             ShowActiveTrial();
         }
 
-        private void TrialInfo(object mINOR_LINE)
-        {
-            //
-        }
-
         public virtual void ShowActiveTrial()
         {
             this.TrialInfo(ExpStrs.MINOR_LINE);
@@ -93,13 +89,14 @@ namespace Multi.Cursor
             switch (result)
             {
                 case Result.HIT:
-                    Sounder.PlayHit();
+                    ExpSounder.PlayHit();
+                    
                     double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
                     _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     
                     break;
                 case Result.MISS:
-                    Sounder.PlayTargetMiss();
+                    ExpSounder.PlayTargetMiss();
 
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
                     _trialRecords[_activeTrial.Id].ClearTimestamps();
@@ -184,10 +181,10 @@ namespace Multi.Cursor
         public virtual void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(ExpStrs.MAIN_WIN_PRESS);
-
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                ExpSounder.PlayStartMiss();
             }
             else
             {
@@ -300,23 +297,18 @@ namespace Multi.Cursor
 
         public virtual void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
         {
-
+            LogEvent(ExpStrs.ARA_PRESS);
+            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                //ExpSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return;
             }
 
-            if (!_activeTrialRecord.AreAllObjectsApplied())
-            {
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                EndActiveTrial(Result.MISS);
-            }
+            
 
-            LogEvent(ExpStrs.ARA_PRESS);
-
-            e.Handled = true; // Mark the event as handled to prevent further processing
+            //-- Rest of the handling is done in the derived classes
         }
 
         public virtual void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)

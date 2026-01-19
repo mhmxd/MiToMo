@@ -1472,7 +1472,7 @@ namespace Multi.Cursor
 
         public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
         {
-            this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
+            //this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
             List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
             List<int> foundIds = new List<int>();
             // Find a UNIQUE function for each width
@@ -1483,11 +1483,11 @@ namespace Multi.Cursor
                 tries++;
                 functions.Clear();
                 foundIds.Clear();
-                this.TrialInfo($"Num. of Tries: {tries}");
+                //this.TrialInfo($"Num. of Tries: {tries}");
                 foreach (int widthUnit in widthUnits)
                 {
                     TrialRecord.TFunction function = FindRandomFunction(side, widthUnit, distRange);
-                    this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
+                    //this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
                     functions.Add(function);
                     foundIds.Add(function.Id);
                 }

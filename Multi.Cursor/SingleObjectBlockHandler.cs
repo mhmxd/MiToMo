@@ -251,6 +251,25 @@ namespace Multi.Cursor
             }
         }
 
+        public override void OnObjectAreaMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            this.TrialInfo($"Ara pressed!");
+
+            base.OnObjectAreaMouseDown(sender, e);
+
+            //-- Trial started
+            if (!_activeTrialRecord.AreAllFunctionsApplied())
+            {
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                EndActiveTrial(Result.MISS);
+                return;
+            }
+
+            //-- All functions applied
+            e.Handled = true; // Mark the event as handled to prevent further processing
+            EndActiveTrial(Result.HIT);
+        }
+
         public override void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)
         {
             base.OnObjectMouseDown(sender, e); // Just logs the event
@@ -327,7 +346,7 @@ namespace Multi.Cursor
             }
             else // MOUSE
             {
-                this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
+                //this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
                 _activeTrialRecord.EnableAllFunctions();
                 _activeTrialRecord.MarkObject(1);
                 UpdateScene();
@@ -385,7 +404,7 @@ namespace Multi.Cursor
             }
 
             //-- Object is marked:
-            this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
+            //this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
             if (_activeTrial.Technique == Technique.MOUSE)
             {
                 _activeTrialRecord.ApplyFunction(functionId, 1);
