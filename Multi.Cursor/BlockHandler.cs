@@ -318,7 +318,7 @@ namespace Multi.Cursor
             if (!IsStartClicked())
             {
                 this.TrialInfo($"Start wasn't clicked");
-                Sounder.PlayStartMiss();
+                //Sounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }

@@ -267,7 +267,14 @@ namespace Multi.Cursor
 
             //-- All functions applied
             e.Handled = true; // Mark the event as handled to prevent further processing
-            EndActiveTrial(Result.HIT);
+            
+        }
+
+        public override void OnObjectAreaMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            base.OnObjectAreaMouseUp(sender, e);
+
+
         }
 
         public override void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)
