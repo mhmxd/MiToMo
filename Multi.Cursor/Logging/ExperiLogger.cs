@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
 using static Common.Constants.ExpEnums;
@@ -22,21 +23,12 @@ namespace Multi.Cursor
 
         private static readonly string Namespace = typeof(ExperiLogger).Namespace;
         private static readonly string LogsFolderName = ExpStrs.JoinDot(Namespace, ExpStrs.Logs);
-        private static readonly string MyDocumentsPath =
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        private static readonly string MyDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         // Set for each log (in constructor)
-        private static readonly string _detailTrialLogPath = Path.Combine(
-            MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.TRIALS_DETAIL_C);
-
-        private static readonly string _totalTrialLogPath = Path.Combine(
-            MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.TRIALS_TOTAL_C);
-
-        private static readonly string _blockLogPath = Path.Combine(
-            MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.BLOCKS_C);
+        private static string _detailTrialLogPath;
+        private static string _totalTrialLogPath;
+        private static string _blockLogPath;
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
 
@@ -60,8 +52,17 @@ namespace Multi.Cursor
         {
             _technique = tech;
 
-            //string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
+            _detailTrialLogPath = Path.Combine(MyDocumentsPath, LogsFolderName,
+            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.TRIALS_DETAIL_C);
+        
+            _totalTrialLogPath = Path.Combine(MyDocumentsPath, LogsFolderName,
+            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.TRIALS_TOTAL_C);
 
+            _blockLogPath = Path.Combine(MyDocumentsPath, LogsFolderName,
+            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.BLOCKS_C);
+
+
+            Output.Conlog<ExperiLogger>(taskType.ToString());
             // Default (will set based on the task type)
             switch (taskType)
             {
