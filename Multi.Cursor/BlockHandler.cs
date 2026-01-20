@@ -86,23 +86,8 @@ namespace Multi.Cursor
             LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
             _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
 
-            switch (result)
-            {
-                case Result.HIT:
-                    ExpSounder.PlayHit();
-                    
-                    double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
-                    _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
-                    
-                    break;
-                case Result.MISS:
-                    ExpSounder.PlayTargetMiss();
-
-                    _activeBlock.ShuffleBackTrial(_activeTrialNum);
-                    _trialRecords[_activeTrial.Id].ClearTimestamps();
-                    _trialRecords[_activeTrial.Id].ResetStates();
-                    break;
-            }
+            double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
+            _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
 
             //-- Log
             switch (ExpStrs.TASKTYPE_ABBR[_activeTrial.TaskType])
@@ -121,6 +106,24 @@ namespace Multi.Cursor
                     break;
 
             }
+
+            switch (result)
+            {
+                case Result.HIT:
+                    ExpSounder.PlayHit();
+                    
+                    break;
+                case Result.MISS:
+                    ExpSounder.PlayTargetMiss();
+
+                    //-- Reset the trial times and shuffle it back
+                    _trialRecords[_activeTrial.Id].ClearTimestamps();
+                    _trialRecords[_activeTrial.Id].ResetStates();
+                    _activeBlock.ShuffleBackTrial(_activeTrialNum);
+
+                    break;
+            }
+
 
             GoToNextTrial();
         }

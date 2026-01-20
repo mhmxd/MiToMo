@@ -57,5 +57,31 @@ namespace Common.Helpers
             var headers = allFields.Select(f => f.Name);
             streamWriter.WriteLine(string.Join(";", headers));
         }
+
+        public static void WriteTrialLog<T>(T log, string filePath, StreamWriter writer)
+        {
+            var type = typeof(T);
+            var baseType = type.BaseType;
+
+            // 1. Get fields from the base class (parent)
+            // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
+            var parentFields = baseType != null && baseType != typeof(object)
+                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                : Enumerable.Empty<FieldInfo>();
+
+            // 2. Get fields from the derived class (child)
+            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+            // 3. Combine them: Parent fields first, then Child fields.
+            var orderedFields = parentFields.Concat(childFields);
+
+            // 4. Get values in the same order.
+            var values = orderedFields
+                .Select(f => f.GetValue(log)?.ToString() ?? "");
+
+            // 5. Write the values.
+            writer.WriteLine(string.Join(";", values));
+            //streamWriter.Flush();
+        }
     }
 }

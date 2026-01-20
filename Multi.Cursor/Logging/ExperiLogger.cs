@@ -271,9 +271,9 @@ namespace Multi.Cursor
 
             // Testing
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
+            //Output.Conlog<ExperiLogger>(log.ToString());
 
-            WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            ExpIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
             //_trialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
@@ -356,9 +356,9 @@ namespace Multi.Cursor
 
             // Testing
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
+            //Output.Conlog<ExperiLogger>(log.ToString());
 
-            WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            ExpIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
             //_trialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
@@ -446,10 +446,10 @@ namespace Multi.Cursor
 
             // Testing
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
-
-            WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
-
+            //Output.Conlog<ExperiLogger>(log.ToString());
+            
+            ExpIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
         }
 
@@ -538,9 +538,10 @@ namespace Multi.Cursor
 
             // Testing
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
-
-            WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            //Output.Conlog<ExperiLogger>(log.ToString());
+            
+            ExpIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            
             //_trialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
@@ -563,17 +564,8 @@ namespace Multi.Cursor
             log.panel_sel_time = trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.PNL_SELECT);
             log.panel_nav_time = trialRecord.GetDuration(ExpStrs.PNL_SELECT, ExpStrs.OBJ_PRESS);
 
-            WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
+            ExpIO.WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
 
-            // Write cursor records
-            //using (StreamWriter writer = new StreamWriter(_cursorLogFilePath, append: false, Encoding.UTF8))
-            //{
-            //    writer.WriteLine("time_tick;x_px;y_px");
-            //    foreach (var record in _trialCursorRecords[_activeTrialId])
-            //    {
-            //        writer.WriteLine($"{record.TimeMS};{record.Position.X};{record.Position.Y}");
-            //    }
-            //}
             StreamWriter writer = new StreamWriter(_cursorLogFilePath, append: true, Encoding.UTF8);
             writer.AutoFlush = true;
             foreach (var record in _trialCursorRecords[_activeTrialId])
@@ -581,8 +573,6 @@ namespace Multi.Cursor
                 writer.WriteLine($"{record.timestamp};{record.x};{record.y}");
             }
             writer.Dispose();
-            // Clear records after writing
-            //_trialCursorRecords[trialId].Clear();
         }
 
         private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -621,105 +611,14 @@ namespace Multi.Cursor
             double avgTime = _trialTimes.Values.Average()/1000;
             log.block_time = $"{avgTime:F2}";
 
-            WriteTrialLog(log, _blockLogPath, _blockLogWriter);
+            ExpIO.WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 
-        }
-
-        private static void WriteHeader<T>(StreamWriter streamWriter)
-        {
-            //var fields = typeof(T).GetFields();
-            //var headers = fields.Select(f => f.Name);
-            //_trialLogWriter.WriteLine(string.Join(";", headers));
-
-            // Writing first the parent class fields, then the child class fields
-            var type = typeof(T);
-            var baseType = type.BaseType;
-
-            // 1. Get fields from the base class (parent)
-            // BindingFlags.DeclaredOnly ensures we only get fields directly defined in the base class,
-            // not its own base classes, or the derived class's fields.
-            var parentFields = baseType != null && baseType != typeof(object)
-                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                : Enumerable.Empty<FieldInfo>();
-
-            // 2. Get fields from the derived class (child)
-            // BindingFlags.DeclaredOnly ensures we only get fields directly defined in the derived class.
-            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-            // 3. Combine them: Parent fields first, then Child fields.
-            var allFields = parentFields.Concat(childFields);
-
-            // 4. Extract names and write to the file.
-            var headers = allFields.Select(f => f.Name);
-            streamWriter.WriteLine(string.Join(";", headers));
-        }
-
-        private static void WriteTrialLog<T>(T log, string filePath, StreamWriter writer)
-        {
-            //var fields = typeof(T).GetFields();
-            //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
-            //_trialLogWriter.WriteLine(string.Join(";", values));
-            //_trialLogWriter.Flush();
-
-            var type = typeof(T);
-            var baseType = type.BaseType;
-
-            // 1. Get fields from the base class (parent)
-            // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
-            var parentFields = baseType != null && baseType != typeof(object)
-                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                : Enumerable.Empty<FieldInfo>();
-
-            // 2. Get fields from the derived class (child)
-            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-            // 3. Combine them: Parent fields first, then Child fields.
-            var orderedFields = parentFields.Concat(childFields);
-
-            // 4. Get values in the same order.
-            var values = orderedFields
-                .Select(f => f.GetValue(log)?.ToString() ?? "");
-
-            // 5. Write the values.
-            writer.WriteLine(string.Join(";", values));
-            //streamWriter.Flush();
         }
 
         public static void LogCursorPosition(Point cursorPos)
         {
             _trialCursorRecords[_activeTrialId].Add(new PositionRecord(cursorPos.X, cursorPos.Y));
         }
-
-        //private static void WriteTotalTrialLog<T>(T totalTrialLog)
-        //{
-        //    //var fields = typeof(T).GetFields();
-        //    //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
-        //    //_trialLogWriter.WriteLine(string.Join(";", values));
-        //    //_trialLogWriter.Flush();
-
-        //    var type = typeof(T);
-        //    var baseType = type.BaseType;
-
-        //    // 1. Get fields from the base class (parent)
-        //    // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
-        //    var parentFields = baseType != null && baseType != typeof(object)
-        //        ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-        //        : Enumerable.Empty<FieldInfo>();
-
-        //    // 2. Get fields from the derived class (child)
-        //    var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-        //    // 3. Combine them: Parent fields first, then Child fields.
-        //    var orderedFields = parentFields.Concat(childFields);
-
-        //    // 4. Get values in the same order.
-        //    var values = orderedFields
-        //        .Select(f => f.GetValue(totalTrialLog)?.ToString() ?? "");
-
-        //    // 5. Write the values.
-        //    _totalTrialLogWriter.WriteLine(string.Join(";", values));
-        //    _totalTrialLogWriter.Flush();
-        //}
 
         private static void Dispose()
         {
