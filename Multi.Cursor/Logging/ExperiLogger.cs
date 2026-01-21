@@ -53,17 +53,16 @@ namespace Multi.Cursor
             _technique = tech;
 
             _detailTrialLogPath = Path.Combine(MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.TRIALS_DETAIL_C);
+            $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.TRIALS_DETAIL_C);
         
             _totalTrialLogPath = Path.Combine(MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.TRIALS_TOTAL_C);
+            $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.TRIALS_TOTAL_C);
 
             _blockLogPath = Path.Combine(MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.BLOCKS_C);
+            $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.BLOCKS_C);
 
-
-            Output.Conlog<ExperiLogger>(taskType.ToString());
             // Default (will set based on the task type)
+            //Output.Conlog<ExperiLogger>(taskType.ToString());
             switch (taskType)
             {
                 case TaskType.ONE_OBJ_ONE_FUNC:
@@ -124,7 +123,7 @@ namespace Multi.Cursor
 
             _cursorLogFilePath = Path.Combine(
                 MyDocumentsPath, LogsFolderName,
-                $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.CURSOR_C, $"trial-id{trialId}-n{trialNum}-{ExpStrs.CURSOR_S}"
+                $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.CURSOR_C, $"trial-id{trialId}-n{trialNum}-{ExpStrs.CURSOR_S}"
             );
 
             PrepareFileWithHeader<PositionRecord>(ref _cursorLogFilePath, _cursorLogWriter, PositionRecord.GetHeader());
@@ -143,7 +142,7 @@ namespace Multi.Cursor
 
             string gesturesFilePath = System.IO.Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "Multi.Cursor.Logs", $"P{ExpPtc.PTC_NUM}-{_technique}", gestureFileName
+                "Multi.Cursor.Logs", $"P{ExpEnvironment.PTC_NUM}-{_technique}", gestureFileName
             );
 
             
@@ -281,7 +280,6 @@ namespace Multi.Cursor
 
         public static void LogMOSFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            Output.Conlog<ExperiLogger>("Logging Trial");
             MOSFTrialLog log = new MOSFTrialLog();
 
             // Information
@@ -366,7 +364,6 @@ namespace Multi.Cursor
 
         public static void LogSOMFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            Output.Conlog<ExperiLogger>("Logging SOMF Trial");
             SOMFTrialLog log = new SOMFTrialLog();
 
             // Information
@@ -637,11 +634,10 @@ namespace Multi.Cursor
                 // 3. Set the Value
                 // Pass the object instance (dataInstance) and the new value
                 field.SetValue(instance, newValue);
-                Console.WriteLine($"Successfully set field '{fieldName}' to {newValue}.");
             }
             else
             {
-                Console.WriteLine($"Error: Field '{fieldName}' not found.");
+                //Output.Conlog<ExperiLogger>($"Error: Field '{fieldName}' not found.");
             }
         }
 

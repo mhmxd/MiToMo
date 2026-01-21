@@ -28,14 +28,14 @@ namespace SubTask.ObjectSelection
 
         public void Init(ExperimentType expType)
         {
-            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}");
+            this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}");
             //Participant_Number = ptc;
 
             // Create and add blocks
             for (int i = 0; i < ExpDesign.OS_N_BLOCKS; i++)
             {
-                int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, ExpPtc.PTC_NUM, blockId, expType, ExpDesign.OS_N_REP);
+                int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
+                Block block = Block.CreateBlock(Active_Technique, ExpEnvironment.PTC_NUM, blockId, expType, ExpDesign.OS_N_REP);
                 _blocks.Add(block);
             }
         }

@@ -32,7 +32,7 @@ namespace SubTask.Panel.Selection
 
         public void Init(string tech, Complexity complexity, ExperimentType expType)
         {
-            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}, Technique: {tech}");
+            this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}, Technique: {tech}");
             //Participant_Number = ptc;
             if (tech == ExpStrs.TAP_C)
             {
@@ -50,9 +50,9 @@ namespace SubTask.Panel.Selection
             // Create and add blocks
             for (int i = 0; i < ExpDesign.PN_N_BLOCKS; i++)
             {
-                int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
+                int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
                 Block block = Block.CreateBlock(
-                    Active_Technique, ExpPtc.PTC_NUM, blockId, 
+                    Active_Technique, ExpEnvironment.PTC_NUM, blockId, 
                     complexity, expType, ExpDesign.PS_N_REP);
                 _blocks.Add(block);
             }

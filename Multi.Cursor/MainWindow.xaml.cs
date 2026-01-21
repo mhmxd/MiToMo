@@ -376,7 +376,7 @@ namespace Multi.Cursor
             //    this.Left, this.Top);
 
             double longestDistMM = Utils.DistInMM(leftMostSmallButtonCenterAbsolute, rightMostObjAreaCenterAbsolute);
-            this.TrialInfo($"Main Rect: {_mainWinRect.ToString()}");
+            this.PositionInfo($"Main Rect: {_mainWinRect.ToString()}");
             //ShowPoint(rightMostObjAreaCenterPosition);
             //_leftWindow.ShowPoint(leftMostSmallButtonCenterPosition);
             //double longestDistMM =
@@ -403,7 +403,7 @@ namespace Multi.Cursor
             //double topLeftStartCenterTop = Config.TOP_WINDOW_HEIGTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
             //Point topLeftStartCenterAbsolute = new Point(topLeftStartCenterLeft, topLeftStartCenterTop);
 
-            this.TrialInfo($"topLeftObjAreaCenterPosition: {topLeftButtonCenterAbsolute.ToStr()}");
+            this.PositionInfo($"topLeftObjAreaCenterPosition: {topLeftButtonCenterAbsolute.ToStr()}");
             this.TrialInfo($"Shortest Dist = {shortestDistMM:F2}mm | Longest Dist = {longestDistMM:F2}mm");
 
             _experiment = new Experiment(shortestDistMM, longestDistMM);
@@ -520,13 +520,13 @@ namespace Multi.Cursor
                 _backgroundWindow.Show();
                 _backgroundWindow.WindowState = WindowState.Maximized;
 
-                Outlog<MainWindow>().Information($"Monitor WorkingArea H = {Config.ACTIVE_SCREEN.WorkingArea.Height}");
-                Outlog<MainWindow>().Information($"BackgroundWindow Actual H (after maximize) = {_backgroundWindow.ActualHeight}");
+                this.PositionInfo($"Monitor WorkingArea H = {Config.ACTIVE_SCREEN.WorkingArea.Height}");
+                this.PositionInfo($"BackgroundWindow Actual H (after maximize) = {_backgroundWindow.ActualHeight}");
 
                 // Set the height as mm
                 //_monitorHeightMM = Utils.PX2MM(Config.ACTIVE_SCREEN.WorkingArea.Height);
                 _monitorHeightMM = 335;
-                Outlog<MainWindow>().Information($"Monitor H = {Config.ACTIVE_SCREEN.WorkingArea.Height}");
+                this.PositionInfo($"Monitor H = {Config.ACTIVE_SCREEN.WorkingArea.Height}");
 
                 //---
 
@@ -1134,19 +1134,17 @@ namespace Multi.Cursor
             for (int b = 1; b <= _experiment.Blocks.Count; b++)
             {
                 Block bl = _experiment.Blocks[b - 1];
-                this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
+                //this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
 
                 // Use a local variable to store the handler
                 BlockHandler blockHandler = null;
 
                 if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
                 {
-                    this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
                     blockHandler = new MultiObjectBlockHandler(this, bl);
                 }
                 else // Single-object block
                 {
-                    this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
                     blockHandler = new SingleObjectBlockHandler(this, bl, b);
                 }
 
@@ -1158,7 +1156,7 @@ namespace Multi.Cursor
                 }
                 else
                 {
-                    this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
+                    this.PositionInfo($"Couldn't find positions for block#{bl.Id}");
                     // Set the flag to false, but DO NOT set the Task's result yet.
                     overallSuccess = false;
 
@@ -1197,7 +1195,6 @@ namespace Multi.Cursor
 
         public void ShowObjects(List<TrialRecord.TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
         {
-            this.TrialInfo($"Showing {trialObjects.Count} objects");
             // Create and position the objects
             foreach (TrialRecord.TObject trObj in trialObjects)
             {
@@ -1209,7 +1206,7 @@ namespace Multi.Cursor
         {
             // Convert the absolute position to relative position
             Point positionInMain = Utils.Offset(tObject.Position, -this.Left, -this.Top);
-            this.TrialInfo($"Showing object {tObject.Id} at {positionInMain}");
+            this.PositionInfo($"Showing object {tObject.Id} at {positionInMain}");
             // Create the square
             Rectangle objRectangle = new Rectangle
             {
@@ -1235,7 +1232,7 @@ namespace Multi.Cursor
 
         public void ActivateAuxWindowMarker(Side window)
         {
-            this.TrialInfo($"Activating aux window: {window}");
+            //this.TrialInfo($"Activating aux window: {window}");
             // Deactivate all aux windows
             _leftWindow.DeactivateGridNavigator();
             _topWindow.DeactivateGridNavigator();

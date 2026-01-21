@@ -27,13 +27,13 @@ namespace SubTask.Panel.Selection
         // Set for each log (in constructor)
         private static string _detiledTrialLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.TRIALS_DETAIL_C);
+            $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.TRIALS_DETAIL_C);
         private static string _totalTrialLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.TRIALS_TOTAL_C);
+            $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.TRIALS_TOTAL_C);
         private static string _blockLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.BLOCKS_C);
+            $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.BLOCKS_C);
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
 
@@ -58,19 +58,19 @@ namespace SubTask.Panel.Selection
 
             _detiledTrialLogPath = Path.Combine(
                 MyDocumentsPath, LogsFolderName,
-                $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.TRIALS_DETAIL_C);
+                $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.TRIALS_DETAIL_C);
             // Create detailed trial log if not exists
             _detailTrialLogWriter = PrepareFile<DetailTrialLog>(_detiledTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
 
             _totalTrialLogPath = Path.Combine(
                 MyDocumentsPath, LogsFolderName,
-                $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.TRIALS_TOTAL_C);
+                $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.TRIALS_TOTAL_C);
             // Create total log if not exists
             _totalTrialLogWriter = PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
 
             _blockLogPath = Path.Combine(
                 MyDocumentsPath, LogsFolderName,
-                $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.BLOCKS_C);
+                $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.BLOCKS_C);
             // Create block log if not exists
             _blockLogWriter = PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
 
@@ -134,7 +134,7 @@ namespace SubTask.Panel.Selection
 
             _cursorLogFilePath = System.IO.Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "SubTask.Panel.Selection.Logs", $"P{ExpPtc.PTC_NUM}-{_technique}", "Cursor", $"trial{trialId}-cursor-log"
+                "SubTask.Panel.Selection.Logs", $"P{ExpEnvironment.PTC_NUM}-{_technique}", "Cursor", $"trial{trialId}-cursor-log"
             );
             PrepareFileWithHeader<PositionRecord>(ref _cursorLogFilePath, _cursorLogWriter, PositionRecord.GetHeader());
         }
@@ -152,7 +152,7 @@ namespace SubTask.Panel.Selection
 
             string gesturesFilePath = System.IO.Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "SubTask.Panel.Selection.Logs", $"{ExpPtc.PTC_NUM}-{_technique}", gestureFileName
+                "SubTask.Panel.Selection.Logs", $"{ExpEnvironment.PTC_NUM}-{_technique}", gestureFileName
             );
 
 

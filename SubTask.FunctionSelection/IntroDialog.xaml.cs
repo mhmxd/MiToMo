@@ -26,7 +26,7 @@ namespace SubTask.FunctionSelection
         {
             InitializeComponent();
 
-            ParticipantNumberTextBlock.Text = ExpPtc.PTC_NUM.ToString();
+            ParticipantNumberTextBlock.Text = ExpEnvironment.PTC_NUM.ToString();
             ExperimentComboBox.ItemsSource = new string[] { ExpStrs.PRACTICE, ExpStrs.TEST };
             ExperimentComboBox.SelectedValue = ExpStrs.PRACTICE;
         }

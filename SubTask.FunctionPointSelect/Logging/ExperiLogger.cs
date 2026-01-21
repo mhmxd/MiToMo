@@ -27,13 +27,13 @@ namespace SubTask.FunctionPointSelect
         // Set for each log (in constructor)
         private static readonly string _detilTrialLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.TRIALS_DETAIL_C);
+            $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.TRIALS_DETAIL_C);
         private static readonly string _totalTrialLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.TRIALS_TOTAL_C);
+            $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.TRIALS_TOTAL_C);
         private static readonly string _blockLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.BLOCKS_C);
+            $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.BLOCKS_C);
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
 
@@ -95,7 +95,7 @@ namespace SubTask.FunctionPointSelect
 
             _cursorLogFilePath = System.IO.Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "SubTask.FunctionPointSelect.Logs", $"P{ExpPtc.PTC_NUM}-{Technique}", "Cursor", $"trial{trialId}-cursor-log"
+                "SubTask.FunctionPointSelect.Logs", $"P{ExpEnvironment.PTC_NUM}-{Technique}", "Cursor", $"trial{trialId}-cursor-log"
             );
             PrepareFileWithHeader<PositionRecord>(ref _cursorLogFilePath, _cursorLogWriter, PositionRecord.GetHeader());
         }

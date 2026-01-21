@@ -132,8 +132,10 @@ namespace Multi.Cursor
         {
             foreach (TFunction func in Functions)
             {
+                this.TrialInfo($"Checking Function#{func.Id} state: {func.State}");
                 if (func.State != ButtonState.SELECTED)
                 {
+                    this.TrialInfo($"Function#{func.Id} not selected.");
                     return false; // If any function is not selected, return false
                 }
             }
@@ -405,18 +407,18 @@ namespace Multi.Cursor
         public int GetDuration(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"Start time ({startLabel}): {startTime}");
+            this.TimeInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time ({endLabel}): {endTime}");
+            this.TimeInfo($"End time ({endLabel}): {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
         public int GetDurtionToFirstAfter(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"Start time ({startLabel}): {startTime}");
+            this.TimeInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetFirstAfterLast(startLabel, endLabel);
-            this.TrialInfo($"End time ({endLabel}): {endTime}");
+            this.TimeInfo($"End time ({endLabel}): {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
@@ -466,12 +468,12 @@ namespace Multi.Cursor
                 if (Events[i].Type == startType)
                 {
                     occurrenceCount++;
-                    this.TrialInfo($"nOccurences of {startType}: {occurrenceCount}");
+                    this.TimeInfo($"nOccurences of {startType}: {occurrenceCount}");
                     // 2. Check if this is the N-th occurrence we are looking for
                     if (occurrenceCount == n)
                     {
                         var startTime = Events[i].Time; // Capture the start time
-                        this.TrialInfo($"Start time of {n}th {startType}: {startTime}");
+                        this.TimeInfo($"Start time of {n}th {startType}: {startTime}");
 
                         // 3. Found the N-th start. Now, look *forward* for the first end event
                         for (int j = i + 1; j < Events.Count; j++)
@@ -480,7 +482,7 @@ namespace Multi.Cursor
                             {
                                 // Found the corresponding end event
                                 var endTime = Events[j].Time;
-                                this.TrialInfo($"End time of {n}th {endType}: {endTime}");
+                                this.TimeInfo($"End time of {n}th {endType}: {endTime}");
                                 // 4. Return the calculated duration
                                 return Utils.GetDuration(startTime, endTime);
                             }
@@ -501,13 +503,13 @@ namespace Multi.Cursor
 
         public int GetLastSeqDuration(string startLabel, string endLabel)
         {
-            this.TrialInfo($"From {startLabel} to {endLabel}");
+            this.TimeInfo($"From {startLabel} to {endLabel}");
             if (Events == null || Events.Count == 0)
                 return -1;
 
             // find the last occurrence of endType
             int afterIndex = Events.FindLastIndex(t => t.Type == endLabel);
-            this.TrialInfo($"Index of {endLabel}: {afterIndex}");
+            this.TimeInfo($"Index of {endLabel}: {afterIndex}");
             if (afterIndex < 0)
                 return -1;
             
@@ -516,8 +518,8 @@ namespace Multi.Cursor
             {
                 if (Events[i].Type == startLabel)
                 {
-                    this.TrialInfo($"Start time {startLabel}: {Events[i].Time}");
-                    this.TrialInfo($"End time {endLabel}: {Events[afterIndex].Time}");
+                    this.TimeInfo($"Start time {startLabel}: {Events[i].Time}");
+                    this.TimeInfo($"End time {endLabel}: {Events[afterIndex].Time}");
                     return Utils.GetDuration(
                         Events[i].Time,
                         Events[afterIndex].Time
@@ -531,36 +533,36 @@ namespace Multi.Cursor
         public int GetDurationToGestureStart(string startLabel, Technique technique)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"StartTime {startLabel}: {startTime}");
+            this.TimeInfo($"StartTime {startLabel}: {startTime}");
             long endTime = GetGestureStartTime(technique);
-            this.TrialInfo($"End time {technique}: {endTime}");
+            this.TimeInfo($"End time {technique}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromGestureEnd(Technique technique, string endLabel)
         {
             long startTime = GetGestureEndTimestamp(technique);
-            this.TrialInfo($"Start time {technique}: {startTime}");
+            this.TimeInfo($"Start time {technique}: {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time {endLabel}: {endTime}");
+            this.TimeInfo($"End time {endLabel}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
         public int GetDurationToFingerAction(string type, string action)
         {
             long startTime = GetLastTime(type);
-            this.TrialInfo($"Start time {type}: {startTime}");
+            this.TimeInfo($"Start time {type}: {startTime}");
             long endTime = GetFirstAfterLast(type, action);
-            this.TrialInfo($"End time {action}: {endTime}");
+            this.TimeInfo($"End time {action}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromFingerAction(string action, string endLabel)
         {
             long startTime = GetLastFingerActionTime(action);
-            this.TrialInfo($"Start time {action}: {startTime}");
+            this.TimeInfo($"Start time {action}: {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time {endLabel}: {endTime}");
+            this.TimeInfo($"End time {endLabel}: {endTime}");
             return Utils.GetDuration(startTime, endTime);
         }
 

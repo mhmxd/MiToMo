@@ -1,18 +1,11 @@
 ﻿using Common.Constants;
-using HarfBuzzSharp;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using static Common.Constants.ExpEnums;
-using static Multi.Cursor.Experiment;
-using static Multi.Cursor.Utils;
 
 namespace Multi.Cursor
 {
@@ -80,7 +73,7 @@ namespace Multi.Cursor
             int objHalfW = objW / 2;
             int objAreaW = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
             int objAreaHalfW = objAreaW / 2;
-            this.TrialInfo($"{trial.ToStr()}");
+            this.PositionInfo($"{trial.ToStr()}");
 
             // Ensure TrialRecord exists for this trial
             if (!_trialRecords.ContainsKey(trial.Id))
@@ -95,7 +88,7 @@ namespace Multi.Cursor
                     );
             });
 
-            this.TrialInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().ToStr()}");
+            this.PositionInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().ToStr()}");
 
             // Find a position for the object area
             Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
@@ -110,7 +103,7 @@ namespace Multi.Cursor
             // Add objects
             if (objAreaCenter.X == -1 && objAreaCenter.Y == -1) // Failed to find a valid position 
             {
-                this.TrialInfo($"No valid position found for object in Trial#{trial.Id}!");
+                this.PositionInfo($"No valid position found for object in Trial#{trial.Id}!");
                 return false; // Return false to indicate failure
             }
             else
@@ -118,7 +111,7 @@ namespace Multi.Cursor
                 // Get the top-left corner of the object area rectangle
                 Point objAreaPosition = objAreaCenter.OffsetPosition(-objAreaHalfW);
 
-                this.TrialInfo($"Found object area position: {objAreaPosition.ToStr()}");
+                this.PositionInfo($"Found object area position: {objAreaPosition.ToStr()}");
 
                 _trialRecords[trial.Id].ObjectAreaRect = new Rect(
                         objAreaPosition.X,
@@ -130,7 +123,7 @@ namespace Multi.Cursor
 
                 // Place objects in the area
                 _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenter, trial.NObjects);
-                this.TrialInfo($"Placed {_trialRecords[trial.Id].Objects.Count} objects");
+                this.PositionInfo($"Placed {_trialRecords[trial.Id].Objects.Count} objects");
 
                 // Randomly map objects to functions
                 List<int> objIds = _trialRecords[trial.Id].Objects.Select(o => o.Id).ToList();
@@ -587,6 +580,30 @@ namespace Multi.Cursor
             }
 
             return false; // No overlap with any existing object
+        }
+
+        public override void OnObjectAreaMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            base.OnObjectAreaMouseUp(sender, e);
+
+            if (!IsStartClicked())
+            {
+                Sounder.PlayStartMiss();
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return; // Do nothing if start button was not clicked
+            }
+
+            //-- Trial started:
+            if (_activeTrialRecord.AreAllObjectsApplied())
+            {
+                EndActiveTrial(Result.HIT);
+            }
+            else
+            {
+                EndActiveTrial(Result.MISS);
+            }
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public override void OnObjectMouseDown(object sender, MouseButtonEventArgs e)

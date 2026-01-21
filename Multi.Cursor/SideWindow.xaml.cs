@@ -283,31 +283,31 @@ namespace Multi.Cursor
             //_auxursor.Deactivate();
         }
 
-        public void UpdateCursor(TouchPoint tp)
-        {
-            //(double dX, double dY) = _auxursor.Update(tp);
-            //// Only move if above the threshold
-            //double moveMagnitude = Math.Sqrt(dX * dX + dY * dY);
-            //if (moveMagnitude >= Config.MIN_MOVEMENT_THRESHOLD)
-            //{
-            //    MoveCursor(dX, dY);
-            //}
+        //public void UpdateCursor(TouchPoint tp)
+        //{
+        //    //(double dX, double dY) = _auxursor.Update(tp);
+        //    //// Only move if above the threshold
+        //    //double moveMagnitude = Math.Sqrt(dX * dX + dY * dY);
+        //    //if (moveMagnitude >= Config.MIN_MOVEMENT_THRESHOLD)
+        //    //{
+        //    //    MoveCursor(dX, dY);
+        //    //}
 
-            (int dGridX, int dGridY) = _gridNavigator.Update(tp);
+        //    (int dGridX, int dGridY) = _gridNavigator.Update(tp);
 
-            // Apply the calculated movement to the grid's current position
-            if (dGridX != 0 || dGridY != 0)
-            {
-                this.TrialInfo($"Grid movement: dX = {dGridX}, dY = {dGridY}");
-                MoveSelection(dGridX, dGridY);
-            }
+        //    // Apply the calculated movement to the grid's current position
+        //    if (dGridX != 0 || dGridY != 0)
+        //    {
+        //        this.TrialInfo($"Grid movement: dX = {dGridX}, dY = {dGridY}");
+        //        MoveSelection(dGridX, dGridY);
+        //    }
 
-        }
+        //}
 
-        public void StopCursor()
-        {
-            _auxursor.Stop();
-        }
+        //public void StopCursor()
+        //{
+        //    _auxursor.Stop();
+        //}
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -334,92 +334,92 @@ namespace Multi.Cursor
             SetCursorPos((int)(windowPosition.X + x), (int)(windowPosition.Y + y));
         }
 
-        public void MoveCursor(double dX, double dY)
-        {
-            // Potential new position
-            PositionInfo<SideWindow>($"Position before moving: {_cursorTransform.X:F2}, {_cursorTransform.Y:F2}");
-            PositionInfo<SideWindow>($"Movement: {dX:F2}, {dY:F2}");
+        //public void MoveCursor(double dX, double dY)
+        //{
+        //    // Potential new position
+        //    PositionInfo<SideWindow>($"Position before moving: {_cursorTransform.X:F2}, {_cursorTransform.Y:F2}");
+        //    PositionInfo<SideWindow>($"Movement: {dX:F2}, {dY:F2}");
 
-            double potentialX = _cursorTransform.X + dX;
-            double potentialY = _cursorTransform.Y + dY;
-            PositionInfo<SideWindow>($"Potential Pos: {potentialX:F2}, {potentialY:F2}");
+        //    double potentialX = _cursorTransform.X + dX;
+        //    double potentialY = _cursorTransform.Y + dY;
+        //    PositionInfo<SideWindow>($"Potential Pos: {potentialX:F2}, {potentialY:F2}");
 
-            // x: Within boundaries
-            if (potentialX < 0)
-            {
-                dX = -_cursorTransform.X + 3;
-            }
-            else if (potentialX > ActualWidth) 
-            {
-                dX = windowWidth - 10 - _cursorTransform.X;
-            }
+        //    // x: Within boundaries
+        //    if (potentialX < 0)
+        //    {
+        //        dX = -_cursorTransform.X + 3;
+        //    }
+        //    else if (potentialX > ActualWidth) 
+        //    {
+        //        dX = windowWidth - 10 - _cursorTransform.X;
+        //    }
 
-            // y: Within boundaries
-            if (potentialY < 0)
-            {
-                dY = -_cursorTransform.Y + 3;
-            }
-            else if (potentialY > ActualHeight)
-            {
-                dY = windowHeight - 10 - _cursorTransform.Y;
-            }
+        //    // y: Within boundaries
+        //    if (potentialY < 0)
+        //    {
+        //        dY = -_cursorTransform.Y + 3;
+        //    }
+        //    else if (potentialY > ActualHeight)
+        //    {
+        //        dY = windowHeight - 10 - _cursorTransform.Y;
+        //    }
 
-            // Move the cursor
-            _cursorTransform.X += dX;
-            _cursorTransform.Y += dY;
+        //    // Move the cursor
+        //    _cursorTransform.X += dX;
+        //    _cursorTransform.Y += dY;
 
-            _lastCursorPos.X = _cursorTransform.X;
-            _lastCursorPos.Y = _cursorTransform.Y;
+        //    _lastCursorPos.X = _cursorTransform.X;
+        //    _lastCursorPos.Y = _cursorTransform.Y;
 
-            // Check if entered the target
-            if (IsCursorInsideTarget())
-            {
-                // To-do: call target enter methods
-            }
+        //    // Check if entered the target
+        //    if (IsCursorInsideTarget())
+        //    {
+        //        // To-do: call target enter methods
+        //    }
 
-            // Grid
+        //    // Grid
 
-        }
+        //}
 
-        public void MoveCursor(int dX, int dY)
-        {
+        //public void MoveCursor(int dX, int dY)
+        //{
 
-            //Console.WriteLine("WW = {0}, WH = {1}", windowWidth, windowHeight);
-            // Get the relative cursor position
-            Point relativeCursorPos = Mouse.GetPosition(this);
-            int currentX = (int)relativeCursorPos.X;
-            int currentY = (int)relativeCursorPos.Y;
+        //    //Console.WriteLine("WW = {0}, WH = {1}", windowWidth, windowHeight);
+        //    // Get the relative cursor position
+        //    Point relativeCursorPos = Mouse.GetPosition(this);
+        //    int currentX = (int)relativeCursorPos.X;
+        //    int currentY = (int)relativeCursorPos.Y;
 
-            // Potential new position
-            int potentialX = currentX + dX;
-            int potentialY = currentY + dY;
+        //    // Potential new position
+        //    int potentialX = currentX + dX;
+        //    int potentialY = currentY + dY;
 
-            // Only move the cursor while it is inside the window
-            if (currentX >= 0 && currentY >= 0)
-            {
-                // x: Within boundaries
-                if (potentialX < 0) 
-                {
-                    dX = -currentX; // Don't stick it all the way
-                } else if (potentialX > windowWidth)
-                {
-                    dX = windowWidth - currentX;
-                }
+        //    // Only move the cursor while it is inside the window
+        //    if (currentX >= 0 && currentY >= 0)
+        //    {
+        //        // x: Within boundaries
+        //        if (potentialX < 0) 
+        //        {
+        //            dX = -currentX; // Don't stick it all the way
+        //        } else if (potentialX > windowWidth)
+        //        {
+        //            dX = windowWidth - currentX;
+        //        }
 
-                // y: Within boundaries
-                if (potentialY < 0)
-                {
-                    dY = -currentY;
-                }
-                else if (potentialY > windowHeight)
-                {
-                    dY = windowHeight - currentY;
-                }
+        //        // y: Within boundaries
+        //        if (potentialY < 0)
+        //        {
+        //            dY = -currentY;
+        //        }
+        //        else if (potentialY > windowHeight)
+        //        {
+        //            dY = windowHeight - currentY;
+        //        }
 
-                // Move the cursor
-                inputSimulator.Mouse.MoveMouseBy(dX, dY);
-            }
-        }
+        //        // Move the cursor
+        //        inputSimulator.Mouse.MoveMouseBy(dX, dY);
+        //    }
+        //}
 
         public void HideCursor()
         {
@@ -787,19 +787,19 @@ namespace Multi.Cursor
             SelectElement();
         }
 
-        public void ColorElement(string elementId, Brush color)
-        {
-            this.TrialInfo($"Element Key: {elementId}");
-            if (_gridElements.ContainsKey(elementId))
-            {
-                Element element = _gridElements[elementId];
-                element.ElementFill = color;
-            }
-            else
-            {
-                Console.WriteLine($"Element {elementId} not found.");
-            }
-        }
+        //public void ColorElement(string elementId, Brush color)
+        //{
+        //    this.TrialInfo($"Element Key: {elementId}");
+        //    if (_gridElements.ContainsKey(elementId))
+        //    {
+        //        Element element = _gridElements[elementId];
+        //        element.ElementFill = color;
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine($"Element {elementId} not found.");
+        //    }
+        //}
 
         public void ResetElements()
         {
@@ -839,7 +839,7 @@ namespace Multi.Cursor
             }
             else
             {
-                this.TrialInfo("Canvas is not initialized, cannot show point.");
+                this.PositionInfo("Canvas is not initialized, cannot show point.");
             }
 
         }

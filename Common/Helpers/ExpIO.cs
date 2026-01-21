@@ -1,11 +1,13 @@
 ﻿using Common.Constants;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Common.Helpers
 {
     public class ExpIO
     {
+
         public static StreamWriter PrepareFile<T>(string filePath, string fileName)
         {
             //string directoryPath = Path.GetDirectoryName(timedFilePath);

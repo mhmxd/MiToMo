@@ -90,7 +90,7 @@ namespace Multi.Cursor
         public void SetObjectConstraintRect(Rect rect)
         {
             _objectConstraintRectAbsolute = rect;
-            this.TrialInfo($"Object constraint rect set to: {rect.ToString()}");
+            this.PositionInfo($"Object constraint rect set to: {rect.ToString()}");
         }
 
         protected void RegisterAllButtons(DependencyObject parent)
@@ -136,7 +136,7 @@ namespace Multi.Cursor
 
             Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
             _buttonInfos[button.Id].Rect = buttonRect;
-            this.TrialInfo($"ButtonRect: {buttonRect}");
+            this.PositionInfo($"ButtonRect: {buttonRect}");
             //_buttonRects.Add(button.Id, buttonRect); // Store the rect for later
 
             // Set possible distance range to the Start positions
@@ -168,13 +168,13 @@ namespace Multi.Cursor
             int middleId = FindMiddleButtonId();
             if (middleId != -1)
             {
-                this.TrialInfo($"Middle Id = {middleId}");
+                this.PositionInfo($"Middle Id = {middleId}");
                 _lastMarkedButtonId = middleId; // Set the last highlighted button to the middle button
                 _middleButtonId = middleId;
             }
             else
             {
-                this.TrialInfo("No middle button found in the grid.");
+                this.PositionInfo("No middle button found in the grid.");
             }
         }
 
@@ -192,7 +192,7 @@ namespace Multi.Cursor
             foreach (int buttonId in _buttonInfos.Keys)
             {
                 Rect buttonRect = _buttonInfos[buttonId].Rect;
-                this.TrialInfo($"Button#{buttonId}; Rect: {buttonRect.ToString()}; Btn: {_buttonInfos[buttonId].Button.ToString()}");
+                this.PositionInfo($"Button#{buttonId}; Rect: {buttonRect.ToString()}; Btn: {_buttonInfos[buttonId].Button.ToString()}");
                 // Check which button contains the grid center point
                 if (buttonRect.Contains(gridCenterPoint))
                 {
@@ -281,11 +281,11 @@ namespace Multi.Cursor
             } 
             else
             {
-                this.TrialInfo($"No buttons available for width multiple {widthMult}!");
+                this.PositionInfo($"No buttons available for width multiple {widthMult}!");
                 return -1; // Return an invalid point if no buttons are found
             }
 
-            this.TrialInfo($"No buttons with width multiple {widthMult} matched the distance!");
+            this.PositionInfo($"No buttons with width multiple {widthMult} matched the distance!");
             return -1; // Return an invalid point if no buttons are found
 
         }
@@ -322,11 +322,11 @@ namespace Multi.Cursor
             }
             else
             {
-                this.TrialInfo($"No buttons available for width multiple {widthMult}!");
+                this.PositionInfo($"No buttons available for width multiple {widthMult}!");
                 return -1; // Return an invalid point if no buttons are found
             }
 
-            this.TrialInfo($"No buttons with width multiple {widthMult} matched the distance!");
+            this.PositionInfo($"No buttons with width multiple {widthMult} matched the distance!");
             return -1; // Return an invalid point if no buttons are found
 
         }
@@ -447,7 +447,7 @@ namespace Multi.Cursor
             }
             else
             {
-                this.TrialInfo($"Button with ID {buttonId} not found.");
+                this.PositionInfo($"Button with ID {buttonId} not found.");
                 return new Point(0, 0); // Return an invalid point if no button is found
             }
         }
@@ -462,7 +462,7 @@ namespace Multi.Cursor
             }
             else
             {
-                this.TrialInfo($"Button with ID {buttonId} not found.");
+                this.PositionInfo($"Button with ID {buttonId} not found.");
                 return new Point(0, 0); // Return an invalid point if no button is found
             }
         }

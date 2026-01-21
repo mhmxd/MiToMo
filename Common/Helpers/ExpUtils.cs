@@ -1,4 +1,6 @@
 ﻿using Common.Constants;
+using Common.Settings;
+using System.Text;
 
 namespace Common.Helpers
 {
@@ -8,12 +10,12 @@ namespace Common.Helpers
 
         public static double PX2MM(double px)
         {
-            return px * MM_IN_INCH / ExpSizes.PPI;
+            return px * MM_IN_INCH / ExpEnvironment.PPI;
         }
 
         public static int MM2PX(double mm)
         {
-            return (int)Math.Round(mm / MM_IN_INCH * ExpSizes.PPI);
+            return (int)Math.Round(mm / MM_IN_INCH * ExpEnvironment.PPI);
         }
     }
 }

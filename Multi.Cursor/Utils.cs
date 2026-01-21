@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CommunityToolkit.HighPerformance;
+using MathNet.Numerics.Integration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -7,12 +9,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using MathNet.Numerics.Integration;
 using Tensorflow.Operations;
-using static System.Math;
-using static System.Windows.Rect;
 using static Common.Constants.ExpEnums;
 using static Multi.Cursor.Output;
+using static System.Math;
+using static System.Windows.Rect;
 
 namespace Multi.Cursor
 {
@@ -22,20 +23,6 @@ namespace Multi.Cursor
         private const double DIPS_IN_INCH = 96.0;
 
         private static Random _random = new Random();
-
-        //public struct Range
-        //{
-        //    public double Min { get; set; }
-        //    public double Max { get; set; }
-
-        //    public Range(double min, double max)
-        //    {
-        //        Min = min;
-        //        Max = max;
-        //    }
-
-        //    public override string ToString() => $"[{Min}, {Max}]";
-        //}
 
         public class Pair
         {
@@ -806,6 +793,91 @@ namespace Multi.Cursor
                 }
             }
             return false; // No duplicates
+        }
+
+        public static string ToStr(this Span2D<Byte> span)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("---------------------------------");
+            for (int i = 0; i < span.Height; i++)
+            {
+                for (int j = 0; j < span.Width; j++)
+                {
+                    sb.Append(span[i, j]).Append("\t");
+                }
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
+        }
+
+        public static string ToStr(this List<int> list)
+        {
+            if (list == null || !list.Any())
+            {
+                return string.Empty;
+            }
+
+            return string.Join(", ", list.Select(n => n.ToString()));
+        }
+
+        public static string ToStr(this Rect rect)
+        {
+            return $"{{X={rect.X},Y={rect.Y},Width={rect.Width},Height={rect.Height}}}";
+        }
+
+        public static string ToStr<TKey, TValue>(this Dictionary<TKey, TValue> dictionary)
+        {
+            if (dictionary == null)
+            {
+                return "null";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("{ ");
+            bool first = true;
+            foreach (KeyValuePair<TKey, TValue> pair in dictionary)
+            {
+                if (!first)
+                {
+                    sb.Append(", ");
+                }
+                sb.Append($"{pair.Key}: {pair.Value}");
+                first = false;
+            }
+            sb.Append(" }");
+            return sb.ToString();
+        }
+
+        public static string GetCorners(this Rect rect)
+        {
+            return $"TL: ({rect.TopLeft.X:F0} | {rect.TopLeft.Y:F0}) | " +
+                   $"TR: ({rect.TopRight.X:F0} | {rect.TopRight.Y:F0}) | " +
+                   $"BR: ({rect.BottomRight.X:F0} | {rect.BottomRight.Y:F0}) | " +
+                   $"BL: ({rect.BottomLeft.X:F0} | {rect.BottomLeft.Y:F0})";
+        }
+
+        public static string GetCorners(this Window window)
+        {
+            var windowRect = window.GetRect();
+            return $"TL: ({windowRect.TopLeft.X:F0} | {windowRect.TopLeft.Y:F0}) | " +
+                    $"TR: ({windowRect.TopRight.X:F0} | {windowRect.TopRight.Y:F0}) | " +
+                    $"BR: ({windowRect.BottomRight.X:F0} | {windowRect.BottomRight.Y:F0}) | " +
+                    $"BL: ({windowRect.BottomLeft.X:F0} | {windowRect.BottomLeft.Y:F0})";
+        }
+
+        public static string GetCorners(this Window window, int padding)
+        {
+            var windowRect = window.GetRect();
+            return $"TL: ({windowRect.TopLeft.X:F0} | {windowRect.TopLeft.Y:F0}) | " +
+                    $"TR: ({windowRect.TopRight.X:F0} | {windowRect.TopRight.Y:F0}) | " +
+                    $"BR: ({windowRect.BottomRight.X:F0} | {windowRect.BottomRight.Y:F0}) | " +
+                    $"BL: ({windowRect.BottomLeft.X:F0} | {windowRect.BottomLeft.Y:F0})";
+        }
+
+        public static string ToStr(this Point point)
+        {
+            return $"({point.X:F2}, {point.Y:F2})";
         }
 
     }

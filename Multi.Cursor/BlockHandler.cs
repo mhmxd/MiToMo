@@ -37,7 +37,7 @@ namespace Multi.Cursor
         public abstract bool FindPositionsForTrial(Trial trial);
         public void BeginActiveBlock()
         {
-            this.TrialInfo("------------------- Beginning block ----------------------------");
+            this.TrialInfo("------------------- Beginning block -------------------------------------------");
             this.TrialInfo(ExpStrs.MINOR_LINE);
 
             _activeTrialNum = 1;
@@ -81,7 +81,6 @@ namespace Multi.Cursor
         public virtual void EndActiveTrial(Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
-            this.TrialInfo(ExpStrs.MAJOR_LINE);
             _activeTrialRecord.Result = result;
             LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
             _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
@@ -124,6 +123,8 @@ namespace Multi.Cursor
                     break;
             }
 
+            
+            this.TrialInfo(ExpStrs.MINOR_LINE);
 
             GoToNextTrial();
         }
@@ -298,45 +299,18 @@ namespace Multi.Cursor
             if (_activeTrialRecord.GetLastTrialEventType() != ExpStrs.OBJ_EXIT) LogEvent(ExpStrs.ARA_ENTER);
         }
 
-        public virtual void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
+        public void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(ExpStrs.ARA_PRESS);
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
-            if (!IsStartClicked()) // Start button not clicked yet
-            {
-                //ExpSounder.PlayStartMiss();
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                return;
-            }
 
-            
-
-            //-- Rest of the handling is done in the derived classes
+            e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public virtual void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(ExpStrs.ARA_RELEASE);
 
-            if (!IsStartClicked())
-            {
-                this.TrialInfo($"Start wasn't clicked");
-                Sounder.PlayStartMiss();
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                return; // Do nothing if start button was not clicked
-            }
-
-            if (_activeTrialRecord.AreAllObjectsApplied())
-            {
-                EndActiveTrial(Result.HIT);
-            }
-            else
-            {
-                this.TrialInfo($"Not all objects applied");
-                EndActiveTrial(Result.MISS);
-            }
-
-            e.Handled = true; // Mark the event as handled to prevent further processing
+            //-- Rest of the handling is done in the derived classes
         }
 
         public virtual void OnObjectAreaMouseExit(Object sender, MouseEventArgs e)

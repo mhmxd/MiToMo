@@ -7,7 +7,6 @@ namespace Common.Constants
 {
     public class ExpSizes
     {
-        public static readonly double PPI = 93.54; // BenQ = 93.54; Apple = 109
         private const double EXCEL_CELL_W = 15;
         private const double EXCEL_CELL_H = 5;
 

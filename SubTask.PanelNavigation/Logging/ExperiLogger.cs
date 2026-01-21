@@ -27,13 +27,13 @@ namespace SubTask.PanelNavigation
         // Set for each log (in constructor)
         private static readonly string _detailTrialLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.TRIALS_DETAIL_C);
+            $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.TRIALS_DETAIL_C);
         private static readonly string _totalTrialLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.TRIALS_TOTAL_C);
+            $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.TRIALS_TOTAL_C);
         private static readonly string _blockLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.BLOCKS_C);
+            $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.BLOCKS_C);
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
 
@@ -114,7 +114,7 @@ namespace SubTask.PanelNavigation
 
             _cursorLogFilePath = Path.Combine(
                 MyDocumentsPath, LogsFolderName, 
-                $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.CURSOR_C, $"trial-id{trialId}-n{trialNum}-{ExpStrs.CURSOR_S}"
+                $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.CURSOR_C, $"trial-id{trialId}-n{trialNum}-{ExpStrs.CURSOR_S}"
             );
 
             PrepareFileWithHeader<PositionRecord>(ref _cursorLogFilePath, _cursorLogWriter, PositionRecord.GetHeader());

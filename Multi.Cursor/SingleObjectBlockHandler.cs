@@ -1,21 +1,10 @@
 ﻿using Common.Constants;
-using Google.Protobuf.WellKnownTypes;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
-using static Multi.Cursor.Experiment;
-using static Multi.Cursor.Utils;
 
 namespace Multi.Cursor
 {
@@ -36,7 +25,7 @@ namespace Multi.Cursor
             {
                 if (!FindPositionsForTrial(trial))
                 {
-                    this.TrialInfo($"Failed to find positions for Trial#{trial.Id}");
+                    this.PositionInfo($"Failed to find positions for Trial#{trial.Id}");
                     return false; // If any trial fails, return false
                 }
             }
@@ -96,12 +85,12 @@ namespace Multi.Cursor
 
             if (objCenter.X == -1 && objCenter.Y == -1) // Failed to find a valid position 
             {
-                this.TrialInfo($"No valid position found for object in Trial#{trial.Id}!");
+                this.PositionInfo($"No valid position found for object in Trial#{trial.Id}!");
                 return false; // Return false to indicate failure
             }
             else
             {
-                //this.TrialInfo($"Found object position: {objCenter.ToStr()}");
+                //this.PositionInfo($"Found object position: {objCenter.ToStr()}");
 
                 // Get the top-left corner of the object area rectangle
                 Point objAreaPosition = objCenter.OffsetPosition(-objAreaHalfW);
@@ -251,23 +240,29 @@ namespace Multi.Cursor
             }
         }
 
-        public override void OnObjectAreaMouseDown(object sender, MouseButtonEventArgs e)
+        public override void OnObjectAreaMouseUp(object sender, MouseButtonEventArgs e)
         {
-            this.TrialInfo($"Ara pressed!");
+            base.OnObjectAreaMouseUp(sender, e);
 
-            base.OnObjectAreaMouseDown(sender, e);
-
-            //-- Trial started
-            if (!_activeTrialRecord.AreAllFunctionsApplied())
+            if (!IsStartClicked())
             {
+                Sounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
-                EndActiveTrial(Result.MISS);
-                return;
+                return; // Do nothing if start button was not clicked
             }
 
-            //-- All functions applied
+            //-- Trial started:
+            if (!_activeTrialRecord.AreAllFunctionsApplied())
+            {
+                EndActiveTrial(Result.MISS);
+            }
+            else // All functions are applied
+            {
+                EndActiveTrial(Result.HIT);
+            }
+
             e.Handled = true; // Mark the event as handled to prevent further processing
-            EndActiveTrial(Result.HIT);
+
         }
 
         public override void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)

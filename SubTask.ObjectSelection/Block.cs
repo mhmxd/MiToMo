@@ -80,7 +80,7 @@ namespace SubTask.ObjectSelection
                             id * 100 + trialNum,
                             technique,
                             expType,
-                            ExpPtc.PTC_NUM,
+                            ExpEnvironment.PTC_NUM,
                             ExpDesign.OS_N_OBJS[0]);
 
                 block._trials.Add(trial3);
@@ -90,7 +90,7 @@ namespace SubTask.ObjectSelection
                             id * 100 + trialNum,
                             technique,
                             expType,
-                            ExpPtc.PTC_NUM,
+                            ExpEnvironment.PTC_NUM,
                             ExpDesign.OS_N_OBJS[1]);
 
                 block._trials.Add(trial5);
