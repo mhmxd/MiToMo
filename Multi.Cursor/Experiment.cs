@@ -77,7 +77,7 @@ namespace Multi.Cursor
 
         }
 
-        public void Init(string tech, Complexity complexity, ExperimentType expType)
+        public void Init(string tech, TaskType taskType, Complexity complexity, ExperimentType expType)
         {
             this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}, Technique: {tech}");
             //Participant_Number = ptc;
@@ -95,6 +95,10 @@ namespace Multi.Cursor
             {
                 Active_Technique = Technique.MOUSE;
             }
+
+            // Set number of objects and functions based on task type
+            int nObj = taskType == TaskType.MULTI_OBJ_ONE_FUNC ? ExpDesign.LT_N_MULTI_OBJ : 1;
+            int nFun = taskType == TaskType.ONE_OBJ_MULTI_FUNC ? ExpDesign.LT_N_MULTI_FUN : 1;
 
             Active_Complexity = complexity;
 
@@ -117,7 +121,7 @@ namespace Multi.Cursor
                     complexity,
                     expType,
                     distRanges, 
-                    ExpDesign.LT_N_FUN, ExpDesign.LT_N_OBJ);
+                    nFun, nObj);
                 _blocks.Add(block);
             }
 

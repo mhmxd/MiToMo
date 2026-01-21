@@ -759,10 +759,10 @@ namespace Multi.Cursor
 
         }
 
-        public bool SetExperiment(string tech, Complexity complexity, ExperimentType expType)
+        public bool SetExperiment(string tech, TaskType taskType, Complexity complexity, ExperimentType expType)
         {
             // Make the experiment (incl. creating blocks)
-            _experiment.Init(tech, complexity, expType);
+            _experiment.Init(tech, taskType, complexity, expType);
 
             //// Find positions for all blocks
             //foreach (Block bl in _experiment.Blocks)

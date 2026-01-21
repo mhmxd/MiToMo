@@ -119,6 +119,9 @@ namespace Common.Constants
         public static readonly string PNS = "pns";
         public static readonly string PNV = "pnv";
 
+        public static readonly string ONE_OBJ_MULTI_FUNC = "One Obj - Multi Func";
+        public static readonly string MULTI_OBJ_ONE_FUNC = "Multi Obj - One Func";
+
         // Logs
         public static readonly string TRIALS_DETAIL_S = "trials-detail";
         public static readonly string TRIALS_DETAIL_C = "Trials-Detail";
