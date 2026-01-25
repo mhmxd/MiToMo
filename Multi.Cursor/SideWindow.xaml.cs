@@ -1,4 +1,6 @@
-﻿using CommonUI;
+﻿using Common.Constants;
+using Common.Settings;
+using CommonUI;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -25,11 +27,11 @@ namespace Multi.Cursor
 
         private Random _random = new Random();
 
-        private double HorizontalPadding = UITools.MM2PX(Config.WINDOW_PADDING_MM);
-        private double VerticalPadding = UITools.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
+        private double HorizontalPadding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
+        private double VerticalPadding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
         
-        private double InterGroupGutter = UITools.MM2PX(Config.GUTTER_05MM);
-        private double WithinGroupGutter = UITools.MM2PX(Config.GUTTER_05MM);
+        private double InterGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM);
+        private double WithinGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -58,7 +60,6 @@ namespace Multi.Cursor
             set { _relPos = value; }
         }
 
-        private Auxursor _auxursor;
         private GridNavigator _gridNavigator;
         private (int colInd, int rowInd) _selectedElement = (0, 0);
 
@@ -84,15 +85,7 @@ namespace Multi.Cursor
 
             _relPos = relPos;
 
-            _auxursor = new Auxursor(Config.FRAME_DUR_MS / 1000.0);
-            _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
-
-            //foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
-            //{
-            //    _widthButtons.TryAdd(wm, new List<SButton>());
-            //}
-
-            //_cursorTransform = (TranslateTransform)FindResource("CursorTransform");
+            _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
 
             this.Loaded += SideWindow_Loaded; // Add this line
         }
@@ -121,7 +114,7 @@ namespace Multi.Cursor
             int canvasHeight = (int)canvas.ActualHeight;
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = UITools.MM2PX(Config.WINDOW_PADDING_MM);
+            int marginPX = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
             int minX = marginPX;
             int maxX = canvasWidth - marginPX - targetWidth;
             int minY = marginPX;
@@ -744,16 +737,16 @@ namespace Multi.Cursor
             // De-select all elements first
             foreach (var element in _gridElements.Values)
             {
-                element.ElementStroke = Config.BUTTON_DEFAULT_BORDER_COLOR;
-                element.ElementStrokeThickness = Config.ELEMENT_BORDER_THICKNESS;
+                element.ElementStroke = UIColors.BUTTON_DEFAULT_BORDER_COLOR;
+                element.ElementStrokeThickness = ExpLayouts.ELEMENT_BORDER_THICKNESS;
             }
 
             string elementKey = $"C{_selectedElement.colInd}-R{_selectedElement.rowInd}";
             if (_gridElements.ContainsKey(elementKey))
             {
                 Element element = _gridElements[elementKey];
-                element.ElementStroke = Config.ELEMENT_HIGHLIGHT_COLOR;
-                element.ElementStrokeThickness = Config.ELEMENT_BORDER_THICKNESS;
+                element.ElementStroke = UIColors.ELEMENT_HIGHLIGHT_COLOR;
+                element.ElementStrokeThickness = ExpLayouts.ELEMENT_BORDER_THICKNESS;
             }
             else
             {
@@ -795,7 +788,7 @@ namespace Multi.Cursor
         {
             foreach (Element element in _gridElements.Values)
             {
-                element.ElementFill = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset to default color
+                element.ElementFill = UIColors.BUTTON_DEFAULT_FILL_COLOR; // Reset to default color
             }
         }
 

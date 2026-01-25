@@ -185,7 +185,7 @@ namespace Multi.Cursor
 
             // Color the function button and set the handlers
             
-            //Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
+            //Brush funcDefaultColor = UIColors.FUNCTION_DEFAULT_COLOR;
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.FuncSide, _activeTrialRecord.FunctionId, 
             //    funcDefaultColor);
@@ -205,13 +205,13 @@ namespace Multi.Cursor
             // Show the area
             MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseEnter, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
-                _activeTrialRecord.ObjectAreaRect, Config.OBJ_AREA_BG_COLOR,
+                _activeTrialRecord.ObjectAreaRect, UIColors.OBJ_AREA_BG_COLOR,
                 objAreaEvents);
 
             // Show the objects
             MouseEvents objectEvents = new MouseEvents(
                 OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
-            _mainWindow.ShowObjects(_activeTrialRecord.Objects, Config.OBJ_DEFAULT_COLOR, objectEvents);
+            _mainWindow.ShowObjects(_activeTrialRecord.Objects, UIColors.OBJ_DEFAULT_COLOR, objectEvents);
 
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseEnter, OnStartButtonMouseExit);

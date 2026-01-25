@@ -1,5 +1,6 @@
 ﻿//using ExCSS;
 using Common.Constants;
+using Common.Settings;
 using CommonUI;
 using System;
 using System.Windows;
@@ -10,12 +11,12 @@ namespace Multi.Cursor
 {
     internal class ColumnFactory : Grid  // Inherits from Grid to use WPF's Grid layout capabilities
     {
-        private static double WithinGroupGutter = UITools.MM2PX(Config.GUTTER_05MM); // Space in-between the grid elements
-        private static double UNIT = UITools.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
-        private static double ROW_HEIGHT = UITools.MM2PX(Config.GRID_ROW_HEIGHT_MM); // Height of each row in pixels
+        private static double WithinGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM); // Space in-between the grid elements
+        private static double UNIT = UITools.MM2PX(ExpSizes.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
+        private static double ROW_HEIGHT = UITools.MM2PX(ExpLayouts.GRID_ROW_HEIGHT_MM); // Height of each row in pixels
 
-        public static double MAX_GROUP_WITH = UITools.MM2PX(2 * ExpSizes.BUTTON_MULTIPLES[ExpStrs.x15] + Config.GUTTER_05MM); // Maximum width of the group in pixels
-        public static double COLUMN_HEIGHT = UITools.MM2PX(3 * Config.GRID_ROW_HEIGHT_MM + 2 * Config.GUTTER_05MM);
+        public static double MAX_GROUP_WITH = UITools.MM2PX(2 * ExpSizes.BUTTON_MULTIPLES[ExpStrs.x15] + ExpSizes.GUTTER_05MM); // Maximum width of the group in pixels
+        public static double COLUMN_HEIGHT = UITools.MM2PX(3 * ExpLayouts.GRID_ROW_HEIGHT_MM + 2 * ExpSizes.GUTTER_05MM);
 
         private static Rectangle CreateInRowGutter()
         {
@@ -61,8 +62,8 @@ namespace Multi.Cursor
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = UITools.MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[5] is defined in Experiment
-                Height = UITools.MM2PX(19 * Config.GRID_UNIT_MM) // 19 * UNIT is the height in pixels
+                Width = UITools.MM2PX(wMultiple * ExpSizes.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[5] is defined in Experiment
+                Height = UITools.MM2PX(19 * ExpSizes.GRID_UNIT_MM) // 19 * UNIT is the height in pixels
             };
             return sButton;
         }
@@ -73,7 +74,7 @@ namespace Multi.Cursor
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = UITools.MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[1] is defined in Experiment
+                Width = UITools.MM2PX(wMultiple * ExpSizes.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[1] is defined in Experiment
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -85,7 +86,7 @@ namespace Multi.Cursor
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = UITools.MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[0] is defined in Experiment
+                Width = UITools.MM2PX(wMultiple * ExpSizes.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[0] is defined in Experiment
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -97,7 +98,7 @@ namespace Multi.Cursor
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = UITools.MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[3] is defined in Experiment
+                Width = UITools.MM2PX(wMultiple * ExpSizes.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[3] is defined in Experiment
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -109,7 +110,7 @@ namespace Multi.Cursor
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = UITools.MM2PX(wMultiple * Config.GRID_UNIT_MM),
+                Width = UITools.MM2PX(wMultiple * ExpSizes.GRID_UNIT_MM),
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -121,7 +122,7 @@ namespace Multi.Cursor
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = UITools.MM2PX(wMultiple * Config.GRID_UNIT_MM),
+                Width = UITools.MM2PX(wMultiple * ExpSizes.GRID_UNIT_MM),
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -139,7 +140,7 @@ namespace Multi.Cursor
             for (int i = 0; i < 9; i++)
             {
                 stackPanel.Children.Add(CreateWidestButton());
-                stackPanel.Children.Add(CreateGutter(Config.GUTTER_SIDE_SIMPLE_MM));
+                stackPanel.Children.Add(CreateGutter(ExpLayouts.GUTTER_SIDE_SIMPLE_MM));
             }
             stackPanel.Children.Add(CreateWidestButton());
 

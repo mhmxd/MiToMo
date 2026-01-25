@@ -4,6 +4,7 @@ namespace Common.Settings
 {
     public class ExpLayouts
     {
+        //--- Button multiples -------------------------------------------
         public static Dictionary<string, int> BUTTON_MULTIPLES = new Dictionary<string, int>()
         {
             { ExpStrs.x3, 3 },
@@ -15,6 +16,33 @@ namespace Common.Settings
             { ExpStrs.x36, 36 }
         };
 
+        //--- Grid -------------------------------------------------------
+        public static double GRID_ROW_HEIGHT_MM = 6 * ExpSizes.GRID_UNIT_MM; // Height of the grid rows (= 24px)
+        public static double GUTTER_SIDE_SIMPLE_MM = 4;
+        public static double GRID_MAX_ELEMENT_WIDTH_MM = 45; // Width of the widest element in the grid
+        public static double GRID_MIN_ELEMENT_WIDTH_MM = 3; // Width of the narrowest element in the grid
+
+        public static readonly double MAX_GROUP_WIDTH_MM = 2 * BUTTON_MULTIPLES[ExpStrs.x18] + ExpSizes.GUTTER_05MM; // Max width of a group (mm)
+        public static readonly double COLUMN_HEIGHT_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * ExpSizes.GUTTER_05MM; // Height of a column (mm)
+        public static double SIDE_COL_MAX_WIDTH_MM = 2 * BUTTON_MULTIPLES[ExpStrs.x15] + ExpSizes.GUTTER_05MM;
+
+        public static int ELEMENT_BORDER_THICKNESS = 2; // Thickness of the border around the grid elements
+
+        //--- Windows ----------------------------------------------------
+        public static readonly double WINDOW_PADDING_MM = 4;
+        public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * WINDOW_PADDING_MM + ExpSizes.GUTTER_05MM;
+        public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * ExpSizes.GUTTER_05MM + 2 * WINDOW_PADDING_MM;
+
+        //-- Start Button ------------------------------------------------
+        public static readonly double START_BUTTON_LARGE_SIDE_MM = 40;
+        public static readonly (int W, int H) START_BUTTON_SMALL_DIM_MM = (20, 10);
+
+        public static readonly double START_BUTTON_DIST_MM = 10;
+        public static readonly int START_BUTTON_FONT_SIZE = 16;
+
+        
+
+        //--- Complexities ------------------------------------------------
         public static readonly string[] SimpleTopRow = {
             ExpStrs.x18, ExpStrs.x6, ExpStrs.x6, ExpStrs.x6,
             ExpStrs.x18, ExpStrs.x6, ExpStrs.x18, ExpStrs.x18,

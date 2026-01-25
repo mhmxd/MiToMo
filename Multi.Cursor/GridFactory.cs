@@ -16,7 +16,7 @@ namespace Multi.Cursor
         private static readonly double ROW_HEIGHT = ButtonFactory.GetButtonHeight();
 
         // Grid Unit Helpers
-        private static double GridMM(double units) => units * UITools.MM2PX(Config.GRID_UNIT_MM);
+        private static double GridMM(double units) => units * UITools.MM2PX(ExpSizes.GRID_UNIT_MM);
 
         private static readonly double GUTTER_4PX = GridMM(1);
         private static readonly double GUTTER_8PX = GridMM(2);

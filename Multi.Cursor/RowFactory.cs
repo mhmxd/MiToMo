@@ -9,11 +9,11 @@ namespace Multi.Cursor
 {
     internal class RowFactory : Grid
     {
-        private static double UNIT = UITools.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
+        private static double UNIT = UITools.MM2PX(ExpSizes.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         private static double ROW_HEIGHT = 6 * UNIT; // Height of each row in pixels
 
         // Helper to represent a "Gutter" in the sequence
-        private static Func<UIElement> CreateBetweenRowsGutterFunc() => () => CreateGutter(Config.GUTTER_05MM);
+        private static Func<UIElement> CreateBetweenRowsGutterFunc() => () => CreateGutter(ExpSizes.GUTTER_05MM);
 
         // Helper to wrap row creation Functions in a Func<UIElement>
         private static Func<UIElement> WrapRowFunc(Func<StackPanel> rowCreator) => () =>
@@ -106,14 +106,14 @@ namespace Multi.Cursor
             };
 
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX12Button());
             stackPanel.Children.Add(CreateDropdownButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX6Button());
 
             return stackPanel;
@@ -129,9 +129,9 @@ namespace Multi.Cursor
             };
 
             stackPanel.Children.Add(CreateX18Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX12Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX6Button());
 
             return stackPanel;
@@ -147,11 +147,11 @@ namespace Multi.Cursor
 
             stackPanel.Children.Add(CreateX6Button());
             stackPanel.Children.Add(CreateDropdownButton());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX18Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX6Button());
 
             return stackPanel;
@@ -167,14 +167,14 @@ namespace Multi.Cursor
             };
 
             stackPanel.Children.Add(CreateX12Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX6Button());
 
             return stackPanel;
@@ -202,9 +202,9 @@ namespace Multi.Cursor
             };
 
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX6Button());
-            stackPanel.Children.Add(CreateGutter(Config.GUTTER_05MM));
+            stackPanel.Children.Add(CreateGutter(ExpSizes.GUTTER_05MM));
             stackPanel.Children.Add(CreateX18Button());
 
             return stackPanel;
@@ -369,7 +369,7 @@ namespace Multi.Cursor
             group.Children.Clear(); // Clear existing if reusing the column Grid
             group.RowDefinitions.Clear(); // Clear existing row definitions
 
-            double WithinGroupGutter = UITools.MM2PX(Config.GUTTER_05MM); // Gutter between rows within a group
+            double WithinGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM); // Gutter between rows within a group
 
             int currentRowIndex = 0;
             foreach (var createElementFunc in elementsToAdd)

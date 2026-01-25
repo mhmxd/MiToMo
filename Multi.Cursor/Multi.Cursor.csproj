@@ -289,9 +289,7 @@
     <Compile Include="BlockEndWindow.xaml.cs">
       <DependentUpon>BlockEndWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dimensions.cs" />
     <Compile Include="Element.cs" />
-    <Compile Include="Config.cs" />
     <Compile Include="CursorControl.xaml.cs">
       <DependentUpon>CursorControl.xaml</DependentUpon>
     </Compile>
@@ -311,7 +309,6 @@
       <DependentUpon>TopWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="TouchFinger.cs" />
-    <Compile Include="Filog.cs" />
     <Compile Include="FixedBuffer.cs" />
     <Compile Include="KalmanVeloFilter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -324,14 +321,11 @@
       <DependentUpon>IntroDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Output.cs" />
-    <Compile Include="Pointer.cs" />
-    <Compile Include="TestKalman.cs" />
     <Compile Include="TouchPoint.cs" />
     <Compile Include="KalmanFilter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Auxursor.cs" />
     <Compile Include="SideWindow.xaml.cs">
       <DependentUpon>SideWindow.xaml</DependentUpon>
     </Compile>
@@ -340,7 +334,6 @@
     <Compile Include="Trial.cs" />
     <Compile Include="BlockHandler.cs" />
     <Compile Include="TrialRecord.cs" />
-    <Compile Include="WindowHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -357,7 +350,6 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.config" />
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

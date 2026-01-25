@@ -1,4 +1,6 @@
-﻿using CommonUI;
+﻿using Common.Constants;
+using Common.Settings;
+using CommonUI;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -15,8 +17,6 @@ namespace Multi.Cursor
     /// </summary>
     public partial class TopWindow : AuxWindow
     {
-        private double HORIZONTAL_PADDING = UITools.MM2PX(Config.WINDOW_PADDING_MM);
-        private double InterGroupGutter = UITools.MM2PX(Config.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -28,19 +28,6 @@ namespace Multi.Cursor
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        private Random _random = new Random(); 
-
-        //private GridNavigator _gridNavigator;
-        //private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
-        //private static Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
-        //private SButton _targetButton; // Currently selected button (if any)
-
-        // Boundary of the grid (encompassing all buttons)
-        //double _gridMinX = double.MaxValue;
-        //double _gridMinY = double.MaxValue;
-        //double _gridMaxX = double.MinValue;
-        //double _gridMaxY = double.MinValue;
-
         public TopWindow()
         {
             InitializeComponent();
@@ -50,7 +37,7 @@ namespace Multi.Cursor
             EnableMouseInPointer(true);
             SetForegroundWindow(new WindowInteropHelper(this).Handle); // Bring this window to the foreground
 
-            _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
+            _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
 
             //foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
             //{

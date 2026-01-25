@@ -49,6 +49,7 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="UIColors.cs" />
     <Compile Include="UITools.cs">
       <SubType>Code</SubType>
     </Compile>

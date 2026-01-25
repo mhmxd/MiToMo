@@ -69,12 +69,10 @@ namespace Multi.Cursor
             if (tech == ExpStrs.TAP_C)
             {
                 Active_Technique = Technique.TOMO_TAP;
-                Config.SetMode(0);
             }
             else if (tech == ExpStrs.SWIPE_C)
             {
                 Active_Technique = Technique.TOMO_SWIPE;
-                Config.SetMode(1);
             }
             else if (tech == ExpStrs.MOUSE_C)
             {

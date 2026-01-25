@@ -13,7 +13,7 @@ namespace Common.Constants
         //--- Grid -------------------------------------------------------
         public static double GUTTER_05MM = 0.5; // Space in-between the grid elements within a group
         public static double GRID_UNIT_MM = 1; // Unit of measurement for the grid (1mm = 4px)
-        public static double GRID_ROW_HEIGHT_MM = 6 * GRID_UNIT_MM; // Height of the grid rows (= 24px)
+        
         
         public static Dictionary<string, int> BUTTON_MULTIPLES = new Dictionary<string, int>()
         {
@@ -55,15 +55,7 @@ namespace Common.Constants
             }
         };
 
-        public static readonly double MAX_GROUP_WIDTH_MM = 2 * BUTTON_MULTIPLES[ExpStrs.x18] + GUTTER_05MM; // Max width of a group (mm)
-        public static readonly double COLUMN_HEIGHT_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GUTTER_05MM; // Height of a column (mm)
-        public static double SIDE_COL_MAX_WIDTH_MM = 2 * BUTTON_MULTIPLES[ExpStrs.x15] + GUTTER_05MM;
-
-        //--- Windows ----------------------------------------------------
-        public static readonly double WINDOW_PADDING_MM = 4;
-  
-        public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * WINDOW_PADDING_MM + GUTTER_05MM;
-        public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GUTTER_05MM + 2 * WINDOW_PADDING_MM;
+       
 
         //--- START button -----------------------------------------------
         public static readonly double START_BUTTON_LARGER_SIDE_MM = 40;
@@ -76,6 +68,10 @@ namespace Common.Constants
         //--- Object Area ------------------------------------------------
         public static readonly double OBJ_AREA_WIDTH_MM = OBJ_WIDTH_MM * 5; // Width of the *square* object area (mm)
 
-        
+        //--- Touch ------------------------------------------------------
+        public static int LAST_TOUCH_COL = 14; // Total number of touch columns
+        public static int LAST_LEFT_TOUCH_COL = 2; // Width of the left touch area (in columns)
+        public static int LAST_RIGHT_TOUCH_COL = 2; // Width of the right touch area (in columns)
+        public static int LAST_TOP_TOUCH_ROW = 5; // Width of the top touch area (in rows)
     }
 }

@@ -128,7 +128,7 @@ namespace Multi.Cursor
 
             // Color the target button and set the handlers
             this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().Str()}");
-            Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
+            Brush funcDefaultColor = UIColors.FUNCTION_DEFAULT_COLOR;
             UpdateScene(); // (comment for measuring panel selection time)
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.FuncSide, 
@@ -150,11 +150,11 @@ namespace Multi.Cursor
             MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
                 _activeTrialRecord.ObjectAreaRect, 
-                Config.OBJ_AREA_BG_COLOR, 
+                UIColors.OBJ_AREA_BG_COLOR, 
                 objAreaEvents);
             
             // Show objects
-            Brush objDefaultColor = Config.OBJ_DEFAULT_COLOR;
+            Brush objDefaultColor = UIColors.OBJ_DEFAULT_COLOR;
             MouseEvents objectEvents = new MouseEvents(
                 OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
             _mainWindow.ShowObjects(
