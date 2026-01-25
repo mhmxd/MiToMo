@@ -1,6 +1,6 @@
 ﻿namespace Common.Helpers
 {
-    public readonly record struct ExpGridPos (int Row, int Col);
+    public readonly record struct GridPos (int Row, int Col);
 }
 
 namespace System.Runtime.CompilerServices

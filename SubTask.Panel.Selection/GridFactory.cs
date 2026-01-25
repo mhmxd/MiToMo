@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
-using static Common.Helpers.ExpUtils;
+using static Common.Helpers.Tools;
 using static Common.Settings.ExpLayouts;
 
 namespace SubTask.Panel.Selection

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommonUI;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -24,11 +25,11 @@ namespace Multi.Cursor
 
         private Random _random = new Random();
 
-        private double HorizontalPadding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-        private double VerticalPadding = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
+        private double HorizontalPadding = UITools.MM2PX(Config.WINDOW_PADDING_MM);
+        private double VerticalPadding = UITools.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
         
-        private double InterGroupGutter = Utils.MM2PX(Config.GUTTER_05MM);
-        private double WithinGroupGutter = Utils.MM2PX(Config.GUTTER_05MM);
+        private double InterGroupGutter = UITools.MM2PX(Config.GUTTER_05MM);
+        private double WithinGroupGutter = UITools.MM2PX(Config.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -113,14 +114,14 @@ namespace Multi.Cursor
             // Radius in pixels
             //const double PPI = 109;
             //const double MM_IN_INCH = 25.4;
-            int targetWidth = Utils.MM2PX(widthMM);
+            int targetWidth = UITools.MM2PX(widthMM);
 
             // Get canvas dimensions
             int canvasWidth = (int)canvas.ActualWidth;
             int canvasHeight = (int)canvas.ActualHeight;
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            int marginPX = UITools.MM2PX(Config.WINDOW_PADDING_MM);
             int minX = marginPX;
             int maxX = canvasWidth - marginPX - targetWidth;
             int minY = marginPX;
@@ -712,7 +713,7 @@ namespace Multi.Cursor
 
         //public (string, Point) GetRandomElementByWidth(double widthMM)
         //{
-        //    int widthPX = Utils.MM2PX(widthMM);
+        //    int widthPX = UITools.MM2PX(widthMM);
         //    foreach (Element element in _gridElements.Values)
         //    {
         //        Conlog<SideWindow>($"Element: {element.Id}, Width: {element.ElementWidth}");

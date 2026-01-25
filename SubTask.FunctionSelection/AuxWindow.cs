@@ -9,7 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Common.Constants;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.ExpUtils;
+using static Common.Helpers.Tools;
 
 namespace SubTask.FunctionSelection
 {

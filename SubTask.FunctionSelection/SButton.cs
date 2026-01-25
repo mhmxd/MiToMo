@@ -24,7 +24,7 @@ namespace SubTask.FunctionSelection
         public int Id { get; private set; }
 
         // Position in the grid
-        public ExpGridPos RowCol { get; set; }
+        public GridPos RowCol { get; set; }
 
         public int LeftId { get; private set; } = -1; // Default to -1 (no neighbor)
         public int RightId { get; private set; } = -1;

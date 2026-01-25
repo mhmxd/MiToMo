@@ -1,5 +1,7 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using Common.Settings;
+using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
 using static Common.Constants.ExpEnums;
@@ -22,30 +24,13 @@ namespace Multi.Cursor
         private Range _shortDistRangeMM; // Short distances range (mm)
         private Range _midDistRangeMM; // Mid distances range (mm)
         private Range _longDistRangeMM; // Long distances range (mm)
-
-        //public static int REP_TRIAL_NUM_PASS = 5; // Trial ends on Start
-        //public static double REP_TRIAL_MAX_DIST_STARTS_MM = Config.EXCEL_CELL_W; // Max distance between Starts in a repeating trial (mm)
-        //public static double REP_TRIAL_OBJ_AREA_RADIUS_MM = Config.EXCEL_CELL_W; // Radius of the object area in repeating trials (mm)
         
 
         private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
 
-        //public static double Min_Target_Width_MM = TARGET_WIDTHS_MM.Min();
-        //public static double Max_Target_Width_MM = TARGET_WIDTHS_MM.Max();
-
         //-- Calculated
         public double Longest_Dist_MM;
         public double Shortest_Dist_MM;
-        //private double LONGEST_DIST_MM = 293; // BenQ = 293 mm
-        //private double SHORTEST_DIST_MM = 10; // BenQ = 10 mm
-
-        //-- Constants
-        //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
-        //public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
-        //public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
-        //public static double START_WIDTH_MM = OBJ_WIDTH_MM;
-
-
 
         //-- Information
 
@@ -143,7 +128,7 @@ namespace Multi.Cursor
 
         public static int GetStartHalfWidth()
         {
-            return Utils.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM / 2);
+            return UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM / 2);
         }
     }
 }

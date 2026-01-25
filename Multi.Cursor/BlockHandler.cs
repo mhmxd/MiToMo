@@ -109,11 +109,11 @@ namespace Multi.Cursor
             switch (result)
             {
                 case Result.HIT:
-                    ExpSounder.PlayHit();
+                    Common.Helpers.Sounder.PlayHit();
                     
                     break;
                 case Result.MISS:
-                    ExpSounder.PlayTargetMiss();
+                    Common.Helpers.Sounder.PlayTargetMiss();
 
                     //-- Reset the trial times and shuffle it back
                     _trialRecords[_activeTrial.Id].ClearTimestamps();
@@ -188,7 +188,7 @@ namespace Multi.Cursor
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                ExpSounder.PlayStartMiss();
+                Common.Helpers.Sounder.PlayStartMiss();
             }
             else
             {

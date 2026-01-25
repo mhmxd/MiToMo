@@ -25,7 +25,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using WindowsInput;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.ExpUtils;
+using static Common.Helpers.Tools;
 using static SubTask.PanelNavigation.Experiment;
 using static SubTask.PanelNavigation.Output;
 using static SubTask.PanelNavigation.Utils;
@@ -902,12 +902,12 @@ namespace SubTask.PanelNavigation
             _rightWindow.ShowMarker(OnFunctionMarked);
         }
 
-        private void OnFunctionMarked(int funId, ExpGridPos funcRowCol)
+        private void OnFunctionMarked(int funId, GridPos funcRowCol)
         {
             _activeBlockHandler.OnFunctionMarked(funId, funcRowCol);
         }
 
-        private void OnFunctionDeMarked(int funId, ExpGridPos funcRowCol)
+        private void OnFunctionDeMarked(int funId, GridPos funcRowCol)
         {
             _activeBlockHandler.OnFunctionUnmarked(funId, funcRowCol);
         }
@@ -1153,8 +1153,8 @@ namespace SubTask.PanelNavigation
 
         public void MoveMarker(
             TouchPoint touchPoint, 
-            Action<int, ExpGridPos> OnFunctionMarked, Action<int, ExpGridPos> OnFunctionDeMarked,
-            Action<ExpGridPos> OnButtonMarked)
+            Action<int, GridPos> OnFunctionMarked, Action<int, GridPos> OnFunctionDeMarked,
+            Action<GridPos> OnButtonMarked)
         {
             _activeAuxWindow?.MoveMarker(touchPoint, OnFunctionMarked, OnFunctionDeMarked, OnButtonMarked);
         }

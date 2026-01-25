@@ -1,12 +1,13 @@
 ﻿using Common.Helpers;
 using Common.Settings;
-using static Common.Helpers.ExpUtils;
+using CommonUI;
+using static Common.Helpers.Tools;
 
 namespace Multi.Cursor
 {
     internal class ButtonFactory
     {
-        private static double UNIT = MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
+        private static double UNIT = UITools.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         private static double BUTTON_HEIGHT = 6 * UNIT; // Height of each row in pixels
 
         public static SButton CreateButton(string widthX, int row, int col)
@@ -17,7 +18,7 @@ namespace Multi.Cursor
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the widthX of the button in the grid 
                 Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[0] is defined in Experiment
                 Height = BUTTON_HEIGHT, // Height in pixels
-                RowCol = new ExpGridPos(row, col)
+                RowCol = new GridPos(row, col)
             };
 
             return sButton;

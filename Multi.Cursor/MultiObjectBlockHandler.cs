@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using CommonUI;
+using Common.Helpers;
 using static Common.Constants.ExpEnums;
 
 namespace Multi.Cursor
@@ -69,9 +71,9 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForTrial(Trial trial)
         {
-            int objW = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM);
+            int objW = UITools.MM2PX(ExpSizes.OBJ_WIDTH_MM);
             int objHalfW = objW / 2;
-            int objAreaW = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            int objAreaW = UITools.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
             int objAreaHalfW = objAreaW / 2;
             this.PositionInfo($"{trial.ToStr()}");
 
@@ -88,7 +90,7 @@ namespace Multi.Cursor
                     );
             });
 
-            this.PositionInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().ToStr()}");
+            this.PositionInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().Str()}");
 
             // Find a position for the object area
             Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
@@ -111,7 +113,7 @@ namespace Multi.Cursor
                 // Get the top-left corner of the object area rectangle
                 Point objAreaPosition = objAreaCenter.OffsetPosition(-objAreaHalfW);
 
-                this.PositionInfo($"Found object area position: {objAreaPosition.ToStr()}");
+                this.PositionInfo($"Found object area position: {objAreaPosition.Str()}");
 
                 _trialRecords[trial.Id].ObjectAreaRect = new Rect(
                         objAreaPosition.X,
@@ -452,7 +454,7 @@ namespace Multi.Cursor
             //for (int t = 0; t < maxRetries; t++) {
             //    objAreaCenterPosition = objConstraintRect.FindRandPointWithDist(
             //        targetCenterAbsolute, 
-            //        Utils.MM2PX(randDistMM), 
+            //        UITools.MM2PX(randDistMM), 
             //        trial.FuncSide.GetOpposite());
 
             //    if (objAreaCenterPosition.x != 0 && objAreaCenterPosition.y != 0)
@@ -460,10 +462,10 @@ namespace Multi.Cursor
             //        this.TrialInfo($"Found a valid object area center position for Trial#{trial.Id} at {objAreaCenterPosition}.");
             //        // Set the Rect
             //        _trialRecords[trial.Id].ObjectAreaRect = new Rect(
-            //            objAreaCenterPosition.x - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
-            //            objAreaCenterPosition.y - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
-            //            Utils.MM2PX(OBJ_AREA_WIDTH_MM),
-            //            Utils.MM2PX(OBJ_AREA_WIDTH_MM));
+            //            objAreaCenterPosition.x - UITools.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+            //            objAreaCenterPosition.y - UITools.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+            //            UITools.MM2PX(OBJ_AREA_WIDTH_MM),
+            //            UITools.MM2PX(OBJ_AREA_WIDTH_MM));
             //        _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenterPosition, Experiment.REP_TRIAL_NUM_PASS);
             //        return true; // Successfully found positions
             //    }
@@ -502,8 +504,8 @@ namespace Multi.Cursor
         private List<TrialRecord.TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
         {
             List<TrialRecord.TObject> placedObjects = new List<TrialRecord.TObject>();
-            double objW = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM);
-            double areaW = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            double objW = UITools.MM2PX(ExpSizes.OBJ_WIDTH_MM);
+            double areaW = UITools.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
 
             int maxAttemptsPerObject = 1000; // Limit attempts to prevent infinite loops
 

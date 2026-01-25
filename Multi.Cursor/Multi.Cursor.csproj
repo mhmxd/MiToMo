@@ -300,7 +300,6 @@
     <Compile Include="FingerTracker.cs" />
     <Compile Include="ColumnFactory.cs" />
     <Compile Include="GridNavigator.cs" />
-    <Compile Include="Range.cs" />
     <Compile Include="MultiObjectBlockHandler.cs" />
     <Compile Include="RowFactory.cs" />
     <Compile Include="SButton.cs" />
@@ -325,9 +324,6 @@
       <DependentUpon>IntroDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Output.cs" />
-    <Compile Include="OverlayWindow.xaml.cs">
-      <DependentUpon>OverlayWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Pointer.cs" />
     <Compile Include="TestKalman.cs" />
     <Compile Include="TouchPoint.cs" />
@@ -344,7 +340,6 @@
     <Compile Include="Trial.cs" />
     <Compile Include="BlockHandler.cs" />
     <Compile Include="TrialRecord.cs" />
-    <Compile Include="Utils.cs" />
     <Compile Include="WindowHelper.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -370,6 +365,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommonUI\CommonUI.csproj">
+      <Project>{a6861698-5453-4a15-a95d-5751f67c3d33}</Project>
+      <Name>CommonUI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{2fa25bf3-b63c-41d3-9881-229b316c748b}</Project>
       <Name>Common</Name>
@@ -400,10 +399,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="OverlayWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="SideWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -430,9 +425,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\cursor_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="READ-ME.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

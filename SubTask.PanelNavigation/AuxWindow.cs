@@ -580,7 +580,7 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void ShowMarker(Action<int, ExpGridPos> OnFunctionMarked)
+        public void ShowMarker(Action<int, GridPos> OnFunctionMarked)
         {
             int buttonId = _lastMarkedButtonId;
             if (buttonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
@@ -619,7 +619,7 @@ namespace SubTask.PanelNavigation
             if (possibleButtons.Count > 0)
             {
                 int randomButtonId = possibleButtons.GetRandomElement();
-                ExpGridPos pos = _buttonInfos[randomButtonId].Button.RowCol;
+                GridPos pos = _buttonInfos[randomButtonId].Button.RowCol;
                 _gridNavigator.Activate(); // Activate the grid navigator
                 MarkButton(randomButtonId, (id, pos) => { }); // Highlight the button
             }
@@ -629,7 +629,7 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void ActivateMarker(Action<int, ExpGridPos> OnFunctionMarked)
+        public void ActivateMarker(Action<int, GridPos> OnFunctionMarked)
         {
             this.TrialInfo($"Last highlight = {_lastMarkedButtonId}");
 
@@ -675,7 +675,7 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void MarkButton(int buttonId, Action<int, ExpGridPos> OnFunctionMarked)
+        public void MarkButton(int buttonId, Action<int, GridPos> OnFunctionMarked)
         {
             var buttonBgOrange =
                 _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_DEFAULT_COLOR);
@@ -718,8 +718,8 @@ namespace SubTask.PanelNavigation
 
         public void MoveMarker(
             TouchPoint tp, 
-            Action<int, ExpGridPos> OnFunctionMarked, Action<int, ExpGridPos> OnFunctionDeMarked,
-            Action<ExpGridPos> OnButtonMarked)
+            Action<int, GridPos> OnFunctionMarked, Action<int, GridPos> OnFunctionDeMarked,
+            Action<GridPos> OnButtonMarked)
         {
             // Update the grid navigator with the current touch point
             var (dGridX, dGridY) = _gridNavigator.Update(tp);

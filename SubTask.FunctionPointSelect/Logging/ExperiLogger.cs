@@ -57,13 +57,13 @@ namespace SubTask.FunctionPointSelect
         public static void Init()
         {
             // Create detailed trial log if not exists
-            _detailTrialLogWriter = ExpIO.PrepareFile<DetailTrialLog>(_detilTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
+            _detailTrialLogWriter = IOTools.PrepareFile<DetailTrialLog>(_detilTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
 
             // Create total log if not exists
-            _totalTrialLogWriter = ExpIO.PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
+            _totalTrialLogWriter = IOTools.PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
 
             // Create block log if not exists
-            _blockLogWriter = ExpIO.PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
+            _blockLogWriter = IOTools.PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
         }
 
         private static void PrepareFileWithHeader<T>(ref string filePath, StreamWriter writer, string header)

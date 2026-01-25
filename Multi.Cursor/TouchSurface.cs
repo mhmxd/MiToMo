@@ -1,22 +1,15 @@
-﻿using CommunityToolkit.HighPerformance;
-using System.Text.Json;
+﻿using Common.Constants;
+using Common.Helpers;
+using CommonUI;
+using CommunityToolkit.HighPerformance;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using static Multi.Cursor.Output;
-using static Multi.Cursor.Utils;
-using static System.Math;
 using System.Diagnostics;
-using MathNet.Numerics.LinearAlgebra.Factorization;
-using System.Web.UI;
+using System.Text;
 using System.Windows;
-using Serilog.Core;
-using Serilog.Events;
 using static Common.Constants.ExpEnums;
-using Common.Constants;
+using static Multi.Cursor.Output;
+using static System.Math;
 
 namespace Multi.Cursor
 {
@@ -77,7 +70,7 @@ namespace Multi.Cursor
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Utils.InInc(key, keyMin, keyMax)) return true;
+                    if (Tools.InInc(key, keyMin, keyMax)) return true;
                 }
 
                 return false;
@@ -87,7 +80,7 @@ namespace Multi.Cursor
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Utils.InInc(key, keyMin, keyMax)) return false;
+                    if (Tools.InInc(key, keyMin, keyMax)) return false;
                 }
 
                 return true;
@@ -97,7 +90,7 @@ namespace Multi.Cursor
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Utils.InInc(key, finger.MinCol, finger.MaxCol)) return false;
+                    if (Tools.InInc(key, finger.MinCol, finger.MaxCol)) return false;
                 }
 
                 return true;
@@ -112,7 +105,7 @@ namespace Multi.Cursor
             {
                 foreach (var kv in Pointers)
                 {
-                    if (Utils.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
+                    if (Tools.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
                 }
 
                 return null;
@@ -763,7 +756,7 @@ namespace Multi.Cursor
 
         private bool PassTapConditions(long dT, double dX, double dY)
         {
-            return Utils.In(dT, Config.TAP_TIME_MIN, Config.TAP_TIME_MAX)
+            return Tools.In(dT, Config.TAP_TIME_MIN, Config.TAP_TIME_MAX)
                         && dX < Config.TAP_GENERAL_THRESHOLD.DX
                         && dY < Config.TAP_GENERAL_THRESHOLD.DY;
         }

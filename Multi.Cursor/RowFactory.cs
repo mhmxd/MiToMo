@@ -1,6 +1,6 @@
 ﻿using Common.Constants;
+using CommonUI;
 using System;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
@@ -9,7 +9,7 @@ namespace Multi.Cursor
 {
     internal class RowFactory : Grid
     {
-        private static double UNIT = Utils.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
+        private static double UNIT = UITools.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         private static double ROW_HEIGHT = 6 * UNIT; // Height of each row in pixels
 
         // Helper to represent a "Gutter" in the sequence
@@ -28,7 +28,7 @@ namespace Multi.Cursor
         {
             return new Rectangle
             {
-                Width = Utils.MM2PX(gutterMM), // Use WithinGroupGutter for width, not a derived UNIT value unless intentional
+                Width = UITools.MM2PX(gutterMM), // Use WithinGroupGutter for width, not a derived UNIT value unless intentional
                 Height = ROW_HEIGHT,
                 //Fill = Brushes.Orange, // <-- Make it highly visible for debugging
                 //Stroke = Brushes.Black, // Add a stroke
@@ -369,7 +369,7 @@ namespace Multi.Cursor
             group.Children.Clear(); // Clear existing if reusing the column Grid
             group.RowDefinitions.Clear(); // Clear existing row definitions
 
-            double WithinGroupGutter = Utils.MM2PX(Config.GUTTER_05MM); // Gutter between rows within a group
+            double WithinGroupGutter = UITools.MM2PX(Config.GUTTER_05MM); // Gutter between rows within a group
 
             int currentRowIndex = 0;
             foreach (var createElementFunc in elementsToAdd)

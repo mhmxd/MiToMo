@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using System.Windows.Threading;
 using Common.Constants;
 using static System.Math;
-using static Common.Helpers.ExpUtils;
+using static Common.Helpers.Tools;
 using Seril = Serilog.Log;
 
 namespace SubTask.Panel.Selection

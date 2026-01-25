@@ -1,10 +1,11 @@
 ﻿using Common.Constants;
+using CommonUI;
 using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
-using static Common.Helpers.ExpUtils;
+using static Common.Helpers.Tools;
 using static Common.Settings.ExpLayouts;
 
 namespace Multi.Cursor
@@ -15,7 +16,7 @@ namespace Multi.Cursor
         private static readonly double ROW_HEIGHT = ButtonFactory.GetButtonHeight();
 
         // Grid Unit Helpers
-        private static double GridMM(double units) => units * MM2PX(Config.GRID_UNIT_MM);
+        private static double GridMM(double units) => units * UITools.MM2PX(Config.GRID_UNIT_MM);
 
         private static readonly double GUTTER_4PX = GridMM(1);
         private static readonly double GUTTER_8PX = GridMM(2);

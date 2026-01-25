@@ -1,7 +1,7 @@
 ﻿using Common.Constants;
 using Common.Helpers;
 using Common.Settings;
-using static Common.Helpers.ExpUtils;
+using static Common.Helpers.Tools;
 
 namespace SubTask.Panel.Selection
 {
@@ -18,7 +18,7 @@ namespace SubTask.Panel.Selection
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the widthX of the button in the grid 
                 Width = wMultiple * UNIT, // BUTTON_WIDTHS_MULTIPLES[0] is defined in Experiment
                 Height = BUTTON_HEIGHT, // Height in pixels
-                RowCol = new ExpGridPos(row, col)
+                RowCol = new GridPos(row, col)
             };
 
             return sButton;

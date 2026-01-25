@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Shapes;
 using Common.Constants;
-using static Common.Helpers.ExpUtils;
+using static Common.Helpers.Tools;
 using static Common.Settings.ExpLayouts;
 
 namespace SubTask.FunctionPointSelect

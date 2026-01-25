@@ -23,7 +23,7 @@ namespace Multi.Cursor
         public int BottomId { get; private set; } = -1;
 
         // Position in the grid
-        public ExpGridPos RowCol { get; set; }
+        public GridPos RowCol { get; set; }
 
         public static readonly DependencyProperty DisableBackgroundHoverProperty =
          DependencyProperty.Register("DisableBackgroundHover", typeof(bool), typeof(SButton), new PropertyMetadata(false));

@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Common.Helpers;
 using static Common.Constants.ExpEnums;
+using CommonUI;
 
 namespace Multi.Cursor
 {
@@ -52,9 +54,9 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForTrial(Trial trial)
         {
-            int objW = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM);
+            int objW = UITools.MM2PX(ExpSizes.OBJ_WIDTH_MM);
             int objHalfW = objW / 2;
-            int objAreaW = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            int objAreaW = UITools.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
             int objAreaHalfW = objAreaW / 2;
 
             //this.TrialInfo(trial.ToStr());
@@ -125,7 +127,7 @@ namespace Multi.Cursor
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the target button and set the handlers
-            this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
+            this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().Str()}");
             Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
             UpdateScene(); // (comment for measuring panel selection time)
             //_mainWindow.FillButtonInTargetWindow(
@@ -388,7 +390,6 @@ namespace Multi.Cursor
 
             // Function id is sender's tag as int
             var functionId = (int)((FrameworkElement)sender).Tag;
-            var device = Utils.GetDevice(_activeBlock.Technique);
             var objectMarked = GetEventCount(ExpStrs.OBJ_RELEASE) > 0;
 
             if (!objectMarked) // Technique doesn't matter here

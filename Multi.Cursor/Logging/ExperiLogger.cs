@@ -10,9 +10,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
+using CommonUI;
 using static Common.Constants.ExpEnums;
 
 namespace Multi.Cursor
@@ -67,31 +67,31 @@ namespace Multi.Cursor
             {
                 case TaskType.ONE_OBJ_ONE_FUNC:
                     {
-                        _detailTrialLogWriter = ExpIO.PrepareFile<SOSFTrialLog>(_detailTrialLogPath, ExpStrs.SOSF);
+                        _detailTrialLogWriter = IOTools.PrepareFile<SOSFTrialLog>(_detailTrialLogPath, ExpStrs.SOSF);
                     }
                     break;
                 case TaskType.ONE_OBJ_MULTI_FUNC:
                     {
-                        _detailTrialLogWriter = ExpIO.PrepareFile<SOMFTrialLog>(_detailTrialLogPath, ExpStrs.SOMF);
+                        _detailTrialLogWriter = IOTools.PrepareFile<SOMFTrialLog>(_detailTrialLogPath, ExpStrs.SOMF);
                     }
                     break;
                 case TaskType.MULTI_OBJ_ONE_FUNC:
                     {
-                        _detailTrialLogWriter = ExpIO.PrepareFile<MOSFTrialLog>(_detailTrialLogPath, ExpStrs.MOSF);
+                        _detailTrialLogWriter = IOTools.PrepareFile<MOSFTrialLog>(_detailTrialLogPath, ExpStrs.MOSF);
                     }
                     break;
                 case TaskType.MULTI_OBJ_MULTI_FUNC:
                     {
-                        _detailTrialLogWriter = ExpIO.PrepareFile<MOMFTrialLong>(_detailTrialLogPath, ExpStrs.MOMF);
+                        _detailTrialLogWriter = IOTools.PrepareFile<MOMFTrialLong>(_detailTrialLogPath, ExpStrs.MOMF);
                     }
                     break;
             }
 
             // Create total log if not exists
-            _totalTrialLogWriter = ExpIO.PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
+            _totalTrialLogWriter = IOTools.PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
 
             // Create block log if not exists
-            _blockLogWriter = ExpIO.PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
+            _blockLogWriter = IOTools.PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
 
         }
 
@@ -154,7 +154,7 @@ namespace Multi.Cursor
             
 
             // Enter log info
-            _gestureFileLog.Information($"TgtW: {targetWidthMM}, Dist: {distanceMM}, StPos: {startPos.ToStr()}, TgPos: {targetPos.ToStr()}");
+            _gestureFileLog.Information($"TgtW: {targetWidthMM}, Dist: {distanceMM}, StPos: {startPos.Str()}, TgPos: {targetPos.Str()}");
         }
 
         public static void LogGestureEvent(string message)
@@ -165,59 +165,6 @@ namespace Multi.Cursor
         public static void LogTrialMessage(string message)
         {
             _blockFileLog.Information(message);
-        }
-
-        public static void LogSingleObjTrialTimes(TrialRecord trialRecord)
-        {
-            int nFunctions = trialRecord.Functions.Count;
-
-            if (nFunctions == 1)
-            {
-                switch (_technique)
-                {
-                    case Technique.MOUSE:
-                        _blockFileLog.Information($"Start Release   -> Obj Enter:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.OBJ_ENTER)}");
-                        _blockFileLog.Information($"Obj Enter       -> Obj Press:   {trialRecord.GetDuration(ExpStrs.OBJ_ENTER, ExpStrs.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.FUN_PRESS)}");
-                        _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE)}");
-                        _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(ExpStrs.FUN_RELEASE, ExpStrs.ARA_PRESS)}");
-                        _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
-                        _blockFileLog.Information($"==============================================================================================================");
-                        break;
-
-                    case Technique.TOMO_TAP:
-                        _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDurationToFingerAction(ExpStrs.STR_RELEASE, ExpStrs.TAP_DOWN)}");
-                        _blockFileLog.Information($"Tap Down        -> Tap Up:      {trialRecord.GetGestureDuration(Technique.TOMO_TAP)}");
-                        _blockFileLog.Information($"Tap Up          -> Obj Press:   {trialRecord.GetDurationFromFingerAction(ExpStrs.TAP_UP, ExpStrs.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_EXIT)}");
-                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(ExpStrs.OBJ_EXIT, ExpStrs.ARA_PRESS)}");
-                        _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
-                        _blockFileLog.Information($"==============================================================================================================");
-                        break;
-
-                    case Technique.TOMO_SWIPE:
-                        _blockFileLog.Information($"Start Release   -> Swipe Start: {trialRecord.GetDurationToFingerAction(ExpStrs.STR_RELEASE, ExpStrs.SWIPE_START)}");
-                        _blockFileLog.Information($"Swipe Start     -> Swipe End:   {trialRecord.GetGestureDuration(Technique.TOMO_SWIPE)}");
-                        _blockFileLog.Information($"Swipe End       -> Obj Press:   {trialRecord.GetDurationFromFingerAction(ExpStrs.SWIPE_END, ExpStrs.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_EXIT)}");
-                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(ExpStrs.OBJ_EXIT, ExpStrs.ARA_PRESS)}");
-                        _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
-                        _blockFileLog.Information($"==============================================================================================================");
-                        break;
-                }
-            }
-            else
-            {
-                // For now. Later we put detailed log
-                _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS)}");
-            }
-            
         }
 
         public static void LogMultipleObjTrialTimes(TrialRecord trialRecord)
@@ -272,7 +219,7 @@ namespace Multi.Cursor
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             //Output.Conlog<ExperiLogger>(log.ToString());
 
-            ExpIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            IOTools.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
             //_trialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
@@ -356,7 +303,7 @@ namespace Multi.Cursor
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             //Output.Conlog<ExperiLogger>(log.ToString());
 
-            ExpIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            IOTools.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
             //_trialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
@@ -445,7 +392,7 @@ namespace Multi.Cursor
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             //Output.Conlog<ExperiLogger>(log.ToString());
             
-            ExpIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            IOTools.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
             
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
         }
@@ -537,7 +484,7 @@ namespace Multi.Cursor
             Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
             //Output.Conlog<ExperiLogger>(log.ToString());
             
-            ExpIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            IOTools.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
             
             //_trialLogWriter?.Dispose();
 
@@ -561,7 +508,7 @@ namespace Multi.Cursor
             log.panel_sel_time = trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.PNL_SELECT);
             log.panel_nav_time = trialRecord.GetDuration(ExpStrs.PNL_SELECT, ExpStrs.OBJ_PRESS);
 
-            ExpIO.WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
+            IOTools.WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
 
             StreamWriter writer = new StreamWriter(_cursorLogFilePath, append: true, Encoding.UTF8);
             writer.AutoFlush = true;
@@ -608,7 +555,7 @@ namespace Multi.Cursor
             double avgTime = _trialTimes.Values.Average()/1000;
             log.block_time = $"{avgTime:F2}";
 
-            ExpIO.WriteTrialLog(log, _blockLogPath, _blockLogWriter);
+            IOTools.WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 
         }
 

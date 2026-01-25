@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommonUI;
+using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,8 +15,8 @@ namespace Multi.Cursor
     /// </summary>
     public partial class TopWindow : AuxWindow
     {
-        private double HORIZONTAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-        private double InterGroupGutter = Utils.MM2PX(Config.GUTTER_05MM);
+        private double HORIZONTAL_PADDING = UITools.MM2PX(Config.WINDOW_PADDING_MM);
+        private double InterGroupGutter = UITools.MM2PX(Config.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]

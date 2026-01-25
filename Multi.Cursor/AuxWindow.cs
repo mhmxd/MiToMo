@@ -2,18 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Shapes;
+using Common.Helpers;
+using CommonUI;
 using static Common.Constants.ExpEnums;
-using static Multi.Cursor.Output;
 
 namespace Multi.Cursor
 {
@@ -202,7 +198,7 @@ namespace Multi.Cursor
                 }
                 else // if button doesn't containt the center point, calculate the distance
                 {
-                    double dist = Utils.Dist(gridCenterPoint, new Point(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 2));
+                    double dist = UITools.Dist(gridCenterPoint, new Point(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 2));
                     //this.TrialInfo($"Dist = {dist:F2}");
                     if (dist < centerDistance)
                     {
@@ -223,12 +219,6 @@ namespace Multi.Cursor
 
         public int SelectRandButtonByConstraints(int widthMult, Rect objConstraintRect, int dist)
         {
-            //this.TrialInfo($"Selecting button by multiple: {widthMult}");
-            //this.TrialInfo($"All buttons: ");
-            //foreach (int bid in _allButtons.Keys)
-            //{
-            //    this.TrialInfo($"Button#{bid} -> {_allButtons[bid].Id}");
-            //}
 
             //this.TrialInfo($"Available buttons:");
             foreach (int wm in _widthButtons.Keys)
@@ -942,7 +932,7 @@ namespace Multi.Cursor
             {
                 // Use the standard Euclidean distance formula.
                 // WPF Point already has a handy static method for this.
-                double currentDist = Utils.Dist(outsidePoint, corner); // Or Point.Subtract(outsidePoint, corner).Length;
+                double currentDist = UITools.Dist(outsidePoint, corner); // Or Point.Subtract(outsidePoint, corner).Length;
                 if (currentDist > maxDist)
                 {
                     maxDist = currentDist;

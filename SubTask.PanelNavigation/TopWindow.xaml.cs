@@ -7,7 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using static Common.Helpers.ExpUtils;
+using static Common.Helpers.Tools;
 
 namespace SubTask.PanelNavigation
 {

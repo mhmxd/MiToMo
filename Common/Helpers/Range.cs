@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Multi.Cursor
+﻿namespace Common.Helpers
 {
     public class Range
     {
@@ -53,11 +47,6 @@ namespace Multi.Cursor
         public double GetRandomValue()
         {
             return _rand.NextDouble() * (_max - _min) + _min; // Generate a random value within the range
-        }
-
-        public Range GetPx()
-        {
-            return new Range(Utils.MM2PX(_min), Utils.MM2PX(_max), Label);
         }
 
         public override string ToString()

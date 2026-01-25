@@ -10,7 +10,7 @@ using Common.Constants;
 using Common.Helpers;
 using Tensorflow;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.ExpUtils;
+using static Common.Helpers.Tools;
 using static SubTask.PanelNavigation.TrialRecord;
 
 namespace SubTask.PanelNavigation
@@ -422,7 +422,7 @@ namespace SubTask.PanelNavigation
             LogEvent(ExpStrs.STR_EXIT);
         }
 
-        public virtual void OnFunctionMarked(int funId, ExpGridPos funcRowCol)
+        public virtual void OnFunctionMarked(int funId, GridPos funcRowCol)
         {
             _activeTrialRecord.MarkFunction(funId);
             LogEvent(ExpStrs.FUN_MARKED, JsonSerializer.Serialize(funcRowCol));
@@ -431,12 +431,12 @@ namespace SubTask.PanelNavigation
             _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_AVAILABLE_COLOR);
         }
 
-        public void OnPaneButtonMarked(ExpGridPos btnPos)
+        public void OnPaneButtonMarked(GridPos btnPos)
         {
             LogEvent(ExpStrs.BTN_MARKED, JsonSerializer.Serialize(btnPos));
         }
 
-        public virtual void OnFunctionUnmarked(int funId, ExpGridPos funcRowCol)
+        public virtual void OnFunctionUnmarked(int funId, GridPos funcRowCol)
         {
             _activeTrialRecord.UnmarkFunction(funId);
             LogEvent(ExpStrs.FUN_DEMARKED, JsonSerializer.Serialize(funcRowCol));

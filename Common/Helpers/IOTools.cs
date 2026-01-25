@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Common.Helpers
 {
-    public class ExpIO
+    public class IOTools
     {
 
         public static StreamWriter PrepareFile<T>(string filePath, string fileName)

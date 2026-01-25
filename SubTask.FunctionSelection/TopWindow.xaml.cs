@@ -8,7 +8,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.ExpUtils;
+using static Common.Helpers.Tools;
 
 namespace SubTask.FunctionSelection
 {
