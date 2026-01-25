@@ -1,21 +1,14 @@
 ﻿using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
 using CommunityToolkit.HighPerformance;
-using MathNet.Numerics.LinearAlgebra.Factorization;
-using Serilog.Core;
-using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Web.UI;
 using System.Windows;
-using System.Windows.Input;
 using static Common.Constants.ExpEnums;
 using static SubTask.PanelNavigation.Output;
-using static SubTask.PanelNavigation.Utils;
 using static System.Math;
 
 namespace SubTask.PanelNavigation

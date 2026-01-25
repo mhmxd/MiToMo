@@ -1,9 +1,11 @@
 ﻿using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using static Common.Constants.ExpEnums;
-using static SubTask.PanelNavigation.Utils;
 
 namespace SubTask.PanelNavigation
 {
@@ -11,48 +13,10 @@ namespace SubTask.PanelNavigation
     {
         public int TrialId { get; set; }
 
-        public class TObject
-        {
-            public int Id { get; set; }
-            public Point Position { get; set; }
-            public Point Center { get; set; }
-            public ButtonState State { get; set; }
-
-            public TObject(int id, Point position, Point center)
-            {
-                Id = id;
-                Position = position;
-                Center = center;
-                State = ButtonState.DEFAULT;
-            }
-
-        }
-
-        public class TFunction
-        {
-            public int Id { get; set; }
-            public int WidthInUnits { get; set; }
-            public Point Center { get; set; }
-            public Point Position { get; set; } // Top-left corner of the button
-            public int DistanceToObjArea; // in pixels
-            public ButtonState State { get; set; }
-
-            public TFunction(int id, int widthInUnit, Point center, Point position)
-            {
-                Id = id;
-                Center = center;
-                Position = position;
-                WidthInUnits = widthInUnit;
-                State = ButtonState.DEFAULT;
-
-            }
-
-        }
-
         //public int FunctionId;
         public List<TFunction> Functions;
         public List<TObject> Objects;
-        public List<Pair> ObjFuncMap;
+        public Dictionary<int, int> ObjFuncMap;
         public int Distance; // in pixels
 
         public Rect StartBtnRect;
@@ -75,15 +39,6 @@ namespace SubTask.PanelNavigation
             StartBtnRect = new Rect(0, 0, ExpLayouts.START_BUTTON_SMALL_DIM_MM.W, ExpLayouts.START_BUTTON_SMALL_DIM_MM.H);
         }
 
-        public void MapObjectToFunction(int objectId, int functionId)
-        {
-            var pair = new Pair(objectId, functionId);
-            if (!ObjFuncMap.Contains(pair))
-            {
-                ObjFuncMap.Add(pair);
-            }
-        }
-
         public TFunction GetFunctionById(int id)
         {
             foreach (TFunction func in Functions)
@@ -92,50 +47,6 @@ namespace SubTask.PanelNavigation
             }
 
             return null;
-        }
-
-        public int FindFunctionIndex(int funId)
-        {
-            for (int i = 0; i < Functions.Count; i++)
-            {
-                if (Functions[i].Id == funId) return i;
-            }
-
-            return -1;
-        }
-
-        public int FindMappedFunctionId(int objectId)
-        {
-            // Find the first function that is mapped to the given object funcId
-            var pair = ObjFuncMap.FirstOrDefault(p => p.First == objectId);
-            return pair != null ? pair.Second : -1; // Return -1 if no mapping found
-        }
-
-        public int FindMappedObjectId(int functionId)
-        {
-            // Find the first object that is mapped to the given function funcId
-            var pair = ObjFuncMap.FirstOrDefault(p => p.Second == functionId);
-            return pair != null ? pair.First : -1; // Return -1 if no mapping found
-        }
-
-        public bool IsEnabledFunction(int id)
-        {
-            // Check if it's the funcId of a function and its newState is enabled
-            TFunction func = GetFunctionById(id);
-            return (func != null) && (func.State == ButtonState.MARKED);
-        }
-
-        public bool AreAllFunctionsApplied()
-        {
-            foreach (TFunction func in Functions)
-            {
-                if (func.State != ButtonState.SELECTED)
-                {
-                    return false; // If any function is not selected, return false
-                }
-            }
-
-            return true; // All functions are selected
         }
 
         public bool AreAllObjectsApplied()
@@ -240,15 +151,6 @@ namespace SubTask.PanelNavigation
         public void SetFunctionAsApplied(int funcId)
         {
             ChangeFunctionState(funcId, ButtonState.SELECTED);
-        }
-
-        public void MarkMappedObject(int funcId)
-        {
-            int objId = FindMappedObjectId(funcId);
-            if (objId != -1)
-            {
-                ChangeObjectState(objId, ButtonState.MARKED);
-            }
         }
 
         public void ChangeObjectState(int objId, ButtonState newState)

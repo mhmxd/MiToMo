@@ -1,11 +1,5 @@
-﻿using MathNet.Filtering.Kalman;
-using MathNet.Numerics.LinearAlgebra;
+﻿using MathNet.Numerics.LinearAlgebra;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.UI;
 using System.Windows;
 
 namespace SubTask.PanelNavigation

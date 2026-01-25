@@ -1,7 +1,6 @@
 ﻿using Common.Constants;
 using Common.Logs;
 using Common.Settings;
-using Serilog;
 using Serilog.Core;
 using SubTask.PanelNavigation.Logging;
 using System;
@@ -113,7 +112,7 @@ namespace SubTask.PanelNavigation
             _trialCursorRecords[_activeTrialId] = new List<PositionRecord>();
 
             _cursorLogFilePath = Path.Combine(
-                MyDocumentsPath, LogsFolderName, 
+                MyDocumentsPath, LogsFolderName,
                 $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.CURSOR_C, $"trial-id{trialId}-n{trialNum}-{ExpStrs.CURSOR_S}"
             );
 
@@ -151,7 +150,7 @@ namespace SubTask.PanelNavigation
 
         public static void LogDetailTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            
+
             Output.Conlog<ExperiLogger>("Logging Trial");
             DetailTrialLog log = new DetailTrialLog();
 

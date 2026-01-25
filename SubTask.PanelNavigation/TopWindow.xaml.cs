@@ -1,4 +1,6 @@
 ﻿using Common.Constants;
+using Common.Settings;
+using CommonUI;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -7,7 +9,6 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using static Common.Helpers.Tools;
 
 namespace SubTask.PanelNavigation
 {
@@ -31,7 +32,7 @@ namespace SubTask.PanelNavigation
 
         private Random _random = new Random();
 
-        
+
 
         //private GridNavigator _gridNavigator;
         //private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
@@ -179,7 +180,7 @@ namespace SubTask.PanelNavigation
             if (_buttonsGrid != null)
             {
                 int minDist = UITools.MM2PX(ExpSizes.START_BUTTON_DIST_MM);
-                int maxDist = (int)(this.ActualWidth - _buttonsGrid.ActualWidth - largerSide - MM2PX(ExpLayouts.WINDOW_PADDING_MM));
+                int maxDist = (int)(this.ActualWidth - _buttonsGrid.ActualWidth - largerSide - UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM));
                 // Contineously generate a random distance until this Start button has no overlap with previous one
                 int randDis;
                 do

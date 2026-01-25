@@ -1,5 +1,7 @@
 ﻿using Common.Constants;
 using Common.Helpers;
+using Common.Settings;
+using CommonUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -322,7 +324,7 @@ namespace SubTask.PanelNavigation
             TFunction resultFunction = new
                 (
                     id: _buttonInfos[buttonInd].Button.Id,
-                    widthInUnit: _buttonInfos[buttonInd].Button.WidthMultiple,
+                    widthInUnits: _buttonInfos[buttonInd].Button.WidthMultiple,
                     center: GetGridButtonCenter(_buttonInfos[buttonInd].Button.Id),
                     position: GetGridButtonPosition(_buttonInfos[buttonInd].Button.Id)
                 );
@@ -530,7 +532,7 @@ namespace SubTask.PanelNavigation
             {
                 // Will be changed in the overridden method
                 Width = 0,
-                Height = 0, 
+                Height = 0,
                 Background = btnColor,
                 BorderBrush = Brushes.Black,
             };
@@ -561,7 +563,7 @@ namespace SubTask.PanelNavigation
 
         public virtual void RemoveStartBtn()
         {
-            
+
         }
 
         public void ChangeStartBtnColor(Brush newColor)
@@ -590,7 +592,7 @@ namespace SubTask.PanelNavigation
                 if (_buttonInfos.ContainsKey(buttonId))
                 {
                     _buttonInfos[buttonId].Button.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT; // Change the border color to highlight
-                                                                                                // Change the old button background based on the previous state
+                                                                                                  // Change the old button background based on the previous state
                     if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_BUTTON_HOVER_FILL)) // Gray => White
                     {
                         //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
@@ -717,7 +719,7 @@ namespace SubTask.PanelNavigation
         }
 
         public void MoveMarker(
-            TouchPoint tp, 
+            TouchPoint tp,
             Action<int, GridPos> OnFunctionMarked, Action<int, GridPos> OnFunctionDeMarked,
             Action<GridPos> OnButtonMarked)
         {
@@ -784,7 +786,7 @@ namespace SubTask.PanelNavigation
                     {
                         //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
                         oldButton.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL;
-                        
+
                     }
                     else if (oldButton.Background.Equals(UIColors.COLOR_FUNCTION_ENABLED)) // Light green => Orange
                     {

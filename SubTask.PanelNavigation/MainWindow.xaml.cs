@@ -7,6 +7,7 @@
 using Common.Constants;
 using Common.Helpers;
 using Common.Settings;
+using CommonUI;
 using CommunityToolkit.HighPerformance;
 using Microsoft.Research.TouchMouseSensor;
 using System;
@@ -28,7 +29,6 @@ using static Common.Constants.ExpEnums;
 using static Common.Helpers.Tools;
 using static SubTask.PanelNavigation.Experiment;
 using static SubTask.PanelNavigation.Output;
-using static SubTask.PanelNavigation.Utils;
 using MessageBox = System.Windows.Forms.MessageBox;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
@@ -710,7 +710,7 @@ namespace SubTask.PanelNavigation
                 Block block = _experiment.GetBlock(_activeBlockNum);
 
                 _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
-                if (Utils.GetDevice(_experiment.Active_Technique) == Technique.TOMO) _touchSurface.SetGestureHandler(_activeBlockHandler);
+                if (_experiment.Active_Technique.IsTomo()) _touchSurface.SetGestureHandler(_activeBlockHandler);
 
                 _activeBlockHandler.BeginActiveBlock();
 
@@ -1152,7 +1152,7 @@ namespace SubTask.PanelNavigation
         }
 
         public void MoveMarker(
-            TouchPoint touchPoint, 
+            TouchPoint touchPoint,
             Action<int, GridPos> OnFunctionMarked, Action<int, GridPos> OnFunctionDeMarked,
             Action<GridPos> OnButtonMarked)
         {

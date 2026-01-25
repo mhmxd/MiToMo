@@ -1,17 +1,14 @@
-﻿using System;
+﻿using Common.Constants;
+using Common.Helpers;
+using CommonUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Web.UI;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Common.Constants;
-using Common.Helpers;
-using Tensorflow;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.Tools;
-using static SubTask.PanelNavigation.TrialRecord;
 
 namespace SubTask.PanelNavigation
 {
@@ -95,7 +92,7 @@ namespace SubTask.PanelNavigation
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             int newStartDist = _mainWindow.ShowStartBtn(
                 _activeTrial.FuncSide,
-                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
+                UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
                 Experiment.START_INIT_COLOR,
                 _prevTrialStartDist,
                 startButtonEvents);
@@ -348,7 +345,7 @@ namespace SubTask.PanelNavigation
 
         public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
         {
-            
+
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             //-- Second press (on END)
@@ -359,7 +356,7 @@ namespace SubTask.PanelNavigation
                 // If marker is on function, change start button color to applied
                 if (_activeTrialRecord.HasFunctionState(ButtonState.MARKED))
                 {
-                    _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_APPLIED_COLOR);
+                    _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, UIColors.COLOR_START_UNAVAILABLE);
                     SetFunctionAsApplied(_activeTrialRecord.GetFunctionId());
                 }
                 else
@@ -372,12 +369,12 @@ namespace SubTask.PanelNavigation
                 LogEvent(ExpStrs.STR_PRESS);
             }
 
-                e.Handled = true; // Mark the event as handled to prevent further processing
+            e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
-            
+
 
             //-- Clicking END
             if (IsStartClicked())

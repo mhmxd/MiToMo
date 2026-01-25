@@ -1,10 +1,10 @@
 ﻿using Common.Constants;
 using Common.Settings;
+using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.Tools;
 
 namespace SubTask.PanelNavigation
 {
@@ -20,7 +20,7 @@ namespace SubTask.PanelNavigation
         private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
         //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
         private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30 }; // BenQ
-        
+
 
         public static Dictionary<Complexity, Dictionary<Side, List<int>>> BUTTON_WIDTHS = new Dictionary<Complexity, Dictionary<Side, List<int>>>()
         {
@@ -97,8 +97,8 @@ namespace SubTask.PanelNavigation
             {
                 int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
                 Block block = Block.CreateBlock(
-                    Active_Technique, ExpEnvironment.PTC_NUM, 
-                    blockId, complexity, expType, 
+                    Active_Technique, ExpEnvironment.PTC_NUM,
+                    blockId, complexity, expType,
                     ExpDesign.PN_N_REP);
                 _blocks.Add(block);
             }

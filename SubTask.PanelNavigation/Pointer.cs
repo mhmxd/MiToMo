@@ -1,12 +1,10 @@
 ﻿using Common.Constants;
+using Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using static SubTask.PanelNavigation.Output;
 using static System.Math;
 using Seril = Serilog.Log;
 

@@ -38,7 +38,7 @@ namespace SubTask.PanelNavigation
         }
 
         public static Trial CreateTrial(
-            int id, Technique tech, int ptc, 
+            int id, Technique tech, int ptc,
             Complexity complexity, ExperimentType expType,
             Side side)
         {
