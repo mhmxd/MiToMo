@@ -1,12 +1,10 @@
 ﻿using Common.Constants;
+using Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using static SubTask.FunctionPointSelect.Output;
 using static System.Math;
 using Seril = Serilog.Log;
 
@@ -31,14 +29,14 @@ namespace SubTask.FunctionPointSelect
             _frames = new List<TouchPoint>();
             _initMove = true;
 
-            _kf = new KalmanFilter(Config.FRAME_DUR_MS / 1000.0); // dT in seconds
+            _kf = new KalmanFilter(ExpEnvironment.FRAME_DUR_MS / 1000.0); // dT in seconds
         }
 
         public (double dX, double dY) Update(TouchPoint tp)
         {
             if (!_stopWatch.IsRunning) _stopWatch.Start();
 
-            if (_stopWatch.ElapsedMilliseconds < Config.FRAME_DUR_MS)
+            if (_stopWatch.ElapsedMilliseconds < ExpEnvironment.FRAME_DUR_MS)
             { // Still collecting frames
                 _frames.Add(tp);
 
@@ -83,8 +81,8 @@ namespace SubTask.FunctionPointSelect
                     // Compute speed and apply dynamic gain
                     double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
                     double gain =
-                        Config.BASE_GAIN +
-                        Config.SCALE_FACTOR * Tanh(speed * Config.SENSITIVITY);
+                        ExpEnvironment.BASE_GAIN +
+                        ExpEnvironment.SCALE_FACTOR * Tanh(speed * ExpEnvironment.SENSITIVITY);
 
                     double dX = filteredV.fvX * dT * gain;
                     double dY = filteredV.fvY * dT * gain;

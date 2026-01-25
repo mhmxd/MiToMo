@@ -468,7 +468,7 @@ namespace SubTask.PanelNavigation
 
         protected void SetObjectAsDisabled(int objId)
         {
-            _mainWindow.FillObject(objId, Config.OBJ_DEFAULT_COLOR);
+            _mainWindow.FillObject(objId, UIColors.COLOR_OBJ_DEFAULT);
         }
 
         public void UpdateScene()
@@ -483,7 +483,7 @@ namespace SubTask.PanelNavigation
                         funcColor = Config.FUNCTION_ENABLED_COLOR;
                         break;
                     case ButtonState.SELECTED:
-                        funcColor = Config.FUNCTION_APPLIED_COLOR;
+                        funcColor = UIColors.COLOR_FUNCTION_APPLIED;
                         break;
                 }
 

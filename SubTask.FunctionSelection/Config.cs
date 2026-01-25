@@ -101,7 +101,7 @@ namespace SubTask.FunctionSelection
         public static readonly (float DX, float DY) TAP_RING_THRESHOLD = (0.5f, 0.5f);
         public static readonly (float DX, float DY) TAP_PINKY_THRESHOLD = (0.5f, 0.5f);
 
-        public static readonly float SWIPE_MOVE_THRESHOLD = 0.8f; // pts
+        public static readonly float ExpEnvironment.SWIPE_MOVE_THRESHOLD = 0.8f; // pts
         // --------------------------------------
 
         // --------------- Colors ---------------

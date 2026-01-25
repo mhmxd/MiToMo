@@ -1,17 +1,11 @@
-﻿using System;
+﻿using Common.Constants;
+using Common.Helpers;
+using CommonUI;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Tensorflow;
-using Common.Constants;
-using static SubTask.FunctionPointSelect.Experiment;
-using static SubTask.FunctionPointSelect.TrialRecord;
-using static Tensorflow.TensorShapeProto.Types;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionPointSelect
@@ -79,7 +73,7 @@ namespace SubTask.FunctionPointSelect
 
         public bool FindPositionsForTrial(Trial trial)
         {
-            int objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
+            int objW = UITools.MM2PX(Experiment.OBJ_WIDTH_MM);
             int objHalfW = objW / 2;
 
             //this.TrialInfo(trial.ToStr());
@@ -119,8 +113,8 @@ namespace SubTask.FunctionPointSelect
                 //this.TrialInfo($"Found object position: {startCenter.ToStr()}");
 
                 // Get the top-left corner of the start button rectangle
-                int startBtnW = Utils.MM2PX(_trialRecords[trial.Id].StartBtnRect.Width);
-                int startBtnH = Utils.MM2PX(_trialRecords[trial.Id].StartBtnRect.Height);
+                int startBtnW = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Width);
+                int startBtnH = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Height);
                 int startBtnHalfW = startBtnW / 2;
                 Point startBtnPosition = startCenter.OffsetPosition(-startBtnHalfW);
 
@@ -136,7 +130,7 @@ namespace SubTask.FunctionPointSelect
 
                 // Put the object at the center
                 //Point objPosition = startBtnPosition.OffsetPosition((startBtnW - objW) / 2);
-                //TrialRecord.TObject obj = new TrialRecord.TObject(1, objPosition, startCenter); // Object is always 1 in this case
+                //TObject obj = new TObject(1, objPosition, startCenter); // Object is always 1 in this case
                 //_trialRecords[trial.Id].Objects.Add(obj);
 
                 return true;
@@ -191,7 +185,7 @@ namespace SubTask.FunctionPointSelect
 
             // Color the target button and set the handlers
             this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
-            Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
+            Brush funcDefaultColor = UIColors.COLOR_FUNCTION_DEFAULT;
             UpdateScene(); // (comment for measuring panel selection time)
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.FuncSide, 
@@ -214,7 +208,7 @@ namespace SubTask.FunctionPointSelect
             //    objAreaEvents);
 
             // Show objects
-            //Brush objDefaultColor = Config.OBJ_DEFAULT_COLOR;
+            //Brush objDefaultColor = UIColors.COLOR_OBJ_DEFAULT;
             //MouseEvents objectEvents = new MouseEvents(
             //    OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
             //_mainWindow.ShowObjects(
@@ -375,7 +369,7 @@ namespace SubTask.FunctionPointSelect
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(ExpStrs.MAIN_WIN_RELEASE);
-            
+
             if (IsStartPressed() && !IsStartClicked()) // Start button not clicked yet
             {
                 Sounder.PlayStartMiss();
@@ -755,7 +749,7 @@ namespace SubTask.FunctionPointSelect
 
                 // Change START to END and unavailable (until all functions are applied)
                 _mainWindow.ChangeStartButtonText(ExpStrs.END_CAP);
-                _mainWindow.ChangeStartButtonColor(Config.DARK_ORANGE);
+                _mainWindow.ChangeStartButtonColor(UIColors.DARK_ORANGE);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -790,7 +784,7 @@ namespace SubTask.FunctionPointSelect
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId,
-                Config.FUNCTION_ENABLED_COLOR);
+                UIColors.COLOR_FUNCTION_ENABLED);
         }
 
         //public void SetFunctionAsDisabled(int funcId)
@@ -798,7 +792,7 @@ namespace SubTask.FunctionPointSelect
         //    _mainWindow.FillButtonInAuxWindow(
         //        _activeTrial.FuncSide,
         //        funcId,
-        //        Config.FUNCTION_DEFAULT_COLOR);
+        //        UIColors.COLOR_FUNCTION_DEFAULT);
         //}
 
         public void SetFunctionAsApplied(int funcId)
@@ -808,25 +802,25 @@ namespace SubTask.FunctionPointSelect
 
         protected void SetObjectAsDisabled(int objId)
         {
-            _mainWindow.FillObject(objId, Config.OBJ_DEFAULT_COLOR);
+            _mainWindow.FillObject(objId, UIColors.COLOR_OBJ_DEFAULT);
         }
 
         public void UpdateScene()
         {
             foreach (var func in _activeTrialRecord.Functions)
             {
-                Brush funcColor = Config.FUNCTION_DEFAULT_COLOR;
+                Brush funcColor = UIColors.COLOR_FUNCTION_DEFAULT;
                 //this.TrialInfo($"Function#{func.Id} state: {func.State}");
                 switch (func.State)
                 {
                     case ButtonState.ENABLED:
-                        funcColor = Config.FUNCTION_ENABLED_COLOR;
+                        funcColor = UIColors.COLOR_FUNCTION_ENABLED;
                         break;
                     case ButtonState.MARKED:
-                        funcColor = Config.FUNCTION_ENABLED_COLOR;
+                        funcColor = UIColors.COLOR_FUNCTION_ENABLED;
                         break;
                     case ButtonState.SELECTED:
-                        funcColor = Config.FUNCTION_APPLIED_COLOR;
+                        funcColor = UIColors.COLOR_FUNCTION_APPLIED;
                         break;
                 }
 
@@ -835,14 +829,14 @@ namespace SubTask.FunctionPointSelect
 
             foreach (var obj in _activeTrialRecord.Objects)
             {
-                Brush objColor = Config.OBJ_DEFAULT_COLOR;
+                Brush objColor = UIColors.COLOR_OBJ_DEFAULT;
                 switch (obj.State)
                 {
                     case ButtonState.MARKED:
-                        objColor = Config.OBJ_MARKED_COLOR;
+                        objColor = UIColors.COLOR_OBJ_MARKED;
                         break;
                     case ButtonState.SELECTED:
-                        objColor = Config.OBJ_APPLIED_COLOR;
+                        objColor = UIColors.COLOR_OBJ_APPLIED;
                         break;
                 }
 

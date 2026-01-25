@@ -4,7 +4,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace SubTask.FunctionPointSelect
+namespace CommonUI
 {
     public class SButton : Button
     {
@@ -17,13 +17,13 @@ namespace SubTask.FunctionPointSelect
         // Property to store the unique ID
         public int Id { get; private set; }
 
-        // Position in the grid
-        public GridPos RowCol { get; set; }
-
         public int LeftId { get; private set; } = -1; // Default to -1 (no neighbor)
         public int RightId { get; private set; } = -1;
         public int TopId { get; private set; } = -1;
         public int BottomId { get; private set; } = -1;
+
+        // Position in the grid
+        public GridPos RowCol { get; set; }
 
         public static readonly DependencyProperty DisableBackgroundHoverProperty =
          DependencyProperty.Register("DisableBackgroundHover", typeof(bool), typeof(SButton), new PropertyMetadata(false));
@@ -39,8 +39,8 @@ namespace SubTask.FunctionPointSelect
             this.Id = Interlocked.Increment(ref _nextId);
             this.Tag = Id;
 
-            this.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Set the background color
-            this.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Set the border brush for the button
+            this.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Set the background color
+            this.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER; // Set the border brush for the button
             this.BorderThickness = new Thickness(2); // Set the border thickness
             this.Padding = new Thickness(0);
             this.Margin = new Thickness(0); // Set the margin to zero
@@ -70,12 +70,12 @@ namespace SubTask.FunctionPointSelect
             var backgroundHoverTrigger = new MultiTrigger();
             backgroundHoverTrigger.Conditions.Add(new Condition(IsMouseOverProperty, true));
             backgroundHoverTrigger.Conditions.Add(new Condition(DisableBackgroundHoverProperty, false));
-            backgroundHoverTrigger.Setters.Add(new Setter(Border.BackgroundProperty, Config.BUTTON_HOVER_FILL_COLOR, "MainBorder"));
+            backgroundHoverTrigger.Setters.Add(new Setter(Border.BackgroundProperty, UIColors.COLOR_BUTTON_HOVER_FILL, "MainBorder"));
             template.Triggers.Add(backgroundHoverTrigger);
 
             // Trigger for border hover (always active)
             var borderHoverTrigger = new Trigger { Property = IsMouseOverProperty, Value = true };
-            borderHoverTrigger.Setters.Add(new Setter(Border.BorderBrushProperty, Config.BUTTON_HOVER_BORDER_COLOR, "MainBorder"));
+            borderHoverTrigger.Setters.Add(new Setter(Border.BorderBrushProperty, UIColors.COLOR_BUTTON_HOVER_BORDER, "MainBorder"));
             template.Triggers.Add(borderHoverTrigger);
 
             this.Template = template;
@@ -107,7 +107,7 @@ namespace SubTask.FunctionPointSelect
             }
         }
 
-        public override string ToString()
+        public string ToString()
         {
             return $"SButton(Id={Id}, Width={WidthMultiple}, LeftId={LeftId}, RightId={RightId}, TopId={TopId}, BottomId={BottomId})";
         }

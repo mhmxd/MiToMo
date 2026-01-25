@@ -39,7 +39,7 @@ namespace SubTask.Panel.Selection
             _touchFrames = new List<TouchPoint>();
 
             //_kf = new KalmanFilter(dT);
-            _kvf = new KalmanVeloFilter(Config.VKF_PROCESS_NOISE, Config.VKF_MEASURE_NOISE);
+            _kvf = new KalmanVeloFilter(ExpEnvironment.VKF_PROCESS_NOISE, Config.VKF_MEASURE_NOISE);
 
         }
 
@@ -101,8 +101,8 @@ namespace SubTask.Panel.Selection
                     // Compute speed and apply dynamic gain
                     double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
                     double gain =
-                        Config.BASE_GAIN +
-                        Config.SCALE_FACTOR * Tanh(speed * Config.SENSITIVITY);
+                        ExpEnvironment.BASE_GAIN +
+                        ExpEnvironment.SCALE_FACTOR * Tanh(speed * ExpEnvironment.SENSITIVITY);
 
                     double dX = filteredV.fvX * dT * gain;
                     double dY = filteredV.fvY * dT * gain;

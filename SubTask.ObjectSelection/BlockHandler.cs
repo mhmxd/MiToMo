@@ -92,7 +92,7 @@ namespace SubTask.ObjectSelection
             // Show the objects
             MouseEvents objectEvents = new MouseEvents(
                 OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
-            _mainWindow.ShowObjects(_activeTrialRecord.Objects, Config.OBJ_DEFAULT_COLOR, objectEvents);
+            _mainWindow.ShowObjects(_activeTrialRecord.Objects, UIColors.COLOR_OBJ_DEFAULT, objectEvents);
 
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseEnter, OnStartButtonMouseExit);
@@ -552,7 +552,7 @@ namespace SubTask.ObjectSelection
 
         protected void SetObjectAsDisabled(int objId)
         {
-            _mainWindow.FillObject(objId, Config.OBJ_DEFAULT_COLOR);
+            _mainWindow.FillObject(objId, UIColors.COLOR_OBJ_DEFAULT);
         }
 
         public void UpdateScene()
@@ -560,14 +560,14 @@ namespace SubTask.ObjectSelection
 
             foreach (var obj in _activeTrialRecord.Objects)
             {
-                Brush objColor = Config.OBJ_DEFAULT_COLOR;
+                Brush objColor = UIColors.COLOR_OBJ_DEFAULT;
                 switch (obj.State)
                 {
                     case ButtonState.ENABLED:
                         objColor = Config.OBJ_ENABLED_COLOR;
                         break;
                     case ButtonState.SELECTED:
-                        objColor = Config.OBJ_APPLIED_COLOR;
+                        objColor = UIColors.COLOR_OBJ_APPLIED;
                         break;
                 }
 

@@ -28,9 +28,9 @@ namespace SubTask.FunctionSelection
 
         //-- Constants
         //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
-        //public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
-        //public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
-        //public static double START_W_MM = Config.EXCEL_CELL_W;
+        //public static double OBJ_WIDTH_MM = ExpSizes.EXCEL_CELL_W;
+        //public static double OBJ_AREA_WIDTH_MM = ExpSizes.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
+        //public static double START_W_MM = ExpSizes.EXCEL_CELL_W;
         //public static double START_H_MM = Config.EXCEL_CELL_H;
 
         //-- Colors

@@ -109,7 +109,7 @@ namespace Multi.Cursor
 
                 // Put the object at the center
                 Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
-                TrialRecord.TObject obj = new TrialRecord.TObject(1, objPosition, objCenter); // Object is always 1 in this case
+                TObject obj = new TObject(1, objPosition, objCenter); // Object is always 1 in this case
                 _trialRecords[trial.Id].Objects.Add(obj);
 
                 return true;
@@ -128,7 +128,7 @@ namespace Multi.Cursor
 
             // Color the target button and set the handlers
             this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().Str()}");
-            Brush funcDefaultColor = UIColors.FUNCTION_DEFAULT_COLOR;
+            Brush funcDefaultColor = UIColors.COLOR_FUNCTION_DEFAULT;
             UpdateScene(); // (comment for measuring panel selection time)
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.FuncSide, 
@@ -150,11 +150,11 @@ namespace Multi.Cursor
             MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
                 _activeTrialRecord.ObjectAreaRect, 
-                UIColors.OBJ_AREA_BG_COLOR, 
+                UIColors.COLOR_OBJ_AREA_BG, 
                 objAreaEvents);
             
             // Show objects
-            Brush objDefaultColor = UIColors.OBJ_DEFAULT_COLOR;
+            Brush objDefaultColor = UIColors.COLOR_OBJ_DEFAULT;
             MouseEvents objectEvents = new MouseEvents(
                 OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
             _mainWindow.ShowObjects(

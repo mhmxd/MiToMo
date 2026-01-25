@@ -1,12 +1,12 @@
-﻿using Common.Helpers;
+﻿using Common.Constants;
+using Common.Helpers;
 using Common.Settings;
-using static Common.Helpers.Tools;
 
-namespace SubTask.FunctionPointSelect
+namespace CommonUI
 {
-    internal class ButtonFactory
+    public class ButtonFactory
     {
-        private static double UNIT = MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
+        private static double UNIT = UITools.MM2PX(ExpSizes.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         private static double BUTTON_HEIGHT = 6 * UNIT; // Height of each row in pixels
 
         public static SButton CreateButton(string widthX, int row, int col)

@@ -1,21 +1,14 @@
 ﻿
 using CommunityToolkit.HighPerformance;
 using Serilog;
-using Serilog.Enrichers.CallerInfo; // Alias Serilog's Log class
 using Serilog.Enrichers.WithCaller;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Shapes;
-using System.Xml.Linq;
-using static SubTask.FunctionPointSelect.MainWindow;
 using ILogger = Serilog.ILogger;
-using Seril = Serilog.Log;
 
 namespace SubTask.FunctionPointSelect
 {
@@ -118,47 +111,6 @@ namespace SubTask.FunctionPointSelect
 
         }
 
-        public static string ToStr(this Span2D<Byte> span)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("---------------------------------");
-            for (int i = 0; i < span.Height; i++)
-            {
-                for (int j = 0; j < span.Width; j++)
-                {
-                    sb.Append(span[i, j]).Append("\t");
-                }
-                sb.AppendLine();
-            }
-
-            return sb.ToString();
-        }
-
-        public static string ToStr(this Dictionary<int, TouchPoint> touchPoints)
-        {
-            if (touchPoints == null)
-            {
-                return "null";
-            }
-
-            StringBuilder sb = new StringBuilder();
-            sb.Append("{");
-            bool firstPair = true;
-
-            foreach (var pair in touchPoints)
-            {
-                if (!firstPair)
-                {
-                    sb.Append(",\n");
-                }
-                sb.Append(pair.Key).Append(": ").Append(pair.Value);
-                firstPair = false;
-            }
-
-            sb.Append("}");
-            return sb.ToString();
-        }
-
         public static string GetKeys(Dictionary<int, TouchPoint> touchPoints)
         {
             if (touchPoints == null)
@@ -234,23 +186,6 @@ namespace SubTask.FunctionPointSelect
                    $"BL: ({rect.BottomLeft.X:F0} | {rect.BottomLeft.Y:F0})";
         }
 
-        public static string GetCorners(this Window window)
-        {
-            var windowRect = window.GetRect();
-            return $"TL: ({windowRect.TopLeft.X:F0} | {windowRect.TopLeft.Y:F0}) | " +
-                    $"TR: ({windowRect.TopRight.X:F0} | {windowRect.TopRight.Y:F0}) | " +
-                    $"BR: ({windowRect.BottomRight.X:F0} | {windowRect.BottomRight.Y:F0}) | " +
-                    $"BL: ({windowRect.BottomLeft.X:F0} | {windowRect.BottomLeft.Y:F0})";
-        }
-
-        public static string GetCorners(this Window window, int padding)
-        {
-            var windowRect = window.GetRect();
-            return $"TL: ({windowRect.TopLeft.X:F0} | {windowRect.TopLeft.Y:F0}) | " +
-                    $"TR: ({windowRect.TopRight.X:F0} | {windowRect.TopRight.Y:F0}) | " +
-                    $"BR: ({windowRect.BottomRight.X:F0} | {windowRect.BottomRight.Y:F0}) | " +
-                    $"BL: ({windowRect.BottomLeft.X:F0} | {windowRect.BottomLeft.Y:F0})";
-        }
 
         public static string ToStr(this Point point)
         {

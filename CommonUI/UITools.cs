@@ -1,11 +1,9 @@
-﻿using System;
+﻿using Common.Helpers;
+using System;
 using System.Collections.Generic;
-using System.Security.Policy;
-using System.Windows;
-using System.Windows.Controls;
 using System.Linq;
+using System.Windows;
 using static Common.Constants.ExpEnums;
-using Common.Helpers;
 
 namespace CommonUI
 {

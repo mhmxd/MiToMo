@@ -1,10 +1,7 @@
-﻿using System;
+﻿using Common.Helpers;
+using CommonUI;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionPointSelect
@@ -34,7 +31,7 @@ namespace SubTask.FunctionPointSelect
             get => _targetWidthMM;
             set => _targetWidthMM = value;
         }
-        public double TargetWidthPX => Utils.MM2PX(TargetWidthMM);
+        public double TargetWidthPX => UITools.MM2PX(TargetWidthMM);
 
         // DistanceMM to the target center, from start's center
         //private double _distanceMM;
@@ -43,12 +40,12 @@ namespace SubTask.FunctionPointSelect
         //    get => _distanceMM;
         //    set => _distanceMM = value;
         //}
-        //public int DistancePX => Utils.MM2PX(DistanceMM);
+        //public int DistancePX => UITools.MM2PX(DistanceMM);
 
         //public List<double> Distances = new List<double>(); // Distances in px
 
         public Range DistRangeMM { get; set; }
-        public Range DistRangePX => DistRangeMM.GetPx(); // DistanceMM range in px
+        public Range DistRangePX => new Range(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label);
 
         //public Point StartPosition, TargetPosition; // Relative to the respective windows
 

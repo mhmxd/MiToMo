@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SubTask.FunctionPointSelect
+namespace Common.Helpers
 {
     public static class Timer
     {

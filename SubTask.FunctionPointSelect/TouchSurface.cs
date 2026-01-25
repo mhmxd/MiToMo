@@ -1,21 +1,14 @@
 ﻿using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
 using CommunityToolkit.HighPerformance;
-using MathNet.Numerics.LinearAlgebra.Factorization;
-using Serilog.Core;
-using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Web.UI;
 using System.Windows;
-using System.Windows.Input;
 using static Common.Constants.ExpEnums;
 using static SubTask.FunctionPointSelect.Output;
-using static SubTask.FunctionPointSelect.Utils;
 using static System.Math;
 
 namespace SubTask.FunctionPointSelect
@@ -77,7 +70,7 @@ namespace SubTask.FunctionPointSelect
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Utils.InInc(key, keyMin, keyMax)) return true;
+                    if (Tools.InInc(key, keyMin, keyMax)) return true;
                 }
 
                 return false;
@@ -87,7 +80,7 @@ namespace SubTask.FunctionPointSelect
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Utils.InInc(key, keyMin, keyMax)) return false;
+                    if (Tools.InInc(key, keyMin, keyMax)) return false;
                 }
 
                 return true;
@@ -97,7 +90,7 @@ namespace SubTask.FunctionPointSelect
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Utils.InInc(key, finger.MinCol, finger.MaxCol)) return false;
+                    if (Tools.InInc(key, finger.MinCol, finger.MaxCol)) return false;
                 }
 
                 return true;
@@ -112,7 +105,7 @@ namespace SubTask.FunctionPointSelect
             {
                 foreach (var kv in Pointers)
                 {
-                    if (Utils.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
+                    if (Tools.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
                 }
 
                 return null;
@@ -200,7 +193,7 @@ namespace SubTask.FunctionPointSelect
             {
                 for (int x = 0; x < shotSpan.Width; x++)
                 {
-                    if (shotSpan[y, x] > Config.MIN_PRESSURE && !visited[y, x])
+                    if (shotSpan[y, x] > ExpEnvironment.MIN_PRESSURE && !visited[y, x])
                     {
                         List<(int, int)> blob = new List<(int, int)>();
                         Queue<(int, int)> toVisit = new Queue<(int, int)>();
@@ -218,7 +211,7 @@ namespace SubTask.FunctionPointSelect
                                 int nx = currentX + dx[i];
                                 int ny = currentY + dy[i];
                                 if (nx >= 0 && nx < shotSpan.Width && ny >= 0 && ny < shotSpan.Height &&
-                                    shotSpan[ny, nx] > Config.MIN_PRESSURE && !visited[ny, nx])
+                                    shotSpan[ny, nx] > ExpEnvironment.MIN_PRESSURE && !visited[ny, nx])
                                 {
                                     visited[ny, nx] = true;
                                     toVisit.Enqueue((nx, ny));
@@ -270,8 +263,8 @@ namespace SubTask.FunctionPointSelect
                                     byte leftPressure = (blob.Contains((x - 1, y))) ? shotSpan[y, x - 1] : (byte)0;
                                     byte rightPressure = (blob.Contains((x + 1, y))) ? shotSpan[y, x + 1] : (byte)0;
 
-                                    if (currentPressure < leftPressure - Config.LOCAL_MINIMA_DROP_THRESHOLD &&
-                                        currentPressure < rightPressure - Config.LOCAL_MINIMA_DROP_THRESHOLD)
+                                    if (currentPressure < leftPressure - ExpEnvironment.LOCAL_MINIMA_DROP_THRESHOLD &&
+                                        currentPressure < rightPressure - ExpEnvironment.LOCAL_MINIMA_DROP_THRESHOLD)
                                     {
                                         if (currentPressure < minPressure)
                                         {
@@ -354,7 +347,7 @@ namespace SubTask.FunctionPointSelect
             // 8. Final Activation Check
             foreach (var kvp in potentialFingers)
             {
-                if (kvp.Value.GetTotalPressure() > Config.MIN_TOTAL_PRESSURE) // Your min pressure
+                if (kvp.Value.GetTotalPressure() > ExpEnvironment.MIN_TOTAL_PRESSURE) // Your min pressure
                 {
                     activeFrame.AddPointer(kvp.Key, kvp.Value);
                 }
@@ -763,9 +756,9 @@ namespace SubTask.FunctionPointSelect
 
         private bool PassTapConditions(long dT, double dX, double dY)
         {
-            return Utils.In(dT, Config.TAP_TIME_MIN, Config.TAP_TIME_MAX)
-                        && dX < Config.TAP_GENERAL_THRESHOLD.DX
-                        && dY < Config.TAP_GENERAL_THRESHOLD.DY;
+            return Tools.In(dT, ExpEnvironment.TAP_TIME_MIN, ExpEnvironment.TAP_TIME_MAX)
+                        && dX < ExpEnvironment.TAP_GENERAL_THRESHOLD.DX
+                        && dY < ExpEnvironment.TAP_GENERAL_THRESHOLD.DY;
         }
 
         //========= Swipe tech tracking ==========================
@@ -790,7 +783,7 @@ namespace SubTask.FunctionPointSelect
                     int gestureDT = (int)((deltaTicks / (float)Stopwatch.Frequency) * 1000); //in ms
 
                     // Duration is good => Check movement
-                    if (gestureDT < Config.SWIPE_TIME_MAX)
+                    if (gestureDT < ExpEnvironment.SWIPE_TIME_MAX)
                     {
                         TouchPoint firstTouchPoint = _thumbGestureStart.GetPointer(finger);
                         double dX = center.X - firstTouchPoint.GetX();
@@ -798,9 +791,9 @@ namespace SubTask.FunctionPointSelect
                         //GestInfo<TouchSurface>($"dT = {gestureDT:F2} | dX = {dX:F2}, dY = {dY:F2}");
                         //LogMove(finger.ToString(), gestureDT, dX, dY); // LOG
                         //-- Check for swipe left-right
-                        if (Abs(dX) > Config.SWIPE_MOVE_THRESHOLD) // Good amount of movement along x
+                        if (Abs(dX) > ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Good amount of movement along x
                         {
-                            if (Abs(dY) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
+                            if (Abs(dY) < ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
                             {
                                 // Swipe along x
                                 _gestureHandler?.ThumbSwipe(dX > 0 ? Direction.Right : Direction.Left);
@@ -812,9 +805,9 @@ namespace SubTask.FunctionPointSelect
                             }
                         }
                         // -- Check for swipe up-down (either this or left-right)
-                        else if (Abs(dY) > Config.SWIPE_MOVE_THRESHOLD) // Good amount of movement along y
+                        else if (Abs(dY) > ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Good amount of movement along y
                         {
-                            if (Abs(dX) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
+                            if (Abs(dX) < ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
                             {
                                 // Swipe along y
                                 _gestureHandler?.ThumbSwipe(dY > 0 ? Direction.Down : Direction.Up);

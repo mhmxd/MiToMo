@@ -14,25 +14,25 @@ namespace CommonUI
         public static readonly Brush LIGHT_PURPLE =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B19CD7"));
 
-        public static readonly Brush START_AVAILABLE_COLOR = Brushes.Green;
-        public static readonly Brush START_UNAVAILABLE_COLOR = DARK_ORANGE;
+        public static readonly Brush COLOR_START_AVAILABLE = Brushes.Green;
+        public static readonly Brush COLOR_START_UNAVAILABLE = DARK_ORANGE;
 
-        public static readonly Brush OBJ_AREA_BG_COLOR = Brushes.White; // Background color of the object area
+        public static readonly Brush COLOR_OBJ_AREA_BG = Brushes.White; // Background color of the object area
 
-        public static readonly Brush OBJ_MARKED_COLOR = Brushes.LightGreen;
-        public static readonly Brush OBJ_APPLIED_COLOR = Brushes.Green;
-        public static readonly Brush OBJ_DEFAULT_COLOR = Brushes.Gray;
+        public static readonly Brush COLOR_OBJ_MARKED = Brushes.LightGreen;
+        public static readonly Brush COLOR_OBJ_APPLIED = Brushes.Green;
+        public static readonly Brush COLOR_OBJ_DEFAULT = Brushes.Gray;
 
-        public static readonly Brush FUNCTION_DEFAULT_COLOR = DARK_ORANGE;
-        public static readonly Brush FUNCTION_ENABLED_COLOR = Brushes.LightGreen;
-        public static readonly Brush FUNCTION_APPLIED_COLOR = Brushes.Green;
+        public static readonly Brush COLOR_FUNCTION_DEFAULT = DARK_ORANGE;
+        public static readonly Brush COLOR_FUNCTION_ENABLED = Brushes.LightGreen;
+        public static readonly Brush COLOR_FUNCTION_APPLIED = Brushes.Green;
 
-        public static readonly Brush ELEMENT_HIGHLIGHT_COLOR = Brushes.Black;
-        public static readonly Brush GRID_TARGET_COLOR = Brushes.LightGreen;
-        public static readonly Brush BUTTON_DEFAULT_FILL_COLOR = Brushes.White;
-        public static readonly Brush BUTTON_DEFAULT_BORDER_COLOR = Brushes.LightGray;
+        public static readonly Brush COLOR_ELEMENT_HIGHLIGHT = Brushes.Black;
+        public static readonly Brush COLOR_GRID_TARGET = Brushes.LightGreen;
+        public static readonly Brush COLOR_BUTTON_DEFAULT_FILL = Brushes.White;
+        public static readonly Brush COLOR_BUTTON_DEFAULT_BORDER = Brushes.LightGray;
 
-        public static readonly Brush BUTTON_HOVER_FILL_COLOR = Brushes.LightGray; // Color when hovering over an element
-        public static readonly Brush BUTTON_HOVER_BORDER_COLOR = Brushes.Black; // Color when hovering over an element border
+        public static readonly Brush COLOR_BUTTON_HOVER_FILL = Brushes.LightGray; // Color when hovering over an element
+        public static readonly Brush COLOR_BUTTON_HOVER_BORDER = Brushes.Black; // Color when hovering over an element border
     }
 }

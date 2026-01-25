@@ -5,54 +5,29 @@
 ********************************************************/
 
 using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
 using CommunityToolkit.HighPerformance;
-using CommunityToolkit.HighPerformance.Helpers;
 using Microsoft.Research.TouchMouseSensor;
-using NumSharp;
-using NumSharp.Utilities;
-using Serilog;
-using Serilog.Core;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Reflection;
-using System.Resources;
-using System.Runtime.CompilerServices;
 //using Tensorflow;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Security.Policy;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Markup;
 using System.Windows.Media;
-//using static Tensorflow.tensorflow;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Xml.Linq;
 using WindowsInput;
 using static Common.Constants.ExpEnums;
-using static SubTask.FunctionPointSelect.BlockHandler;
 using static SubTask.FunctionPointSelect.Experiment;
 using static SubTask.FunctionPointSelect.Output;
-using static SubTask.FunctionPointSelect.Utils;
-using static System.Math;
 using MessageBox = System.Windows.Forms.MessageBox;
-using Seril = Serilog.Log;
-using SysDraw = System.Drawing;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
 
@@ -132,11 +107,11 @@ namespace SubTask.FunctionPointSelect
 
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
-        private int VERTICAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
-        private int HORIZONTAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
+        private int VERTICAL_PADDING = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM); // Padding for the windows
+        private int HORIZONTAL_PADDING = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM); // Padding for the windows
 
-        private int TopWindowHeight = Utils.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
-        private int SideWindowWidth = Utils.MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
+        private int TopWindowHeight = UITools.MM2PX(ExpLayouts.TOP_WINDOW_HEIGTH_MM);
+        private int SideWindowWidth = UITools.MM2PX(ExpLayouts.SIDE_WINDOW_WIDTH_MM);
 
 
         // Dead zone
@@ -318,13 +293,13 @@ namespace SubTask.FunctionPointSelect
 
         private void CreateExperiment()
         {
-            double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
+            double padding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
+            double objHalfWidth = UITools.MM2PX(OBJ_WIDTH_MM) / 2;
             double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double startHalfWidth = OBJ_WIDTH_MM / 2;
-            double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
-            //double objAreaRadius = Utils.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
-            double objAreaHalfWidth = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
+            double smallButtonHalfWidth = UITools.MM2PX(smallButtonHalfWidthMM);
+            //double objAreaRadius = UITools.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
+            double objAreaHalfWidth = UITools.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
 
             // Distances (v.3)
             // Longest
@@ -332,7 +307,7 @@ namespace SubTask.FunctionPointSelect
                 padding + smallButtonHalfWidth,
                 padding + smallButtonHalfWidth
              );
-            Point leftMostSmallButtonCenterAbsolute = Utils.OffsetPosition(
+            Point leftMostSmallButtonCenterAbsolute = UITools.OffsetPosition(
                 leftMostSmallButtonCenterPosition,
                 _leftWindow.Left, _leftWindow.Top);
 
@@ -340,17 +315,17 @@ namespace SubTask.FunctionPointSelect
                 _mainWinRect.Right - padding - objAreaHalfWidth,
                 _mainWinRect.Top + padding - objAreaHalfWidth
             );
-            //Point rightMostObjAreaCenterAbsolute = Utils.OffsetPosition(
+            //Point rightMostObjAreaCenterAbsolute = UITools.OffsetPosition(
             //    rightMostObjAreaCenterPosition, 
             //    this.Left, this.Top);
 
-            double longestDistMM = Utils.DistInMM(leftMostSmallButtonCenterAbsolute, rightMostObjAreaCenterAbsolute);
+            double longestDistMM = UITools.DistInMM(leftMostSmallButtonCenterAbsolute, rightMostObjAreaCenterAbsolute);
             this.TrialInfo($"Main Rect: {_mainWinRect.ToString()}");
             //ShowPoint(rightMostObjAreaCenterPosition);
             //_leftWindow.ShowPoint(leftMostSmallButtonCenterPosition);
             //double longestDistMM =
-            //    (Config.SIDE_WINDOW_WIDTH_MM - Config.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
-            //    Utils.PX2MM(this.ActualWidth) - Config.WINDOW_PADDING_MM - startHalfWidth;
+            //    (Config.SIDE_WINDOW_WIDTH_MM - ExpLayouts.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
+            //    Utils.PX2MM(this.ActualWidth) - ExpLayouts.WINDOW_PADDING_MM - startHalfWidth;
 
 
             // Shortest
@@ -358,18 +333,18 @@ namespace SubTask.FunctionPointSelect
                 padding + smallButtonHalfWidth,
                 padding + smallButtonHalfWidth
             );
-            Point topLeftButtonCenterAbsolute = Utils.OffsetPosition(topLeftButtonCenterPosition, _topWindow.Left, _topWindow.Top);
+            Point topLeftButtonCenterAbsolute = UITools.OffsetPosition(topLeftButtonCenterPosition, _topWindow.Left, _topWindow.Top);
 
             Point topLeftObjAreaCenterPosition = new Point(
                 padding + objAreaHalfWidth,
                 padding + objAreaHalfWidth
             );
-            Point topLeftObjAreaCenterAbsolute = Utils.OffsetPosition(topLeftObjAreaCenterPosition, this.Left, this.Top);
+            Point topLeftObjAreaCenterAbsolute = UITools.OffsetPosition(topLeftObjAreaCenterPosition, this.Left, this.Top);
 
-            double shortestDistMM = Utils.DistInMM(topLeftButtonCenterAbsolute, topLeftObjAreaCenterAbsolute);
+            double shortestDistMM = UITools.DistInMM(topLeftButtonCenterAbsolute, topLeftObjAreaCenterAbsolute);
 
-            //double topLeftStartCenterLeft = Config.SIDE_WINDOW_WIDTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
-            //double topLeftStartCenterTop = Config.TOP_WINDOW_HEIGTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
+            //double topLeftStartCenterLeft = Config.SIDE_WINDOW_WIDTH_MM + ExpLayouts.WINDOW_PADDING_MM + startHalfWidth;
+            //double topLeftStartCenterTop = ExpLayouts.TOP_WINDOW_HEIGTH_MM + ExpLayouts.WINDOW_PADDING_MM + startHalfWidth;
             //Point topLeftStartCenterAbsolute = new Point(topLeftStartCenterLeft, topLeftStartCenterTop);
 
             this.TrialInfo($"topLeftObjAreaCenterPosition: {topLeftButtonCenterAbsolute.ToStr()}");
@@ -453,8 +428,8 @@ namespace SubTask.FunctionPointSelect
 
                 // Set the window position to the second monitor's working area
                 this.WindowStartupLocation = WindowStartupLocation.Manual;
-                this.Left = Config.ACTIVE_SCREEN.WorkingArea.Left + SideWindowWidth;
-                this.Top = Config.ACTIVE_SCREEN.WorkingArea.Top + TopWindowHeight;
+                this.Left = secondScreen.WorkingArea.Left + SideWindowWidth;
+                this.Top = secondScreen.WorkingArea.Top + TopWindowHeight;
             }
         }
 
@@ -471,17 +446,16 @@ namespace SubTask.FunctionPointSelect
             if (screens.Length > 1)
             {
                 // Get the second monitor
-                //var secondScreen = screens[1];
-                Config.ACTIVE_SCREEN = screens[1];
+                var secondScreen = screens[1];
 
                 //-- Background window
                 _backgroundWindow = new BackgroundWindow
                 {
                     WindowStartupLocation = WindowStartupLocation.Manual,
-                    Left = Config.ACTIVE_SCREEN.WorkingArea.Left,
-                    Top = Config.ACTIVE_SCREEN.WorkingArea.Top,
-                    Width = Config.ACTIVE_SCREEN.WorkingArea.Width,
-                    Height = Config.ACTIVE_SCREEN.WorkingArea.Height,
+                    Left = secondScreen.WorkingArea.Left,
+                    Top = secondScreen.WorkingArea.Top,
+                    Width = secondScreen.WorkingArea.Width,
+                    Height = secondScreen.WorkingArea.Height,
                     WindowState = WindowState.Normal, // Start as normal to set position
                 };
 
@@ -489,46 +463,46 @@ namespace SubTask.FunctionPointSelect
                 _backgroundWindow.Show();
                 _backgroundWindow.WindowState = WindowState.Maximized;
 
-                Outlog<MainWindow>().Information($"Monitor WorkingArea H = {Config.ACTIVE_SCREEN.WorkingArea.Height}");
+                Outlog<MainWindow>().Information($"Monitor WorkingArea H = {secondScreen.WorkingArea.Height}");
                 Outlog<MainWindow>().Information($"BackgroundWindow Actual H (after maximize) = {_backgroundWindow.ActualHeight}");
 
                 // Set the height as mm
                 //_monitorHeightMM = Utils.PX2MM(Config.ACTIVE_SCREEN.WorkingArea.Height);
                 _monitorHeightMM = 335;
-                Outlog<MainWindow>().Information($"Monitor H = {Config.ACTIVE_SCREEN.WorkingArea.Height}");
+                Outlog<MainWindow>().Information($"Monitor H = {secondScreen.WorkingArea.Height}");
 
                 //---
 
                 // Set the window position to the second monitor's working area
-                this.Background = Config.GRAY_E6E6E6;
+                this.Background = UIColors.GRAY_E6E6E6;
                 this.Width = _backgroundWindow.Width - (2 * SideWindowWidth);
                 this.Height = _backgroundWindow.Height - TopWindowHeight;
                 this.WindowStartupLocation = WindowStartupLocation.Manual;
-                this.Left = Config.ACTIVE_SCREEN.WorkingArea.Left + SideWindowWidth;
+                this.Left = secondScreen.WorkingArea.Left + SideWindowWidth;
                 thisLeft = this.Left; // Save the left position 
-                this.Top = Config.ACTIVE_SCREEN.WorkingArea.Top + TopWindowHeight;
+                this.Top = secondScreen.WorkingArea.Top + TopWindowHeight;
                 thisTop = this.Top; // Save the top position
                 this.Owner = _backgroundWindow;
                 //this.Topmost = true;
                 this.Show();
-                this._mainWinRect = Utils.GetRect(this);
+                this._mainWinRect = UITools.GetRect(this);
                 _infoLabelHeight = (int)(this.ActualHeight * INFO_LABEL_BOTTOM_RATIO + infoLabel.ActualHeight);
 
                 // Create top window
                 _topWindow = new TopWindow();
-                _topWindow.Background = Config.GRAY_F3F3F3;
+                _topWindow.Background = UIColors.GRAY_F3F3F3;
                 _topWindow.Height = TopWindowHeight;
-                _topWindow.Width = Config.ACTIVE_SCREEN.WorkingArea.Width;
+                _topWindow.Width = secondScreen.WorkingArea.Width;
                 _topWindow.WindowStartupLocation = WindowStartupLocation.Manual;
-                _topWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
-                _topWindow.Top = Config.ACTIVE_SCREEN.WorkingArea.Top;
+                _topWindow.Left = secondScreen.WorkingArea.Left;
+                _topWindow.Top = secondScreen.WorkingArea.Top;
                 //_topWindow.MouseEnter += AuxWindow_MouseEnter;
                 //_topWindow.MouseLeave += AuxWindow_MouseExit;
                 //_topWindow.MouseDown += SideWindow_MouseDown;
                 //_topWindow.MouseUp += SideWindow_MouseUp;
                 _topWindow.Show();
-                _topWinRect = Utils.GetRect(_topWindow);
-                _topWinRectPadded = Utils.GetRect(_topWindow, VERTICAL_PADDING);
+                _topWinRect = UITools.GetRect(_topWindow);
+                _topWinRectPadded = UITools.GetRect(_topWindow, VERTICAL_PADDING);
                 _topWindow.Owner = this;
 
                 //topWinWidthRatio = topWindow.Width / ((TOMOPAD_LAST_COL - TOMOPAD_SIDE_SIZE) - TOMOPAD_SIDE_SIZE);
@@ -536,19 +510,19 @@ namespace SubTask.FunctionPointSelect
 
                 // Create left window
                 _leftWindow = new SideWindow(Side.Left, new Point(0, SideWindowWidth));
-                _leftWindow.Background = Config.GRAY_F3F3F3;
+                _leftWindow.Background = UIColors.GRAY_F3F3F3;
                 _leftWindow.Width = SideWindowWidth;
                 _leftWindow.Height = this.Height;
                 _leftWindow.WindowStartupLocation = WindowStartupLocation.Manual;
-                _leftWindow.Left = Config.ACTIVE_SCREEN.WorkingArea.Left;
+                _leftWindow.Left = secondScreen.WorkingArea.Left;
                 _leftWindow.Top = this.Top;
                 //_leftWindow.MouseEnter += AuxWindow_MouseEnter;
                 //_leftWindow.MouseLeave += AuxWindow_MouseExit;
                 //_leftWindow.MouseDown += SideWindow_MouseDown;
                 //_leftWindow.MouseUp += SideWindow_MouseUp;
                 _leftWindow.Show();
-                _leftWinRect = Utils.GetRect(_leftWindow);
-                _lefWinRectPadded = Utils.GetRect(_leftWindow, VERTICAL_PADDING);
+                _leftWinRect = UITools.GetRect(_leftWindow);
+                _lefWinRectPadded = UITools.GetRect(_leftWindow, VERTICAL_PADDING);
                 _leftWindow.Owner = this;
 
                 //leftWinWidthRatio = leftWindow.Width / TOMOPAD_SIDE_SIZE;
@@ -556,7 +530,7 @@ namespace SubTask.FunctionPointSelect
 
                 // Create right window
                 _rightWindow = new SideWindow(Side.Right, new Point(SideWindowWidth + this.Width, SideWindowWidth));
-                _rightWindow.Background = Config.GRAY_F3F3F3;
+                _rightWindow.Background = UIColors.GRAY_F3F3F3;
                 _rightWindow.Width = SideWindowWidth;
                 _rightWindow.Height = this.Height;
                 _rightWindow.WindowStartupLocation = WindowStartupLocation.Manual;
@@ -567,8 +541,8 @@ namespace SubTask.FunctionPointSelect
                 //_rightWindow.MouseDown += SideWindow_MouseDown;
                 //_rightWindow.MouseUp += SideWindow_MouseUp;
                 _rightWindow.Show();
-                _rightWinRect = Utils.GetRect(_rightWindow);
-                _rightWinRectPadded = Utils.GetRect(_rightWindow, VERTICAL_PADDING);
+                _rightWinRect = UITools.GetRect(_rightWindow);
+                _rightWinRectPadded = UITools.GetRect(_rightWindow, VERTICAL_PADDING);
                 _rightWindow.Owner = this;
 
                 //rightWinWidthRatio = rightWindow.Width / TOMOPAD_SIDE_SIZE;
@@ -763,7 +737,7 @@ namespace SubTask.FunctionPointSelect
             double angleToCenter = Math.Atan2(dy, dx); // This is in radians
 
             // 3. Compute the spread around that angle
-            double spreadRad = DegToRad(angleSpreadDeg);
+            double spreadRad = Tools.DegToRad(angleSpreadDeg);
             double minRad = angleToCenter - spreadRad / 2;
             double maxRad = angleToCenter + spreadRad / 2;
 
@@ -850,15 +824,15 @@ namespace SubTask.FunctionPointSelect
             canvas.Children.Clear();
 
             // Convert the absolute position to relative position
-            Point positionInMain = Utils.Offset(absolutePosition,
+            Point positionInMain = UITools.Offset(absolutePosition,
                 -this.Left,
                 -this.Top);
 
             // Create the square
             _startRectangle = new Rectangle
             {
-                Width = Utils.MM2PX(Experiment.START_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.START_WIDTH_MM),
+                Width = UITools.MM2PX(Experiment.START_WIDTH_MM),
+                Height = UITools.MM2PX(Experiment.START_WIDTH_MM),
                 Fill = color
             };
 
@@ -974,7 +948,7 @@ namespace SubTask.FunctionPointSelect
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                FontSize = Config.TRIAL_START_BUTTON_FONT_SIZE,
+                FontSize = ExpLayouts.START_BUTTON_FONT_SIZE,
                 Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
             };
 
@@ -994,27 +968,27 @@ namespace SubTask.FunctionPointSelect
             canvas.Children.Add(_startButton);
         }
 
-        public void ShowObjects(List<TrialRecord.TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
+        public void ShowObjects(List<TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
         {
             this.TrialInfo($"Showing {trialObjects.Count} objects");
             // Create and position the objects
-            foreach (TrialRecord.TObject trObj in trialObjects)
+            foreach (TObject trObj in trialObjects)
             {
                 ShowObject(trObj, objColor, mouseEvents);
             }
         }
 
-        private void ShowObject(TrialRecord.TObject tObject, Brush color, MouseEvents mouseEvents)
+        private void ShowObject(TObject tObject, Brush color, MouseEvents mouseEvents)
         {
             // Convert the absolute position to relative position
-            Point positionInMain = Utils.Offset(tObject.Position, -this.Left, -this.Top);
+            Point positionInMain = UITools.Offset(tObject.Position, -this.Left, -this.Top);
             this.TrialInfo($"Showing object {tObject.Id} at {positionInMain}");
             // Create the square
             Rectangle objRectangle = new Rectangle
             {
                 Tag = tObject.Id,
-                Width = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
-                Height = Utils.MM2PX(Experiment.OBJ_WIDTH_MM),
+                Width = UITools.MM2PX(Experiment.OBJ_WIDTH_MM),
+                Height = UITools.MM2PX(Experiment.OBJ_WIDTH_MM),
                 Fill = color
             };
 
@@ -1235,12 +1209,12 @@ namespace SubTask.FunctionPointSelect
 
         public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
-            double padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-            double objHalfWidth = Utils.MM2PX(OBJ_WIDTH_MM) / 2;
+            double padding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
+            double objHalfWidth = UITools.MM2PX(OBJ_WIDTH_MM) / 2;
             double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double startHalfWidth = OBJ_WIDTH_MM / 2;
-            double smallButtonHalfWidth = Utils.MM2PX(smallButtonHalfWidthMM);
-            double objAreaHalfWidth = Utils.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
+            double smallButtonHalfWidth = UITools.MM2PX(smallButtonHalfWidthMM);
+            double objAreaHalfWidth = UITools.MM2PX(Experiment.OBJ_AREA_WIDTH_MM / 2);
 
             // Find the Rect for the object area
             Rect objAreaRect = new Rect(
@@ -1257,7 +1231,7 @@ namespace SubTask.FunctionPointSelect
             return (id, centerPositionAbsolute);
         }
 
-        public TrialRecord.TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
+        public TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
@@ -1266,13 +1240,13 @@ namespace SubTask.FunctionPointSelect
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
             Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
 
-            return new TrialRecord.TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+            return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
         }
 
-        public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
+        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
         {
             this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
-            List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
+            List<TFunction> functions = new List<TFunction>();
             List<int> foundIds = new List<int>();
             // Find a UNIQUE function for each width
             int maxTries = 100;
@@ -1285,7 +1259,7 @@ namespace SubTask.FunctionPointSelect
                 this.TrialInfo($"Num. of Tries: {tries}");
                 foreach (int widthUnit in widthUnits)
                 {
-                    TrialRecord.TFunction function = FindRandomFunction(side, widthUnit, distRange);
+                    TFunction function = FindRandomFunction(side, widthUnit, distRange);
                     this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
                     functions.Add(function);
                     foundIds.Add(function.Id);
@@ -1308,8 +1282,8 @@ namespace SubTask.FunctionPointSelect
         public Rect GetStartBtnConstraintRect()
         {
             // Square
-            double padding = Utils.MM2PX(VERTICAL_PADDING);
-            double StartBtnHalfWidth = Utils.MM2PX(START_WIDTH_MM / 2);
+            double padding = UITools.MM2PX(VERTICAL_PADDING);
+            double StartBtnHalfWidth = UITools.MM2PX(START_WIDTH_MM / 2);
             return new Rect(
                 this.Left + padding + StartBtnHalfWidth,
                 this.Top + padding + StartBtnHalfWidth,
@@ -1368,14 +1342,14 @@ namespace SubTask.FunctionPointSelect
         public void ShowStartTrialButton(Rect objAreaRect, MouseEvents mouseEvents)
         {
             //canvas.Children.Clear(); // Clear the canvas before adding the button
-            int padding = Utils.MM2PX(Config.WINDOW_PADDING_MM);
+            int padding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
 
             // Create the "button" as a Border with text inside
             _startButton = new Border
             {
-                Width = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
-                Height = Utils.MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
-                Background = Config.LIGHT_PURPLE,
+                Width = UITools.MM2PX(ExpLayouts.START_BUTTON_SMALL_DIM_MM.W),
+                Height = UITools.MM2PX(ExpLayouts.START_BUTTON_SMALL_DIM_MM.H),
+                Background = UIColors.LIGHT_PURPLE,
                 BorderBrush = Brushes.Black,
                 //BorderThickness = new Thickness(2),
                 //CornerRadius = new CornerRadius(6)
@@ -1388,7 +1362,7 @@ namespace SubTask.FunctionPointSelect
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                FontSize = Config.TRIAL_START_BUTTON_FONT_SIZE,
+                FontSize = ExpLayouts.START_BUTTON_FONT_SIZE,
                 Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
             };
 

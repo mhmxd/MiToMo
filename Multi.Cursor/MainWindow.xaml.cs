@@ -1153,16 +1153,16 @@ namespace Multi.Cursor
             canvas.Children.Add(_objectArea);
         }
 
-        public void ShowObjects(List<TrialRecord.TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
+        public void ShowObjects(List<TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
         {
             // Create and position the objects
-            foreach (TrialRecord.TObject trObj in trialObjects)
+            foreach (TObject trObj in trialObjects)
             {
                 ShowObject(trObj, objColor, mouseEvents);
             }
         }
 
-        private void ShowObject(TrialRecord.TObject tObject, Brush color, MouseEvents mouseEvents)
+        private void ShowObject(TObject tObject, Brush color, MouseEvents mouseEvents)
         {
             // Convert the absolute position to relative position
             Point positionInMain = UITools.Offset(tObject.Position, -this.Left, -this.Top);
@@ -1415,7 +1415,7 @@ namespace Multi.Cursor
             return (id,  centerPositionAbsolute); 
         }
 
-        public TrialRecord.TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
+        public TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
@@ -1424,13 +1424,13 @@ namespace Multi.Cursor
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
             Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
 
-            return new TrialRecord.TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+            return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
         }
 
-        public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
+        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
         {
             //this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
-            List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
+            List<TFunction> functions = new List<TFunction>();
             List<int> foundIds = new List<int>();
             // Find a UNIQUE function for each width
             int maxTries = 100;
@@ -1443,7 +1443,7 @@ namespace Multi.Cursor
                 //this.TrialInfo($"Num. of Tries: {tries}");
                 foreach (int widthUnit in widthUnits)
                 {
-                    TrialRecord.TFunction function = FindRandomFunction(side, widthUnit, distRange);
+                    TFunction function = FindRandomFunction(side, widthUnit, distRange);
                     //this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
                     functions.Add(function);
                     foundIds.Add(function.Id);

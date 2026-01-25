@@ -33,7 +33,7 @@ namespace SubTask.FunctionSelection
         {
             _initMove = true;
             _stopWatch = new Stopwatch();
-            _kvf = new KalmanVeloFilter(Config.VKF_PROCESS_NOISE, Config.VKF_MEASURE_NOISE);
+            _kvf = new KalmanVeloFilter(ExpEnvironment.VKF_PROCESS_NOISE, Config.VKF_MEASURE_NOISE);
         }
 
         public void Activate()
@@ -98,8 +98,8 @@ namespace SubTask.FunctionSelection
             // Compute speed and apply dynamic gain
             double speed = Sqrt(Pow(filteredV.fvX, 2) + Pow(filteredV.fvY, 2));
             double gain =
-                Config.BASE_GAIN +
-                Config.SCALE_FACTOR * Tanh(speed * Config.SENSITIVITY);
+                ExpEnvironment.BASE_GAIN +
+                ExpEnvironment.SCALE_FACTOR * Tanh(speed * ExpEnvironment.SENSITIVITY);
 
             // Apply gain to the filtered velocity
             filteredV.fvX *= gain;
@@ -117,27 +117,27 @@ namespace SubTask.FunctionSelection
             int dGridY = 0;
 
             // Process Horizontal Movement
-            while (_accumulatedX_displacement >= Config.CELL_WIDTH_THRESHOLD)
+            while (_accumulatedX_displacement >= ExpEnvironment.CELL_WIDTH_THRESHOLD)
             {
                 dGridX++;
-                _accumulatedX_displacement -= Config.CELL_WIDTH_THRESHOLD;
+                _accumulatedX_displacement -= ExpEnvironment.CELL_WIDTH_THRESHOLD;
             }
-            while (_accumulatedX_displacement <= -Config.CELL_WIDTH_THRESHOLD)
+            while (_accumulatedX_displacement <= -ExpEnvironment.CELL_WIDTH_THRESHOLD)
             {
                 dGridX--;
-                _accumulatedX_displacement += Config.CELL_WIDTH_THRESHOLD;
+                _accumulatedX_displacement += ExpEnvironment.CELL_WIDTH_THRESHOLD;
             }
 
             // Process Vertical Movement
-            while (_accumulatedY_displacement >= Config.CELL_HEIGHT_THRESHOLD)
+            while (_accumulatedY_displacement >= ExpEnvironment.CELL_HEIGHT_THRESHOLD)
             {
                 dGridY++;
-                _accumulatedY_displacement -= Config.CELL_HEIGHT_THRESHOLD;
+                _accumulatedY_displacement -= ExpEnvironment.CELL_HEIGHT_THRESHOLD;
             }
-            while (_accumulatedY_displacement <= -Config.CELL_HEIGHT_THRESHOLD)
+            while (_accumulatedY_displacement <= -ExpEnvironment.CELL_HEIGHT_THRESHOLD)
             {
                 dGridY--;
-                _accumulatedY_displacement += Config.CELL_HEIGHT_THRESHOLD;
+                _accumulatedY_displacement += ExpEnvironment.CELL_HEIGHT_THRESHOLD;
             }
 
             return (dGridX, dGridY);

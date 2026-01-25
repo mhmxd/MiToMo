@@ -160,7 +160,7 @@ namespace SubTask.Panel.Selection
         //        objAreaEvents);
 
         //    // Show objects
-        //    Brush objDefaultColor = Config.OBJ_DEFAULT_COLOR;
+        //    Brush objDefaultColor = UIColors.COLOR_OBJ_DEFAULT;
         //    MouseEvents objectEvents = new MouseEvents(
         //        OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
         //    _mainWindow.ShowObjects(

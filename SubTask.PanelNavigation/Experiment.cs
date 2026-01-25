@@ -52,7 +52,7 @@ namespace SubTask.PanelNavigation
         };
 
 
-        public static double START_WIDTH_MM = Config.EXCEL_CELL_W;
+        public static double START_WIDTH_MM = ExpSizes.EXCEL_CELL_W;
 
         //-- Colors
         public static readonly Brush START_INIT_COLOR = new SolidColorBrush(

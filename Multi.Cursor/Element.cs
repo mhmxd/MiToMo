@@ -46,7 +46,7 @@ namespace Multi.Cursor
 
         // ElementFill now maps to Border.Background
         public static readonly DependencyProperty ElementFillProperty =
-            DependencyProperty.Register("ElementFill", typeof(Brush), typeof(Element), new PropertyMetadata(UIColors.BUTTON_DEFAULT_FILL_COLOR, OnElementAppearanceChanged));
+            DependencyProperty.Register("ElementFill", typeof(Brush), typeof(Element), new PropertyMetadata(UIColors.COLOR_BUTTON_DEFAULT_FILL, OnElementAppearanceChanged));
 
         public Brush ElementFill
         {
@@ -56,7 +56,7 @@ namespace Multi.Cursor
 
         // ElementStroke now maps to Border.BorderBrush
         public static readonly DependencyProperty ElementStrokeProperty =
-            DependencyProperty.Register("ElementStroke", typeof(Brush), typeof(Element), new PropertyMetadata(UIColors.BUTTON_DEFAULT_BORDER_COLOR, OnElementAppearanceChanged));
+            DependencyProperty.Register("ElementStroke", typeof(Brush), typeof(Element), new PropertyMetadata(UIColors.COLOR_BUTTON_DEFAULT_BORDER, OnElementAppearanceChanged));
 
         public Brush ElementStroke
         {

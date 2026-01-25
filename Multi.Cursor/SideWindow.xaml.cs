@@ -119,7 +119,7 @@ namespace Multi.Cursor
             // De-select all elements first
             foreach (var element in _gridElements.Values)
             {
-                element.ElementStroke = UIColors.BUTTON_DEFAULT_BORDER_COLOR;
+                element.ElementStroke = UIColors.COLOR_BUTTON_DEFAULT_BORDER;
                 element.ElementStrokeThickness = ExpLayouts.ELEMENT_BORDER_THICKNESS;
             }
 
@@ -127,7 +127,7 @@ namespace Multi.Cursor
             if (_gridElements.ContainsKey(elementKey))
             {
                 Element element = _gridElements[elementKey];
-                element.ElementStroke = UIColors.ELEMENT_HIGHLIGHT_COLOR;
+                element.ElementStroke = UIColors.COLOR_ELEMENT_HIGHLIGHT;
                 element.ElementStrokeThickness = ExpLayouts.ELEMENT_BORDER_THICKNESS;
             }
             else
@@ -156,7 +156,7 @@ namespace Multi.Cursor
         {
             foreach (Element element in _gridElements.Values)
             {
-                element.ElementFill = UIColors.BUTTON_DEFAULT_FILL_COLOR; // Reset to default color
+                element.ElementFill = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Reset to default color
             }
         }
 

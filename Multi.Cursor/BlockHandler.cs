@@ -420,7 +420,7 @@ namespace Multi.Cursor
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId, 
-                UIColors.FUNCTION_ENABLED_COLOR);
+                UIColors.COLOR_FUNCTION_ENABLED);
         }
 
         public void SetFunctionAsDisabled(int funcId)
@@ -428,7 +428,7 @@ namespace Multi.Cursor
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide, 
                 funcId, 
-                UIColors.FUNCTION_DEFAULT_COLOR);
+                UIColors.COLOR_FUNCTION_DEFAULT);
         }
 
         public void SetFunctionAsApplied(int funcId)
@@ -438,22 +438,22 @@ namespace Multi.Cursor
 
         protected void SetObjectAsDisabled(int objId)
         {
-            _mainWindow.FillObject(objId, UIColors.OBJ_DEFAULT_COLOR);
+            _mainWindow.FillObject(objId, UIColors.COLOR_OBJ_DEFAULT);
         }
 
         public void UpdateScene()
         {
             foreach (var func in _activeTrialRecord.Functions)
             {
-                Brush funcColor = UIColors.FUNCTION_DEFAULT_COLOR;
+                Brush funcColor = UIColors.COLOR_FUNCTION_DEFAULT;
                 //this.TrialInfo($"Function#{func.Id} state: {func.State}");
                 switch (func.State)
                 {
                     case ButtonState.MARKED:
-                        funcColor = UIColors.FUNCTION_ENABLED_COLOR;
+                        funcColor = UIColors.COLOR_FUNCTION_ENABLED;
                         break;
                     case ButtonState.SELECTED:
-                        funcColor = UIColors.FUNCTION_APPLIED_COLOR;
+                        funcColor = UIColors.COLOR_FUNCTION_APPLIED;
                         break;
                 }
 
@@ -462,14 +462,14 @@ namespace Multi.Cursor
 
             foreach (var obj in _activeTrialRecord.Objects)
             {
-                Brush objColor = UIColors.OBJ_DEFAULT_COLOR;
+                Brush objColor = UIColors.COLOR_OBJ_DEFAULT;
                 switch (obj.State)
                 {
                     case ButtonState.MARKED:
-                        objColor = UIColors.OBJ_MARKED_COLOR;
+                        objColor = UIColors.COLOR_OBJ_MARKED;
                         break;
                     case ButtonState.SELECTED:
-                        objColor = UIColors.OBJ_APPLIED_COLOR;
+                        objColor = UIColors.COLOR_OBJ_APPLIED;
                         break;
                 }
 

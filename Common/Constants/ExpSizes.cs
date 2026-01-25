@@ -7,8 +7,8 @@ namespace Common.Constants
 {
     public class ExpSizes
     {
-        private const double EXCEL_CELL_W = 15;
-        private const double EXCEL_CELL_H = 5;
+        public const double EXCEL_CELL_W = 15;
+        public const double EXCEL_CELL_H = 5;
 
         //--- Grid -------------------------------------------------------
         public static double GUTTER_05MM = 0.5; // Space in-between the grid elements within a group

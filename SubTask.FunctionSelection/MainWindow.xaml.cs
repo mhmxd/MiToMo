@@ -1216,7 +1216,7 @@ namespace SubTask.FunctionSelection
             {
                 Width = MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Width),
                 Height = MM2PX(Config.TRIAL_START_BUTTON_DIM_MM.Height),
-                Background = Config.LIGHT_PURPLE,
+                Background = UIColors.LIGHT_PURPLE,
                 BorderBrush = Brushes.Black,
                 //BorderThickness = new Thickness(2),
                 //CornerRadius = new CornerRadius(6)

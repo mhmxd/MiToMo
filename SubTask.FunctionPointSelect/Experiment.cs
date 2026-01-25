@@ -1,16 +1,12 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using Common.Settings;
+using CommonUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
-using static SubTask.FunctionPointSelect.Output;
-using static System.Math;
 
 namespace SubTask.FunctionPointSelect
 {
@@ -39,8 +35,8 @@ namespace SubTask.FunctionPointSelect
 
         //-- Constants
         //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
-        public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
-        public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
+        public static double OBJ_WIDTH_MM = ExpSizes.EXCEL_CELL_W;
+        public static double OBJ_AREA_WIDTH_MM = ExpSizes.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
         public static double START_WIDTH_MM = OBJ_WIDTH_MM;
 
         //-- Colors
@@ -119,7 +115,7 @@ namespace SubTask.FunctionPointSelect
 
         public static int GetStartHalfWidth()
         {
-            return Utils.MM2PX(OBJ_WIDTH_MM / 2);
+            return UITools.MM2PX(OBJ_WIDTH_MM / 2);
         }
     }
 }

@@ -590,7 +590,7 @@ namespace SubTask.ObjectSelection
             var buttonBgLightGreen =
                 _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_ENABLED_COLOR);
             var buttonBgDarkGreen =
-                _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_APPLIED_COLOR);
+                _buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_APPLIED);
 
             // Reset the border aof all buttons
             //foreach (var btn in _allButtons.Values)
@@ -620,7 +620,7 @@ namespace SubTask.ObjectSelection
                 // Change the background to selected (green) if orange or light green
                 //if (buttonBgOrange || buttonBgLightGreen)
                 //{
-                //    _buttonInfos[buttonId].Button.Background = Config.FUNCTION_APPLIED_COLOR;
+                //    _buttonInfos[buttonId].Button.Background = UIColors.COLOR_FUNCTION_APPLIED;
 
                 //    // Tell the MainWindow to mark the mapped object and set function as applied
                 //    ((MainWindow)this.Owner).MarkMappedObject(buttonId);

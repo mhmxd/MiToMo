@@ -410,7 +410,7 @@ namespace SubTask.FunctionSelection
 
                 // Change START to END and unavailable (until all functions are applied)
                 _mainWindow.ChangeStartButtonText(ExpStrs.END_CAP);
-                _mainWindow.ChangeStartButtonColor(Config.DARK_ORANGE);
+                _mainWindow.ChangeStartButtonColor(UIColors.DARK_ORANGE);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -459,12 +459,12 @@ namespace SubTask.FunctionSelection
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId,
-                Config.FUNCTION_APPLIED_COLOR);
+                UIColors.COLOR_FUNCTION_APPLIED);
         }
 
         protected void SetObjectAsDisabled(int objId)
         {
-            _mainWindow.FillObject(objId, Config.OBJ_DEFAULT_COLOR);
+            _mainWindow.FillObject(objId, UIColors.COLOR_OBJ_DEFAULT);
         }
 
         public void UpdateScene()
@@ -479,7 +479,7 @@ namespace SubTask.FunctionSelection
                         funcColor = Config.FUNCTION_ENABLED_COLOR;
                         break;
                     case ButtonState.SELECTED:
-                        funcColor = Config.FUNCTION_APPLIED_COLOR;
+                        funcColor = UIColors.COLOR_FUNCTION_APPLIED;
                         break;
                 }
 

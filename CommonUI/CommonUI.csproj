@@ -49,6 +49,15 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ButtonFactory.cs" />
+    <Compile Include="ButtonInfo.cs" />
+    <Compile Include="ColumnFactory.cs" />
+    <Compile Include="Element.cs" />
+    <Compile Include="GridFactory.cs" />
+    <Compile Include="RowFactory.cs" />
+    <Compile Include="SButton.cs" />
+    <Compile Include="TFunction.cs" />
+    <Compile Include="TObject.cs" />
     <Compile Include="UIColors.cs" />
     <Compile Include="UITools.cs">
       <SubType>Code</SubType>

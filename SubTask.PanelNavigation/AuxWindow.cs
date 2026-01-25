@@ -682,7 +682,7 @@ namespace SubTask.PanelNavigation
             var buttonBgLightGreen =
                 _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_ENABLED_COLOR);
             var buttonBgDarkGreen =
-                _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_APPLIED_COLOR);
+                _buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_APPLIED);
 
             // Reset the border aof all buttons
             //foreach (var btn in _allButtons.Values)
