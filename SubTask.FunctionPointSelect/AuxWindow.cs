@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Common.Helpers;
+using Common.Settings;
+using CommonUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,16 +10,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Common.Helpers;
-using Common.Settings;
-using CommonUI;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionPointSelect
 {
     public abstract class AuxWindow : Window
     {
-       
+
         public Side Side { get; set; } // Side of the window (left, right, top)
                                        // 
         protected Grid _buttonsGrid; // The grid containing all buttons
