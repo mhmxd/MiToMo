@@ -48,7 +48,7 @@ namespace SubTask.ObjectSelection
             EnableMouseInPointer(true);
             SetForegroundWindow(new WindowInteropHelper(this).Handle); // Bring this window to the foreground
 
-            _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
+            _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
 
             //foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
             //{

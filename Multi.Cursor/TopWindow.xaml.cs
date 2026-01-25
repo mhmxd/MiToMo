@@ -264,10 +264,10 @@ namespace Multi.Cursor
         //                        .OffsetPosition(button.ActualWidth/2, button.ActualHeight/2)
         //                        .OffsetPosition(this.Left, this.Top);
 
-        //                    //double distToStartTL = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopLeft);
-        //                    //double distToStartTR = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopRight);
-        //                    //double distToStartLL = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomLeft);
-        //                    //double distToStartLR = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomRight);
+        //                    //double distToStartTL = UITools.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopLeft);
+        //                    //double distToStartTR = UITools.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopRight);
+        //                    //double distToStartLL = UITools.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomLeft);
+        //                    //double distToStartLR = UITools.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomRight);
 
         //                    //double[] dists = { distToStartTL, distToStartTR, distToStartLL, distToStartLR };
         //                    //_buttonInfos[button.Id].DistToStartRange = new Range(dists.Min(), dists.Max());
@@ -321,7 +321,7 @@ namespace Multi.Cursor
         //        }
         //        else // if button doesn't containt the center point, calculate the distance
         //        {
-        //            double dist = Utils.Dist(gridCenterPoint, new Point(idRect.Value.x + idRect.Value.Width / 2, idRect.Value.y + idRect.Value.Height / 2));
+        //            double dist = UITools.Dist(gridCenterPoint, new Point(idRect.Value.x + idRect.Value.Width / 2, idRect.Value.y + idRect.Value.Height / 2));
         //            if (dist < centerDistance)
         //            {
         //                centerDistance = dist;

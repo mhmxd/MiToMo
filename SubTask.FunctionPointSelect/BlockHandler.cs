@@ -204,7 +204,7 @@ namespace SubTask.FunctionPointSelect
             //MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
             //_mainWindow.ShowStartBtn(
             //    _activeTrialRecord.StartBtnRect,
-            //    Config.START_AVAILABLE_COLOR,
+            //    UIColors.COLOR_START_AVAILABLE,
             //    objAreaEvents);
 
             // Show objects

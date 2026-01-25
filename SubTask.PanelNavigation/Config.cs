@@ -159,7 +159,7 @@ namespace SubTask.PanelNavigation
         // -----------------------------------------
 
         //public static double SIDE_COL_MAX_WIDTH_MM = 2 * Experiment.BUTTON_MULTIPLES[ExpStrs.x15] + GUTTER_05MM;
-        //public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * ExpSizes.WINDOW_PADDING_MM + GUTTER_05MM;
+        //public static double SIDE_WINDOW_WIDTH_MM = 2 * SIDE_COL_MAX_WIDTH_MM + 2 * ExpLayouts.WINDOW_PADDING_MM + GUTTER_05MM;
         //public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * GUTTER_05MM + 2 * WINDOW_PADDING_MM;
 
         public static Dimensions TRIAL_START_BUTTON_DIM_MM = new Dimensions(20, 10);

@@ -34,7 +34,7 @@ namespace SubTask.ObjectSelection
                 Position = new Point(0, 0);
                 Rect = new Rect();
                 DistToStartRange = new Range(0, 0);
-                ButtonFill = Config.BUTTON_DEFAULT_FILL_COLOR;
+                ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL;
             }
 
             public void ChangeBackFill()
@@ -44,13 +44,13 @@ namespace SubTask.ObjectSelection
 
             public void ResetButtonFill()
             {
-                ButtonFill = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the button fill color to the default
+                ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Reset the button fill color to the default
                 Button.Background = ButtonFill; // Change the button background to the default color
             }
 
             public void ResetButonBorder()
             {
-                Button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the button border to the default color
+                Button.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER; // Reset the button border to the default color
             }
 
         }
@@ -69,7 +69,7 @@ namespace SubTask.ObjectSelection
         protected double _gridMaxX = double.MinValue;
         protected double _gridMaxY = double.MinValue;
 
-        protected GridNavigator _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
+        protected GridNavigator _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
         protected int _lastMarkedButtonId = -1; // ID of the currently highlighted button
         protected Point _topLeftButtonPosition = new Point(10000, 10000); // Initialize to a large value to find the top-left button
         protected int _middleButtonId = -1; // ID of the middle button in the grid
@@ -199,7 +199,7 @@ namespace SubTask.ObjectSelection
                 }
                 else // if button doesn't containt the center point, calculate the distance
                 {
-                    double dist = Utils.Dist(gridCenterPoint, new Point(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 2));
+                    double dist = UITools.Dist(gridCenterPoint, new Point(buttonRect.X + buttonRect.Width / 2, buttonRect.Y + buttonRect.Height / 2));
                     //this.TrialInfo($"Dist = {dist:F2}");
                     if (dist < centerDistance)
                     {
@@ -491,16 +491,16 @@ namespace SubTask.ObjectSelection
                 this.TrialInfo($"Last highlight = {_lastMarkedButtonId}");
                 if (_buttonInfos.ContainsKey(buttonId))
                 {
-                    _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
+                    _buttonInfos[buttonId].Button.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT; // Change the border color to highlight
                                                                                                 // Change the old button background based on the previous state
-                    if (_buttonInfos[buttonId].Button.Background.Equals(Config.BUTTON_HOVER_FILL_COLOR)) // Gray => White
+                    if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_BUTTON_HOVER_FILL)) // Gray => White
                     {
                         //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
-                        _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
+                        _buttonInfos[buttonId].Button.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL;
                     }
-                    else if (_buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_ENABLED_COLOR)) // Light green => Orange
+                    else if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_ENABLED)) // Light green => Orange
                     {
-                        _buttonInfos[buttonId].Button.Background = Config.FUNCTION_DEFAULT_COLOR;
+                        _buttonInfos[buttonId].Button.Background = UIColors.COLOR_FUNCTION_DEFAULT;
                     }
                 }
                 else
@@ -536,7 +536,7 @@ namespace SubTask.ObjectSelection
             if (_lastMarkedButtonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
             {
                 _buttonInfos[_lastMarkedButtonId].ChangeBackFill();
-                //button.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of the last highlighted button
+                //button.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER; // Reset the border color of the last highlighted button
             }
         }
 
@@ -552,10 +552,10 @@ namespace SubTask.ObjectSelection
             {
                 _buttonInfos[buttonId].ResetButonBorder();
                 _buttonInfos[buttonId].ChangeBackFill();
-                //if (_buttonInfos[buttonId].Button.Background != Config.FUNCTION_ENABLED_COLOR 
-                //    && _buttonInfos[buttonId].Button.Background != Config.FUNCTION_DEFAULT_COLOR)
+                //if (_buttonInfos[buttonId].Button.Background != UIColors.COLOR_FUNCTION_ENABLED 
+                //    && _buttonInfos[buttonId].Button.Background != UIColors.COLOR_FUNCTION_DEFAULT)
                 //{
-                //    _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
+                //    _buttonInfos[buttonId].Button.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Reset the background color of all buttons
                 //}
             }
         }
@@ -565,16 +565,16 @@ namespace SubTask.ObjectSelection
         //    // Find the button with the specified ID
         //    if (_buttonInfos.ContainsKey(buttonId))
         //    {
-        //        _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
+        //        _buttonInfos[buttonId].Button.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT; // Change the border color to highlight
         //                                                                                    // Change the old button background based on the previous state
-        //        if (_buttonInfos[buttonId].Button.Background.Equals(Config.BUTTON_HOVER_FILL_COLOR)) // Gray => White
+        //        if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_BUTTON_HOVER_FILL)) // Gray => White
         //        {
         //            //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
-        //            _buttonInfos[buttonId].Button.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
+        //            _buttonInfos[buttonId].Button.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL;
         //        }
-        //        else if (_buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_ENABLED_COLOR)) // Light green => Orange
+        //        else if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_ENABLED)) // Light green => Orange
         //        {
-        //            _buttonInfos[buttonId].Button.Background = Config.FUNCTION_DEFAULT_COLOR;
+        //            _buttonInfos[buttonId].Button.Background = UIColors.COLOR_FUNCTION_DEFAULT;
         //        }
         //    }
         //    else
@@ -586,32 +586,32 @@ namespace SubTask.ObjectSelection
         public void MarkButton(int buttonId, Action<int> OnFunctionMarked)
         {
             var buttonBgOrange =
-                _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_DEFAULT_COLOR);
+                _buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_DEFAULT);
             var buttonBgLightGreen =
-                _buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_ENABLED_COLOR);
+                _buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_ENABLED);
             var buttonBgDarkGreen =
                 _buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_APPLIED);
 
             // Reset the border aof all buttons
             //foreach (var btn in _allButtons.Values)
             //{
-            //    btn.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of all buttons
+            //    btn.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER; // Reset the border color of all buttons
             //}
 
             // Find the button with the specified ID
             if (_buttonInfos.ContainsKey(buttonId))
             {
-                _buttonInfos[buttonId].Button.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
+                _buttonInfos[buttonId].Button.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT; // Change the border color to highlight
 
-                if (_buttonInfos[buttonId].Button.Background.Equals(Config.BUTTON_DEFAULT_FILL_COLOR)) // Normal button
+                if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_BUTTON_DEFAULT_FILL)) // Normal button
                 {
                     //this.TrialInfo($"Set {markedButton.Id} to Hover Fill");
-                    _buttonInfos[buttonId].Button.Background = Config.BUTTON_HOVER_FILL_COLOR;
+                    _buttonInfos[buttonId].Button.Background = UIColors.COLOR_BUTTON_HOVER_FILL;
                 }
-                else if (_buttonInfos[buttonId].Button.Background.Equals(Config.FUNCTION_DEFAULT_COLOR)) // Function (default)
+                else if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_DEFAULT)) // Function (default)
                 {
                     this.TrialInfo($"Set {_buttonInfos[buttonId].Button.Id} to Enabled");
-                    _buttonInfos[buttonId].Button.Background = Config.FUNCTION_ENABLED_COLOR;
+                    _buttonInfos[buttonId].Button.Background = UIColors.COLOR_FUNCTION_ENABLED;
                     // Call the event
                     OnFunctionMarked(_buttonInfos[buttonId].Button.Id);
                 }
@@ -632,7 +632,7 @@ namespace SubTask.ObjectSelection
                 //}
                 //else // Change to default hover color
                 //{
-                //    _buttonInfos[buttonId].Button.Background = Config.BUTTON_HOVER_FILL_COLOR;
+                //    _buttonInfos[buttonId].Button.Background = UIColors.COLOR_BUTTON_HOVER_FILL;
                 //}
 
                 _lastMarkedButtonId = buttonId; // Store the ID of the highlighted button
@@ -697,32 +697,32 @@ namespace SubTask.ObjectSelection
                 if (_lastMarkedButtonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
                 {
                     var oldButton = _buttonInfos[_lastMarkedButtonId].Button;
-                    oldButton.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR;
-                    markedButton.BorderBrush = Config.ELEMENT_HIGHLIGHT_COLOR;
+                    oldButton.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER;
+                    markedButton.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT;
 
                     // Change the old button background based on the previous state
-                    if (oldButton.Background.Equals(Config.BUTTON_HOVER_FILL_COLOR)) // Gray => White
+                    if (oldButton.Background.Equals(UIColors.COLOR_BUTTON_HOVER_FILL)) // Gray => White
                     {
                         //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
-                        oldButton.Background = Config.BUTTON_DEFAULT_FILL_COLOR;
+                        oldButton.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL;
                     }
-                    else if (oldButton.Background.Equals(Config.FUNCTION_ENABLED_COLOR)) // Light green => Orange
+                    else if (oldButton.Background.Equals(UIColors.COLOR_FUNCTION_ENABLED)) // Light green => Orange
                     {
-                        oldButton.Background = Config.FUNCTION_DEFAULT_COLOR;
+                        oldButton.Background = UIColors.COLOR_FUNCTION_DEFAULT;
                         OnFunctionDeMarked(oldButton.Id); // Call the event
                     }
 
                     // Change the new button background based on its previous state
                     MarkButton(markedButton.Id, OnFunctionMarked);
-                    //if (markedButton.Background.Equals(Config.BUTTON_DEFAULT_FILL_COLOR)) // Moved over a normal button
+                    //if (markedButton.Background.Equals(UIColors.COLOR_BUTTON_DEFAULT_FILL)) // Moved over a normal button
                     //{
                     //    //this.TrialInfo($"Set {markedButton.Id} to Hover Fill");
-                    //    markedButton.Background = Config.BUTTON_HOVER_FILL_COLOR;
+                    //    markedButton.Background = UIColors.COLOR_BUTTON_HOVER_FILL;
                     //}
-                    //else if (markedButton.Background.Equals(Config.FUNCTION_DEFAULT_COLOR)) // Moved over a function
+                    //else if (markedButton.Background.Equals(UIColors.COLOR_FUNCTION_DEFAULT)) // Moved over a function
                     //{
                     //    this.TrialInfo($"Set {markedButton.Id} to Enabled");
-                    //    markedButton.Background = Config.FUNCTION_ENABLED_COLOR;
+                    //    markedButton.Background = UIColors.COLOR_FUNCTION_ENABLED;
                     //    // Call the event
                     //    OnFunctionMarked(markedButton.Id);
                     //}
@@ -939,7 +939,7 @@ namespace SubTask.ObjectSelection
             {
                 // Use the standard Euclidean distance formula.
                 // WPF Point already has a handy static method for this.
-                double currentDist = Utils.Dist(outsidePoint, corner); // Or Point.Subtract(outsidePoint, corner).Length;
+                double currentDist = UITools.Dist(outsidePoint, corner); // Or Point.Subtract(outsidePoint, corner).Length;
                 if (currentDist > maxDist)
                 {
                     maxDist = currentDist;

@@ -31,14 +31,14 @@ namespace SubTask.PanelNavigation
             _frames = new List<TouchPoint>();
             _initMove = true;
 
-            _kf = new KalmanFilter(Config.FRAME_DUR_MS / 1000.0); // dT in seconds
+            _kf = new KalmanFilter(ExpEnvironment.FRAME_DUR_MS / 1000.0); // dT in seconds
         }
 
         public (double dX, double dY) Update(TouchPoint tp)
         {
             if (!_stopWatch.IsRunning) _stopWatch.Start();
 
-            if (_stopWatch.ElapsedMilliseconds < Config.FRAME_DUR_MS)
+            if (_stopWatch.ElapsedMilliseconds < ExpEnvironment.FRAME_DUR_MS)
             { // Still collecting frames
                 _frames.Add(tp);
 

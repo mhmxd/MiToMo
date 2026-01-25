@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Common.Constants;
+using Common.Settings;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using Common.Constants;
-using Common.Settings;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionSelection

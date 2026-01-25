@@ -1,4 +1,6 @@
 ﻿using Common.Constants;
+using Common.Settings;
+using CommonUI;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -11,7 +13,6 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using WindowsInput;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.Tools;
 using static SubTask.FunctionSelection.Output;
 using Seril = Serilog.Log;
 
@@ -26,11 +27,11 @@ namespace SubTask.FunctionSelection
 
         private Random _random = new Random();
 
-        private double HorizontalPadding = MM2PX(ExpSizes.WINDOW_PADDING_MM);
-        private double VerticalPadding = MM2PX(ExpSizes.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
+        private double HorizontalPadding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
+        private double VerticalPadding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
 
-        private double InterGroupGutter = MM2PX(ExpSizes.GUTTER_05MM);
-        private double WithinGroupGutter = MM2PX(ExpSizes.GUTTER_05MM);
+        private double InterGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM);
+        private double WithinGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -59,7 +60,7 @@ namespace SubTask.FunctionSelection
             set { _relPos = value; }
         }
 
-        private Auxursor _auxursor;
+
         private GridNavigator _gridNavigator;
         private (int colInd, int rowInd) _selectedElement = (0, 0);
 
@@ -87,8 +88,8 @@ namespace SubTask.FunctionSelection
 
             _relPos = relPos;
 
-            _auxursor = new Auxursor(Config.FRAME_DUR_MS / 1000.0);
-            _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
+
+            _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
 
             //foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
             //{
@@ -117,14 +118,14 @@ namespace SubTask.FunctionSelection
             // Radius in pixels
             //const double PPI = 109;
             //const double MM_IN_INCH = 25.4;
-            int targetWidth = MM2PX(widthMM);
+            int targetWidth = UITools.MM2PX(widthMM);
 
             // Get canvas dimensions
             int canvasWidth = (int)canvas.ActualWidth;
             int canvasHeight = (int)canvas.ActualHeight;
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = MM2PX(ExpSizes.WINDOW_PADDING_MM);
+            int marginPX = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
             int minX = marginPX;
             int maxX = canvasWidth - marginPX - targetWidth;
             int minY = marginPX;
@@ -297,11 +298,6 @@ namespace SubTask.FunctionSelection
 
         }
 
-        public void StopCursor()
-        {
-            _auxursor.Stop();
-        }
-
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //Console.WriteLine("MouseDown event triggered.");
@@ -447,16 +443,16 @@ namespace SubTask.FunctionSelection
             // De-select all elements first
             foreach (var element in _gridElements.Values)
             {
-                element.ElementStroke = Config.BUTTON_DEFAULT_BORDER_COLOR;
-                element.ElementStrokeThickness = Config.ELEMENT_BORDER_THICKNESS;
+                element.ElementStroke = UIColors.COLOR_BUTTON_DEFAULT_BORDER;
+                element.ElementStrokeThickness = ExpLayouts.ELEMENT_BORDER_THICKNESS;
             }
 
             string elementKey = $"C{_selectedElement.colInd}-R{_selectedElement.rowInd}";
             if (_gridElements.ContainsKey(elementKey))
             {
                 Element element = _gridElements[elementKey];
-                element.ElementStroke = Config.ELEMENT_HIGHLIGHT_COLOR;
-                element.ElementStrokeThickness = Config.ELEMENT_BORDER_THICKNESS;
+                element.ElementStroke = UIColors.COLOR_ELEMENT_HIGHLIGHT;
+                element.ElementStrokeThickness = ExpLayouts.ELEMENT_BORDER_THICKNESS;
             }
             else
             {
@@ -498,7 +494,7 @@ namespace SubTask.FunctionSelection
         {
             foreach (Element element in _gridElements.Values)
             {
-                element.ElementFill = Config.BUTTON_DEFAULT_FILL_COLOR; // Reset to default color
+                element.ElementFill = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Reset to default color
             }
         }
 
@@ -605,7 +601,7 @@ namespace SubTask.FunctionSelection
 
             // Position the Start rectangle on the bottom (based on the last button's position)
             int distanceFromEdgeMM = 20; // Distance from the bottom edge in mm
-            double startY = _gridBottomY + MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
+            double startY = _gridBottomY + UITools.MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
             double startX = (this.Width - _startButton.Width) / 2; // Center horizontally
             Canvas.SetLeft(_startButton, startX);
             Canvas.SetTop(_startButton, startY);
@@ -624,7 +620,7 @@ namespace SubTask.FunctionSelection
             //    if (bottommostButton != null)
             //    {
             //        double bottommostY = Canvas.GetTop(bottommostButton) + bottommostButton.ActualHeight;
-            //        double startY = bottommostY + MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
+            //        double startY = bottommostY + UITools.MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
             //        double startX = (this.Width - _startRect.Width) / 2; // Center horizontally
             //        Canvas.SetLeft(_startRect, startX);
             //        Canvas.SetTop(_startRect, startY);

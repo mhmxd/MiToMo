@@ -1,4 +1,5 @@
-﻿using Common.Constants;
+﻿using Common.Settings;
+using CommonUI;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.Tools;
 
 namespace SubTask.FunctionSelection
 {
@@ -41,7 +41,7 @@ namespace SubTask.FunctionSelection
             EnableMouseInPointer(true);
             SetForegroundWindow(new WindowInteropHelper(this).Handle); // Bring this window to the foreground
 
-            _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
+            _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
 
         }
 
@@ -125,7 +125,7 @@ namespace SubTask.FunctionSelection
 
             // Position the Start rectangle on the right side (based on the last button's position)
             int distanceFromEdgeMM = 20; // Distance from the right edge in mm
-            double startX = _gridRightX + MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
+            double startX = _gridRightX + UITools.MM2PX(distanceFromEdgeMM); // Position Start area after the last button with some padding
             double startY = (this.Height - _startButton.Height) / 2; // Center vertically
             Canvas.SetLeft(_startButton, startX);
             Canvas.SetTop(_startButton, startY);

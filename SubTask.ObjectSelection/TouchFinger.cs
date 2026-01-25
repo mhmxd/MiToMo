@@ -73,7 +73,7 @@ namespace SubTask.ObjectSelection
         public double GetTravelDist()
         {
             if (_lastPosition == null) return 0;
-            return Utils.Dist(_lastPosition, _downPosition);
+            return UITools.Dist(_lastPosition, _downPosition);
         }
 
         public double GetTravelDistX()

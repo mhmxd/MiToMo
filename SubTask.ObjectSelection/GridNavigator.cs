@@ -33,7 +33,7 @@ namespace SubTask.ObjectSelection
         {
             _initMove = true;
             _stopWatch = new Stopwatch();
-            _kvf = new KalmanVeloFilter(ExpEnvironment.VKF_PROCESS_NOISE, Config.VKF_MEASURE_NOISE);
+            _kvf = new KalmanVeloFilter(ExpEnvironment.VKF_PROCESS_NOISE, ExpEnvironment.VKF_MEASURE_NOISE);
         }
 
         public void Activate()

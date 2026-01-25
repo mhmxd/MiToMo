@@ -9,7 +9,7 @@ namespace SubTask.Panel.Selection
 {
     internal class RowFactory : Grid
     {
-        private static double UNIT = MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
+        private static double UNIT = UITools.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         private static double ROW_HEIGHT = 6 * UNIT; // Height of each row in pixels
 
         // Helper to represent a "Gutter" in the sequence
@@ -28,7 +28,7 @@ namespace SubTask.Panel.Selection
         {
             return new Rectangle
             {
-                Width = MM2PX(gutterMM), // Use WithinGroupGutter for width, not a derived UNIT value unless intentional
+                Width = UITools.MM2PX(gutterMM), // Use WithinGroupGutter for width, not a derived UNIT value unless intentional
                 Height = ROW_HEIGHT,
                 //Fill = Brushes.Orange, // <-- Make it highly visible for debugging
                 //Stroke = Brushes.Black, // Add a stroke
@@ -369,7 +369,7 @@ namespace SubTask.Panel.Selection
             group.Children.Clear(); // Clear existing if reusing the column Grid
             group.RowDefinitions.Clear(); // Clear existing row definitions
 
-            double WithinGroupGutter = MM2PX(Config.GUTTER_05MM); // Gutter between rows within a group
+            double WithinGroupGutter = UITools.MM2PX(Config.GUTTER_05MM); // Gutter between rows within a group
 
             int currentRowIndex = 0;
             foreach (var createElementFunc in elementsToAdd)

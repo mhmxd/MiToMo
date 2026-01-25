@@ -484,7 +484,7 @@ namespace Multi.Cursor
                 this.PositionInfo($"BackgroundWindow Actual H (after maximize) = {_backgroundWindow.ActualHeight}");
 
                 // Set the height as mm
-                //_monitorHeightMM = Utils.PX2MM(Config.ACTIVE_SCREEN.WorkingArea.Height);
+                //_monitorHeightMM = Utils.PX2MM(secondScreen.WorkingArea.Height);
                 _monitorHeightMM = 335;
                 this.PositionInfo($"Monitor H = {secondScreen.WorkingArea.Height}");
 

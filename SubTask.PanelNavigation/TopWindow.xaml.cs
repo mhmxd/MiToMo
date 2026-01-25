@@ -16,8 +16,8 @@ namespace SubTask.PanelNavigation
     /// </summary>
     public partial class TopWindow : AuxWindow
     {
-        private double HORIZONTAL_PADDING = MM2PX(ExpSizes.WINDOW_PADDING_MM);
-        private double InterGroupGutter = MM2PX(ExpSizes.GUTTER_05MM);
+        private double HORIZONTAL_PADDING = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
+        private double InterGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -53,7 +53,7 @@ namespace SubTask.PanelNavigation
             EnableMouseInPointer(true);
             SetForegroundWindow(new WindowInteropHelper(this).Handle); // Bring this window to the foreground
 
-            _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
+            _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
 
             //foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
             //{
@@ -152,7 +152,7 @@ namespace SubTask.PanelNavigation
             if (_buttonsGrid != null)
             {
                 double gridRight = Canvas.GetLeft(_buttonsGrid) + _buttonsGrid.ActualWidth;
-                double startBtnLeft = gridRight + MM2PX(ExpSizes.START_BUTTON_DIST_MM); // 10mm to the right of the grid
+                double startBtnLeft = gridRight + UITools.MM2PX(ExpSizes.START_BUTTON_DIST_MM); // 10mm to the right of the grid
 
                 // Position the button
                 Canvas.SetLeft(_startButton, startBtnLeft);
@@ -178,8 +178,8 @@ namespace SubTask.PanelNavigation
             // Show the start button at a different position than the previous trial
             if (_buttonsGrid != null)
             {
-                int minDist = MM2PX(ExpSizes.START_BUTTON_DIST_MM);
-                int maxDist = (int)(this.ActualWidth - _buttonsGrid.ActualWidth - largerSide - MM2PX(ExpSizes.WINDOW_PADDING_MM));
+                int minDist = UITools.MM2PX(ExpSizes.START_BUTTON_DIST_MM);
+                int maxDist = (int)(this.ActualWidth - _buttonsGrid.ActualWidth - largerSide - MM2PX(ExpLayouts.WINDOW_PADDING_MM));
                 // Contineously generate a random distance until this Start button has no overlap with previous one
                 int randDis;
                 do

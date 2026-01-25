@@ -355,7 +355,7 @@ namespace SubTask.Panel.Selection
                 _mainWindow.RemoveStartTrialButton();
 
                 // Color a random function button in the aux window and set the width in trialRecord
-                TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, Config.FUNCTION_DEFAULT_COLOR);
+                TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, UIColors.COLOR_FUNCTION_DEFAULT);
                 _activeTrialRecord.Functions.Add(selectedFunc);
             }
             else // Pressed outside the button => miss
@@ -388,7 +388,7 @@ namespace SubTask.Panel.Selection
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId,
-                Config.FUNCTION_ENABLED_COLOR);
+                UIColors.COLOR_FUNCTION_ENABLED);
         }
 
         public void SetFunctionAsDisabled(int funcId)
@@ -396,7 +396,7 @@ namespace SubTask.Panel.Selection
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId,
-                Config.FUNCTION_DEFAULT_COLOR);
+                UIColors.COLOR_FUNCTION_DEFAULT);
         }
 
         public void SetFunctionAsApplied(int funcId)
@@ -413,12 +413,12 @@ namespace SubTask.Panel.Selection
         {
             foreach (var func in _activeTrialRecord.Functions)
             {
-                Brush funcColor = Config.FUNCTION_DEFAULT_COLOR;
+                Brush funcColor = UIColors.COLOR_FUNCTION_DEFAULT;
                 //this.TrialInfo($"Function#{func.Id} state: {func.State}");
                 switch (func.State)
                 {
                     case ButtonState.MARKED:
-                        funcColor = Config.FUNCTION_ENABLED_COLOR;
+                        funcColor = UIColors.COLOR_FUNCTION_ENABLED;
                         break;
                     case ButtonState.SELECTED:
                         funcColor = UIColors.COLOR_FUNCTION_APPLIED;

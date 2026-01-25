@@ -16,8 +16,8 @@ namespace SubTask.Panel.Selection
     /// </summary>
     public partial class TopWindow : AuxWindow
     {
-        private double HORIZONTAL_PADDING = MM2PX(Config.WINDOW_PADDING_MM);
-        private double InterGroupGutter = MM2PX(Config.GUTTER_05MM);
+        private double HORIZONTAL_PADDING = UITools.MM2PX(Config.WINDOW_PADDING_MM);
+        private double InterGroupGutter = UITools.MM2PX(Config.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -51,7 +51,7 @@ namespace SubTask.Panel.Selection
             EnableMouseInPointer(true);
             SetForegroundWindow(new WindowInteropHelper(this).Handle); // Bring this window to the foreground
 
-            _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
+            _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
 
             //foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
             //{
@@ -278,10 +278,10 @@ namespace SubTask.Panel.Selection
         //                        .OffsetPosition(button.ActualWidth/2, button.ActualHeight/2)
         //                        .OffsetPosition(this.Left, this.Top);
 
-        //                    //double distToStartTL = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopLeft);
-        //                    //double distToStartTR = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopRight);
-        //                    //double distToStartLL = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomLeft);
-        //                    //double distToStartLR = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomRight);
+        //                    //double distToStartTL = UITools.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopLeft);
+        //                    //double distToStartTR = UITools.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopRight);
+        //                    //double distToStartLL = UITools.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomLeft);
+        //                    //double distToStartLR = UITools.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomRight);
 
         //                    //double[] dists = { distToStartTL, distToStartTR, distToStartLL, distToStartLR };
         //                    //_buttonInfos[button.Id].DistToStartRange = new Range(dists.Min(), dists.Max());
@@ -335,7 +335,7 @@ namespace SubTask.Panel.Selection
         //        }
         //        else // if button doesn't containt the center point, calculate the distance
         //        {
-        //            double dist = Utils.Dist(gridCenterPoint, new Point(idRect.Value.x + idRect.Value.Width / 2, idRect.Value.y + idRect.Value.Height / 2));
+        //            double dist = UITools.Dist(gridCenterPoint, new Point(idRect.Value.x + idRect.Value.Width / 2, idRect.Value.y + idRect.Value.Height / 2));
         //            if (dist < centerDistance)
         //            {
         //                centerDistance = dist;

@@ -72,7 +72,7 @@ namespace SubTask.Panel.Selection
 
         public static int GetStartHalfWidth()
         {
-            return MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM / 2);
+            return UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM / 2);
         }
     }
 }

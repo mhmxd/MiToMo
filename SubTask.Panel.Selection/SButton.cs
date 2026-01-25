@@ -39,8 +39,8 @@ namespace SubTask.Panel.Selection
             this.Id = Interlocked.Increment(ref _nextId);
             this.Tag = Id;
 
-            this.Background = Config.BUTTON_DEFAULT_FILL_COLOR; // Set the background color
-            this.BorderBrush = Config.BUTTON_DEFAULT_BORDER_COLOR; // Set the border brush for the button
+            this.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Set the background color
+            this.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER; // Set the border brush for the button
             this.BorderThickness = new Thickness(2); // Set the border thickness
             this.Padding = new Thickness(0);
             this.Margin = new Thickness(0); // Set the margin to zero
@@ -70,7 +70,7 @@ namespace SubTask.Panel.Selection
             var backgroundHoverTrigger = new MultiTrigger();
             backgroundHoverTrigger.Conditions.Add(new Condition(IsMouseOverProperty, true));
             backgroundHoverTrigger.Conditions.Add(new Condition(DisableBackgroundHoverProperty, false));
-            backgroundHoverTrigger.Setters.Add(new Setter(Border.BackgroundProperty, Config.BUTTON_HOVER_FILL_COLOR, "MainBorder"));
+            backgroundHoverTrigger.Setters.Add(new Setter(Border.BackgroundProperty, UIColors.COLOR_BUTTON_HOVER_FILL, "MainBorder"));
             template.Triggers.Add(backgroundHoverTrigger);
 
             // Trigger for border hover (always active)

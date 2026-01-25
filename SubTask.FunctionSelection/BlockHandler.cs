@@ -1,11 +1,12 @@
 ﻿using Common.Constants;
+using Common.Helpers;
+using CommonUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using static Common.Helpers.Tools;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionSelection
@@ -73,15 +74,15 @@ namespace SubTask.FunctionSelection
             MouseEvents startButtonEvents = new(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStart(
-                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
-                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
+                UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
+                UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
                 Experiment.START_INIT_COLOR,
                 startButtonEvents);
 
             // Color the target button and set the handlers
             _activeTrialRecord.AddAllFunctions(_mainWindow.FindRandomFunctions(_activeTrial.FuncSide, _activeTrial.GetFunctionWidths()));
             this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
-            _mainWindow.FillButtonsInAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), Config.FUNCTION_DEFAULT_COLOR);
+            _mainWindow.FillButtonsInAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), UIColors.COLOR_FUNCTION_DEFAULT);
             UpdateScene();
 
             _mainWindow.SetAuxButtonsHandlers(
@@ -136,7 +137,7 @@ namespace SubTask.FunctionSelection
                 ShowActiveTrial();
             }
             else // Last trial of the block
-            { 
+            {
                 // Log block time
                 ExperiLogger.LogBlockTime(_activeBlock);
 
@@ -341,7 +342,7 @@ namespace SubTask.FunctionSelection
             if (_activeTrialRecord.AreAllFunctionsApplied())
             {
                 //EndActiveTrial(Result.HIT);
-                _mainWindow.ChangeStartButtonColor(Config.FUNCTION_ENABLED_COLOR);
+                _mainWindow.ChangeStartButtonColor(UIColors.COLOR_FUNCTION_ENABLED);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -442,7 +443,7 @@ namespace SubTask.FunctionSelection
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId,
-                Config.FUNCTION_ENABLED_COLOR);
+                UIColors.COLOR_FUNCTION_ENABLED);
         }
 
         public void SetFunctionAsDisabled(int funcId)
@@ -450,7 +451,7 @@ namespace SubTask.FunctionSelection
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId,
-                Config.FUNCTION_DEFAULT_COLOR);
+                UIColors.COLOR_FUNCTION_DEFAULT);
         }
 
         public void SetFunctionAsApplied(int funcId)
@@ -471,12 +472,12 @@ namespace SubTask.FunctionSelection
         {
             foreach (var func in _activeTrialRecord.Functions)
             {
-                Brush funcColor = Config.FUNCTION_DEFAULT_COLOR;
+                Brush funcColor = UIColors.COLOR_FUNCTION_DEFAULT;
                 //this.TrialInfo($"Function#{func.Id} state: {func.State}");
                 switch (func.State)
                 {
                     case ButtonState.MARKED:
-                        funcColor = Config.FUNCTION_ENABLED_COLOR;
+                        funcColor = UIColors.COLOR_FUNCTION_ENABLED;
                         break;
                     case ButtonState.SELECTED:
                         funcColor = UIColors.COLOR_FUNCTION_APPLIED;
@@ -487,7 +488,7 @@ namespace SubTask.FunctionSelection
             }
         }
 
-    
+
         protected void LogEvent(string type, string id)
         {
 

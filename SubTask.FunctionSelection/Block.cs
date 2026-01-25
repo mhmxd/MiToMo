@@ -1,9 +1,9 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Common.Constants.ExpEnums;
-using Seril = Serilog.Log;
 
 namespace SubTask.FunctionSelection
 {
@@ -129,7 +129,7 @@ namespace SubTask.FunctionSelection
             //{
             //    Side functionSide = (Side)sInd;
 
-                
+
             //}
 
             // Shuffle the trials

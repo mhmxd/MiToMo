@@ -44,7 +44,7 @@ namespace SubTask.PanelNavigation
 
         // ElementFill now maps to Border.Background
         public static readonly DependencyProperty ElementFillProperty =
-            DependencyProperty.Register("ElementFill", typeof(Brush), typeof(Element), new PropertyMetadata(Config.BUTTON_DEFAULT_FILL_COLOR, OnElementAppearanceChanged));
+            DependencyProperty.Register("ElementFill", typeof(Brush), typeof(Element), new PropertyMetadata(UIColors.COLOR_BUTTON_DEFAULT_FILL, OnElementAppearanceChanged));
 
         public Brush ElementFill
         {
@@ -54,7 +54,7 @@ namespace SubTask.PanelNavigation
 
         // ElementStroke now maps to Border.BorderBrush
         public static readonly DependencyProperty ElementStrokeProperty =
-            DependencyProperty.Register("ElementStroke", typeof(Brush), typeof(Element), new PropertyMetadata(Config.BUTTON_DEFAULT_BORDER_COLOR, OnElementAppearanceChanged));
+            DependencyProperty.Register("ElementStroke", typeof(Brush), typeof(Element), new PropertyMetadata(UIColors.COLOR_BUTTON_DEFAULT_BORDER, OnElementAppearanceChanged));
 
         public Brush ElementStroke
         {
@@ -64,7 +64,7 @@ namespace SubTask.PanelNavigation
 
         // ElementStrokeThickness now maps to Border.BorderThickness
         public static readonly DependencyProperty ElementStrokeThicknessProperty =
-            DependencyProperty.Register("ElementStrokeThickness", typeof(int), typeof(Element), new PropertyMetadata(Config.ELEMENT_BORDER_THICKNESS, OnElementAppearanceChanged));
+            DependencyProperty.Register("ElementStrokeThickness", typeof(int), typeof(Element), new PropertyMetadata(ExpLayouts.ELEMENT_BORDER_THICKNESS, OnElementAppearanceChanged));
 
         public int ElementStrokeThickness
         {

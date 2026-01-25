@@ -39,7 +39,7 @@ namespace SubTask.PanelNavigation
             _touchFrames = new List<TouchPoint>();
 
             //_kf = new KalmanFilter(dT);
-            _kvf = new KalmanVeloFilter(ExpEnvironment.VKF_PROCESS_NOISE, Config.VKF_MEASURE_NOISE);
+            _kvf = new KalmanVeloFilter(ExpEnvironment.VKF_PROCESS_NOISE, ExpEnvironment.VKF_MEASURE_NOISE);
 
         }
 

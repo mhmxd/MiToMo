@@ -109,7 +109,7 @@ namespace SubTask.Panel.Selection
             //Seril.Information(Output.ToStr(_lineStart));
 
             // Find the four corners of the main region
-            _sideWinSize = MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
+            _sideWinSize = UITools.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
             _tlPoint = new Point(_sideWinSize, _sideWinSize);
             _trPoint = new Point(this.Width - _sideWinSize, _sideWinSize);
             _blPoint = new Point(_tlPoint.X, this.Height);
@@ -133,7 +133,7 @@ namespace SubTask.Panel.Selection
             UpdateBeam();
 
             // Init Kalman
-            double dT = Config.FRAME_DUR_MS / 1000.0; // Seconds
+            double dT = ExpEnvironment.FRAME_DUR_MS / 1000.0; // Seconds
 
             _beamKalmanFilter = new KalmanVeloFilter(1.2, 15);
             _plusKalmanFilter = new KalmanVeloFilter(0.4, 40);
@@ -208,7 +208,7 @@ namespace SubTask.Panel.Selection
 
         public bool RotateBeam(TouchPoint tp)
         {
-            if (_beamStopwatch.ElapsedMilliseconds < Config.FRAME_DUR_MS) // Still collecting frames
+            if (_beamStopwatch.ElapsedMilliseconds < ExpEnvironment.FRAME_DUR_MS) // Still collecting frames
             {
                 _beamTouchFrames.Add(tp);
                 return false;
@@ -358,7 +358,7 @@ namespace SubTask.Panel.Selection
 
         public bool MovePlus(TouchPoint tp)
         {
-            if (_plusStopwatch.ElapsedMilliseconds < Config.FRAME_DUR_MS) // Still collecting frames
+            if (_plusStopwatch.ElapsedMilliseconds < ExpEnvironment.FRAME_DUR_MS) // Still collecting frames
             {
                 _plusTouchFrames.Add(tp);
                 return false;
@@ -639,8 +639,8 @@ namespace SubTask.Panel.Selection
             potentialPos.Y = _beamStart.Y - _plusDistance * Math.Sin(_angleRad);
 
             // If Plus is inside side window, update its position along with the line
-            double distToOuterPoint = Utils.Dist(_beamStart, _outerPoint);
-            double distToInnerPoint = Utils.Dist(_beamStart, _innerPoint);
+            double distToOuterPoint = UITools.Dist(_beamStart, _outerPoint);
+            double distToInnerPoint = UITools.Dist(_beamStart, _innerPoint);
             //Utils.IsBetweenInc(potentialPos.x, _innerPoint.x, _outerPoint.x) &&
             //    Utils.IsBetweenInc(potentialPos.y, _innerPoint.y, _outerPoint.y)
 
@@ -665,7 +665,7 @@ namespace SubTask.Panel.Selection
             }
 
             // Update distance
-            _plusDistance = Utils.Dist(_beamStart, _plusPos);
+            _plusDistance = UITools.Dist(_beamStart, _plusPos);
 
             // Draw the Plus
             Canvas.SetLeft(PlusCanvas, _plusPos.X);

@@ -1,13 +1,15 @@
-﻿using CommunityToolkit.HighPerformance;
+﻿using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
+using CommunityToolkit.HighPerformance;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Windows;
-using Common.Constants;
+using static Common.Constants.ExpEnums;
 using static SubTask.FunctionSelection.Output;
 using static System.Math;
-using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionSelection
 {

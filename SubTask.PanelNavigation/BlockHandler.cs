@@ -38,7 +38,7 @@ namespace SubTask.PanelNavigation
             _mainWindow = mainWindow;
             _activeBlock = activeBlock;
             _activeBlockNum = activeBlockNum;
-            _prevTrialStartDist = MM2PX(ExpSizes.START_BUTTON_DIST_MM); // Initial distance from the grid
+            _prevTrialStartDist = UITools.MM2PX(ExpSizes.START_BUTTON_DIST_MM); // Initial distance from the grid
         }
 
         public void BeginActiveBlock()
@@ -103,7 +103,7 @@ namespace SubTask.PanelNavigation
             _prevTrialStartDist = newStartDist;
 
             // Color a random function button in the aux window and set the width in trialRecord
-            TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, Config.FUNCTION_DEFAULT_COLOR);
+            TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, UIColors.COLOR_FUNCTION_DEFAULT);
             _activeTrialRecord.Functions.Add(selectedFunc);
 
             // Show the marker on a random function button
@@ -406,7 +406,7 @@ namespace SubTask.PanelNavigation
                 LogEvent(ExpStrs.STR_RELEASE);
 
                 // Change the START to END and deactivate the button
-                _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_UNAVAILABLE_COLOR);
+                _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, UIColors.COLOR_START_UNAVAILABLE);
                 _mainWindow.ChangeStartBtnLabel(_activeTrial.FuncSide, ExpStrs.END_CAP);
             }
             else // Pressed outside the button => miss
@@ -428,7 +428,7 @@ namespace SubTask.PanelNavigation
             LogEvent(ExpStrs.FUN_MARKED, JsonSerializer.Serialize(funcRowCol));
 
             // Change the END button color to enabled
-            _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_AVAILABLE_COLOR);
+            _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, UIColors.COLOR_START_AVAILABLE);
         }
 
         public void OnPaneButtonMarked(GridPos btnPos)
@@ -442,7 +442,7 @@ namespace SubTask.PanelNavigation
             LogEvent(ExpStrs.FUN_DEMARKED, JsonSerializer.Serialize(funcRowCol));
 
             // Change the END button color to disabled
-            _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, Config.START_UNAVAILABLE_COLOR);
+            _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, UIColors.COLOR_START_UNAVAILABLE);
         }
 
         public void SetFunctionAsEnabled(int funcId)
@@ -450,7 +450,7 @@ namespace SubTask.PanelNavigation
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId,
-                Config.FUNCTION_ENABLED_COLOR);
+                UIColors.COLOR_FUNCTION_ENABLED);
         }
 
         public void SetFunctionAsDisabled(int funcId)
@@ -458,7 +458,7 @@ namespace SubTask.PanelNavigation
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId,
-                Config.FUNCTION_DEFAULT_COLOR);
+                UIColors.COLOR_FUNCTION_DEFAULT);
         }
 
         public void SetFunctionAsApplied(int funcId)
@@ -475,12 +475,12 @@ namespace SubTask.PanelNavigation
         {
             foreach (var func in _activeTrialRecord.Functions)
             {
-                Brush funcColor = Config.FUNCTION_DEFAULT_COLOR;
+                Brush funcColor = UIColors.COLOR_FUNCTION_DEFAULT;
                 //this.TrialInfo($"Function#{func.Id} state: {func.State}");
                 switch (func.State)
                 {
                     case ButtonState.MARKED:
-                        funcColor = Config.FUNCTION_ENABLED_COLOR;
+                        funcColor = UIColors.COLOR_FUNCTION_ENABLED;
                         break;
                     case ButtonState.SELECTED:
                         funcColor = UIColors.COLOR_FUNCTION_APPLIED;

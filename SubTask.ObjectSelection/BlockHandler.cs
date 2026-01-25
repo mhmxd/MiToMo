@@ -170,8 +170,8 @@ namespace SubTask.ObjectSelection
         private List<TrialRecord.TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
         {
             List<TrialRecord.TObject> placedObjects = new List<TrialRecord.TObject>();
-            double objW = MM2PX(ExpSizes.OBJ_WIDTH_MM);
-            double areaW = MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            double objW = UITools.MM2PX(ExpSizes.OBJ_WIDTH_MM);
+            double areaW = UITools.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
 
             int maxAttemptsPerObject = 1000; // Limit attempts to prevent infinite loops
 
@@ -512,7 +512,7 @@ namespace SubTask.ObjectSelection
                 _mainWindow.RemoveStartTrialButton();
 
                 // Change the button to END and disable it (option2)
-                //_mainWindow.ChangeStartButtonColor(Config.START_UNAVAILABLE_COLOR);
+                //_mainWindow.ChangeStartButtonColor(UIColors.COLOR_START_UNAVAILABLE);
                 //_mainWindow.ChangeStartButtonText(ExpStrs.END);
 
                 // Make objects available
@@ -539,7 +539,7 @@ namespace SubTask.ObjectSelection
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId,
-                Config.FUNCTION_ENABLED_COLOR);
+                UIColors.COLOR_FUNCTION_ENABLED);
         }
 
         public void SetFunctionAsDisabled(int funcId)
@@ -547,7 +547,7 @@ namespace SubTask.ObjectSelection
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId,
-                Config.FUNCTION_DEFAULT_COLOR);
+                UIColors.COLOR_FUNCTION_DEFAULT);
         }
 
         protected void SetObjectAsDisabled(int objId)

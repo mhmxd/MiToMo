@@ -1,10 +1,11 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using Common.Settings;
+using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.Tools;
 
 namespace SubTask.FunctionSelection
 {
@@ -104,7 +105,7 @@ namespace SubTask.FunctionSelection
 
         public static int GetStartHalfWidth()
         {
-            return MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM / 2);
+            return UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM / 2);
         }
     }
 }

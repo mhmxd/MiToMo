@@ -10,12 +10,12 @@ namespace SubTask.Panel.Selection
 {
     internal class ColumnFactory : Grid  // Inherits from Grid to use WPF's Grid layout capabilities
     {
-        private static double WithinGroupGutter = MM2PX(Config.GUTTER_05MM); // Space in-between the grid elements
-        private static double UNIT = MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
-        private static double ROW_HEIGHT = MM2PX(Config.GRID_ROW_HEIGHT_MM); // Height of each row in pixels
+        private static double WithinGroupGutter = UITools.MM2PX(Config.GUTTER_05MM); // Space in-between the grid elements
+        private static double UNIT = UITools.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
+        private static double ROW_HEIGHT = UITools.MM2PX(Config.GRID_ROW_HEIGHT_MM); // Height of each row in pixels
 
-        public static double MAX_GROUP_WITH = MM2PX(2 * ExpSizes.BUTTON_MULTIPLES[ExpStrs.x15] + Config.GUTTER_05MM); // Maximum width of the group in pixels
-        public static double COLUMN_HEIGHT = MM2PX(3 * Config.GRID_ROW_HEIGHT_MM + 2 * Config.GUTTER_05MM);
+        public static double MAX_GROUP_WITH = UITools.MM2PX(2 * ExpSizes.BUTTON_MULTIPLES[ExpStrs.x15] + Config.GUTTER_05MM); // Maximum width of the group in pixels
+        public static double COLUMN_HEIGHT = UITools.MM2PX(3 * Config.GRID_ROW_HEIGHT_MM + 2 * Config.GUTTER_05MM);
 
         private static Rectangle CreateInRowGutter()
         {
@@ -47,7 +47,7 @@ namespace SubTask.Panel.Selection
         {
             return new Rectangle
             {
-                Height = MM2PX(gutterMM), // Use WithinGroupGutter for width, not a derived UNIT value unless intentional
+                Height = UITools.MM2PX(gutterMM), // Use WithinGroupGutter for width, not a derived UNIT value unless intentional
                 //Fill = Brushes.Orange, // <-- Make it highly visible for debugging
                 //Stroke = Brushes.Black, // Add a stroke
                 //StrokeThickness = 0.5,
@@ -61,8 +61,8 @@ namespace SubTask.Panel.Selection
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[5] is defined in Experiment
-                Height = MM2PX(19 * Config.GRID_UNIT_MM) // 19 * UNIT is the height in pixels
+                Width = UITools.MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[5] is defined in Experiment
+                Height = UITools.MM2PX(19 * Config.GRID_UNIT_MM) // 19 * UNIT is the height in pixels
             };
             return sButton;
         }
@@ -73,7 +73,7 @@ namespace SubTask.Panel.Selection
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[1] is defined in Experiment
+                Width = UITools.MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[1] is defined in Experiment
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -85,7 +85,7 @@ namespace SubTask.Panel.Selection
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[0] is defined in Experiment
+                Width = UITools.MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[0] is defined in Experiment
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -97,7 +97,7 @@ namespace SubTask.Panel.Selection
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[3] is defined in Experiment
+                Width = UITools.MM2PX(wMultiple * Config.GRID_UNIT_MM), // BUTTON_WIDTHS_MULTIPLES[3] is defined in Experiment
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -109,7 +109,7 @@ namespace SubTask.Panel.Selection
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = MM2PX(wMultiple * Config.GRID_UNIT_MM),
+                Width = UITools.MM2PX(wMultiple * Config.GRID_UNIT_MM),
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -121,7 +121,7 @@ namespace SubTask.Panel.Selection
             SButton sButton = new SButton
             {
                 WidthMultiple = wMultiple, // Width ID for the button, used to identify the width of the button in the grid 
-                Width = MM2PX(wMultiple * Config.GRID_UNIT_MM),
+                Width = UITools.MM2PX(wMultiple * Config.GRID_UNIT_MM),
                 Height = ROW_HEIGHT // Height in pixels
             };
             return sButton;
@@ -210,7 +210,7 @@ namespace SubTask.Panel.Selection
 
         public static Grid CreateSimpleGrid()
         {
-            double columnWidth = MM2PX(ExpSizes.BUTTON_MULTIPLES[ExpStrs.x36]);
+            double columnWidth = UITools.MM2PX(ExpSizes.BUTTON_MULTIPLES[ExpStrs.x36]);
 
             Grid group = new Grid { UseLayoutRounding = true, Width = columnWidth }; // Ensure UseLayoutRounding is on the Grid
 

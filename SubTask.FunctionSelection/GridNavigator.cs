@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Common.Settings;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using static SubTask.FunctionSelection.Output;
 using static System.Math;
 
 namespace SubTask.FunctionSelection
@@ -33,7 +28,7 @@ namespace SubTask.FunctionSelection
         {
             _initMove = true;
             _stopWatch = new Stopwatch();
-            _kvf = new KalmanVeloFilter(ExpEnvironment.VKF_PROCESS_NOISE, Config.VKF_MEASURE_NOISE);
+            _kvf = new KalmanVeloFilter(ExpEnvironment.VKF_PROCESS_NOISE, ExpEnvironment.VKF_MEASURE_NOISE);
         }
 
         public void Activate()

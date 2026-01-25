@@ -138,7 +138,7 @@ namespace SubTask.PanelNavigation
 
         public static int GetStartHalfWidth()
         {
-            return MM2PX(START_WIDTH_MM / 2);
+            return UITools.MM2PX(START_WIDTH_MM / 2);
         }
     }
 }
