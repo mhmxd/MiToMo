@@ -1,60 +1,20 @@
-﻿using System;
+﻿using Common.Helpers;
+using Common.Settings;
+using CommonUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Shapes;
-using static SubTask.ObjectSelection.Output;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
 {
     public abstract class AuxWindow : Window
     {
-        // Class to store all the info regarding each button (positions, etc.)
-        protected class ButtonInfo
-        {
-            public SButton Button { get; set; }
-            public Point Position { get; set; }
-            public Rect Rect { get; set; }
-            public Range DistToStartRange { get; set; } // In pixels
-            public Brush ButtonFill { get; set; } // Default background color for the button
-
-            public ButtonInfo(SButton button)
-            {
-                Button = button;
-                Position = new Point(0, 0);
-                Rect = new Rect();
-                DistToStartRange = new Range(0, 0);
-                ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL;
-            }
-
-            public void ChangeBackFill()
-            {
-                Button.Background = ButtonFill; // Reset the button background to the default color
-            }
-
-            public void ResetButtonFill()
-            {
-                ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Reset the button fill color to the default
-                Button.Background = ButtonFill; // Change the button background to the default color
-            }
-
-            public void ResetButonBorder()
-            {
-                Button.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER; // Reset the button border to the default color
-            }
-
-        }
-
         public Side Side { get; set; } // Side of the window (left, right, top)
                                        // 
         protected Grid _buttonsGrid; // The grid containing all buttons
@@ -492,7 +452,7 @@ namespace SubTask.ObjectSelection
                 if (_buttonInfos.ContainsKey(buttonId))
                 {
                     _buttonInfos[buttonId].Button.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT; // Change the border color to highlight
-                                                                                                // Change the old button background based on the previous state
+                                                                                                  // Change the old button background based on the previous state
                     if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_BUTTON_HOVER_FILL)) // Gray => White
                     {
                         //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");

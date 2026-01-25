@@ -1,7 +1,7 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using Common.Logs;
 using Common.Settings;
-using Serilog;
 using Serilog.Core;
 using SubTask.ObjectSelection.Logging;
 using System;
@@ -12,7 +12,6 @@ using System.Reflection;
 using System.Text;
 using System.Windows;
 using static Common.Constants.ExpEnums;
-using Common.Helpers;
 
 namespace SubTask.ObjectSelection
 {

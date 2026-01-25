@@ -1,4 +1,4 @@
-﻿using Common.Constants;
+﻿using Common.Settings;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows;

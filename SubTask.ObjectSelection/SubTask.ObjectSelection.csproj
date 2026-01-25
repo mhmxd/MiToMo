@@ -288,9 +288,6 @@
     <Compile Include="BlockEndWindow.xaml.cs">
       <DependentUpon>BlockEndWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dimensions.cs" />
-    <Compile Include="Element.cs" />
-    <Compile Include="Config.cs" />
     <Compile Include="CursorControl.xaml.cs">
       <DependentUpon>CursorControl.xaml</DependentUpon>
     </Compile>
@@ -298,17 +295,12 @@
     <Compile Include="FullFinger.cs" />
     <Compile Include="FingerTracker.cs" />
     <Compile Include="GridNavigator.cs" />
-    <Compile Include="Range.cs" />
-    <Compile Include="SButton.cs" />
-    <Compile Include="Sounder.cs" />
-    <Compile Include="Timer.cs" />
     <Compile Include="TrialEvent.cs" />
     <Compile Include="Logging\ExperiLogger.cs" />
     <Compile Include="TopWindow.xaml.cs">
       <DependentUpon>TopWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="TouchFinger.cs" />
-    <Compile Include="Filog.cs" />
     <Compile Include="FixedBuffer.cs" />
     <Compile Include="KalmanVeloFilter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -321,13 +313,11 @@
       <DependentUpon>IntroDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Output.cs" />
-    <Compile Include="TestKalman.cs" />
     <Compile Include="TouchPoint.cs" />
     <Compile Include="KalmanFilter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Auxursor.cs" />
     <Compile Include="SideWindow.xaml.cs">
       <DependentUpon>SideWindow.xaml</DependentUpon>
     </Compile>
@@ -336,7 +326,6 @@
     <Compile Include="Trial.cs" />
     <Compile Include="BlockHandler.cs" />
     <Compile Include="TrialRecord.cs" />
-    <Compile Include="Utils.cs" />
     <Compile Include="WindowHelper.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -362,6 +351,10 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CommonUI\CommonUI.csproj">
+      <Project>{A6861698-5453-4A15-A95D-5751F67C3D33}</Project>
+      <Name>CommonUI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Common\Common.csproj">
       <Project>{2fa25bf3-b63c-41d3-9881-229b316c748b}</Project>
       <Name>Common</Name>
@@ -418,9 +411,6 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\cursor_active.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="READ-ME.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

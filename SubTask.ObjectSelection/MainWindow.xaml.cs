@@ -5,6 +5,9 @@
 ********************************************************/
 
 using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
 using CommunityToolkit.HighPerformance;
 using Microsoft.Research.TouchMouseSensor;
 using System;
@@ -24,7 +27,6 @@ using System.Windows.Threading;
 using WindowsInput;
 using static Common.Constants.ExpEnums;
 using static SubTask.ObjectSelection.Output;
-using static SubTask.ObjectSelection.Utils;
 using MessageBox = System.Windows.Forms.MessageBox;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
@@ -305,7 +307,7 @@ namespace SubTask.ObjectSelection
             // TEMP: for logging purposes
             if (Keyboard.IsKeyDown(Key.Space))
             {
-                
+
             }
 
             // Exit on Shift + F5
@@ -366,7 +368,7 @@ namespace SubTask.ObjectSelection
             {
                 // Get the second monitor
                 //var secondScreen = screens[1];
-                secondScreen = screens[1];
+                var secondScreen = screens[1];
 
                 //-- Background window
                 _backgroundWindow = new BackgroundWindow
@@ -678,7 +680,7 @@ namespace SubTask.ObjectSelection
             double angleToCenter = Math.Atan2(dy, dx); // This is in radians
 
             // 3. Compute the spread around that angle
-            double spreadRad = DegToRad(angleSpreadDeg);
+            double spreadRad = Tools.DegToRad(angleSpreadDeg);
             double minRad = angleToCenter - spreadRad / 2;
             double maxRad = angleToCenter + spreadRad / 2;
 
@@ -858,14 +860,14 @@ namespace SubTask.ObjectSelection
 
             double maxX = this.Width - padding - areaSize.Width;
             double maxY = this.Height - padding - areaSize.Height - startH - _infoLabelHeight;
-            
+
             double minX = padding;
             double minY = padding + startH;
 
             // In this window's coordinate system
             double randX = _random.NextDouble() * maxX + minX;
             double randY = _random.NextDouble() * maxY + minY;
-            
+
             return new Point(randX, randY);
         }
 

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Common.Settings;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using static SubTask.ObjectSelection.Output;
 using static System.Math;
 
 namespace SubTask.ObjectSelection

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Common.Helpers;
+using CommonUI;
+using System.Collections.Generic;
 using System.IO;
 using static Common.Constants.ExpEnums;
 
@@ -29,7 +31,7 @@ namespace SubTask.ObjectSelection
             get => _targetWidthMM;
             set => _targetWidthMM = value;
         }
-        public double TargetWidthPX => Utils.MM2PX(TargetWidthMM);
+        public double TargetWidthPX => UITools.MM2PX(TargetWidthMM);
 
         // Distance to the target center, from start's center
         //private double _distanceMM;
@@ -38,12 +40,12 @@ namespace SubTask.ObjectSelection
         //    get => _distanceMM;
         //    set => _distanceMM = value;
         //}
-        //public int DistancePX => Utils.MM2PX(DistanceMM);
+        //public int DistancePX => UITools.MM2PX(DistanceMM);
 
         //public List<double> Distances = new List<double>(); // Distances in px
 
         public Range DistRangeMM { get; set; }
-        public Range DistRangePX => new Range(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label);; // Distance range in px
+        public Range DistRangePX => new Range(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label); // Distance range in px
 
         //public Point StartPosition, TargetPosition; // Relative to the respective windows
 

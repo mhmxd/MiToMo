@@ -462,7 +462,7 @@ namespace SubTask.Panel.Selection
             {
                 // Get the second monitor
                 //var secondScreen = screens[1];
-                secondScreen = screens[1];
+                var secondScreen = screens[1];
 
                 //-- Background window
                 _backgroundWindow = new BackgroundWindow

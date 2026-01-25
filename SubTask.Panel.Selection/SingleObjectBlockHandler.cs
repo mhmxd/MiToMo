@@ -61,9 +61,9 @@ namespace SubTask.Panel.Selection
 
         //public override bool FindPositionsForTrial(Trial trial)
         //{
-        //    int objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
+        //    int objW = UITools.MM2PX(Experiment.OBJ_WIDTH_MM);
         //    int objHalfW = objW / 2;
-        //    int objAreaW = Utils.MM2PX(OBJ_AREA_WIDTH_MM);
+        //    int objAreaW = UITools.MM2PX(OBJ_AREA_WIDTH_MM);
         //    int objAreaHalfW = objAreaW / 2;
 
         //    //this.TrialInfo(trial.ToStr());
@@ -156,7 +156,7 @@ namespace SubTask.Panel.Selection
         //    MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
         //    _mainWindow.ShowObjectsArea(
         //        _activeTrialRecord.ObjectAreaRect,
-        //        Config.OBJ_AREA_BG_COLOR,
+        //        UIColors.COLOR_OBJ_AREA_BG,
         //        objAreaEvents);
 
         //    // Show objects

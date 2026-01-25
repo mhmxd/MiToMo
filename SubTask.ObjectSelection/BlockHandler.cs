@@ -1,15 +1,12 @@
 ﻿using Common.Constants;
-using MathNet.Numerics;
+using Common.Helpers;
+using CommonUI;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using static Common.Helpers.Tools;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
@@ -82,11 +79,11 @@ namespace SubTask.ObjectSelection
             _activeTrialRecord.Objects = PlaceObjectsInArea(
                 objAreaCenter,
                 _activeTrial.NObjects);
-            
+
             // Show the area
             MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseEnter, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
-                _activeTrialRecord.ObjectAreaRect, Config.OBJ_AREA_BG_COLOR,
+                _activeTrialRecord.ObjectAreaRect, UIColors.COLOR_OBJ_AREA_BG,
                 objAreaEvents);
 
             // Show the objects
@@ -98,8 +95,8 @@ namespace SubTask.ObjectSelection
             MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseEnter, OnStartButtonMouseExit);
             _mainWindow.ShowStartTrialButton(
                 _activeTrialRecord.ObjectAreaRect,
-                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
-                MM2PX(ExpSizes.START_BUTTON_SMALL_H_MM),
+                UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
+                UITools.MM2PX(ExpSizes.START_BUTTON_SMALL_H_MM),
                 Experiment.START_INIT_COLOR,
                 startButtonEvents);
 
@@ -375,13 +372,13 @@ namespace SubTask.ObjectSelection
                 }
 
             }
-                //else
-                //{
-                //    _pressedObjectId = objId;
-                //}
+            //else
+            //{
+            //    _pressedObjectId = objId;
+            //}
 
 
-                e.Handled = true;
+            e.Handled = true;
         }
 
         public void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
@@ -408,7 +405,7 @@ namespace SubTask.ObjectSelection
 
             //-- Object is pressed:
 
-            var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied(); 
+            var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
 
             if (allObjectsApplied) // Probably pressed on the area, then here to release
             {
@@ -518,7 +515,7 @@ namespace SubTask.ObjectSelection
                 // Make objects available
                 _activeTrialRecord.MakeAllObjectsAvailable(ButtonState.ENABLED);
                 UpdateScene();
-                
+
                 //UpdateScene(); // Temp (for measuring time)
             }
             else // Pressed outside the button => miss
@@ -564,7 +561,7 @@ namespace SubTask.ObjectSelection
                 switch (obj.State)
                 {
                     case ButtonState.ENABLED:
-                        objColor = Config.OBJ_ENABLED_COLOR;
+                        objColor = UIColors.COLOR_OBJ_MARKED;
                         break;
                     case ButtonState.SELECTED:
                         objColor = UIColors.COLOR_OBJ_APPLIED;

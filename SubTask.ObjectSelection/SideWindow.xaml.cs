@@ -1,4 +1,5 @@
-﻿using Common.Constants;
+﻿using Common.Settings;
+using CommonUI;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -9,10 +10,9 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using WindowsInput;
-using Seril = Serilog.Log;
 using static Common.Constants.ExpEnums;
 using static SubTask.ObjectSelection.Output;
-using static Common.Helpers.Tools;
+using Seril = Serilog.Log;
 
 namespace SubTask.ObjectSelection
 {
@@ -55,7 +55,7 @@ namespace SubTask.ObjectSelection
             set { _relPos = value; }
         }
 
-        
+
         private GridNavigator _gridNavigator;
         private (int colInd, int rowInd) _selectedElement = (0, 0);
 
@@ -81,7 +81,7 @@ namespace SubTask.ObjectSelection
 
             _relPos = relPos;
 
-            
+
             _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
 
             //foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
@@ -289,11 +289,6 @@ namespace SubTask.ObjectSelection
                 MoveSelection(dGridX, dGridY);
             }
 
-        }
-
-        public void StopCursor()
-        {
-            _auxursor.Stop();
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
