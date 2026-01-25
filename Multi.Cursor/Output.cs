@@ -1,21 +1,8 @@
-﻿
-using CommunityToolkit.HighPerformance;
-using Serilog;
-using Serilog.Enrichers.CallerInfo; // Alias Serilog's Log class
+﻿using Serilog;
 using Serilog.Enrichers.WithCaller;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Shapes;
-using System.Xml.Linq;
-using static Multi.Cursor.MainWindow;
 using ILogger = Serilog.ILogger;
-using Seril = Serilog.Log;
 
 namespace Multi.Cursor
 {
