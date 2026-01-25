@@ -341,7 +341,7 @@ namespace Multi.Cursor
             //ShowPoint(rightMostObjAreaCenterPosition);
             //_leftWindow.ShowPoint(leftMostSmallButtonCenterPosition);
             //double longestDistMM =
-            //    (Config.SIDE_WINDOW_WIDTH_MM - ExpLayouts.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
+            //    (ExpLayouts.SIDE_WINDOW_WIDTH_MM - ExpLayouts.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
             //    Utils.PX2MM(this.ActualWidth) - ExpLayouts.WINDOW_PADDING_MM - startHalfWidth;
 
 
@@ -360,8 +360,8 @@ namespace Multi.Cursor
 
             double shortestDistMM = UITools.DistInMM(topLeftButtonCenterAbsolute, topLeftObjAreaCenterAbsolute);
 
-            //double topLeftStartCenterLeft = Config.SIDE_WINDOW_WIDTH_MM + ExpLayouts.WINDOW_PADDING_MM + startHalfWidth;
-            //double topLeftStartCenterTop = Config.TOP_WINDOW_HEIGTH_MM + ExpLayouts.WINDOW_PADDING_MM + startHalfWidth;
+            //double topLeftStartCenterLeft = ExpLayouts.SIDE_WINDOW_WIDTH_MM + ExpLayouts.WINDOW_PADDING_MM + startHalfWidth;
+            //double topLeftStartCenterTop = ExpLayouts.TOP_WINDOW_HEIGTH_MM + ExpLayouts.WINDOW_PADDING_MM + startHalfWidth;
             //Point topLeftStartCenterAbsolute = new Point(topLeftStartCenterLeft, topLeftStartCenterTop);
 
             this.PositionInfo($"topLeftObjAreaCenterPosition: {topLeftButtonCenterAbsolute.Str()}");

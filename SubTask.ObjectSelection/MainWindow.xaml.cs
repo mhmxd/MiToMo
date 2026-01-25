@@ -908,7 +908,7 @@ namespace SubTask.ObjectSelection
         private void ShowObject(TrialRecord.TObject tObject, Brush color, MouseEvents mouseEvents)
         {
             // Convert the absolute position to relative position
-            //Point positionInMain = Utils.Offset(tObject.Position, -this.Left, -this.Top);
+            //Point positionInMain = UITools.Offset(tObject.Position, -this.Left, -this.Top);
             //this.TrialInfo($"Showing object {tObject.Id} at {positionInMain}");
             // Create the square
             Rectangle objRectangle = new Rectangle

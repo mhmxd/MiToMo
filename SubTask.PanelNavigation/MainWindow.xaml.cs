@@ -768,7 +768,7 @@ namespace SubTask.PanelNavigation
             canvas.Children.Clear();
 
             // Convert the absolute position to relative position
-            Point positionInMain = Utils.Offset(absolutePosition,
+            Point positionInMain = UITools.Offset(absolutePosition,
                 -this.Left,
                 -this.Top);
 
@@ -1010,7 +1010,7 @@ namespace SubTask.PanelNavigation
             _topWindow.Reset();
         }
 
-        public TrialRecord.TFunction ColorRandomFunction(Side side, Brush color)
+        public TFunction ColorRandomFunction(Side side, Brush color)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             return auxWindow.FillRandomGridBtn(color); // Return the chosen function 
@@ -1067,7 +1067,7 @@ namespace SubTask.PanelNavigation
             return (id, centerPositionAbsolute);
         }
 
-        public TrialRecord.TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
+        public TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
@@ -1076,13 +1076,13 @@ namespace SubTask.PanelNavigation
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
             Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
 
-            return new TrialRecord.TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+            return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
         }
 
-        public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
+        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
         {
             this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
-            List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
+            List<TFunction> functions = new List<TFunction>();
             List<int> foundIds = new List<int>();
             // Find a UNIQUE function for each width
             int maxTries = 100;
@@ -1095,7 +1095,7 @@ namespace SubTask.PanelNavigation
                 this.TrialInfo($"Num. of Tries: {tries}");
                 foreach (int widthUnit in widthUnits)
                 {
-                    TrialRecord.TFunction function = FindRandomFunction(side, widthUnit, distRange);
+                    TFunction function = FindRandomFunction(side, widthUnit, distRange);
                     this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
                     functions.Add(function);
                     foundIds.Add(function.Id);

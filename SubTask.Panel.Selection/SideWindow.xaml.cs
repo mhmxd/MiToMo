@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Common.Constants;
+using Common.Settings;
+using CommonUI;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -9,10 +12,8 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using WindowsInput;
-using static SubTask.Panel.Selection.Output;
-using static Common.Helpers.Tools;
-using Seril = Serilog.Log;
 using static Common.Constants.ExpEnums;
+using static SubTask.Panel.Selection.Output;
 
 namespace SubTask.Panel.Selection
 {
@@ -25,11 +26,11 @@ namespace SubTask.Panel.Selection
 
         private Random _random = new Random();
 
-        private double HorizontalPadding = UITools.MM2PX(Config.WINDOW_PADDING_MM);
-        private double VerticalPadding = UITools.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
+        private double HorizontalPadding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
+        private double VerticalPadding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
 
-        private double InterGroupGutter = UITools.MM2PX(Config.GUTTER_05MM);
-        private double WithinGroupGutter = UITools.MM2PX(Config.GUTTER_05MM);
+        private double InterGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM);
+        private double WithinGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -58,7 +59,7 @@ namespace SubTask.Panel.Selection
             set { _relPos = value; }
         }
 
-        
+
         private GridNavigator _gridNavigator;
         private (int colInd, int rowInd) _selectedElement = (0, 0);
 
@@ -84,7 +85,7 @@ namespace SubTask.Panel.Selection
 
             _relPos = relPos;
 
-            
+
             _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
 
             //foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
@@ -121,7 +122,7 @@ namespace SubTask.Panel.Selection
             int canvasHeight = (int)canvas.ActualHeight;
 
             // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = UITools.MM2PX(Config.WINDOW_PADDING_MM);
+            int marginPX = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
             int minX = marginPX;
             int maxX = canvasWidth - marginPX - targetWidth;
             int minY = marginPX;
@@ -294,11 +295,6 @@ namespace SubTask.Panel.Selection
 
         }
 
-        public void StopCursor()
-        {
-            _auxursor.Stop();
-        }
-
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //Console.WriteLine("MouseDown event triggered.");
@@ -320,7 +316,6 @@ namespace SubTask.Panel.Selection
         private void PositionCursor(int x, int y)
         {
             var windowPosition = PointToScreen(new Point(0, 0));
-            Seril.Debug($"Set pos X = {(int)(windowPosition.X + x)}, Y = {(int)(windowPosition.Y + y)}");
             SetCursorPos((int)(windowPosition.X + x), (int)(windowPosition.Y + y));
         }
 

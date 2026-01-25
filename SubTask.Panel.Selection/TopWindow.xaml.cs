@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Settings;
+using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -6,7 +7,6 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using static Common.Helpers.Tools;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.Panel.Selection
@@ -16,8 +16,6 @@ namespace SubTask.Panel.Selection
     /// </summary>
     public partial class TopWindow : AuxWindow
     {
-        private double HORIZONTAL_PADDING = UITools.MM2PX(Config.WINDOW_PADDING_MM);
-        private double InterGroupGutter = UITools.MM2PX(Config.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]

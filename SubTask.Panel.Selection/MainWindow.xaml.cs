@@ -4,6 +4,10 @@
 *                                                       *
 ********************************************************/
 
+using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
 using CommunityToolkit.HighPerformance;
 using Microsoft.Research.TouchMouseSensor;
 using System;
@@ -21,15 +25,13 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using WindowsInput;
+using static Common.Constants.ExpEnums;
+using static Common.Helpers.Tools;
+using static SubTask.Panel.Selection.Experiment;
+using static SubTask.Panel.Selection.Output;
 using MessageBox = System.Windows.Forms.MessageBox;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
-using static SubTask.Panel.Selection.Experiment;
-using static SubTask.Panel.Selection.Output;
-using static SubTask.Panel.Selection.Utils;
-using static Common.Helpers.Tools;
-using static Common.Constants.ExpEnums;
-using Common.Constants;
 
 
 //using WinForms = System.Windows.Forms; // Alias for Forms namespace
@@ -97,11 +99,11 @@ namespace SubTask.Panel.Selection
 
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
-        private int VERTICAL_PADDING = UITools.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
-        private int HORIZONTAL_PADDING = UITools.MM2PX(Config.WINDOW_PADDING_MM); // Padding for the windows
+        private int VERTICAL_PADDING = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM); // Padding for the windows
+        private int HORIZONTAL_PADDING = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM); // Padding for the windows
 
-        private int TopWindowHeight = UITools.MM2PX(Config.TOP_WINDOW_HEIGTH_MM);
-        private int SideWindowWidth = UITools.MM2PX(Config.SIDE_WINDOW_WIDTH_MM);
+        private int TopWindowHeight = UITools.MM2PX(ExpLayouts.TOP_WINDOW_HEIGTH_MM);
+        private int SideWindowWidth = UITools.MM2PX(ExpLayouts.SIDE_WINDOW_WIDTH_MM);
 
 
         // Dead zone
@@ -120,7 +122,6 @@ namespace SubTask.Panel.Selection
         private AuxWindow _leftWindow;
         private AuxWindow _rightWindow;
         private AuxWindow _activeAuxWindow;
-        private OverlayWindow _overlayWindow;
 
         private double _monitorHeightMM;
 
@@ -312,7 +313,7 @@ namespace SubTask.Panel.Selection
 
         private void CreateExperiment()
         {
-            double padding = UITools.MM2PX(Config.WINDOW_PADDING_MM);
+            double padding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
             double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double smallButtonHalfWidth = UITools.MM2PX(smallButtonHalfWidthMM);
 
@@ -339,8 +340,8 @@ namespace SubTask.Panel.Selection
             //ShowPoint(rightMostObjAreaCenterPosition);
             //_leftWindow.ShowPoint(leftMostSmallButtonCenterPosition);
             //double longestDistMM =
-            //    (Config.SIDE_WINDOW_WIDTH_MM - Config.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
-            //    Utils.PX2MM(this.ActualWidth) - Config.WINDOW_PADDING_MM - startHalfWidth;
+            //    (ExpLayouts.SIDE_WINDOW_WIDTH_MM - ExpLayouts.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
+            //    Utils.PX2MM(this.ActualWidth) - ExpLayouts.WINDOW_PADDING_MM - startHalfWidth;
 
 
             // Shortest
@@ -358,8 +359,8 @@ namespace SubTask.Panel.Selection
 
             //double shortestDistMM = UITools.DistInMM(topLeftButtonCenterAbsolute, topLeftObjAreaCenterAbsolute);
 
-            //double topLeftStartCenterLeft = Config.SIDE_WINDOW_WIDTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
-            //double topLeftStartCenterTop = Config.TOP_WINDOW_HEIGTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
+            //double topLeftStartCenterLeft = ExpLayouts.SIDE_WINDOW_WIDTH_MM + ExpLayouts.WINDOW_PADDING_MM + startHalfWidth;
+            //double topLeftStartCenterTop = ExpLayouts.TOP_WINDOW_HEIGTH_MM + ExpLayouts.WINDOW_PADDING_MM + startHalfWidth;
             //Point topLeftStartCenterAbsolute = new Point(topLeftStartCenterLeft, topLeftStartCenterTop);
 
             //this.TrialInfo($"topLeftObjAreaCenterPosition: {topLeftButtonCenterAbsolute.ToStr()}");
@@ -765,7 +766,7 @@ namespace SubTask.Panel.Selection
 
             ExperiLogger.Init(_experiment.Active_Technique);
 
-            if (Utils.GetDevice(_experiment.Active_Technique) == Technique.TOMO)
+            if (_experiment.Active_Technique.IsTomo())
             {
                 _isTouchMouseActive = true;
                 if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);
@@ -897,7 +898,7 @@ namespace SubTask.Panel.Selection
                 Block block = _experiment.GetBlock(_activeBlockNum);
 
                 _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
-                if (Utils.GetDevice(_experiment.Active_Technique) == Technique.TOMO) _touchSurface.SetGestureHandler(_activeBlockHandler);
+                if (_experiment.Active_Technique.IsTomo()) _touchSurface.SetGestureHandler(_activeBlockHandler);
 
                 _activeBlockHandler.BeginActiveBlock();
 
@@ -955,7 +956,7 @@ namespace SubTask.Panel.Selection
             canvas.Children.Clear();
 
             // Convert the absolute position to relative position
-            Point positionInMain = Utils.Offset(absolutePosition,
+            Point positionInMain = UITools.Offset(absolutePosition,
                 -this.Left,
                 -this.Top);
 
@@ -1287,7 +1288,7 @@ namespace SubTask.Panel.Selection
             _topWindow.ResetButtons();
         }
 
-        public TrialRecord.TFunction ColorRandomFunction(Side side, Brush color)
+        public TFunction ColorRandomFunction(Side side, Brush color)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             return auxWindow.FillRandomGridBtn(color); // Return the chosen function 
@@ -1332,7 +1333,7 @@ namespace SubTask.Panel.Selection
 
         public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
         {
-            double padding = UITools.MM2PX(Config.WINDOW_PADDING_MM);
+            double padding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
             double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double smallButtonHalfWidth = UITools.MM2PX(smallButtonHalfWidthMM);
 
@@ -1344,7 +1345,7 @@ namespace SubTask.Panel.Selection
             return (id, centerPositionAbsolute);
         }
 
-        public TrialRecord.TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
+        public TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
@@ -1353,13 +1354,13 @@ namespace SubTask.Panel.Selection
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
             Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
 
-            return new TrialRecord.TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+            return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
         }
 
-        public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
+        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
         {
             this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
-            List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
+            List<TFunction> functions = new List<TFunction>();
             List<int> foundIds = new List<int>();
             // Find a UNIQUE function for each width
             int maxTries = 100;
@@ -1372,7 +1373,7 @@ namespace SubTask.Panel.Selection
                 this.TrialInfo($"Num. of Tries: {tries}");
                 foreach (int widthUnit in widthUnits)
                 {
-                    TrialRecord.TFunction function = FindRandomFunction(side, widthUnit, distRange);
+                    TFunction function = FindRandomFunction(side, widthUnit, distRange);
                     this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
                     functions.Add(function);
                     foundIds.Add(function.Id);

@@ -77,12 +77,12 @@ namespace SubTask.PanelNavigation
             //if (tech == ExpStrs.TOUCH_MOUSE_TAP)
             //{
             //    Active_Technique = Technique.TOMO_TAP;
-            //    Config.SetMode(0);
+            //    
             //}
             //else if (tech == ExpStrs.TOUCH_MOUSE_SWIPE)
             //{
             //    Active_Technique = Technique.TOMO_SWIPE;
-            //    Config.SetMode(1);
+            //    
             //}
             //else if (tech == ExpStrs.MOUSE)
             //{

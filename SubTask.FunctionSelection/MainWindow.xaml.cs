@@ -350,8 +350,8 @@ namespace SubTask.FunctionSelection
             //ShowPoint(rightMostObjAreaCenterPosition);
             //_leftWindow.ShowPoint(leftMostSmallButtonCenterPosition);
             //double longestDistMM =
-            //    (Config.SIDE_WINDOW_WIDTH_MM - Config.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
-            //    Utils.PX2MM(this.ActualWidth) - Config.WINDOW_PADDING_MM - startHalfWidth;
+            //    (ExpLayouts.SIDE_WINDOW_WIDTH_MM - ExpLayouts.WINDOW_PADDING_MM - smallButtonHalfWidthMM) +
+            //    Utils.PX2MM(this.ActualWidth) - ExpLayouts.WINDOW_PADDING_MM - startHalfWidth;
 
 
             // Shortest
@@ -369,8 +369,8 @@ namespace SubTask.FunctionSelection
 
             double shortestDistMM = UITools.DistInMM(topLeftButtonCenterAbsolute, topLeftObjAreaCenterAbsolute);
 
-            //double topLeftStartCenterLeft = Config.SIDE_WINDOW_WIDTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
-            //double topLeftStartCenterTop = Config.TOP_WINDOW_HEIGTH_MM + Config.WINDOW_PADDING_MM + startHalfWidth;
+            //double topLeftStartCenterLeft = ExpLayouts.SIDE_WINDOW_WIDTH_MM + ExpLayouts.WINDOW_PADDING_MM + startHalfWidth;
+            //double topLeftStartCenterTop = ExpLayouts.TOP_WINDOW_HEIGTH_MM + ExpLayouts.WINDOW_PADDING_MM + startHalfWidth;
             //Point topLeftStartCenterAbsolute = new Point(topLeftStartCenterLeft, topLeftStartCenterTop);
 
             this.TrialInfo($"topLeftObjAreaCenterPosition: {topLeftButtonCenterAbsolute.ToStr()}");
@@ -1082,7 +1082,7 @@ namespace SubTask.FunctionSelection
         //    return (id, centerPositionAbsolute);
         //}
 
-        //public TrialRecord.TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
+        //public TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
         //{
         //    AuxWindow auxWindow = GetAuxWindow(side);
         //    int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
@@ -1091,10 +1091,10 @@ namespace SubTask.FunctionSelection
         //    Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
         //    Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
 
-        //    return new TrialRecord.TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+        //    return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
         //}
 
-        public TrialRecord.TFunction FindRandomFunction(Side side, int widthUnits)
+        public TFunction FindRandomFunction(Side side, int widthUnits)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             int id = auxWindow.SelectRandButton(widthUnits);
@@ -1103,13 +1103,13 @@ namespace SubTask.FunctionSelection
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
             Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
 
-            return new TrialRecord.TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+            return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
         }
 
-        public List<TrialRecord.TFunction> FindRandomFunctions(Side side, List<int> widthUnits)
+        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits)
         {
             this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
-            List<TrialRecord.TFunction> functions = new List<TrialRecord.TFunction>();
+            List<TFunction> functions = new List<TFunction>();
             List<int> foundIds = new List<int>();
             // Find a UNIQUE function for each width
             int maxTries = 100;
@@ -1122,7 +1122,7 @@ namespace SubTask.FunctionSelection
                 this.TrialInfo($"Num. of Tries: {tries}");
                 foreach (int widthUnit in widthUnits)
                 {
-                    TrialRecord.TFunction function = FindRandomFunction(side, widthUnit);
+                    TFunction function = FindRandomFunction(side, widthUnit);
                     this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
                     functions.Add(function);
                     foundIds.Add(function.Id);

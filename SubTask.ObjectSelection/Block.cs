@@ -1,5 +1,4 @@
-﻿using Common.Helpers;
-using Common.Settings;
+﻿using Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,7 +50,7 @@ namespace SubTask.ObjectSelection
 
         public void ShuffleTrials()
         {
-            _trials.Shuffle();
+            _trials.huffle();
         }
 
         /// <summary>

@@ -1,10 +1,10 @@
 ﻿using Common.Constants;
 using Common.Settings;
+using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.Tools;
 
 namespace SubTask.Panel.Selection
 {
@@ -37,12 +37,12 @@ namespace SubTask.Panel.Selection
             if (tech == ExpStrs.TAP_C)
             {
                 Active_Technique = Technique.TOMO_TAP;
-                Config.SetMode(0);
+
             }
             else if (tech == ExpStrs.SWIPE_C)
             {
                 Active_Technique = Technique.TOMO_SWIPE;
-                Config.SetMode(1);
+
             }
 
             Active_Complexity = complexity;
@@ -52,7 +52,7 @@ namespace SubTask.Panel.Selection
             {
                 int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
                 Block block = Block.CreateBlock(
-                    Active_Technique, ExpEnvironment.PTC_NUM, blockId, 
+                    Active_Technique, ExpEnvironment.PTC_NUM, blockId,
                     complexity, expType, ExpDesign.PS_N_REP);
                 _blocks.Add(block);
             }

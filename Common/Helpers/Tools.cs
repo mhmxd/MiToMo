@@ -1,6 +1,4 @@
-﻿using Common.Settings;
-using CommunityToolkit.HighPerformance;
-using System;
+﻿using CommunityToolkit.HighPerformance;
 using System.Text;
 using static System.Math;
 
@@ -101,6 +99,15 @@ namespace Common.Helpers
 
             int randomIndex = _random.Next(list.Count);
             return list[randomIndex];
+        }
+
+        public static KeyValuePair<TKey, TValue> GetRandomEntry<TKey, TValue>(this IDictionary<TKey, TValue> dict)
+        {
+            if (dict == null || dict.Count == 0)
+                throw new ArgumentException("Dictionary is null or empty.", nameof(dict));
+
+            int index = _random.Next(dict.Count);
+            return dict.ElementAt(index);
         }
 
         public static bool ContainsKeys<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, params TKey[] keys)

@@ -1,21 +1,4 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using static SubTask.Panel.Selection.Experiment;
-using static SubTask.Panel.Selection.Utils;
-
-namespace SubTask.Panel.Selection
+﻿namespace SubTask.Panel.Selection
 {
     public class SingleObjectBlockHandler
     {

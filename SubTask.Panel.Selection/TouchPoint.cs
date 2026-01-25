@@ -1,16 +1,5 @@
-﻿using CommunityToolkit.HighPerformance;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Security.RightsManagement;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows;
-using System.Xml.Linq;
-using Tensorflow;
 
 namespace SubTask.Panel.Selection
 {

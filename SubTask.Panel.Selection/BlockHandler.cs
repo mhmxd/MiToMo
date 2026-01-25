@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Common.Constants;
+using Common.Helpers;
+using CommonUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Input;
-using Common.Constants;
-using static SubTask.Panel.Selection.TrialRecord;
-using static Common.Helpers.Tools;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
 
@@ -87,8 +87,8 @@ namespace SubTask.Panel.Selection
             MouseEvents startButtonEvents = new(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStartBtn(
-                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
-                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),    
+                UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
+                UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
                 Experiment.START_INIT_COLOR,
                 startButtonEvents);
 

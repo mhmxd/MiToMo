@@ -11,12 +11,12 @@ namespace SubTask.PanelNavigation
 {
     internal class ColumnFactory : Grid  // Inherits from Grid to use WPF's Grid layout capabilities
     {
-        private static double WithinGroupGutter = UITools.MM2PX(Config.GUTTER_05MM); // Space in-between the grid elements
+        private static double WithinGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM); // Space in-between the grid elements
         private static double UNIT = UITools.MM2PX(Config.GRID_UNIT_MM); // Unit of measurement for the grid (1mm = 4px)
         private static double ROW_HEIGHT = UITools.MM2PX(Config.GRID_ROW_HEIGHT_MM); // Height of each row in pixels
 
-        public static double MAX_GROUP_WITH = UITools.MM2PX(2 * ExpLayouts.BUTTON_MULTIPLES[ExpStrs.x15] + Config.GUTTER_05MM); // Maximum width of the group in pixels
-        public static double COLUMN_HEIGHT = UITools.MM2PX(3 * Config.GRID_ROW_HEIGHT_MM + 2 * Config.GUTTER_05MM);
+        public static double MAX_GROUP_WITH = UITools.MM2PX(2 * ExpLayouts.BUTTON_MULTIPLES[ExpStrs.x15] + ExpSizes.GUTTER_05MM); // Maximum width of the group in pixels
+        public static double COLUMN_HEIGHT = UITools.MM2PX(3 * Config.GRID_ROW_HEIGHT_MM + 2 * ExpSizes.GUTTER_05MM);
 
         private static Rectangle CreateInRowGutter()
         {

@@ -1,9 +1,11 @@
 ﻿using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using static Common.Constants.ExpEnums;
-using static SubTask.Panel.Selection.Utils;
 
 namespace SubTask.Panel.Selection
 {
@@ -11,48 +13,10 @@ namespace SubTask.Panel.Selection
     {
         public int TrialId { get; set; }
 
-        public class TObject
-        {
-            public int Id { get; set; }
-            public Point Position { get; set; }
-            public Point Center { get; set; }
-            public ButtonState State { get; set; }
-
-            public TObject(int id, Point position, Point center)
-            {
-                Id = id;
-                Position = position;
-                Center = center;
-                State = ButtonState.DEFAULT;
-            }
-
-        }
-
-        public class TFunction
-        {
-            public int Id { get; set; }
-            public int WidthInUnits { get; set; }
-            public Point Center { get; set; }
-            public Point Position { get; set; } // Top-left corner of the button
-            public int DistanceToObjArea; // in pixels
-            public ButtonState State { get; set; }
-
-            public TFunction(int id, int widthInUnit, Point center, Point position)
-            {
-                Id = id;
-                Center = center;
-                Position = position;
-                WidthInUnits = widthInUnit;
-                State = ButtonState.DEFAULT;
-
-            }
-
-        }
-
         //public int FunctionId;
         public List<TFunction> Functions;
         public List<TObject> Objects;
-        public List<Pair> ObjFuncMap;
+        public Dictionary<int, int> ObjFuncMap;
         public int Distance; // in pixels
 
         public Rect StartBtnRect;
@@ -104,9 +68,15 @@ namespace SubTask.Panel.Selection
 
         public int FindMappedObjectId(int functionId)
         {
+            if (ObjFuncMap.ContainsKey(functionId))
+            {
+                return ObjFuncMap[functionId];
+            }
+            return -1; // Return -1 if no mapping found
+
             // Find the first object that is mapped to the given function funcId
-            var pair = ObjFuncMap.FirstOrDefault(p => p.Second == functionId);
-            return pair != null ? pair.First : -1; // Return -1 if no mapping found
+            //var pair = ObjFuncMap.FirstOrDefault(p => p.Second == functionId);
+            //return pair != null ? pair.First : -1; // Return -1 if no mapping found
         }
 
         public bool IsEnabledFunction(int id)
