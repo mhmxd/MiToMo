@@ -1,6 +1,7 @@
 ﻿using Common.Constants;
 using Common.Helpers;
 using Common.Settings;
+using CommonUI;
 using CommunityToolkit.HighPerformance;
 using System;
 using System.Collections.Generic;
@@ -383,38 +384,6 @@ namespace SubTask.PanelNavigation
             if (_frames.Count > 1) // Need at least two frames
             {
                 TrackTapIndex();
-
-                //TouchFrame lastFrame = _frames.Last;
-                //TouchFrame beforeLastFrame = _frames.BeforeLast;
-
-                //GESTURE_LOG.Information(Output.GetKeys(lastFrame.Pointers));
-                //int frameWithThumb = 0;
-                //foreach (TouchFrame frame in _frames.GetFrames())
-                //{
-                //    if (frame.IncludePointer(0, 3))
-                //    {
-                //        frameWithThumb++;
-                //    }
-                //}
-
-                // Debug...
-                //--- REMOVED: Only track multiple fingers if multiple fingers are present!
-                // Presence checks are done inside the methods
-
-                //if (_activeTechnique == Technique.TOMO_TAP)
-                //{
-                //    TrackTapThumb();
-                //    TrackTapIndex();
-                //    TrackTapMiddle();
-                //    TrackTapRing();
-                //    TrackTapPinky();
-                //}
-
-                //if (_activeTechnique == Technique.TOMO_SWIPE)
-                //{
-                //    TrackThumbSwipe();
-                //    TrackIndexSwipe();
-                //}
 
 
             }

@@ -32,6 +32,7 @@ using static SubTask.PanelNavigation.Output;
 using MessageBox = System.Windows.Forms.MessageBox;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
+using TouchPoint = CommonUI.TouchPoint;
 
 //using WinForms = System.Windows.Forms; // Alias for Forms namespace
 
@@ -174,15 +175,6 @@ namespace SubTask.PanelNavigation
         private Rect _mainWinRect, _leftWinRect, _topWinRect, _rightWinRect;
         private Rect _lefWinRectPadded, _topWinRectPadded, _rightWinRectPadded;
         private int _infoLabelHeight;
-
-        //--- Radiusor
-        private int _actionPointerInd = -1;
-        private Pointer _actionPointer;
-        private Point _lastRotPointerPos = new Point(-1, -1);
-        private Point _lastPlusPointerPos = new Point(-1, -1);
-        private Point _lastMiddlePointerPos = new Point(-1, -1);
-        private int _lastNumMiddleFingers = 0;
-        private bool _radiusorActive = false;
 
         //--- Classes
         //private GestureDetector _gestureDetector;
@@ -757,42 +749,6 @@ namespace SubTask.PanelNavigation
             int nTrials = _activeBlockHandler.GetNumTrialsInBlock();
             infoLabel.Text = $"Trial {trialNum}/{nTrials} --- Block {_activeBlockNum}/{_experiment.GetNumBlocks()}";
             UpdateLabelPosition();
-        }
-
-        public void ShowStart(
-            Point absolutePosition, Brush color,
-            SysIput.MouseEventHandler mouseEnterHandler, SysIput.MouseEventHandler mouseLeaveHandler,
-            MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
-        {
-            // Clear the previous objects
-            canvas.Children.Clear();
-
-            // Convert the absolute position to relative position
-            Point positionInMain = UITools.Offset(absolutePosition,
-                -this.Left,
-                -this.Top);
-
-            // Create the square
-            _startRectangle = new Rectangle
-            {
-                Width = UITools.MM2PX(Experiment.START_WIDTH_MM),
-                Height = UITools.MM2PX(Experiment.START_WIDTH_MM),
-                Fill = color
-            };
-
-            // Position the Start on the Canvas
-            Canvas.SetLeft(_startRectangle, positionInMain.X);
-            Canvas.SetTop(_startRectangle, positionInMain.Y);
-
-            // Add event
-            _startRectangle.MouseEnter += mouseEnterHandler;
-            _startRectangle.MouseLeave += mouseLeaveHandler;
-            _startRectangle.MouseDown += buttonDownHandler;
-            _startRectangle.MouseUp += buttonUpHandler;
-
-            // Add the circle to the Canvas
-            //canvas.Children.Add(_startCircle);
-            canvas.Children.Add(_startRectangle);
         }
 
 

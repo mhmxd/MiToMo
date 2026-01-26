@@ -1,9 +1,7 @@
-﻿using Common.Constants;
-using Common.Settings;
+﻿using Common.Settings;
 using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Media;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.PanelNavigation
@@ -16,52 +14,6 @@ namespace SubTask.PanelNavigation
         public Complexity Active_Complexity = Complexity.Simple; // Set in the intro dialog
         public ExperimentType Active_Type = ExperimentType.Practice; // Set from the intro dialog
 
-        //--- Variables
-        private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
-        //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
-        private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30 }; // BenQ
-
-
-        public static Dictionary<Complexity, Dictionary<Side, List<int>>> BUTTON_WIDTHS = new Dictionary<Complexity, Dictionary<Side, List<int>>>()
-        {
-            {
-                Complexity.Simple, new Dictionary<Side, List<int>>()
-                {
-                    { Side.Top, new List<int>() { 6, 18 } },
-                    { Side.Left, new List<int>() { 36 } },
-                    { Side.Right, new List<int>() { 36 } }
-                }
-            },
-
-            {
-                Complexity.Moderate, new Dictionary<Side, List<int>>()
-                {
-                    { Side.Top, new List<int>() { 3, 6, 18 } },
-                    { Side.Left, new List<int>() { 6, 30 } },
-                    { Side.Right, new List<int>() { 6, 30 } }
-                }
-            },
-            {
-                Complexity.Complex, new Dictionary<Side, List<int>>()
-                {
-                    { Side.Top, new List<int>() { 3, 6, 18, 30 } },
-                    { Side.Left, new List<int>() { 3, 6, 18, 30 } },
-                    { Side.Right, new List<int>() { 3, 6, 18, 30 } }
-                }
-            }
-        };
-
-
-        public static double START_WIDTH_MM = ExpSizes.EXCEL_CELL_W;
-
-        //-- Colors
-        public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
-            (Color)ColorConverter.ConvertFromString(ExpColors.PURPLE));
-
-
-        //-- Information
-        //public int Participant_Number { get; set; } // Set in the info dialog
-
         private readonly List<Block> _blocks = new();
         public List<Block> Blocks { get { return _blocks; } }
 
@@ -73,21 +25,6 @@ namespace SubTask.PanelNavigation
         public void Init(Complexity complexity, ExperimentType expType)
         {
             this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}");
-            //Participant_Number = ptc;
-            //if (tech == ExpStrs.TOUCH_MOUSE_TAP)
-            //{
-            //    Active_Technique = Technique.TOMO_TAP;
-            //    
-            //}
-            //else if (tech == ExpStrs.TOUCH_MOUSE_SWIPE)
-            //{
-            //    Active_Technique = Technique.TOMO_SWIPE;
-            //    
-            //}
-            //else if (tech == ExpStrs.MOUSE)
-            //{
-            //    Active_Technique = Technique.MOUSE;
-            //}
 
             Active_Complexity = complexity;
             Active_Type = expType;
@@ -116,29 +53,14 @@ namespace SubTask.PanelNavigation
             else return null;
         }
 
-        public static double GetMinTargetWidthMM()
+        public static int GetStartSize()
         {
-            return TARGET_WIDTHS_MM.First();
-        }
-
-        public static int GetNumGridTargetWidths()
-        {
-            return GRID_TARGET_WIDTHS_MM.Count;
-        }
-
-        public static List<double> GetGridTargetWidthsMM()
-        {
-            return GRID_TARGET_WIDTHS_MM;
-        }
-
-        public static double GetGridMinTargetWidthMM()
-        {
-            return GRID_TARGET_WIDTHS_MM.Min();
+            return UITools.MM2PX(ExpLayouts.START_BUTTON_IN_SIDE_MM.W);
         }
 
         public static int GetStartHalfWidth()
         {
-            return UITools.MM2PX(START_WIDTH_MM / 2);
+            return UITools.MM2PX(ExpLayouts.START_BUTTON_IN_SIDE_MM.W / 2);
         }
     }
 }

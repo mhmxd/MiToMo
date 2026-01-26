@@ -719,7 +719,7 @@ namespace SubTask.PanelNavigation
         }
 
         public void MoveMarker(
-            TouchPoint tp,
+            CommonUI.TouchPoint tp,
             Action<int, GridPos> OnFunctionMarked, Action<int, GridPos> OnFunctionDeMarked,
             Action<GridPos> OnButtonMarked)
         {

@@ -1,5 +1,6 @@
 ﻿using Common.Constants;
 using Common.Helpers;
+using Common.Settings;
 using CommonUI;
 using System;
 using System.Collections.Generic;
@@ -35,7 +36,7 @@ namespace SubTask.PanelNavigation
             _mainWindow = mainWindow;
             _activeBlock = activeBlock;
             _activeBlockNum = activeBlockNum;
-            _prevTrialStartDist = UITools.MM2PX(ExpSizes.START_BUTTON_DIST_MM); // Initial distance from the grid
+            _prevTrialStartDist = UITools.MM2PX(ExpLayouts.START_BUTTON_DIST_MM); // Initial distance from the grid
         }
 
         public void BeginActiveBlock()
@@ -92,8 +93,8 @@ namespace SubTask.PanelNavigation
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             int newStartDist = _mainWindow.ShowStartBtn(
                 _activeTrial.FuncSide,
-                UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
-                Experiment.START_INIT_COLOR,
+                UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
+                UIColors.COLOR_START_INIT,
                 _prevTrialStartDist,
                 startButtonEvents);
 
@@ -177,43 +178,6 @@ namespace SubTask.PanelNavigation
 
             return false;
         }
-
-        //protected bool DoesFirstTrialsFunInclMidBtn()
-        //{
-        //    // Get the function Ids of first trial of each side
-        //    bool leftChecked = false;
-        //    bool rightChecked = false;
-        //    bool topChecked = false;
-        //    foreach (Trial trial in _activeBlock.Trials)
-        //    {
-        //        if (trial.FuncSide == Side.Left && !leftChecked)
-        //        {
-        //            leftChecked = true;
-        //            List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
-        //            int midBtnId = _mainWindow.GetMiddleButtonId(Side.Left);
-        //            if (functionIds.Contains(midBtnId)) return true;
-        //        }
-
-        //        if (trial.FuncSide == Side.Right && !rightChecked)
-        //        {
-        //            rightChecked = true;
-        //            List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
-        //            int midBtnId = _mainWindow.GetMiddleButtonId(Side.Right);
-        //            if (functionIds.Contains(midBtnId)) return true;
-        //        }
-
-        //        if (trial.FuncSide == Side.Top && !topChecked)
-        //        {
-        //            topChecked = true;
-        //            List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
-        //            int midBtnId = _mainWindow.GetMiddleButtonId(Side.Top);
-        //            if (functionIds.Contains(midBtnId)) return true;
-        //        }
-        //    }
-
-        //    return false;
-
-        //}
 
         public virtual void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
@@ -488,32 +452,7 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void LeftPress()
-        {
-
-        }
-
-        public void RightPress()
-        {
-
-        }
-
-        public void TopPress()
-        {
-
-        }
-
-        public void LeftMove(double dX, double dY)
-        {
-
-        }
-
-        public void IndexDown(TouchPoint indPoint)
-        {
-
-        }
-
-        public virtual void IndexTap()
+        public override void IndexTap()
         {
             if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
             {
@@ -544,12 +483,12 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void IndexMove(double dX, double dY)
+        public override void IndexMove(double dX, double dY)
         {
 
         }
 
-        public void IndexMove(TouchPoint indPoint)
+        public override void IndexMove(CommonUI.TouchPoint indPoint)
         {
             if (IsStartClicked())
             {
@@ -559,13 +498,13 @@ namespace SubTask.PanelNavigation
 
         }
 
-        public void IndexUp()
+        public override void IndexUp()
         {
             _mainWindow.StopAuxNavigator();
             LogEvent(ExpStrs.JoinUs(ExpStrs.INDEX, ExpStrs.UP));
         }
 
-        public virtual void ThumbSwipe(Direction dir)
+        public override void ThumbSwipe(Direction dir)
         {
             if (_activeTrial.Technique != Technique.TOMO_SWIPE) // Wrong technique for swipe
             {
@@ -588,14 +527,6 @@ namespace SubTask.PanelNavigation
                 _ => false
             };
 
-            //var dirOppositeSide = dir switch
-            //{
-            //    Direction.Left => _activeTrial.FuncSide == Side.Right,
-            //    Direction.Right => _activeTrial.FuncSide == Side.Left,
-            //    Direction.Down => _activeTrial.FuncSide == Side.Top,
-            //    _ => false
-            //};
-
             if (dirMatchesSide)
             {
                 LogEvent(ExpStrs.PNL_SELECT);
@@ -610,7 +541,7 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public virtual void ThumbTap(long downInstant, long upInstant)
+        public override void ThumbTap(long downInstant, long upInstant)
         {
             if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
             {
@@ -641,17 +572,12 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void ThumbMove(TouchPoint thumbPoint)
+        public override void ThumbUp()
         {
             // Nothing for now
         }
 
-        public void ThumbUp()
-        {
-            // Nothing for now
-        }
-
-        public virtual void MiddleTap()
+        public override void MiddleTap()
         {
             if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
             {
@@ -680,16 +606,6 @@ namespace SubTask.PanelNavigation
             {
                 EndActiveTrial(Result.MISS);
             }
-        }
-
-        public void RingTap()
-        {
-
-        }
-
-        public void PinkyTap(Side loc)
-        {
-
         }
 
         protected void LogEvent(string type, string id)

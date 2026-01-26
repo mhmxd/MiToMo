@@ -1,9 +1,10 @@
 ﻿using Common.Settings;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Input;
 using static System.Math;
 
-namespace SubTask.PanelNavigation
+namespace CommonUI
 {
     public class GridNavigator
     {

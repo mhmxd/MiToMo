@@ -273,7 +273,6 @@
     </ApplicationDefinition>
     <Compile Include="Logging\DetailTrialLog.cs" />
     <Compile Include="Logging\TotalTrialLog.cs" />
-    <Compile Include="MouseEvents.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -292,40 +291,31 @@
     <Compile Include="Experiment.cs" />
     <Compile Include="FullFinger.cs" />
     <Compile Include="FingerTracker.cs" />
-    <Compile Include="GridNavigator.cs" />
     <Compile Include="TrialEvent.cs" />
     <Compile Include="Logging\ExperiLogger.cs" />
     <Compile Include="TopWindow.xaml.cs">
       <DependentUpon>TopWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="TouchFinger.cs" />
-    <Compile Include="FixedBuffer.cs" />
-    <Compile Include="KalmanVeloFilter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="IGestureHandler.cs" />
     <Compile Include="IntroDialog.xaml.cs">
       <DependentUpon>IntroDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Output.cs" />
-    <Compile Include="Pointer.cs" />
-    <Compile Include="TouchPoint.cs" />
-    <Compile Include="KalmanFilter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="SideWindow.xaml.cs">
       <DependentUpon>SideWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TouchSimulator.cs" />
     <Compile Include="TouchSurface.cs" />
     <Compile Include="Trial.cs" />
     <Compile Include="BlockHandler.cs" />
     <Compile Include="TrialRecord.cs" />
-    <Compile Include="WindowHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

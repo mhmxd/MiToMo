@@ -15,6 +15,7 @@ using WindowsInput;
 using static Common.Constants.ExpEnums;
 using static SubTask.PanelNavigation.Output;
 using Seril = Serilog.Log;
+using TouchPoint = CommonUI.TouchPoint;
 
 
 namespace SubTask.PanelNavigation
@@ -602,7 +603,7 @@ namespace SubTask.PanelNavigation
             if (_buttonsGrid != null)
             {
                 double gridBottom = Canvas.GetTop(_buttonsGrid) + _buttonsGrid.ActualHeight;
-                double startBtnTop = gridBottom + UITools.MM2PX(ExpSizes.START_BUTTON_DIST_MM); // 10mm below the grid
+                double startBtnTop = gridBottom + UITools.MM2PX(ExpLayouts.START_BUTTON_DIST_MM); // 10mm below the grid
 
                 // Position the button
                 double leftPosition = (this.Width - btnW) / 2;
@@ -626,7 +627,7 @@ namespace SubTask.PanelNavigation
             // Position the start button at 10 mm below the bottom button of the grid
             if (_buttonsGrid != null)
             {
-                int minDist = UITools.MM2PX(ExpSizes.START_BUTTON_DIST_MM);
+                int minDist = UITools.MM2PX(ExpLayouts.START_BUTTON_DIST_MM);
                 int maxDist = (int)(this.ActualHeight - _buttonsGrid.ActualHeight - largerSide - UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM));
                 // Contineously generate a random distance until this Start button has no overlap with previous one
                 int randDist;

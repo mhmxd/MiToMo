@@ -1,4 +1,5 @@
 ﻿using Common.Helpers;
+using Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -145,7 +146,7 @@ namespace SubTask.PanelNavigation
                 Side functionSide = (Side)sInd;
 
                 // Get the function widths based on side and complexity
-                List<int> buttonWidths = Experiment.BUTTON_WIDTHS[complexity][functionSide];
+                List<int> buttonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][functionSide];
             }
 
             // Shuffle the trials

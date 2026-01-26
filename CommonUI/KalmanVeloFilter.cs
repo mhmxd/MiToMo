@@ -1,9 +1,9 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
 using static System.Math;
 
-namespace SubTask.PanelNavigation
+namespace CommonUI
 {
-    internal class KalmanVeloFilter
+    public class KalmanVeloFilter
     {
         private double dt;
 

@@ -14,6 +14,8 @@ namespace CommonUI
         public static readonly Brush LIGHT_PURPLE =
             new SolidColorBrush((Color)ColorConverter.ConvertFromString("#B19CD7"));
 
+
+        public static readonly Brush COLOR_START_INIT = LIGHT_PURPLE;
         public static readonly Brush COLOR_START_AVAILABLE = Brushes.Green;
         public static readonly Brush COLOR_START_UNAVAILABLE = DARK_ORANGE;
 

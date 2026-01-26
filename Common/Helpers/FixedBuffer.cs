@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace SubTask.PanelNavigation
+﻿namespace Common.Helpers
 {
-    internal class FixedBuffer<T>
+    public class FixedBuffer<T>
     {
         private readonly T[] _buffer;
         private int _count;

@@ -33,6 +33,9 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MathNet.Numerics, Version=5.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MathNet.Numerics.5.0.0\lib\net48\MathNet.Numerics.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -54,10 +57,15 @@
     <Compile Include="ColumnFactory.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="GridFactory.cs" />
+    <Compile Include="GridNavigator.cs" />
+    <Compile Include="IGestureHandler.cs" />
+    <Compile Include="KalmanVeloFilter.cs" />
+    <Compile Include="MouseEvents.cs" />
     <Compile Include="RowFactory.cs" />
     <Compile Include="SButton.cs" />
     <Compile Include="TFunction.cs" />
     <Compile Include="TObject.cs" />
+    <Compile Include="TouchPoint.cs" />
     <Compile Include="UIColors.cs" />
     <Compile Include="UITools.cs">
       <SubType>Code</SubType>
@@ -81,6 +89,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

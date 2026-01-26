@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace SubTask.PanelNavigation
+namespace CommonUI
 {
     public class TouchPoint
     {

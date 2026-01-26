@@ -1,4 +1,5 @@
 ﻿using Common.Constants;
+using static Common.Constants.ExpEnums;
 
 namespace Common.Settings
 {
@@ -14,6 +15,35 @@ namespace Common.Settings
             { ExpStrs.x18, 18 },
             { ExpStrs.x30, 30 },
             { ExpStrs.x36, 36 }
+        };
+
+        public static Dictionary<Complexity, Dictionary<Side, List<int>>> BUTTON_WIDTHS = new Dictionary<Complexity, Dictionary<Side, List<int>>>()
+        {
+            {
+                Complexity.Simple, new Dictionary<Side, List<int>>()
+                {
+                    { Side.Top, new List<int>() { 6, 18 } },
+                    { Side.Left, new List<int>() { 36 } },
+                    { Side.Right, new List<int>() { 36 } }
+                }
+            },
+
+            {
+                Complexity.Moderate, new Dictionary<Side, List<int>>()
+                {
+                    { Side.Top, new List<int>() { 3, 6, 18 } },
+                    { Side.Left, new List<int>() { 6, 30 } },
+                    { Side.Right, new List<int>() { 6, 30 } }
+                }
+            },
+            {
+                Complexity.Complex, new Dictionary<Side, List<int>>()
+                {
+                    { Side.Top, new List<int>() { 3, 6, 18, 30 } },
+                    { Side.Left, new List<int>() { 3, 6, 18, 30 } },
+                    { Side.Right, new List<int>() { 3, 6, 18, 30 } }
+                }
+            }
         };
 
         //--- Grid -------------------------------------------------------
@@ -36,11 +66,15 @@ namespace Common.Settings
         //-- Start Button ------------------------------------------------
         public static readonly double START_BUTTON_LARGE_SIDE_MM = 40;
         public static readonly (int W, int H) START_BUTTON_SMALL_DIM_MM = (20, 10);
-
+        public static readonly (double W, double H) START_BUTTON_IN_SIDE_MM = (ExpSizes.EXCEL_CELL_W, ExpSizes.EXCEL_CELL_W);
         public static readonly double START_BUTTON_DIST_MM = 10;
         public static readonly int START_BUTTON_FONT_SIZE = 16;
 
-        
+        //--- Objects ----------------------------------------------------
+        public static readonly double OBJ_WIDTH_MM = ExpSizes.EXCEL_CELL_W; // Width of the square objects (mm)
+
+        //--- Object Area ------------------------------------------------
+        public static readonly double OBJ_AREA_WIDTH_MM = OBJ_WIDTH_MM * 5; // Width of the *square* object area (mm)
 
         //--- Complexities ------------------------------------------------
         public static readonly string[] SimpleTopRow = {
