@@ -13,7 +13,6 @@ using Microsoft.Research.TouchMouseSensor;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-//using Tensorflow;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,7 +20,6 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-//using static Tensorflow.tensorflow;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using WindowsInput;
@@ -32,6 +30,7 @@ using static SubTask.Panel.Selection.Output;
 using MessageBox = System.Windows.Forms.MessageBox;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
+using TouchPoint = CommonUI.TouchPoint;
 
 
 //using WinForms = System.Windows.Forms; // Alias for Forms namespace
@@ -176,15 +175,6 @@ namespace SubTask.Panel.Selection
         private Rect _mainWinRect, _leftWinRect, _topWinRect, _rightWinRect;
         private Rect _lefWinRectPadded, _topWinRectPadded, _rightWinRectPadded;
         private int _infoLabelHeight;
-
-        //--- Radiusor
-        private int _actionPointerInd = -1;
-        private Pointer _actionPointer;
-        private Point _lastRotPointerPos = new Point(-1, -1);
-        private Point _lastPlusPointerPos = new Point(-1, -1);
-        private Point _lastMiddlePointerPos = new Point(-1, -1);
-        private int _lastNumMiddleFingers = 0;
-        private bool _radiusorActive = false;
 
         //--- Classes
         //private GestureDetector _gestureDetector;
@@ -963,8 +953,8 @@ namespace SubTask.Panel.Selection
             // Create the square
             _startRectangle = new Rectangle
             {
-                Width = UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
-                Height = UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
+                Width = UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
+                Height = UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
                 Fill = color
             };
 

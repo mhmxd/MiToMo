@@ -105,7 +105,7 @@ namespace SubTask.FunctionSelection
 
         public static int GetStartHalfWidth()
         {
-            return UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM / 2);
+            return UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM / 2);
         }
     }
 }

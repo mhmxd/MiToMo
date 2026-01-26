@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using WindowsInput;
 using static Common.Constants.ExpEnums;
 using static SubTask.Panel.Selection.Output;
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.Panel.Selection
 {

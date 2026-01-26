@@ -1,5 +1,6 @@
 ﻿using Common.Constants;
 using Common.Helpers;
+using Common.Settings;
 using CommonUI;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.Panel.Selection
 {
@@ -87,9 +89,9 @@ namespace SubTask.Panel.Selection
             MouseEvents startButtonEvents = new(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStartBtn(
-                UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
-                UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
-                Experiment.START_INIT_COLOR,
+                UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
+                UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
+                UIColors.COLOR_START_INIT,
                 startButtonEvents);
 
             // Update info label
@@ -429,32 +431,8 @@ namespace SubTask.Panel.Selection
             }
         }
 
-        public void LeftPress()
-        {
 
-        }
-
-        public void RightPress()
-        {
-
-        }
-
-        public void TopPress()
-        {
-
-        }
-
-        public void LeftMove(double dX, double dY)
-        {
-
-        }
-
-        public void IndexDown(TouchPoint indPoint)
-        {
-
-        }
-
-        public virtual void IndexTap()
+        public override void IndexTap()
         {
             if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
             {
@@ -485,12 +463,7 @@ namespace SubTask.Panel.Selection
             }
         }
 
-        public void IndexMove(double dX, double dY)
-        {
-
-        }
-
-        public void IndexMove(TouchPoint indPoint)
+        public override void IndexMove(TouchPoint indPoint)
         {
             if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
             {
@@ -500,13 +473,13 @@ namespace SubTask.Panel.Selection
 
         }
 
-        public void IndexUp()
+        public override void IndexUp()
         {
             _mainWindow.StopAuxNavigator();
             LogEvent(ExpStrs.JoinUs(ExpStrs.INDEX, ExpStrs.UP));
         }
 
-        public virtual void ThumbSwipe(Direction dir)
+        public override void ThumbSwipe(Direction dir)
         {
             if (_activeTrial.Technique != Technique.TOMO_SWIPE) // Wrong technique for swipe
             {
@@ -542,7 +515,7 @@ namespace SubTask.Panel.Selection
             }
         }
 
-        public virtual void ThumbTap(long downInstant, long upInstant)
+        public override void ThumbTap(long downInstant, long upInstant)
         {
             if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
             {
@@ -573,17 +546,7 @@ namespace SubTask.Panel.Selection
             }
         }
 
-        public void ThumbMove(TouchPoint thumbPoint)
-        {
-            // Nothing for now
-        }
-
-        public void ThumbUp()
-        {
-            // Nothing for now
-        }
-
-        public virtual void MiddleTap()
+        public override void MiddleTap()
         {
             if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
             {
@@ -612,16 +575,6 @@ namespace SubTask.Panel.Selection
             {
                 EndActiveTrial(Result.MISS);
             }
-        }
-
-        public void RingTap()
-        {
-
-        }
-
-        public void PinkyTap(Side loc)
-        {
-
         }
 
         protected void LogEvent(string type, string id)

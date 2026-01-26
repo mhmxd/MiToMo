@@ -74,8 +74,8 @@ namespace SubTask.FunctionSelection
             MouseEvents startButtonEvents = new(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStart(
-                UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
-                UITools.MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
+                UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
+                UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
                 Experiment.START_INIT_COLOR,
                 startButtonEvents);
 
