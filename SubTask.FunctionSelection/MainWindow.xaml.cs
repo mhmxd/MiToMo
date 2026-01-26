@@ -320,12 +320,12 @@ namespace SubTask.FunctionSelection
         private void CreateExperiment()
         {
             double padding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
-            double objHalfWidth = UITools.MM2PX(ExpSizes.OBJ_WIDTH_MM) / 2;
+            double objHalfWidth = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM) / 2;
             double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
             double startHalfWidth = ExpLayouts.START_BUTTON_LARGE_SIDE_MM / 2;
             double smallButtonHalfWidth = UITools.MM2PX(smallButtonHalfWidthMM);
             //double objAreaRadius = UITools.MM2PX(Experiment.REP_TRIAL_OBJ_AREA_RADIUS_MM);
-            double objAreaHalfWidth = UITools.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM / 2);
+            double objAreaHalfWidth = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM / 2);
 
             // Distances (v.3)
             // Longest
@@ -1146,7 +1146,7 @@ namespace SubTask.FunctionSelection
         {
             // Square
             double padding = UITools.MM2PX(VERTICAL_PADDING);
-            double objAreaHalfWidth = UITools.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM / 2);
+            double objAreaHalfWidth = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM / 2);
             return new Rect(
                 this.Left + padding + objAreaHalfWidth,
                 this.Top + padding + objAreaHalfWidth,

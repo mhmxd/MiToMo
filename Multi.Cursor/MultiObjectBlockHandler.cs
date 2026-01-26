@@ -71,9 +71,9 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForTrial(Trial trial)
         {
-            int objW = UITools.MM2PX(ExpSizes.OBJ_WIDTH_MM);
+            int objW = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM);
             int objHalfW = objW / 2;
-            int objAreaW = UITools.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            int objAreaW = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
             int objAreaHalfW = objAreaW / 2;
             this.PositionInfo($"{trial.ToStr()}");
 
@@ -504,8 +504,8 @@ namespace Multi.Cursor
         private List<TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
         {
             List<TObject> placedObjects = new List<TObject>();
-            double objW = UITools.MM2PX(ExpSizes.OBJ_WIDTH_MM);
-            double areaW = UITools.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            double objW = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM);
+            double areaW = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
 
             int maxAttemptsPerObject = 1000; // Limit attempts to prevent infinite loops
 

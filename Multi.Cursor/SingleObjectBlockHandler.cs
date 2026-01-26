@@ -54,9 +54,9 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForTrial(Trial trial)
         {
-            int objW = UITools.MM2PX(ExpSizes.OBJ_WIDTH_MM);
+            int objW = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM);
             int objHalfW = objW / 2;
-            int objAreaW = UITools.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            int objAreaW = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
             int objAreaHalfW = objAreaW / 2;
 
             //this.TrialInfo(trial.ToStr());

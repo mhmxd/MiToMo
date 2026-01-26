@@ -1,8 +1,6 @@
-﻿using Common.Constants;
-using Common.Settings;
+﻿using Common.Settings;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Media;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
@@ -12,10 +10,6 @@ namespace SubTask.ObjectSelection
 
         //--- Setting
         public Technique Active_Technique = Technique.MOUSE; // Set in the info dialog
-
-        //-- Colors
-        public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
-            (Color)ColorConverter.ConvertFromString(ExpColors.PURPLE));
 
         //-- Information
         private List<Block> _blocks = new List<Block>();

@@ -76,7 +76,7 @@ namespace SubTask.FunctionSelection
             _mainWindow.ShowStart(
                 UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
                 UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
-                Experiment.START_INIT_COLOR,
+                UIColors.COLOR_START_INIT,
                 startButtonEvents);
 
             // Color the target button and set the handlers

@@ -1,5 +1,6 @@
 ﻿using Common.Constants;
 using Common.Helpers;
+using Common.Settings;
 using CommonUI;
 using System;
 using System.Collections.Generic;
@@ -95,9 +96,9 @@ namespace SubTask.ObjectSelection
             MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseEnter, OnStartButtonMouseExit);
             _mainWindow.ShowStartTrialButton(
                 _activeTrialRecord.ObjectAreaRect,
-                UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
-                UITools.MM2PX(ExpSizes.START_BUTTON_SMALL_H_MM),
-                Experiment.START_INIT_COLOR,
+                UITools.MM2PX(ExpLayouts.START_BUTTON_SMALL_DIM_MM.W),
+                UITools.MM2PX(ExpLayouts.START_BUTTON_SMALL_DIM_MM.H),
+                UIColors.COLOR_START_INIT,
                 startButtonEvents);
 
             // Update info label
@@ -167,8 +168,8 @@ namespace SubTask.ObjectSelection
         private List<TrialRecord.TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
         {
             List<TrialRecord.TObject> placedObjects = new List<TrialRecord.TObject>();
-            double objW = UITools.MM2PX(ExpSizes.OBJ_WIDTH_MM);
-            double areaW = UITools.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            double objW = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM);
+            double areaW = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
 
             int maxAttemptsPerObject = 1000; // Limit attempts to prevent infinite loops
 

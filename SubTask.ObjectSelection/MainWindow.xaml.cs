@@ -13,7 +13,6 @@ using Microsoft.Research.TouchMouseSensor;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-//using Tensorflow;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,7 +20,6 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-//using static Tensorflow.tensorflow;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using WindowsInput;
@@ -30,8 +28,7 @@ using static SubTask.ObjectSelection.Output;
 using MessageBox = System.Windows.Forms.MessageBox;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
-
-//using WinForms = System.Windows.Forms; // Alias for Forms namespace
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.ObjectSelection
 {
@@ -856,7 +853,7 @@ namespace SubTask.ObjectSelection
         public Point FindRandomPositionForObjectArea(Size areaSize)
         {
             int padding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
-            int startH = UITools.MM2PX(ExpSizes.START_BUTTON_SMALL_H_MM);
+            int startH = UITools.MM2PX(ExpLayouts.START_BUTTON_SMALL_DIM_MM.H);
 
             double maxX = this.Width - padding - areaSize.Width;
             double maxY = this.Height - padding - areaSize.Height - startH - _infoLabelHeight;
@@ -914,8 +911,8 @@ namespace SubTask.ObjectSelection
             Rectangle objRectangle = new Rectangle
             {
                 Tag = tObject.Id,
-                Width = UITools.MM2PX(ExpSizes.OBJ_WIDTH_MM),
-                Height = UITools.MM2PX(ExpSizes.OBJ_WIDTH_MM),
+                Width = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM),
+                Height = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM),
                 Fill = color
             };
 

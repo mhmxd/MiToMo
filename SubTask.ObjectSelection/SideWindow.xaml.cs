@@ -12,7 +12,7 @@ using System.Windows.Shapes;
 using WindowsInput;
 using static Common.Constants.ExpEnums;
 using static SubTask.ObjectSelection.Output;
-using Seril = Serilog.Log;
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.ObjectSelection
 {
@@ -307,13 +307,6 @@ namespace SubTask.ObjectSelection
         private void Window_MouseUp(object sender, MouseEventArgs e)
         {
 
-        }
-
-        private void PositionCursor(int x, int y)
-        {
-            var windowPosition = PointToScreen(new Point(0, 0));
-            Seril.Debug($"Set pos X = {(int)(windowPosition.X + x)}, Y = {(int)(windowPosition.Y + y)}");
-            SetCursorPos((int)(windowPosition.X + x), (int)(windowPosition.Y + y));
         }
 
         public void MoveCursor(double dX, double dY)

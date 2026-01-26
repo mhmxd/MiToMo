@@ -1,5 +1,6 @@
 ﻿using Common.Constants;
 using Common.Helpers;
+using Common.Settings;
 using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,7 +62,7 @@ namespace SubTask.ObjectSelection
         public TrialRecord(int trialId)
         {
             Objects = new List<TObject>();
-            int objAreaW = UITools.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            int objAreaW = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
             ObjectAreaRect = new Rect(0, 0, objAreaW, objAreaW);
             //EventCounts = new Dictionary<string, int>();
             Events = new List<TrialEvent>();

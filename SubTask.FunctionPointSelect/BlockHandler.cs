@@ -219,7 +219,7 @@ namespace SubTask.FunctionPointSelect
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStartBtn(
                 _activeTrialRecord.StartBtnRect,
-                Experiment.START_INIT_COLOR,
+                UIColors.COLOR_START_INIT,
                 startButtonEvents);
             //_mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
 
