@@ -1,13 +1,8 @@
-﻿using Common.Constants;
-using Common.Helpers;
-using MathNet.Numerics;
+﻿using Common.Helpers;
+using Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using static Common.Constants.ExpEnums;
 using Seril = Serilog.Log;
 
@@ -22,7 +17,7 @@ namespace Multi.Cursor
             get => _trials;
             set => _trials = value;
         }
-        private int _id {  get; set; }
+        private int _id { get; set; }
         public int Id
         {
             get => _id;
@@ -63,9 +58,9 @@ namespace Multi.Cursor
         public int PtcNum { get; set; }
 
         public Block(
-            int ptcNum, Technique technique, TaskType type, 
-            int nFunc, int nObj, 
-            Complexity complexity, 
+            int ptcNum, Technique technique, TaskType type,
+            int nFunc, int nObj,
+            Complexity complexity,
             ExperimentType expType,
             int id)
         {
@@ -129,7 +124,7 @@ namespace Multi.Cursor
             int nFun,
             int nObj)
         {
-            
+
             // Set the type of the block based on nFun and nObj
             TaskType type = TaskType.ONE_OBJ_ONE_FUNC;
             switch (nObj, nFun)
@@ -140,10 +135,10 @@ namespace Multi.Cursor
                 case (1, > 1):
                     type = TaskType.ONE_OBJ_MULTI_FUNC;
                     break;
-                case (> 1, 1):
+                case ( > 1, 1):
                     type = TaskType.MULTI_OBJ_ONE_FUNC;
                     break;
-                case (> 1, > 1):
+                case ( > 1, > 1):
                     type = TaskType.MULTI_OBJ_MULTI_FUNC;
                     break;
                 default:
@@ -172,7 +167,7 @@ namespace Multi.Cursor
                         {
                             functionWidths.Add(funcW);
                         }
-                        
+
                         Trial trial = Trial.CreateTrial(
                             id * 100 + trialNum,
                             technique,
@@ -208,7 +203,7 @@ namespace Multi.Cursor
         public Trial GetTrialById(int trialId)
         {
             return _trials.FirstOrDefault(t => t.Id == trialId);
-            
+
         }
 
         public int GetNumTrials()

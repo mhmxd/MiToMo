@@ -1,12 +1,13 @@
 ﻿using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
 using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Common.Helpers;
 using static Common.Constants.ExpEnums;
-using CommonUI;
 
 namespace Multi.Cursor
 {
@@ -67,7 +68,8 @@ namespace Multi.Cursor
                 _trialRecords[trial.Id] = new TrialRecord();
             }
             //this.TrialInfo($"Trial function widths: {trial.GetFunctionWidths()}");
-            _mainWindow.Dispatcher.Invoke(() => {
+            _mainWindow.Dispatcher.Invoke(() =>
+            {
                 _trialRecords[trial.Id].Functions.AddRange(
                     _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
                     );
@@ -122,7 +124,7 @@ namespace Multi.Cursor
 
             // Update the main window label
             //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
-            
+
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
@@ -137,29 +139,29 @@ namespace Multi.Cursor
 
             _mainWindow.SetAuxButtonsHandlers(
                 _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
-                OnFunctionMouseEnter, this.OnFunctionMouseDown, this.OnFunctionMouseUp, 
+                OnFunctionMouseEnter, this.OnFunctionMouseDown, this.OnFunctionMouseUp,
                 OnFunctionMouseExit, this.OnNonTargetMouseDown);
-            
+
             // If on ToMo, activate the auxiliary window marker on all sides
             if (_mainWindow.IsTechniqueToMo()) _mainWindow.ShowAllAuxMarkers();
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
-            
+
             // Show the area
             MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
-                _activeTrialRecord.ObjectAreaRect, 
-                UIColors.COLOR_OBJ_AREA_BG, 
+                _activeTrialRecord.ObjectAreaRect,
+                UIColors.COLOR_OBJ_AREA_BG,
                 objAreaEvents);
-            
+
             // Show objects
             Brush objDefaultColor = UIColors.COLOR_OBJ_DEFAULT;
             MouseEvents objectEvents = new MouseEvents(
                 OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
             _mainWindow.ShowObjects(
                 _activeTrialRecord.Objects, objDefaultColor, objectEvents);
-            
+
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
@@ -167,7 +169,7 @@ namespace Multi.Cursor
 
             // Update info label
             _mainWindow.UpdateInfoLabel();
-            
+
         }
 
         //public override void EndActiveTrial(Result result)
@@ -180,7 +182,7 @@ namespace Multi.Cursor
         //            //double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
         //            double trialTime = GetDuration(ExpStrs.OBJ_RELEASE + "_1", ExpStrs.TRIAL_END);
         //            _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
-                   
+
         //            //this.TrialInfo($"Trial Time = {trialTime:F2}s");
         //            //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial Time = {trialTime:F2}s");
         //            this.TrialInfo(ExpStrs.MAJOR_LINE);
@@ -285,7 +287,7 @@ namespace Multi.Cursor
                 int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
 
                 // Marker not over enabled function => MISS
-                if (funcIdUnderMarker == -1) 
+                if (funcIdUnderMarker == -1)
                 {
                     this.TrialInfo($"Marker not over enabled function");
                     EndActiveTrial(Result.MISS);
@@ -350,7 +352,7 @@ namespace Multi.Cursor
             }
 
             e.Handled = true;
-            
+
         }
 
         public override void OnFunctionMarked(int funId)
@@ -413,7 +415,7 @@ namespace Multi.Cursor
                 UpdateScene();
             }
 
-            
+
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
@@ -445,7 +447,7 @@ namespace Multi.Cursor
         //        Sounder.PlayStartMiss();
         //    }
 
-            
+
 
         //    var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
 

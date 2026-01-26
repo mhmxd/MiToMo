@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Common.Helpers;
+using Common.Settings;
+using CommonUI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,10 +10,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using Common.Helpers;
-using Common.Settings;
-using CommonUI;
 using static Common.Constants.ExpEnums;
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace Multi.Cursor
 {
@@ -25,7 +26,8 @@ namespace Multi.Cursor
             public Range DistToStartRange { get; set; } // In pixels
             public Brush ButtonFill { get; set; } // Default background color for the button
 
-            public ButtonInfo(SButton button) { 
+            public ButtonInfo(SButton button)
+            {
                 Button = button;
                 Position = new Point(0, 0);
                 Rect = new Rect();
@@ -95,13 +97,13 @@ namespace Multi.Cursor
             //-- Recursively find all SButton instances in the entire _buttonsGrid
             // Get the number of children in the current parent object
             int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
-            
+
             // Loop through each child
             for (int i = 0; i < childrenCount; i++)
             {
                 // Get the current child object
                 var child = VisualTreeHelper.GetChild(parent, i);
-                
+
                 // If the child is an SButton, register it
                 if (child is SButton sButton)
                 {
@@ -258,7 +260,7 @@ namespace Multi.Cursor
                     return possibleButtons.GetRandomElement();
                 }
 
-                
+
                 //if (button != null)
                 //{
                 //    //this.TrialInfo($"Selected button id: {button.Id}");
@@ -269,7 +271,7 @@ namespace Multi.Cursor
                 //    this.TrialInfo($"No buttons found for width multiple {widthMult}.");
                 //    return -1; // Return an invalid point if no buttons are found
                 //}
-            } 
+            }
             else
             {
                 this.PositionInfo($"No buttons available for width multiple {widthMult}!");
@@ -486,7 +488,7 @@ namespace Multi.Cursor
                 if (_buttonInfos.ContainsKey(buttonId))
                 {
                     _buttonInfos[buttonId].Button.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT; // Change the border color to highlight
-                                                                                                // Change the old button background based on the previous state
+                                                                                                  // Change the old button background based on the previous state
                     if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_BUTTON_HOVER_FILL)) // Gray => White
                     {
                         //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
@@ -585,7 +587,7 @@ namespace Multi.Cursor
                 _buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_ENABLED);
             var buttonBgDarkGreen =
                 _buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_APPLIED);
-            
+
             // Reset the border aof all buttons
             //foreach (var btn in _allButtons.Values)
             //{
@@ -945,6 +947,6 @@ namespace Multi.Cursor
 
         public abstract void ShowPoint(Point p);
 
-        
+
     }
 }

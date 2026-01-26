@@ -5,7 +5,6 @@ using CommonUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Media;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionPointSelect
@@ -24,14 +23,9 @@ namespace SubTask.FunctionPointSelect
 
         private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
 
-        //public static double Min_Target_Width_MM = TARGET_WIDTHS_MM.Min();
-        //public static double Max_Target_Width_MM = TARGET_WIDTHS_MM.Max();
-
         //-- Calculated
         public double Longest_Dist_MM;
         public double Shortest_Dist_MM;
-        //private double LONGEST_DIST_MM = 293; // BenQ = 293 mm
-        //private double SHORTEST_DIST_MM = 10; // BenQ = 10 mm
 
         //-- Constants
         //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
@@ -39,14 +33,7 @@ namespace SubTask.FunctionPointSelect
         public static double OBJ_AREA_WIDTH_MM = ExpSizes.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
         public static double START_WIDTH_MM = OBJ_WIDTH_MM;
 
-        //-- Colors
-        public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
-            (Color)ColorConverter.ConvertFromString(ExpColors.PURPLE));
-
         //-- Information
-
-        //public int Participant_Number { get; set; } // Set in the info dialog
-
         private List<Block> _blocks = new List<Block>();
         public List<Block> Blocks { get { return _blocks; } }
 

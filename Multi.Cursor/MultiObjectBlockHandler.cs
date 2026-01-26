@@ -1,12 +1,13 @@
 ﻿using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using CommonUI;
-using Common.Helpers;
 using static Common.Constants.ExpEnums;
 
 namespace Multi.Cursor
@@ -84,7 +85,8 @@ namespace Multi.Cursor
             }
 
             // Find functions
-            _mainWindow.Dispatcher.Invoke(() => {
+            _mainWindow.Dispatcher.Invoke(() =>
+            {
                 _trialRecords[trial.Id].Functions.AddRange(
                         _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
                     );
@@ -184,7 +186,7 @@ namespace Multi.Cursor
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the function button and set the handlers
-            
+
             //Brush funcDefaultColor = UIColors.FUNCTION_DEFAULT_COLOR;
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.FuncSide, _activeTrialRecord.FunctionId, 
@@ -196,7 +198,7 @@ namespace Multi.Cursor
             UpdateScene();
             _mainWindow.SetAuxButtonsHandlers(
                 _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
-                OnFunctionMouseEnter, OnFunctionMouseDown, OnFunctionMouseUp, 
+                OnFunctionMouseEnter, OnFunctionMouseDown, OnFunctionMouseUp,
                 OnFunctionMouseExit, OnNonTargetMouseDown);
 
             // If on ToMo, activate the auxiliary window marker on all sides
@@ -234,7 +236,7 @@ namespace Multi.Cursor
         //            Sounder.PlayHit();
         //            double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
         //            _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
-                    
+
         //            //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial Time = {trialTime:F2}s");
         //            GoToNextTrial();
         //            break;
@@ -296,7 +298,7 @@ namespace Multi.Cursor
             if (_activeTrial.NFunctions > 1)
             {
                 int objId = _activeTrialRecord.FindMappedObjectId(funId);
-                _activeTrialRecord.MarkObject(objId);   
+                _activeTrialRecord.MarkObject(objId);
             }
             else // One function => mark all objects
             {
@@ -347,7 +349,7 @@ namespace Multi.Cursor
             //-- Trial started:
 
             int markedObjId = _activeTrialRecord.GetMarketObjectId();
-            
+
             if (markedObjId == -1) // No object marked
             {
                 EndActiveTrial(Result.MISS);
@@ -413,7 +415,8 @@ namespace Multi.Cursor
             //_trialRecords[trial.Id].FunctionId = -1;
 
             // Find random functions from the main window
-            _mainWindow.Dispatcher.Invoke(() => {
+            _mainWindow.Dispatcher.Invoke(() =>
+            {
                 _trialRecords[trial.Id].Functions.AddRange(
                     _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX));
                 foreach (int funcWidthMX in trial.GetFunctionWidths())
@@ -642,24 +645,24 @@ namespace Multi.Cursor
                     if (_activeTrialRecord.IsObjectClicked(objId))
                     {
                         EndActiveTrial(Result.MISS);
-                    } 
+                    }
                     else
                     {
                         _pressedObjectId = objId;
                     }
 
-                        
+
                 }
 
             }
 
-                
+
 
             //var startButtonClicked = GetEventCount(ExpStrs.STR_RELEASE) > 0;
             //var device = Utils.GetDevice(_activeBlock.Technique);
             //int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             //var markerOverFunction = funcIdUnderMarker != -1;
-            
+
 
             //this.TrialInfo($"StartButtonClicked: {startButtonClicked}; Technique: {device}; " +
             //    $"MarkerOnFunction: {markerOverFunction}; AllObjApplied: {allObjectsApplied}");
@@ -674,7 +677,7 @@ namespace Multi.Cursor
 
             //    case (true, Technique.MOUSE, _, false): // MOUSE, any marker state, not all objects selected
             //        //_activeTrialRecord.MarkObject(objId);
-                    
+
             //        //UpdateScene();
             //        //SetFunctionAsEnabled();
             //        break;
@@ -755,7 +758,7 @@ namespace Multi.Cursor
         //public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
         //{
         //    this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
-            
+
 
         //}
 
@@ -777,6 +780,6 @@ namespace Multi.Cursor
         //    LogEvent(ExpStrs.ARA_EXIT);
         //}
 
-        
+
     }
 }

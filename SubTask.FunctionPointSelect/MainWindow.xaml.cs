@@ -30,6 +30,7 @@ using static SubTask.FunctionPointSelect.Output;
 using MessageBox = System.Windows.Forms.MessageBox;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
+using TouchPoint = CommonUI.TouchPoint;
 
 //using WinForms = System.Windows.Forms; // Alias for Forms namespace
 
@@ -158,23 +159,8 @@ namespace SubTask.FunctionPointSelect
         private Point lastPos;
 
         private Stopwatch _stopWatch = new Stopwatch();
-        //private Stopwatch leftWatch = new Stopwatch();
-        //private Stopwatch topWatch = new Stopwatch();
-        //private Stopwatch rightWatch = new Stopwatch();
 
         private Stopwatch framesWatch;
-
-        private int leftSkipTPs = 0;
-
-        private Point prevPoint = new Point(-1, -1);
-
-        private bool headerWritten;
-
-        private Point mainCursorPrevPosition = new Point(-1, -1);
-        private double cursorTravelDist;
-        private DispatcherTimer cursorMoveTimer;
-        private bool mainCursorActive;
-        //private bool leftPointerActive, rightPointerActive, topPointerActive;
 
         // For all randoms (it's best if we use one instance)
         private Random _random;
@@ -186,15 +172,6 @@ namespace SubTask.FunctionPointSelect
         private Rect _lefWinRectPadded, _topWinRectPadded, _rightWinRectPadded;
         private int _infoLabelHeight;
 
-        //--- Radiusor
-        private int _actionPointerInd = -1;
-        private Pointer _actionPointer;
-        private Point _lastRotPointerPos = new Point(-1, -1);
-        private Point _lastPlusPointerPos = new Point(-1, -1);
-        private Point _lastMiddlePointerPos = new Point(-1, -1);
-        private int _lastNumMiddleFingers = 0;
-        private bool _radiusorActive = false;
-
         //--- Classes
         //private GestureDetector _gestureDetector;
         private TouchSurface _touchSurface;
@@ -205,13 +182,6 @@ namespace SubTask.FunctionPointSelect
         private Block _block;
         private Trial _trial;
         private int _activeBlockNum, _activeTrialNum;
-        private Stopwatch _trialtWatch = new Stopwatch();
-        private Dictionary<string, long> _timestamps = new Dictionary<string, long>();
-        private Dictionary<int, Point> _trialsTargetCenters = new Dictionary<int, Point>(); // Trial id to target center mapping
-        private Dictionary<int, Point> _trialStartPosition = new Dictionary<int, Point>(); // Trial id to start center mapping
-        private Dictionary<int, Dictionary<int, Point>> _repTrialStartPositions = new Dictionary<int, Dictionary<int, Point>>(); // Trial id: (dist: Start position)
-        private Dictionary<int, int> _trialTargetIds = new Dictionary<int, int>(); // Trial id to target id (in target window)
-        //private Ellipse _startCircle;
         private Rectangle _startRectangle;
         private AuxWindow _targetWindow;
         private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)

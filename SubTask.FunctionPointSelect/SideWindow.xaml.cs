@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using WindowsInput;
 using static Common.Constants.ExpEnums;
 using static SubTask.FunctionPointSelect.Output;
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.FunctionPointSelect
 {

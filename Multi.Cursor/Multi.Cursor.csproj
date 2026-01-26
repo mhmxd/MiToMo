@@ -268,14 +268,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="ButtonFactory.cs" />
-    <Compile Include="GridFactory.cs" />
     <Compile Include="Logging\MOMFTrialLong.cs" />
     <Compile Include="Logging\MOSFTrialLog.cs" />
     <Compile Include="Logging\SOMFTrialLog.cs" />
     <Compile Include="Logging\SOSFTrialLog.cs" />
     <Compile Include="Logging\TotalTrialLog.cs" />
-    <Compile Include="MouseEvents.cs" />
     <Compile Include="SingleObjectBlockHandler.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -289,47 +286,31 @@
     <Compile Include="BlockEndWindow.xaml.cs">
       <DependentUpon>BlockEndWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Element.cs" />
-    <Compile Include="CursorControl.xaml.cs">
-      <DependentUpon>CursorControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Experiment.cs" />
     <Compile Include="FullFinger.cs" />
     <Compile Include="FingerTracker.cs" />
-    <Compile Include="ColumnFactory.cs" />
-    <Compile Include="GridNavigator.cs" />
     <Compile Include="MultiObjectBlockHandler.cs" />
-    <Compile Include="RowFactory.cs" />
-    <Compile Include="SButton.cs" />
-    <Compile Include="Sounder.cs" />
-    <Compile Include="Timer.cs" />
     <Compile Include="TrialEvent.cs" />
     <Compile Include="Logging\ExperiLogger.cs" />
     <Compile Include="TopWindow.xaml.cs">
       <DependentUpon>TopWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="TouchFinger.cs" />
-    <Compile Include="FixedBuffer.cs" />
-    <Compile Include="KalmanVeloFilter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="IGestureHandler.cs" />
     <Compile Include="IntroDialog.xaml.cs">
       <DependentUpon>IntroDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Output.cs" />
-    <Compile Include="TouchPoint.cs" />
-    <Compile Include="KalmanFilter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="SideWindow.xaml.cs">
       <DependentUpon>SideWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TouchSimulator.cs" />
     <Compile Include="TouchSurface.cs" />
     <Compile Include="Trial.cs" />
     <Compile Include="BlockHandler.cs" />
@@ -376,10 +357,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="BlockEndWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="CursorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

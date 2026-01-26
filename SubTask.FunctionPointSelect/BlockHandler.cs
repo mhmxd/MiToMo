@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.FunctionPointSelect
 {

@@ -28,22 +28,10 @@ using static Multi.Cursor.Experiment;
 using MessageBox = System.Windows.Forms.MessageBox;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
-//using WinForms = System.Windows.Forms; // Alias for Forms namespace
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace Multi.Cursor
 {
-
-    //public partial class TouchPoint
-    //{
-    //    public int x { get; set; }
-    //    public int y { get; set; }
-    //    public int Value { get; set; }
-
-    //    override public string ToString()
-    //    {
-    //        return string.Format("({0}, {1}): {2}", x, y, Value);
-    //    }
-    //}
 
     /// <summary>
     /// Interaction logic for Window1.xaml
@@ -205,7 +193,7 @@ namespace Multi.Cursor
         private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)
         private BlockHandler _activeBlockHandler;
         private Rect _objectConstraintRectAbsolue;
-        private List<BlockHandler> _blockHandlers = new List<BlockHandler> ();
+        private List<BlockHandler> _blockHandlers = new List<BlockHandler>();
         private Border _startButton;
         private Rectangle _objectArea;
 
@@ -301,7 +289,7 @@ namespace Multi.Cursor
             {
                 // Set the _technique mode in Config
                 //_experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
-                
+
 
                 BeginExperiment();
             }
@@ -325,7 +313,7 @@ namespace Multi.Cursor
                 padding + smallButtonHalfWidth
              );
             Point leftMostSmallButtonCenterAbsolute = UITools.OffsetPosition(
-                leftMostSmallButtonCenterPosition, 
+                leftMostSmallButtonCenterPosition,
                 _leftWindow.Left, _leftWindow.Top);
 
             Point rightMostObjAreaCenterAbsolute = new Point(
@@ -626,7 +614,7 @@ namespace Multi.Cursor
         {
 
             _activeBlockHandler.OnMainWindowMouseUp(sender, e);
-            
+
         }
 
         //private void AuxWindow_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
@@ -636,7 +624,7 @@ namespace Multi.Cursor
         //        Side side = window.Side;
         //        _activeBlockHandler.OnAuxWindowMouseEnter(side, sender, e);
         //    }
-            
+
 
         //}
 
@@ -817,7 +805,7 @@ namespace Multi.Cursor
         //    }
 
         //    // Set the acceptable range for the Target button
-            
+
         //    int targetId = trialTargetWindow.SelectRandButtonByConstraints(trial.TargetMultiple, trial.DistancePX);
         //    _trialTargetIds[trial.Id] = targetId; // Map trial id to target id
 
@@ -899,7 +887,7 @@ namespace Multi.Cursor
 
                 _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
                 if (_experiment.Active_Technique.IsTomo()) _touchSurface.SetGestureHandler(_activeBlockHandler);
-                
+
                 _activeBlockHandler.BeginActiveBlock();
 
                 //if (TaskType == TaskType.REPEATING) _activeBlockHandler = new MultiObjectBlockHandler(this, block);
@@ -929,7 +917,7 @@ namespace Multi.Cursor
                     }
                 }
             }
-            
+
         }
 
         public void UpdateInfoLabel(int trialNum, int nTrials, int blockNum = 0)
@@ -1264,7 +1252,7 @@ namespace Multi.Cursor
             //_targetWindow.MouseDown += windowMouseDownHandler;
             //_targetWindow.MouseUp += windowMouseUpHandler;
 
-            _targetWindow.MouseDown += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseDown(side, sender, e);};
+            _targetWindow.MouseDown += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseDown(side, sender, e); };
             _targetWindow.MouseUp += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseUp(side, sender, e); };
             _targetWindow.MouseEnter += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseEnter(side, sender, e); };
             _targetWindow.MouseLeave += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseExit(side, sender, e); };
@@ -1362,7 +1350,7 @@ namespace Multi.Cursor
             }
         }
 
-        public void FillButtonInAuxWindow(Side side, int buttonId, Brush color) 
+        public void FillButtonInAuxWindow(Side side, int buttonId, Brush color)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             //auxWindow.ResetButtons();
@@ -1377,8 +1365,8 @@ namespace Multi.Cursor
             MouseButtonEventHandler nonFunctionDownHandler)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.SetGridButtonHandlers(funcIds, 
-                mouseEnterHandler, mouseDownHandler, mouseUpHandler, 
+            auxWindow.SetGridButtonHandlers(funcIds,
+                mouseEnterHandler, mouseDownHandler, mouseUpHandler,
                 mouseExitHandler, nonFunctionDownHandler);
         }
 
@@ -1411,8 +1399,8 @@ namespace Multi.Cursor
             int id = auxWindow.SelectRandButtonByConstraints(widthUnits, objAreaRect, dist);
             Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
             Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
-            
-            return (id,  centerPositionAbsolute); 
+
+            return (id, centerPositionAbsolute);
         }
 
         public TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)

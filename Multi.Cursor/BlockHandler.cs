@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace Multi.Cursor
 {
@@ -54,7 +55,7 @@ namespace Multi.Cursor
 
             // Show the Start Trial button
             //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
-            
+
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
             _mainWindow.ResetAllAuxWindows();
@@ -111,7 +112,7 @@ namespace Multi.Cursor
             {
                 case Result.HIT:
                     Common.Helpers.Sounder.PlayHit();
-                    
+
                     break;
                 case Result.MISS:
                     Common.Helpers.Sounder.PlayTargetMiss();
@@ -124,7 +125,7 @@ namespace Multi.Cursor
                     break;
             }
 
-            
+
             this.TrialInfo(ExpStrs.MINOR_LINE);
 
             GoToNextTrial();
@@ -419,15 +420,15 @@ namespace Multi.Cursor
         {
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
-                funcId, 
+                funcId,
                 UIColors.COLOR_FUNCTION_ENABLED);
         }
 
         public void SetFunctionAsDisabled(int funcId)
         {
             _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide, 
-                funcId, 
+                _activeTrial.FuncSide,
+                funcId,
                 UIColors.COLOR_FUNCTION_DEFAULT);
         }
 
@@ -479,27 +480,27 @@ namespace Multi.Cursor
 
         public void LeftPress()
         {
-            
+
         }
 
         public void RightPress()
         {
-            
+
         }
 
         public void TopPress()
         {
-            
+
         }
 
         public void LeftMove(double dX, double dY)
         {
-            
+
         }
 
         public void IndexDown(TouchPoint indPoint)
         {
-            
+
         }
 
         public virtual void IndexTap()
@@ -543,7 +544,7 @@ namespace Multi.Cursor
                 LogEventOnce(ExpStrs.FLICK); // First flick after activation
                 _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked);
             }
-            
+
         }
 
         public void IndexUp()
@@ -665,12 +666,12 @@ namespace Multi.Cursor
 
         public void RingTap()
         {
-            
+
         }
 
         public void PinkyTap(Side loc)
         {
-            
+
         }
 
         protected void LogEvent(string type, string id)
@@ -776,7 +777,7 @@ namespace Multi.Cursor
             //return 0; // TrialEvent has not occurred
 
             return _activeTrialRecord.CountEvent(type);
-            
+
         }
 
         protected double GetDuration(string begin, string end)

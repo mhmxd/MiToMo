@@ -1,4 +1,5 @@
 ﻿using Common.Settings;
+using CommonUI;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -25,19 +26,6 @@ namespace SubTask.FunctionPointSelect
 
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        private Random _random = new Random();
-
-        //private GridNavigator _gridNavigator;
-        //private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
-        //private static Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
-        //private SButton _targetButton; // Currently selected button (if any)
-
-        // Boundary of the grid (encompassing all buttons)
-        //double _gridMinX = double.MaxValue;
-        //double _gridMinY = double.MaxValue;
-        //double _gridMaxX = double.MinValue;
-        //double _gridMaxY = double.MinValue;
 
         public TopWindow()
         {
