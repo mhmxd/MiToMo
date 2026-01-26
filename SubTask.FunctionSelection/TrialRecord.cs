@@ -1,5 +1,6 @@
 ﻿using Common.Constants;
 using Common.Helpers;
+using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -10,44 +11,6 @@ namespace SubTask.FunctionSelection
     public class TrialRecord
     {
         public int TrialId;
-
-        public class TObject
-        {
-            public int Id { get; set; }
-            public Point Position { get; set; }
-            public Point Center { get; set; }
-            public ButtonState State { get; set; }
-
-            public TObject(int id, Point position, Point center)
-            {
-                Id = id;
-                Position = position;
-                Center = center;
-                State = ButtonState.DEFAULT;
-            }
-
-        }
-
-        public class TFunction
-        {
-            public int Id { get; set; }
-            public int WidthInUnits { get; set; }
-            public Point Center { get; set; }
-            public Point Position { get; set; } // Top-left corner of the button
-            public int DistanceToObjArea; // in pixels
-            public ButtonState State { get; set; }
-
-            public TFunction(int id, int widthInUnits, Point center, Point position)
-            {
-                Id = id;
-                Center = center;
-                Position = position;
-                WidthInUnits = widthInUnits;
-                State = ButtonState.DEFAULT;
-
-            }
-
-        }
 
         //public int FunctionId;
         public List<TFunction> Functions;

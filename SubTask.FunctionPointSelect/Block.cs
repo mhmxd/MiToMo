@@ -108,7 +108,7 @@ namespace SubTask.FunctionPointSelect
                 Side functionSide = (Side)sInd;
 
                 // Get the function widths based on side and complexity
-                List<int> buttonWidths = ExpSizes.BUTTON_WIDTHS[complexity][functionSide];
+                List<int> buttonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][functionSide];
 
                 foreach (Range range in distRanges)
                 {

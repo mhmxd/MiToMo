@@ -4,7 +4,6 @@ using Common.Settings;
 using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Media;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionSelection
@@ -27,21 +26,7 @@ namespace SubTask.FunctionSelection
         public double Longest_Dist_MM;
         public double Shortest_Dist_MM;
 
-        //-- Constants
-        //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
-        //public static double OBJ_WIDTH_MM = ExpSizes.EXCEL_CELL_W;
-        //public static double OBJ_AREA_WIDTH_MM = ExpSizes.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
-        //public static double START_W_MM = ExpSizes.EXCEL_CELL_W;
-        //public static double START_H_MM = Config.EXCEL_CELL_H;
-
-        //-- Colors
-        public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
-            (Color)ColorConverter.ConvertFromString(ExpColors.PURPLE));
-
         //-- Information
-
-        //public int Participant_Number { get; set; } // Set in the info dialog
-
         private List<Block> _blocks = new List<Block>();
         public List<Block> Blocks { get { return _blocks; } }
 

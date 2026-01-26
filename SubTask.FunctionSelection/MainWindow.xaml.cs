@@ -29,22 +29,11 @@ using static SubTask.FunctionSelection.Output;
 using MessageBox = System.Windows.Forms.MessageBox;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
+using TouchPoint = CommonUI.TouchPoint;
 
-//using WinForms = System.Windows.Forms; // Alias for Forms namespace
 
 namespace SubTask.FunctionSelection
 {
-    //public partial class TouchPoint
-    //{
-    //    public int x { get; set; }
-    //    public int y { get; set; }
-    //    public int Value { get; set; }
-
-    //    override public string ToString()
-    //    {
-    //        return string.Format("({0}, {1}): {2}", x, y, Value);
-    //    }
-    //}
 
     /// <summary>
     /// Interaction logic for Window1.xaml
@@ -88,22 +77,6 @@ namespace SubTask.FunctionSelection
         public static extern bool ClipCursor(IntPtr lpRect); // Overload for releasing
 
         // Constants
-        private int INIT_X = 10, INIT_Y = 10;
-
-        private int TOMOPAD_COLS = 15; // Total num of cols on the surface
-        private int TOMOPAD_LAST_COL = 14;
-        private int TOMOPAD_ROWS = 13; // Totla num of rows on the surface
-        private int TOMOPAD_LAST_ROW = 12;
-
-        private double BASE_SPEED = 10; // 
-        private double ACCEL_FACTOR = 1.6; // Acceleration factor
-
-        private (double, double) FINGER_ACCEL_RANGE = (0.5, 20); // To avoid jumps
-        private double MIN_FING_ACCEL = 0.5; // To avoid jittering
-
-        private double NOISE_MIN_THRESH = 0.1; // Maximum of finger movement in dT
-        private double NOISE_MAX_THRESH = 0.7; // Maximum of finger movement in dT
-
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
         private int VERTICAL_PADDING = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM); // Padding for the windows
@@ -112,13 +85,6 @@ namespace SubTask.FunctionSelection
         private int TopWindowHeight = UITools.MM2PX(ExpLayouts.TOP_WINDOW_HEIGTH_MM);
         private int SideWindowWidth = UITools.MM2PX(ExpLayouts.SIDE_WINDOW_WIDTH_MM);
 
-
-        // Dead zone
-        private double DEAD_ZONE_DX = 0.3;
-        private double DEAD_ZONE_DY = 1.8;
-
-        // Tip/Whole finger
-        private double TIP_MAX_MASS = 1000; // < 1000 is the finger tip
 
         //------------------------------------------------------------------------------
 

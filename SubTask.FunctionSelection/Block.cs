@@ -1,5 +1,5 @@
-﻿using Common.Constants;
-using Common.Helpers;
+﻿using Common.Helpers;
+using Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -82,7 +82,7 @@ namespace SubTask.FunctionSelection
             //- All top trials, then left
             // Get the function widths based on side and complexity
             // For now all function Ws are the same. We may later create trials with multiple function Ws
-            List<int> topButtonWs = ExpSizes.BUTTON_WIDTHS[complexity][Side.Top];
+            List<int> topButtonWs = ExpLayouts.BUTTON_WIDTHS[complexity][Side.Top];
             foreach (int funcW in topButtonWs)
             {
                 List<int> functionWidths = new List<int>(nFun);
@@ -103,7 +103,7 @@ namespace SubTask.FunctionSelection
                 trialNum++;
             }
 
-            List<int> leftButtonWs = ExpSizes.BUTTON_WIDTHS[complexity][Side.Left];
+            List<int> leftButtonWs = ExpLayouts.BUTTON_WIDTHS[complexity][Side.Left];
             foreach (int funcW in leftButtonWs)
             {
                 List<int> functionWidths = new List<int>(nFun);

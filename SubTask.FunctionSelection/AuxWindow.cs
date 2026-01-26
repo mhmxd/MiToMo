@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
 using static Common.Helpers.Tools;
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.FunctionSelection
 {
