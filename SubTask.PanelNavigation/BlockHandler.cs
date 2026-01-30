@@ -64,7 +64,7 @@ namespace SubTask.PanelNavigation
             _mainWindow.ClearCanvas();
             _mainWindow.ResetAllAuxWindows();
 
-            // Show layout
+
             //_mainWindow.SetupLayout(_activeBlock.GetComplexity());
 
             // Show the first trial
@@ -101,7 +101,7 @@ namespace SubTask.PanelNavigation
             _prevTrialStartDist = newStartDist;
 
             // Color a random function button in the aux window and set the width in trialRecord
-            TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, UIColors.COLOR_FUNCTION_DEFAULT);
+            TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, _activeTrial.GetFunctionWidth(0), UIColors.COLOR_FUNCTION_DEFAULT);
             _activeTrialRecord.Functions.Add(selectedFunc);
 
             // Show the marker on a random function button
@@ -118,16 +118,14 @@ namespace SubTask.PanelNavigation
             _activeTrialRecord.Result = result;
             LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
 
-            //double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
-
             switch (result)
             {
                 case Result.HIT:
-                    Sounder.PlayHit();
+                    MSounder.PlayHit();
                     //_activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
                 case Result.MISS:
-                    Sounder.PlayTargetMiss();
+                    MSounder.PlayTargetMiss();
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
                     //_activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
@@ -185,7 +183,7 @@ namespace SubTask.PanelNavigation
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -206,7 +204,7 @@ namespace SubTask.PanelNavigation
         {
             if (IsStartPressed() && !IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -223,7 +221,7 @@ namespace SubTask.PanelNavigation
 
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -269,7 +267,7 @@ namespace SubTask.PanelNavigation
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return;
             }
@@ -338,7 +336,6 @@ namespace SubTask.PanelNavigation
 
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
-
 
             //-- Clicking END
             if (IsStartClicked())
@@ -654,6 +651,11 @@ namespace SubTask.PanelNavigation
             }
 
             return 0;
+        }
+
+        public Complexity GetComplexity()
+        {
+            return _activeBlock.GetComplexity();
         }
 
         public int GetActiveTrialNum()

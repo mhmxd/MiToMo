@@ -24,8 +24,7 @@
         public static readonly int PS_N_REP = 4;
 
         // Subtask: Panel Navigation
-        public static readonly int PN_N_BLOCKS = 16;
-        public static readonly int PN_N_REP = 4;
+        public static readonly int PN_N_BLOCKS = 8;
 
 
     }

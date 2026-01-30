@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Common.Helpers;
 
 namespace Common.Constants
 {
@@ -34,6 +32,11 @@ namespace Common.Constants
             Simple = 0,
             Moderate = 1,
             Complex = 2,
+        }
+
+        public static List<Complexity> GetRandomComplexityList()
+        {
+            return new List<Complexity>((Enum.GetValues(typeof(Complexity)) as Complexity[])).Shuffle();
         }
 
         public enum TaskType

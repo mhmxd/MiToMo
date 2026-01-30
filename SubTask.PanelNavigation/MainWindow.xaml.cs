@@ -13,6 +13,7 @@ using Microsoft.Research.TouchMouseSensor;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+
 //using Tensorflow;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -26,7 +27,6 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using WindowsInput;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.Tools;
 using static SubTask.PanelNavigation.Experiment;
 using static SubTask.PanelNavigation.Output;
 using MessageBox = System.Windows.Forms.MessageBox;
@@ -267,7 +267,7 @@ namespace SubTask.PanelNavigation
                 //_experiment.Init(introDialog.ParticipantNumber, introDialog.Technique);
 
 
-                BeginExperiment();
+                BeginExperimentAsync();
             }
 
         }
@@ -281,13 +281,13 @@ namespace SubTask.PanelNavigation
             _experiment = new Experiment();
         }
 
-        private async void BeginExperiment()
+        private async Task BeginExperimentAsync()
         {
             // Set the layout (incl. placing the grid and finding positions)
-            await SetupLayout(_experiment.Active_Complexity);
-
-            // Begin the _technique
-            BeginBlocks();
+            bool result = await SetupLayout();
+            this.TrialInfo($"Setup Layout: {result}");
+            // Begin the blocks
+            BeginBlocksAsync();
         }
 
         private void UpdateLabelPosition()
@@ -530,7 +530,7 @@ namespace SubTask.PanelNavigation
 
         private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            _activeBlockHandler.OnMainWindowMouseMove(sender, e);
+            if (_activeBlockHandler != null) _activeBlockHandler.OnMainWindowMouseMove(sender, e);
 
         }
 
@@ -631,70 +631,77 @@ namespace SubTask.PanelNavigation
 
         }
 
-        public bool SetExperiment(Complexity complexity, ExperimentType expType)
+        public bool SetExperiment(ExperimentType expType)
         {
             // Make the experiment (incl. creating blocks)
-            _experiment.Init(complexity, expType);
+            _experiment.Init(expType);
 
             return true;
         }
 
-        private void BeginBlocks()
+        private async Task SetGrids(Complexity complexity)
+        {
+            switch (complexity)
+            {
+                // ... (your switch statement logic remains the same)
+                case Complexity.Simple:
+                    await _topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING);
+                    await _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
+                    await _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
+                    //placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
+                    //placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
+                    //placementTasks.Add(_rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
+                    break;
+                case Complexity.Moderate:
+                    await _topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING);
+                    await _leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
+                    await _rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
+                    //placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING));
+                    //placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
+                    //placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
+                    break;
+                case Complexity.Complex:
+                    await _topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING);
+                    await _leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
+                    await _rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
+                    //placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING));
+                    //placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
+                    //placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
+                    break;
+            }
+        }
+
+        private async Task BeginBlocksAsync()
         {
             _activeBlockNum = 1;
-            //Block block = _experiment.GetBlock(_activeBlockNum);
-            _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
-            ExperiLogger.Init();
-
-            _isTouchMouseActive = true;
-            if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);
-            _touchSurface.SetGestureHandler(_activeBlockHandler);
-            this.TrialInfo($"TouchSurface Initiated");
-
-            _stopWatch.Start();
-            _activeBlockHandler.BeginActiveBlock();
-        }
-
-
-        public Point FindRandPointWithDist(Rect rect, Point src, double dist, Side side)
-        {
-            this.TrialInfo($"Finding position: Rect: {rect.ToString()}; Src: {src}; Dist: {dist:F2}; Side: {side}");
-
-            const int maxAttempts = 1000;
-            const double angleSpreadDeg = 90.0; // Spread in degrees
-
-            // 1. Find the center of the target rect
-            Point center = new Point(rect.X + rect.Width / 2, rect.Y + rect.Height / 2);
-
-            // 2. Calculate the direction vector and base angle in radians
-            double dx = center.X - src.X;
-            double dy = center.Y - src.Y;
-            double angleToCenter = Math.Atan2(dy, dx); // This is in radians
-
-            // 3. Compute the spread around that angle
-            double spreadRad = DegToRad(angleSpreadDeg);
-            double minRad = angleToCenter - spreadRad / 2;
-            double maxRad = angleToCenter + spreadRad / 2;
-
-            for (int i = 0; i < maxAttempts; i++)
+            if (_blockHandlers.Count > 0)
             {
-                double randomRad = minRad + _random.NextDouble() * (maxRad - minRad);
-                double s_x = src.X + dist * Math.Cos(randomRad);
-                double s_y = src.Y + dist * Math.Sin(randomRad);
-                Point candidate = new Point((int)Math.Round(s_x), (int)Math.Round(s_y));
+                _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
-                if (rect.Contains(candidate))
-                {
-                    return candidate;
-                }
+                ExperiLogger.Init();
+
+                _isTouchMouseActive = true;
+                if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);
+                _touchSurface.SetGestureHandler(_activeBlockHandler);
+                this.TrialInfo($"TouchSurface Initiated");
+
+                _stopWatch.Start();
+
+                // Show layout before starting the block
+                await SetGrids(_activeBlockHandler.GetComplexity());
+
+                // Begin the block
+                _activeBlockHandler.BeginActiveBlock();
             }
-
-            // No valid point found
-            return new Point(-1, -1);
+            else
+            {
+                // Show message box with an error
+                MessageBox.Show("No block handlers found. Cannot begin experiment.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
-        public void GoToNextBlock()
+        public async void GoToNextBlock()
         {
             if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
             {
@@ -703,6 +710,9 @@ namespace SubTask.PanelNavigation
 
                 _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
                 if (_experiment.Active_Technique.IsTomo()) _touchSurface.SetGestureHandler(_activeBlockHandler);
+
+                // Show layout before starting the block
+                await SetGrids(_activeBlockHandler.GetComplexity());
 
                 _activeBlockHandler.BeginActiveBlock();
 
@@ -758,42 +768,48 @@ namespace SubTask.PanelNavigation
             canvas.Children.Clear();
         }
 
-        public async Task<bool> SetupLayout(Complexity complexity)
+        public async Task<bool> SetupLayout()
         {
             // Create a list to hold the tasks for placing the grids
             var placementTasks = new List<Task>();
 
             // Flag to track overall success. Assume success (true) by default.
-            bool overallSuccess = true;
+            //bool overallSuccess = true;
 
-            switch (complexity)
-            {
-                // ... (your switch statement logic remains the same)
-                case Complexity.Simple:
-                    placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
-                    placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
-                    placementTasks.Add(_rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
-                    break;
-                case Complexity.Moderate:
-                    placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING));
-                    placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
-                    placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
-                    break;
-                case Complexity.Complex:
-                    placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING));
-                    placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
-                    placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
-                    break;
-            }
-
-            // Await all tasks concurrently.
-            await Task.WhenAll(placementTasks);
-
-            // Find positions for all blocks
+            // Set up layout for all blocks
             for (int bn = 1; bn <= _experiment.Blocks.Count; bn++)
             {
                 Block bl = _experiment.Blocks[bn - 1];
                 this.TrialInfo($"Setting up handler for block#{bl.Id}");
+
+                //switch (bl.GetComplexity())
+                //{
+                //    // ... (your switch statement logic remains the same)
+                //    case Complexity.Simple:
+                //        await _topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING);
+                //        await _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
+                //        await _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
+                //        //placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
+                //        //placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
+                //        //placementTasks.Add(_rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
+                //        break;
+                //    case Complexity.Moderate:
+                //        await _topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING);
+                //        await _leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
+                //        await _rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
+                //        //placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING));
+                //        //placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
+                //        //placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
+                //        break;
+                //    case Complexity.Complex:
+                //        await _topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING);
+                //        await _leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
+                //        await _rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
+                //        //placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING));
+                //        //placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
+                //        //placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
+                //        break;
+                //}
 
                 // Use a local variable to store the handler
                 BlockHandler blockHandler = new BlockHandler(this, bl, bn);
@@ -801,8 +817,13 @@ namespace SubTask.PanelNavigation
 
             }
 
-            // The method now automatically returns a Task<bool> with the final value of overallSuccess.
-            return overallSuccess;
+            //this.TrialInfo($"Awaiting {placementTasks.Count} placement tasks...");
+
+            // Use Task.WhenAll and ensure we don't block the UI thread's ability to process the events
+            //await Task.WhenAll(placementTasks).ConfigureAwait(true);
+
+            //this.TrialInfo("All placement tasks completed.");
+            return true;
         }
 
         public void ShowObjectsArea(Rect areaRect, Brush areaColor, MouseEvents mouseEvents)
@@ -972,6 +993,12 @@ namespace SubTask.PanelNavigation
             return auxWindow.FillRandomGridBtn(color); // Return the chosen function 
         }
 
+        public TFunction ColorRandomFunction(Side side, int btnWidth, Brush color)
+        {
+            AuxWindow auxWindow = GetAuxWindow(side);
+            return auxWindow.FillRandomGridBtn(btnWidth, color); // Return the chosen function 
+        }
+
         public void FillButtonsInAuxWindow(Side side, List<int> buttonIds, Brush color)
         {
             foreach (int buttonId in buttonIds)
@@ -1023,7 +1050,7 @@ namespace SubTask.PanelNavigation
             return (id, centerPositionAbsolute);
         }
 
-        public TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
+        public TFunction FindRandomFunction(Side side, int widthUnits, MRange distRange)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
@@ -1035,7 +1062,7 @@ namespace SubTask.PanelNavigation
             return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
         }
 
-        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
+        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, MRange distRange)
         {
             this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
             List<TFunction> functions = new List<TFunction>();

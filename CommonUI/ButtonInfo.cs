@@ -10,7 +10,7 @@ namespace CommonUI
         public SButton Button { get; set; }
         public Point Position { get; set; }
         public Rect Rect { get; set; }
-        public Range DistToStartRange { get; set; } // In pixels
+        public MRange DistToStartRange { get; set; } // In pixels
         public Brush ButtonFill { get; set; } // Default background color for the button
 
         public ButtonInfo(SButton button)
@@ -18,7 +18,7 @@ namespace CommonUI
             Button = button;
             Position = new Point(0, 0);
             Rect = new Rect();
-            DistToStartRange = new Range(0, 0);
+            DistToStartRange = new MRange(0, 0);
             ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL;
         }
 

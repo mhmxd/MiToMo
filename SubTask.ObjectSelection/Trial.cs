@@ -44,8 +44,8 @@ namespace SubTask.ObjectSelection
 
         //public List<double> Distances = new List<double>(); // Distances in px
 
-        public Range DistRangeMM { get; set; }
-        public Range DistRangePX => new Range(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label); // Distance range in px
+        public MRange DistRangeMM { get; set; }
+        public MRange DistRangePX => new MRange(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label); // Distance range in px
 
         //public Point StartPosition, TargetPosition; // Relative to the respective windows
 

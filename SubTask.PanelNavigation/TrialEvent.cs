@@ -12,7 +12,7 @@ namespace SubTask.PanelNavigation
         {
             this.Type = type;
             this.Value = val;
-            this.Time = Timer.GetCurrentMillis();
+            this.Time = MTimer.GetCurrentMillis();
         }
 
         public TrialEvent(string type, string val, long time)

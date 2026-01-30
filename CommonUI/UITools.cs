@@ -69,7 +69,7 @@ namespace CommonUI
         public static (Point, double) FindPointWithinDistRangeFromMultipleSources(
             this Rect rect,
             List<Point> srcPoints,
-            Range distRange)
+            MRange distRange)
         {
             const int maxAttempts = 5000; // Increased attempts as the search space is more constrained
 
@@ -265,15 +265,15 @@ namespace CommonUI
             return new Point(-1, -1); // Indicate failure
         }
 
-        public static Point FindRandPointWithDist(this Rect rect, Point src, int dist, Range degreeRange)
+        public static Point FindRandPointWithDist(this Rect rect, Point src, int dist, MRange degreeRange)
         {
             // Define a maximum number of attempts to prevent infinite loops
             // Adjust this value based on expected density of valid points
             const int maxAttempts = 1000;
 
             // Convert the degree range to radians for trigonometric Functions
-            double minRad = Tools.DegToRad(degreeRange.Min);
-            double maxRad = Tools.DegToRad(degreeRange.Max);
+            double minRad = MTools.DegToRad(degreeRange.Min);
+            double maxRad = MTools.DegToRad(degreeRange.Max);
 
             for (int i = 0; i < maxAttempts; i++)
             {

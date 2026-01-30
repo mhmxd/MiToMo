@@ -326,12 +326,12 @@ namespace SubTask.PanelNavigation
         public void MoveCursor(double dX, double dY)
         {
             // Potential new position
-            PositionInfo<SideWindow>($"Position before moving: {_cursorTransform.X:F2}, {_cursorTransform.Y:F2}");
-            PositionInfo<SideWindow>($"Movement: {dX:F2}, {dY:F2}");
+            this.PositionInfo($"Position before moving: {_cursorTransform.X:F2}, {_cursorTransform.Y:F2}");
+            this.PositionInfo($"Movement: {dX:F2}, {dY:F2}");
 
             double potentialX = _cursorTransform.X + dX;
             double potentialY = _cursorTransform.Y + dY;
-            PositionInfo<SideWindow>($"Potential Pos: {potentialX:F2}, {potentialY:F2}");
+            this.PositionInfo($"Potential Pos: {potentialX:F2}, {potentialY:F2}");
 
             // x: Within boundaries
             if (potentialX < 0)
@@ -533,66 +533,87 @@ namespace SubTask.PanelNavigation
 
         }
 
-        public override Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
+        public override async Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
         {
             // A TaskCompletionSource allows us to create a Task
             // that we can complete manually later.
+            //var tcs = new TaskCompletionSource<bool>();
+
+            //// Clear any existing columns from the canvas and the list before generating new ones
+            //canvas.Children.Clear();
+
+            //_buttonsGrid = gridCreator(); // Create the new column Grid
+
+            //// Subscribe to the Loaded event to get the correct width.
+            //_buttonsGrid.Loaded += (sender, e) =>
+            //{
+            //    this.TrialInfo("Grid Loaded.");
+            //    try
+            //    {
+            //        this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
+            //        // Now ActualWidth has a valid value.
+            //        double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
+            //        Canvas.SetLeft(_buttonsGrid, leftPosition);
+
+            //        RegisterAllButtons(_buttonsGrid);
+            //        LinkButtonNeighbors();
+
+            //        FindMiddleButton();
+
+            //        // Indicate that the task is successfully completed.
+            //        tcs.SetResult(true);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        // If any error occurs, set the exception on the TaskCompletionSource
+            //        tcs.SetException(ex);
+            //    }
+            //};
+
+            //// Set top position on the Canvas (from padding)
+            //Canvas.SetTop(_buttonsGrid, topPadding);
+
+            //// Add to the Canvas
+            //canvas.Children.Add(_buttonsGrid);
+            //this.TrialInfo($"Grid added to canvas.");
+
+            //return tcs.Task; // Return the Task to be awaited
+
+            // 1. Setup
+            canvas.Children.Clear();
+            _buttonsGrid = gridCreator();
+
+            // 2. Prepare the "Wait" task BEFORE adding to the canvas
+            var loadedTask = OnLoadedAsync(_buttonsGrid);
+
+            // 3. Add to UI
+            Canvas.SetTop(_buttonsGrid, topPadding);
+            canvas.Children.Add(_buttonsGrid);
+            this.TrialInfo($"Grid added to canvas.");
+            // 4. Wait for the UI to layout and render
+            await loadedTask;
+
+            // 5. Execution continues here once Loaded has fired
+            double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
+            Canvas.SetLeft(_buttonsGrid, leftPosition);
+
+            RegisterAllButtons(_buttonsGrid);
+            LinkButtonNeighbors();
+            FindMiddleButton();
+
+        }
+
+        // Helper method to wrap the Loaded event in a Task
+        private Task OnLoadedAsync(FrameworkElement element)
+        {
             var tcs = new TaskCompletionSource<bool>();
 
-            // Clear any existing columns from the canvas and the list before generating new ones
-            canvas.Children.Clear();
+            // If it's already loaded, complete immediately
+            if (element.IsLoaded) return Task.FromResult(true);
 
-            _buttonsGrid = gridCreator(); // Create the new column Grid
+            element.Loaded += (s, e) => tcs.TrySetResult(true);
 
-            // Set left position on the Canvas (horizontally centered)
-            //Output.TrialInfo(this, $"Placing single grid with size {grid.Width} in {this.Width}...");
-            //double leftPosition = (this.Width - grid.Width) / 2;
-            //Canvas.SetLeft(grid, leftPosition);
-
-            // Set top position on the Canvas (from padding)
-            Canvas.SetTop(_buttonsGrid, topPadding);
-
-            // Add to the Canvas
-            canvas.Children.Add(_buttonsGrid);
-
-            //double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
-            //Canvas.SetLeft(_buttonsGrid, leftPosition);
-
-
-
-            // Subscribe to the Loaded event to get the correct width.
-            _buttonsGrid.Loaded += (sender, e) =>
-            {
-                try
-                {
-                    // Now ActualWidth has a valid value.
-                    double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
-                    Canvas.SetLeft(_buttonsGrid, leftPosition);
-
-                    RegisterAllButtons(_buttonsGrid);
-                    LinkButtonNeighbors();
-
-                    FindMiddleButton();
-
-                    // Indicate that the task is successfully completed.
-                    tcs.SetResult(true);
-
-                    // Register buttons after the grid is loaded and positioned.
-                    //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-                    //{
-                    //    RegisterAllButtons();
-                    //    LinkButtonNeighbors();
-                    //}));
-                }
-                catch (Exception ex)
-                {
-                    // If any error occurs, set the exception on the TaskCompletionSource
-                    tcs.SetException(ex);
-                }
-            };
-
-            return tcs.Task; // Return the Task to be awaited
-
+            return tcs.Task;
         }
 
         public override void ShowStartBtn(int btnW, int btnH, Brush btnColor, MouseEvents btnEvents)

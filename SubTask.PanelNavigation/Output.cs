@@ -1,5 +1,4 @@
-﻿
-using CommonUI;
+﻿using CommonUI;
 using CommunityToolkit.HighPerformance;
 using Serilog;
 using Serilog.Enrichers.WithCaller;
@@ -70,9 +69,9 @@ namespace SubTask.PanelNavigation
             //FILOG.Information(mssg);
         }
 
-        public static void PositionInfo<T>(string mssg, [CallerMemberName] string memberName = "")
+        public static void PositionInfo(this object source, string mssg, [CallerMemberName] string memberName = "")
         {
-            var className = typeof(T).Name;
+            var className = source.GetType().Name;
             //NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
         }
 

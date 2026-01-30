@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Common.Helpers
 {
-    public static class Timer
+    public static class MTimer
     {
         // Stopwatch.Frequency is the number of ticks per second from the high-resolution timer.
         // It's constant for the lifetime of the application.

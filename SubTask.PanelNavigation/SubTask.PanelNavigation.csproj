@@ -341,7 +341,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CommonUI\CommonUI.csproj">
-      <Project>{A6861698-5453-4A15-A95D-5751F67C3D33}</Project>
+      <Project>{a6861698-5453-4a15-a95d-5751f67c3d33}</Project>
       <Name>CommonUI</Name>
     </ProjectReference>
     <ProjectReference Include="..\Common\Common.csproj">

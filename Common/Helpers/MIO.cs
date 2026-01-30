@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Common.Helpers
 {
-    public class IOTools
+    public class MIO
     {
 
         public static StreamWriter PrepareFile<T>(string filePath, string fileName)

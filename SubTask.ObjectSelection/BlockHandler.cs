@@ -115,13 +115,13 @@ namespace SubTask.ObjectSelection
             switch (result)
             {
                 case Result.HIT:
-                    Sounder.PlayHit();
+                    MSounder.PlayHit();
                     double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
                     _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
 
                     break;
                 case Result.MISS:
-                    Sounder.PlayTargetMiss();
+                    MSounder.PlayTargetMiss();
 
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
                     //_trialRecords[_activeTrial.Id].ClearTimestamps();
@@ -256,7 +256,7 @@ namespace SubTask.ObjectSelection
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -277,7 +277,7 @@ namespace SubTask.ObjectSelection
         {
             if (IsStartPressed() && !IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -294,7 +294,7 @@ namespace SubTask.ObjectSelection
 
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -352,7 +352,7 @@ namespace SubTask.ObjectSelection
             // Pressed on the Object without starting the trial
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
@@ -390,7 +390,7 @@ namespace SubTask.ObjectSelection
             if (!IsStartClicked())
             {
                 this.TrialInfo($"Start wasn't clicked");
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
@@ -437,7 +437,7 @@ namespace SubTask.ObjectSelection
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return;
             }
@@ -460,7 +460,7 @@ namespace SubTask.ObjectSelection
             if (!IsStartClicked())
             {
                 this.TrialInfo($"Start wasn't clicked");
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }

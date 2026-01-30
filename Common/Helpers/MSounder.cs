@@ -3,13 +3,13 @@ using System.Reflection;
 
 namespace Common.Helpers
 {
-    public class Sounder
+    public class MSounder
     {
         private static SoundPlayer _hitSound;
         private static SoundPlayer _startMiss;
         private static SoundPlayer _targetMiss;
 
-        static Sounder()
+        static MSounder()
         {
             // Helper to get the stream from the embedded folder
             _hitSound = new SoundPlayer(GetResourceStream("hit.wav"));

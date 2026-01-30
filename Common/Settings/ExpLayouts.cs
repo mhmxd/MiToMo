@@ -46,6 +46,8 @@ namespace Common.Settings
             }
         };
 
+
+
         //--- Grid -------------------------------------------------------
         public static double GRID_ROW_HEIGHT_MM = 6 * ExpSizes.GRID_UNIT_MM; // Height of the grid rows (= 24px)
         public static double GUTTER_SIDE_SIMPLE_MM = 4;

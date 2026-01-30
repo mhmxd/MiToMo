@@ -17,8 +17,6 @@ namespace SubTask.PanelNavigation
     /// </summary>
     public partial class TopWindow : AuxWindow
     {
-        private double HORIZONTAL_PADDING = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
-        private double InterGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -31,19 +29,6 @@ namespace SubTask.PanelNavigation
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
         private Random _random = new Random();
-
-
-
-        //private GridNavigator _gridNavigator;
-        //private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
-        //private static Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
-        //private SButton _targetButton; // Currently selected button (if any)
-
-        // Boundary of the grid (encompassing all buttons)
-        //double _gridMinX = double.MaxValue;
-        //double _gridMinY = double.MaxValue;
-        //double _gridMaxX = double.MinValue;
-        //double _gridMaxY = double.MinValue;
 
         public TopWindow()
         {
@@ -63,58 +48,48 @@ namespace SubTask.PanelNavigation
 
         }
 
-        public override Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
+        public override async Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
         {
-            // A TaskCompletionSource allows us to create a Task
-            // that we can complete manually later.
+            //return tcs.Task; // Return the task to be awaited
+            // 1. Setup
+            canvas.Children.Clear();
+            _buttonsGrid = gridCreator();
+
+            // 2. Prepare the "Wait" task BEFORE adding to the canvas
+            var loadedTask = OnLoadedAsync(_buttonsGrid);
+
+            // 3. Add to UI (will set the position later)
+            canvas.Children.Add(_buttonsGrid);
+
+            // 4. Wait for the UI to layout and render
+            await loadedTask;
+
+            // 5. Execution continues here once Loaded has fired
+            this.PositionInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}");
+
+            double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
+            Canvas.SetTop(_buttonsGrid, topPosition);
+
+            double leftPosition = leftPadding;
+            Canvas.SetLeft(_buttonsGrid, leftPosition);
+
+            // Finish the process
+            RegisterAllButtons(_buttonsGrid);
+            LinkButtonNeighbors();
+            FindMiddleButton();
+        }
+
+        // Helper method to wrap the Loaded event in a Task
+        private Task OnLoadedAsync(FrameworkElement element)
+        {
             var tcs = new TaskCompletionSource<bool>();
 
-            // Clear any existing columns from the canvas and the list before generating new ones
-            canvas.Children.Clear();
+            // If it's already loaded, complete immediately
+            if (element.IsLoaded) return Task.FromResult(true);
 
-            _buttonsGrid = gridCreator(); // Create the new column Grid
+            element.Loaded += (s, e) => tcs.TrySetResult(true);
 
-            // Set left position on the Canvas (from padding)
-            Canvas.SetLeft(_buttonsGrid, leftPadding);
-
-            // Add to the Canvas
-            canvas.Children.Add(_buttonsGrid);
-            //this.TrialInfo($"Grid added to canvas. Canvas size: {canvas.ActualWidth}x{canvas.ActualHeight}");
-
-            //this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
-            // Now ActualWidth has a valid value.
-            //double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
-            //Canvas.SetTop(_buttonsGrid, topPosition);
-
-            //RegisterAllButtons(_buttonsGrid);
-            //LinkButtonNeighbors();
-
-            // Subscribe to the Loaded event to get the correct width.
-            _buttonsGrid.Loaded += (sender, e) =>
-            {
-                try
-                {
-                    this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
-                    double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
-                    Canvas.SetTop(_buttonsGrid, topPosition);
-
-                    RegisterAllButtons(_buttonsGrid);
-                    LinkButtonNeighbors();
-
-                    FindMiddleButton();
-
-                    // Indicate that the task is successfully completed.
-                    tcs.SetResult(true);
-                }
-                catch (Exception ex)
-                {
-                    // If any error occurs, set the exception on the TaskCompletionSource
-                    tcs.SetException(ex);
-                }
-            };
-
-            return tcs.Task; // Return the task to be awaited
-
+            return tcs.Task;
         }
 
         public void DeactivateGridNavigator()

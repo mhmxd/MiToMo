@@ -638,7 +638,7 @@ namespace SubTask.ObjectSelection
             double angleToCenter = Math.Atan2(dy, dx); // This is in radians
 
             // 3. Compute the spread around that angle
-            double spreadRad = Tools.DegToRad(angleSpreadDeg);
+            double spreadRad = MTools.DegToRad(angleSpreadDeg);
             double minRad = angleToCenter - spreadRad / 2;
             double maxRad = angleToCenter + spreadRad / 2;
 

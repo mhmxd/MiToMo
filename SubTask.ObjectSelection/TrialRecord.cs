@@ -174,7 +174,7 @@ namespace SubTask.ObjectSelection
             if (endIndex < 0)
                 return -1;
 
-            return Tools.GetDuration(Events[startIndex].Time, Events[endIndex].Time);
+            return MTools.GetDuration(Events[startIndex].Time, Events[endIndex].Time);
         }
 
         public long GetFirstAfterLast(string beforeType, string type)
@@ -249,7 +249,7 @@ namespace SubTask.ObjectSelection
             this.TrialInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetLastTime(endLabel);
             this.TrialInfo($"End time ({endLabel}): {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurtionToFirstAfter(string startLabel, string endLabel)
@@ -258,7 +258,7 @@ namespace SubTask.ObjectSelection
             this.TrialInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetFirstAfterLast(startLabel, endLabel);
             this.TrialInfo($"End time ({endLabel}): {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetFirstSeqDuration(string startType, string endType)
@@ -275,7 +275,7 @@ namespace SubTask.ObjectSelection
                     {
                         if (Events[j].Type == endType)
                         {
-                            return Tools.GetDuration(Events[i].Time, Events[j].Time);
+                            return MTools.GetDuration(Events[i].Time, Events[j].Time);
                         }
                     }
                 }
@@ -323,7 +323,7 @@ namespace SubTask.ObjectSelection
                                 var endTime = Events[j].Time;
                                 this.TrialInfo($"End time of {n}th {endType}: {endTime}");
                                 // 4. Return the calculated duration
-                                return Tools.GetDuration(startTime, endTime);
+                                return MTools.GetDuration(startTime, endTime);
                             }
                             // Optimization: If the sequence is [Press, Press, Release], 
                             // we are only looking for the *first* Release after the N-th Press.
@@ -359,7 +359,7 @@ namespace SubTask.ObjectSelection
                 {
                     this.TrialInfo($"Start time {startLabel}: {Events[i].Time}");
                     this.TrialInfo($"End time {endLabel}: {Events[afterIndex].Time}");
-                    return Tools.GetDuration(
+                    return MTools.GetDuration(
                         Events[i].Time,
                         Events[afterIndex].Time
                     );
@@ -375,7 +375,7 @@ namespace SubTask.ObjectSelection
             this.TrialInfo($"StartTime {startLabel}: {startTime}");
             long endTime = GetGestureStartTime(technique);
             this.TrialInfo($"End time {technique}: {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromGestureEnd(Technique technique, string endLabel)
@@ -384,7 +384,7 @@ namespace SubTask.ObjectSelection
             this.TrialInfo($"Start time {technique}: {startTime}");
             long endTime = GetLastTime(endLabel);
             this.TrialInfo($"End time {endLabel}: {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationToFingerAction(string type, string action)
@@ -393,7 +393,7 @@ namespace SubTask.ObjectSelection
             this.TrialInfo($"Start time {type}: {startTime}");
             long endTime = GetFirstAfterLast(type, action);
             this.TrialInfo($"End time {action}: {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromFingerAction(string action, string endLabel)
@@ -402,7 +402,7 @@ namespace SubTask.ObjectSelection
             this.TrialInfo($"Start time {action}: {startTime}");
             long endTime = GetLastTime(endLabel);
             this.TrialInfo($"End time {endLabel}: {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetGestureDuration(Technique gesture)

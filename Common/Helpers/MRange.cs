@@ -1,6 +1,6 @@
 ﻿namespace Common.Helpers
 {
-    public class Range
+    public class MRange
     {
         double _min, _max;
         public double Min
@@ -18,13 +18,13 @@
 
         Random _rand = new Random();
 
-        public Range(double min, double max)
+        public MRange(double min, double max)
         {
             _min = min;
             _max = max;
         }
 
-        public Range(double min, double max, string label) : this(min, max)
+        public MRange(double min, double max, string label) : this(min, max)
         {
             Label = label;
         }
@@ -39,7 +39,7 @@
             return value > _min && value < _max;
         }
 
-        public bool ContainsExc(Range valueRange)
+        public bool ContainsExc(MRange valueRange)
         {
             return ContainsExc(valueRange.Min) && ContainsExc(valueRange.Max);
         }

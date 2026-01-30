@@ -4,7 +4,7 @@ using static System.Math;
 
 namespace Common.Helpers
 {
-    public static class Tools
+    public static class MTools
     {
         private static readonly Random _random = new Random();
 
@@ -58,7 +58,7 @@ namespace Common.Helpers
             return NormalizeAngleRadian(randomAngle);
         }
 
-        public static void Shuffle<T>(this List<T> list)
+        public static List<T> Shuffle<T>(this List<T> list)
         {
             int n = list.Count;
             while (n > 1)
@@ -67,6 +67,8 @@ namespace Common.Helpers
                 int k = _random.Next(n + 1);
                 (list[k], list[n]) = (list[n], list[k]);
             }
+
+            return list;
         }
 
         public static bool TryAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)

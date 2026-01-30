@@ -248,7 +248,7 @@ namespace SubTask.ObjectSelection
 
         }
 
-        public int SelectRandButtonByConstraints(int widthMult, Range distRange)
+        public int SelectRandButtonByConstraints(int widthMult, MRange distRange)
         {
             //this.TrialInfo($"Available buttons: ");
             //foreach (int wm in _widthButtons.Keys)
@@ -864,7 +864,7 @@ namespace SubTask.ObjectSelection
         /// <param name="outsidePoint">The point outside (or potentially inside/on the edge of) the rectangle.</param>
         /// <param name="rect">The WPF Rect object.</param>
         /// <returns>A Tuple where Item1 is the minimum distance and Item2 is the maximum distance.</returns>
-        public static Range GetMinMaxDistances(Point outsidePoint, Rect rect)
+        public static MRange GetMinMaxDistances(Point outsidePoint, Rect rect)
         {
             double minDist;
             double maxDist;
@@ -907,7 +907,7 @@ namespace SubTask.ObjectSelection
                 }
             }
 
-            return new Range(minDist, maxDist);
+            return new MRange(minDist, maxDist);
         }
 
 

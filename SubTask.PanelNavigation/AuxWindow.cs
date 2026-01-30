@@ -27,7 +27,7 @@ namespace SubTask.PanelNavigation
             public SButton Button { get; set; }
             public Point Position { get; set; }
             public Rect Rect { get; set; }
-            public Range DistToStartRange { get; set; } // In pixels
+            public MRange DistToStartRange { get; set; } // In pixels
             public Brush ButtonFill { get; set; } // Default background color for the button
 
             public ButtonInfo(SButton button)
@@ -35,7 +35,7 @@ namespace SubTask.PanelNavigation
                 Button = button;
                 Position = new Point(0, 0);
                 Rect = new Rect();
-                DistToStartRange = new Range(0, 0);
+                DistToStartRange = new MRange(0, 0);
                 ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL;
             }
 
@@ -58,11 +58,11 @@ namespace SubTask.PanelNavigation
         }
 
         public Side Side { get; set; } // Side of the window (left, right, top)
-                                       // 
+
         protected Grid _buttonsGrid; // The grid containing all buttons
         protected List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
         protected Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
-        protected Dictionary<int, ButtonInfo> _buttonInfos = new Dictionary<int, ButtonInfo>();
+        protected Dictionary<int, ButtonInfo> _buttonInfos = new Dictionary<int, ButtonInfo>(); // Id to ButtonInfo mapping
         protected SButton _targetButton; // Currently selected button (if any)
 
         // Boundary of the grid (encompassing all buttons)
@@ -93,11 +93,12 @@ namespace SubTask.PanelNavigation
         public void SetObjectConstraintRect(Rect rect)
         {
             _objectConstraintRectAbsolute = rect;
-            this.TrialInfo($"Object constraint rect set to: {rect.ToString()}");
+            this.PositionInfo($"Object constraint rect set to: {rect.ToString()}");
         }
 
         protected void RegisterAllButtons(DependencyObject parent)
         {
+            this.PositionInfo($"Registering buttons in parent: {parent.ToString()}");
             //-- Recursively find all SButton instances in the entire _buttonsGrid
             // Get the number of children in the current parent object
             int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
@@ -121,7 +122,7 @@ namespace SubTask.PanelNavigation
 
         protected void RegisterButton(SButton button)
         {
-            //this.TrialInfo($"Registering button {button.ToString()}");
+            this.PositionInfo($"Registering button {button.ToString()}");
             _widthButtons.TryAdd(button.WidthMultiple, new List<SButton>());
             _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
             _buttonInfos[button.Id] = new ButtonInfo(button);
@@ -139,7 +140,7 @@ namespace SubTask.PanelNavigation
 
             Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
             _buttonInfos[button.Id].Rect = buttonRect;
-            this.TrialInfo($"ButtonRect: {buttonRect}");
+            this.PositionInfo($"ButtonRect: {buttonRect}");
             //_buttonRects.Add(button.Id, buttonRect); // Store the rect for later
 
             // Set possible distance range to the Start positions
@@ -171,13 +172,13 @@ namespace SubTask.PanelNavigation
             int middleId = FindMiddleButtonId();
             if (middleId != -1)
             {
-                this.TrialInfo($"Middle Id = {middleId}");
+                this.PositionInfo($"Middle Id = {middleId}");
                 _lastMarkedButtonId = middleId; // Set the last highlighted button to the middle button
                 _middleButtonId = middleId;
             }
             else
             {
-                this.TrialInfo("No middle button found in the grid.");
+                this.PositionInfo("No middle button found in the grid.");
             }
         }
 
@@ -195,7 +196,7 @@ namespace SubTask.PanelNavigation
             foreach (int buttonId in _buttonInfos.Keys)
             {
                 Rect buttonRect = _buttonInfos[buttonId].Rect;
-                this.TrialInfo($"Button#{buttonId}; Rect: {buttonRect.ToString()}; Btn: {_buttonInfos[buttonId].Button.ToString()}");
+                this.PositionInfo($"Button#{buttonId}; Rect: {buttonRect.ToString()}; Btn: {_buttonInfos[buttonId].Button.ToString()}");
                 // Check which button contains the grid center point
                 if (buttonRect.Contains(gridCenterPoint))
                 {
@@ -273,7 +274,7 @@ namespace SubTask.PanelNavigation
 
         }
 
-        public int SelectRandButtonByConstraints(int widthMult, Range distRange)
+        public int SelectRandButtonByConstraints(int widthMult, MRange distRange)
         {
             //this.TrialInfo($"Available buttons: ");
             //foreach (int wm in _widthButtons.Keys)
@@ -331,6 +332,36 @@ namespace SubTask.PanelNavigation
 
             return resultFunction;
         }
+
+        public TFunction FillRandomGridBtn(int btnWidth, Brush color)
+        {
+            // Select a random button with the specified width
+            this.TrialInfo($"WidthButtons: {_widthButtons.Str()}");
+            List<SButton> possibleButtons = _widthButtons.ContainsKey(btnWidth) ?
+                _widthButtons[btnWidth] : new List<SButton>();
+            if (possibleButtons.Count == 0)
+            {
+                this.TrialInfo($"No buttons found with width multiple {btnWidth}!");
+                return null;
+            }
+            SButton selectedButton = possibleButtons.GetRandomElement();
+            int buttonId = selectedButton.Id;
+            _buttonInfos[buttonId].ButtonFill = color; // Store the default background color
+            _buttonInfos[buttonId].Button.Background = color; // Change the background color of the button
+
+            TFunction resultFunction = new
+                (
+                    id: buttonId,
+                    widthInUnits: btnWidth,
+                    center: GetGridButtonCenter(buttonId),
+                    position: GetGridButtonPosition(buttonId)
+                );
+
+            this.TrialInfo($"TFunction: {resultFunction}");
+
+            return resultFunction;
+        }
+
 
         public virtual void FillGridButton(int buttonId, Brush color)
         {
@@ -973,7 +1004,7 @@ namespace SubTask.PanelNavigation
         /// <param name="outsidePoint">The point outside (or potentially inside/on the edge of) the rectangle.</param>
         /// <param name="rect">The WPF Rect object.</param>
         /// <returns>A Tuple where Item1 is the minimum distance and Item2 is the maximum distance.</returns>
-        public static Range GetMinMaxDistances(Point outsidePoint, Rect rect)
+        public static MRange GetMinMaxDistances(Point outsidePoint, Rect rect)
         {
             double minDist;
             double maxDist;
@@ -1016,7 +1047,7 @@ namespace SubTask.PanelNavigation
                 }
             }
 
-            return new Range(minDist, maxDist);
+            return new MRange(minDist, maxDist);
         }
 
         public abstract void ShowPoint(Point p);
