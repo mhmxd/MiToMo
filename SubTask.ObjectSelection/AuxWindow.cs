@@ -910,8 +910,6 @@ namespace SubTask.ObjectSelection
             return new Range(minDist, maxDist);
         }
 
-        public abstract void ShowPoint(Point p);
-
 
     }
 }

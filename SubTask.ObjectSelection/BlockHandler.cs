@@ -165,9 +165,9 @@ namespace SubTask.ObjectSelection
             }
         }
 
-        private List<TrialRecord.TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
+        private List<TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
         {
-            List<TrialRecord.TObject> placedObjects = new List<TrialRecord.TObject>();
+            List<TObject> placedObjects = new List<TObject>();
             double objW = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM);
             double areaW = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
 
@@ -190,7 +190,7 @@ namespace SubTask.ObjectSelection
                     // 2. Check for overlaps with already placed objects
                     if (!HasOverlap(topLeft, objW, placedObjects))
                     {
-                        TrialRecord.TObject trialObject = new TrialRecord.TObject(i + 1, topLeft, potentialCenter);
+                        TObject trialObject = new TObject(i + 1, topLeft, potentialCenter);
 
                         placedObjects.Add(trialObject);
                         placed = true;
@@ -226,12 +226,12 @@ namespace SubTask.ObjectSelection
             return new Point(x, y);
         }
 
-        private bool HasOverlap(Point newObjTopLeft, double newObjW, List<TrialRecord.TObject> existingObjs)
+        private bool HasOverlap(Point newObjTopLeft, double newObjW, List<TObject> existingObjs)
         {
             double newObjRight = newObjTopLeft.X + newObjW;
             double newObjBottom = newObjTopLeft.Y + newObjW;
 
-            foreach (TrialRecord.TObject existingObject in existingObjs)
+            foreach (TObject existingObject in existingObjs)
             {
                 double existingObjRight = existingObject.Position.X + newObjW; // Assuming all objects have the same width
                 double existingObjBottom = existingObject.Position.Y + newObjW;

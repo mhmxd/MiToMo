@@ -11,6 +11,8 @@ namespace SubTask.ObjectSelection
     // A block of trials in the experiment
     public class Block
     {
+        private Random _random = new Random();
+
         private List<Trial> _trials = new List<Trial>();
         public List<Trial> Trials
         {
@@ -127,8 +129,7 @@ namespace SubTask.ObjectSelection
             if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
             {
                 Trial trialToCopy = _trials[trialNum - 1];
-                Random random = new Random();
-                int insertIndex = random.Next(trialNum + 1, _trials.Count);
+                int insertIndex = _random.Next(trialNum + 1, _trials.Count);
 
                 _trials.Insert(insertIndex, trialToCopy);
             }

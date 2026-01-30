@@ -13,7 +13,6 @@ using Microsoft.Research.TouchMouseSensor;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,7 +21,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using WindowsInput;
 using static Common.Constants.ExpEnums;
 using static SubTask.ObjectSelection.Output;
 using MessageBox = System.Windows.Forms.MessageBox;
@@ -49,41 +47,6 @@ namespace SubTask.ObjectSelection
     /// </summary>
     public partial class MainWindow : Window
     {
-        [DllImport("User32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool SetCursorPos(int X, int Y);
-        [DllImport("user32.dll")]
-        public static extern bool GetCursorPos(out POINT lpPoint);
-        [StructLayout(LayoutKind.Sequential)]
-        public struct POINT
-        {
-            public int X;
-            public int Y;
-        }
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
-
-        /// <summary>
-        /// Confines the cursor to a rectangular area on the screen.
-        /// </summary>
-        /// <param name="lpRect">A pointer to the structure that contains the screen coordinates of the confining rectangle. 
-        /// If this parameter is NULL (IntPtr.Zero), the cursor is free to move anywhere on the screen.</param>
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool ClipCursor(ref RECT lpRect);
-
-        /// <summary>
-        /// Call with IntPtr.Zero to release the cursor clip.
-        /// </summary>
-        [DllImport("user32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool ClipCursor(IntPtr lpRect); // Overload for releasing
 
         // Constants
         private int INIT_X = 10, INIT_Y = 10;
@@ -147,8 +110,6 @@ namespace SubTask.ObjectSelection
 
         private Window activeWindow;
         private double activeWidthRatio, activeHeightRatio;
-
-        private InputSimulator inputSimulator = new InputSimulator();
 
         private int lastX, lastY;
         private Point lastPos;
@@ -892,17 +853,17 @@ namespace SubTask.ObjectSelection
             canvas.Children.Add(_objectArea);
         }
 
-        public void ShowObjects(List<TrialRecord.TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
+        public void ShowObjects(List<TObject> trialObjects, Brush objColor, MouseEvents mouseEvents)
         {
             this.TrialInfo($"Showing {trialObjects.Count} objects");
             // Create and position the objects
-            foreach (TrialRecord.TObject trObj in trialObjects)
+            foreach (TObject trObj in trialObjects)
             {
                 ShowObject(trObj, objColor, mouseEvents);
             }
         }
 
-        private void ShowObject(TrialRecord.TObject tObject, Brush color, MouseEvents mouseEvents)
+        private void ShowObject(TObject tObject, Brush color, MouseEvents mouseEvents)
         {
             // Convert the absolute position to relative position
             //Point positionInMain = UITools.Offset(tObject.Position, -this.Left, -this.Top);
