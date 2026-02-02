@@ -107,7 +107,7 @@ namespace CommonUI
             }
         }
 
-        public string ToString()
+        public override string ToString()
         {
             return $"SButton(Id={Id}, Width={WidthMultiple}, LeftId={LeftId}, RightId={RightId}, TopId={TopId}, BottomId={BottomId})";
         }

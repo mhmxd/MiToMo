@@ -317,7 +317,38 @@ namespace Common.Helpers
                 {
                     sb.Append(", ");
                 }
-                sb.Append($"{pair.Key}: {pair.Value}");
+                sb.Append($"{pair.Key}: {pair.Value?.ToString()}");
+                first = false;
+            }
+            sb.Append(" }");
+            return sb.ToString();
+        }
+
+        public static string Str<TKey, T>(this Dictionary<TKey, List<T>> dictionary)
+        {
+            if (dictionary == null)
+            {
+                return "null";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append("{ ");
+            bool first = true;
+            foreach (TKey key in dictionary.Keys)
+            {
+                if (!first)
+                {
+                    sb.Append("| ");
+                }
+                sb.Append($"{key}:");
+                foreach (T value in dictionary[key])
+                {
+                    if (!first)
+                    {
+                        sb.Append(", ");
+                    }
+                    sb.Append($"{value}");
+                }
                 first = false;
             }
             sb.Append(" }");

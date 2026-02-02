@@ -19,7 +19,11 @@ namespace CommonUI
             Position = position;
             WidthInUnits = widthInUnits;
             State = ButtonState.DEFAULT;
+        }
 
+        public override string ToString()
+        {
+            return $"TFunction(Id: {Id}, WidthInUnits: {WidthInUnits}, Center: {Center}, Position: {Position}, State: {State})";
         }
 
     }

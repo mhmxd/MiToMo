@@ -580,6 +580,8 @@ namespace SubTask.PanelNavigation
             //return tcs.Task; // Return the Task to be awaited
 
             // 1. Setup
+            _buttonWraps.Clear(); // Critical: Remove references to old buttons
+            _widthButtons.Clear();
             canvas.Children.Clear();
             _buttonsGrid = gridCreator();
 
@@ -589,7 +591,7 @@ namespace SubTask.PanelNavigation
             // 3. Add to UI
             Canvas.SetTop(_buttonsGrid, topPadding);
             canvas.Children.Add(_buttonsGrid);
-            this.TrialInfo($"Grid added to canvas.");
+            this.TrialInfo($"n.Children: {canvas.Children.Count}");
             // 4. Wait for the UI to layout and render
             await loadedTask;
 

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.PanelNavigation
@@ -74,7 +73,7 @@ namespace SubTask.PanelNavigation
         public void ShowActiveTrial()
         {
             this.TrialInfo(ExpStrs.MINOR_LINE);
-            this.TrialInfo($"Showing " + _activeTrial.ToStr());
+            this.TrialInfo($"Showing " + _activeTrial.Str());
 
             LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
 
@@ -84,15 +83,14 @@ namespace SubTask.PanelNavigation
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
 
-            // Set the target window based on the trial's target side
-            _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
+            // Set the active side window based on the trial's side
+            _mainWindow.SetAuxWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             //-- Show Start Trial button
             // Calculate a new random distance (different from the previous trial)
             MouseEvents startButtonEvents = new MouseEvents(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             int newStartDist = _mainWindow.ShowStartBtn(
-                _activeTrial.FuncSide,
                 UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
                 UIColors.COLOR_START_INIT,
                 _prevTrialStartDist,
@@ -100,12 +98,15 @@ namespace SubTask.PanelNavigation
 
             _prevTrialStartDist = newStartDist;
 
-            // Color a random function button in the aux window and set the width in trialRecord
-            TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, _activeTrial.GetFunctionWidth(0), UIColors.COLOR_FUNCTION_DEFAULT);
+            // Find a random function button in the aux window and set it in TrialRecord
+            TFunction selectedFunc = _mainWindow.FindRandomFunction(_activeTrial.GetFunctionWidth(0));
             _activeTrialRecord.Functions.Add(selectedFunc);
 
+            // Color the found function as enabled
+            _mainWindow.SetFunctionDefault(selectedFunc.Id);
+
             // Show the marker on a random function button
-            _mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide, selectedFunc.Id);
+            _mainWindow.ActivateAuxWindowMarker(selectedFunc.Id);
 
             // Update info label
             _mainWindow.UpdateInfoLabel();
@@ -140,7 +141,7 @@ namespace SubTask.PanelNavigation
         {
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
-                _mainWindow.DeactivateAuxWindow();
+                _mainWindow.ResetAuxWindow();
 
                 _activeTrialNum++;
                 _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
@@ -155,10 +156,13 @@ namespace SubTask.PanelNavigation
                 // Log block time
                 ExperiLogger.LogBlockTime(_activeBlock);
 
+                // Go to next block
+                _mainWindow.GoToNextBlock();
+
                 // Show end of block window
-                BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
-                blockEndWindow.Owner = _mainWindow;
-                blockEndWindow.ShowDialog();
+                //BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
+                //blockEndWindow.Owner = _mainWindow;
+                //blockEndWindow.ShowDialog();
             }
         }
 
@@ -403,22 +407,6 @@ namespace SubTask.PanelNavigation
             _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, UIColors.COLOR_START_UNAVAILABLE);
         }
 
-        public void SetFunctionAsEnabled(int funcId)
-        {
-            _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide,
-                funcId,
-                UIColors.COLOR_FUNCTION_ENABLED);
-        }
-
-        public void SetFunctionAsDisabled(int funcId)
-        {
-            _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide,
-                funcId,
-                UIColors.COLOR_FUNCTION_DEFAULT);
-        }
-
         public void SetFunctionAsApplied(int funcId)
         {
             _activeTrialRecord.SetFunctionAsApplied(funcId);
@@ -427,26 +415,6 @@ namespace SubTask.PanelNavigation
         protected void SetObjectAsDisabled(int objId)
         {
             _mainWindow.FillObject(objId, UIColors.COLOR_OBJ_DEFAULT);
-        }
-
-        public void UpdateScene()
-        {
-            foreach (var func in _activeTrialRecord.Functions)
-            {
-                Brush funcColor = UIColors.COLOR_FUNCTION_DEFAULT;
-                //this.TrialInfo($"Function#{func.Id} state: {func.State}");
-                switch (func.State)
-                {
-                    case ButtonState.MARKED:
-                        funcColor = UIColors.COLOR_FUNCTION_ENABLED;
-                        break;
-                    case ButtonState.SELECTED:
-                        funcColor = UIColors.COLOR_FUNCTION_APPLIED;
-                        break;
-                }
-
-                _mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id, funcColor);
-            }
         }
 
         public override void IndexTap()
@@ -633,14 +601,8 @@ namespace SubTask.PanelNavigation
 
         protected int GetEventCount(string type)
         {
-            //if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(type))
-            //{
-            //    return _trialRecords[_activeTrial.Id].EventCounts[type];
-            //}
-            //return 0; // TrialEvent has not occurred
-
-            return _activeTrialRecord.CountEvent(type);
-
+            if (_activeTrialRecord != null) return _activeTrialRecord.CountEvent(type);
+            return 0;
         }
 
         protected double GetDuration(string begin, string end)
@@ -672,11 +634,6 @@ namespace SubTask.PanelNavigation
         {
             LogEvent(action, finger.ToString().ToLower());
         }
-
-        //public void RecordToMoAction(string action)
-        //{
-        //    LogEvent(action);
-        //}
 
         protected bool IsStartPressed()
         {

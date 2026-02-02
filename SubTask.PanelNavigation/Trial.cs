@@ -78,7 +78,7 @@ namespace SubTask.PanelNavigation
             return _functionWidths[functionIndex];
         }
 
-        public string ToStr()
+        public string Str()
         {
             return $"Trial#{Id} [Target = {FuncSide.ToString()}]";
         }

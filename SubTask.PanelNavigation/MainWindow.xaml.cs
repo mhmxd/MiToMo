@@ -1,10 +1,4 @@
-﻿/********************************************************
-*                                                       *
-*   Copyright (C) Microsoft. All rights reserved.       *
-*                                                       *
-********************************************************/
-
-using Common.Constants;
+﻿using Common.Constants;
 using Common.Helpers;
 using Common.Settings;
 using CommonUI;
@@ -13,8 +7,6 @@ using Microsoft.Research.TouchMouseSensor;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
-//using Tensorflow;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,7 +14,6 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-//using static Tensorflow.tensorflow;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using WindowsInput;
@@ -80,22 +71,6 @@ namespace SubTask.PanelNavigation
         public static extern bool ClipCursor(IntPtr lpRect); // Overload for releasing
 
         // Constants
-        private int INIT_X = 10, INIT_Y = 10;
-
-        private int TOMOPAD_COLS = 15; // Total num of cols on the surface
-        private int TOMOPAD_LAST_COL = 14;
-        private int TOMOPAD_ROWS = 13; // Totla num of rows on the surface
-        private int TOMOPAD_LAST_ROW = 12;
-
-        private double BASE_SPEED = 10; // 
-        private double ACCEL_FACTOR = 1.6; // Acceleration factor
-
-        private (double, double) FINGER_ACCEL_RANGE = (0.5, 20); // To avoid jumps
-        private double MIN_FING_ACCEL = 0.5; // To avoid jittering
-
-        private double NOISE_MIN_THRESH = 0.1; // Maximum of finger movement in dT
-        private double NOISE_MAX_THRESH = 0.7; // Maximum of finger movement in dT
-
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
         private int VERTICAL_PADDING = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM); // Padding for the windows
@@ -103,14 +78,6 @@ namespace SubTask.PanelNavigation
 
         private int TopWindowHeight = UITools.MM2PX(ExpLayouts.TOP_WINDOW_HEIGTH_MM);
         private int SideWindowWidth = UITools.MM2PX(ExpLayouts.SIDE_WINDOW_WIDTH_MM);
-
-
-        // Dead zone
-        private double DEAD_ZONE_DX = 0.3;
-        private double DEAD_ZONE_DY = 1.8;
-
-        // Tip/Whole finger
-        private double TIP_MAX_MASS = 1000; // < 1000 is the finger tip
 
         //------------------------------------------------------------------------------
 
@@ -648,25 +615,16 @@ namespace SubTask.PanelNavigation
                     await _topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING);
                     await _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
                     await _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
-                    //placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
-                    //placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
-                    //placementTasks.Add(_rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
                     break;
                 case Complexity.Moderate:
                     await _topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING);
                     await _leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
                     await _rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
-                    //placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING));
-                    //placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
-                    //placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
                     break;
                 case Complexity.Complex:
                     await _topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING);
                     await _leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
                     await _rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
-                    //placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING));
-                    //placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
-                    //placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
                     break;
             }
         }
@@ -706,21 +664,16 @@ namespace SubTask.PanelNavigation
             if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
             {
                 _activeBlockNum++;
-                Block block = _experiment.GetBlock(_activeBlockNum);
-
                 _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
-                if (_experiment.Active_Technique.IsTomo()) _touchSurface.SetGestureHandler(_activeBlockHandler);
+
+                _touchSurface.SetGestureHandler(_activeBlockHandler);
 
                 // Show layout before starting the block
+                //ResetAllAuxWindows();
                 await SetGrids(_activeBlockHandler.GetComplexity());
 
+                // Begin the block
                 _activeBlockHandler.BeginActiveBlock();
-
-                //if (TaskType == TaskType.REPEATING) _activeBlockHandler = new MultiObjectBlockHandler(this, block);
-                //else if (TaskType == TaskType.ALTERNATING) _activeBlockHandler = new SingleObjectBlockHandler(this, block);
-
-                //bool positionsFound = _activeBlockHandler.FindPositionsForActiveBlock();
-                //if (positionsFound) _activeBlockHandler.BeginActiveBlock();
             }
             else // All blocks finished
             {
@@ -773,43 +726,11 @@ namespace SubTask.PanelNavigation
             // Create a list to hold the tasks for placing the grids
             var placementTasks = new List<Task>();
 
-            // Flag to track overall success. Assume success (true) by default.
-            //bool overallSuccess = true;
-
             // Set up layout for all blocks
             for (int bn = 1; bn <= _experiment.Blocks.Count; bn++)
             {
                 Block bl = _experiment.Blocks[bn - 1];
                 this.TrialInfo($"Setting up handler for block#{bl.Id}");
-
-                //switch (bl.GetComplexity())
-                //{
-                //    // ... (your switch statement logic remains the same)
-                //    case Complexity.Simple:
-                //        await _topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING);
-                //        await _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
-                //        await _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
-                //        //placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
-                //        //placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
-                //        //placementTasks.Add(_rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
-                //        break;
-                //    case Complexity.Moderate:
-                //        await _topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING);
-                //        await _leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
-                //        await _rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
-                //        //placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING));
-                //        //placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
-                //        //placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
-                //        break;
-                //    case Complexity.Complex:
-                //        await _topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING);
-                //        await _leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
-                //        await _rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
-                //        //placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING));
-                //        //placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
-                //        //placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
-                //        break;
-                //}
 
                 // Use a local variable to store the handler
                 BlockHandler blockHandler = new BlockHandler(this, bl, bn);
@@ -817,58 +738,28 @@ namespace SubTask.PanelNavigation
 
             }
 
-            //this.TrialInfo($"Awaiting {placementTasks.Count} placement tasks...");
-
-            // Use Task.WhenAll and ensure we don't block the UI thread's ability to process the events
-            //await Task.WhenAll(placementTasks).ConfigureAwait(true);
-
-            //this.TrialInfo("All placement tasks completed.");
             return true;
         }
 
-        public void ShowObjectsArea(Rect areaRect, Brush areaColor, MouseEvents mouseEvents)
-        {
-            // Show the area rectangle
-            _objectArea = new Rectangle
-            {
-                Width = areaRect.Width,
-                Height = areaRect.Height,
-                Fill = areaColor
-            };
-
-            // Position the area rectangle on the Canvas
-            Canvas.SetLeft(_objectArea, areaRect.Left - this.Left);
-            Canvas.SetTop(_objectArea, areaRect.Top - this.Top);
-
-            // Add the event handler
-            _objectArea.MouseEnter += mouseEvents.MouseEnter;
-            _objectArea.MouseDown += mouseEvents.MouseDown;
-            _objectArea.MouseUp += mouseEvents.MouseUp;
-            _objectArea.MouseLeave += mouseEvents.MouseLeave;
-
-            // Add the rectangle to the Canvas
-            canvas.Children.Add(_objectArea);
-        }
-
-        public void ActivateAuxWindowMarker(Side side, int funcId)
+        public void ActivateAuxWindowMarker(int funcId)
         {
             _activeAuxWindow.ActivateMarkerRandomly(funcId);
         }
 
-        public void DeactivateAuxWindow()
+        public void ResetAuxWindow()
         {
             if (_activeAuxWindow != null)
             {
-                _activeAuxWindow.RemoveStartBtn();
+                //_activeAuxWindow.RemoveStartBtn();
                 _activeAuxWindow.Reset();
-                _activeAuxWindow.DeactivateMarker();
+                //_activeAuxWindow.DeactivateMarker();
             }
             else
             {
                 this.TrialInfo("Target window is null, cannot reset it.");
             }
 
-            _activeAuxWindow = null;
+            //_activeAuxWindow = null;
         }
 
         public void ShowAllAuxMarkers()
@@ -889,7 +780,7 @@ namespace SubTask.PanelNavigation
             _activeBlockHandler.OnFunctionUnmarked(funId, funcRowCol);
         }
 
-        public void SetTargetWindow(Side side,
+        public void SetAuxWindow(Side side,
             Action<Side, Object, SysIput.MouseEventArgs> windowMouseEnterHandler,
             Action<Side, Object, SysIput.MouseEventArgs> windowMouseExitHandler,
             Action<Side, Object, SysIput.MouseButtonEventArgs> windowMouseDownHandler,
@@ -898,28 +789,22 @@ namespace SubTask.PanelNavigation
             switch (side)
             {
                 case Side.Left:
-                    _targetWindow = _leftWindow;
+                    _activeAuxWindow = _leftWindow;
                     break;
                 case Side.Right:
-                    _targetWindow = _rightWindow;
+                    _activeAuxWindow = _rightWindow;
                     break;
                 case Side.Top:
-                    _targetWindow = _topWindow;
+                    _activeAuxWindow = _topWindow;
                     break;
                 default:
                     throw new ArgumentException($"Invalid target side: {_trial.FuncSide}");
             }
 
-            // All aux windows are treated the same (for now)
-            //_targetWindow.MouseEnter += windowMouseEnterHandler;
-            //_targetWindow.MouseLeave += windowMouseExitHandler;
-            //_targetWindow.MouseDown += windowMouseDownHandler;
-            //_targetWindow.MouseUp += windowMouseUpHandler;
-
-            _targetWindow.MouseDown += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseDown(side, sender, e); };
-            _targetWindow.MouseUp += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseUp(side, sender, e); };
-            _targetWindow.MouseEnter += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseEnter(side, sender, e); };
-            _targetWindow.MouseLeave += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseExit(side, sender, e); };
+            _activeAuxWindow.MouseDown += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseDown(side, sender, e); };
+            _activeAuxWindow.MouseUp += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseUp(side, sender, e); };
+            _activeAuxWindow.MouseEnter += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseEnter(side, sender, e); };
+            _activeAuxWindow.MouseLeave += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseExit(side, sender, e); };
 
         }
 
@@ -963,21 +848,9 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public void SetFunctionAsApplied(int funcId)
+        public void SetFunctionDefault(int funcId)
         {
-            _activeBlockHandler.SetFunctionAsApplied(funcId);
-            _activeBlockHandler.UpdateScene();
-        }
-
-        public void SetFunctionAsEnabled(int funcId)
-        {
-            _activeBlockHandler.SetFunctionAsEnabled(funcId);
-            _activeBlockHandler.UpdateScene();
-        }
-
-        public void UpdateScene()
-        {
-            _activeBlockHandler.UpdateScene();
+            _activeAuxWindow.FillGridButton(funcId, UIColors.COLOR_FUNCTION_DEFAULT);
         }
 
         public void ResetAllAuxWindows()
@@ -985,33 +858,6 @@ namespace SubTask.PanelNavigation
             _leftWindow.Reset();
             _rightWindow.Reset();
             _topWindow.Reset();
-        }
-
-        public TFunction ColorRandomFunction(Side side, Brush color)
-        {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            return auxWindow.FillRandomGridBtn(color); // Return the chosen function 
-        }
-
-        public TFunction ColorRandomFunction(Side side, int btnWidth, Brush color)
-        {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            return auxWindow.FillRandomGridBtn(btnWidth, color); // Return the chosen function 
-        }
-
-        public void FillButtonsInAuxWindow(Side side, List<int> buttonIds, Brush color)
-        {
-            foreach (int buttonId in buttonIds)
-            {
-                FillButtonInAuxWindow(side, buttonId, color);
-            }
-        }
-
-        public void FillButtonInAuxWindow(Side side, int buttonId, Brush color)
-        {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            //auxWindow.ResetButtons();
-            auxWindow.FillGridButton(buttonId, color);
         }
 
         public void SetAuxButtonsHandlers(Side side, List<int> funcIds,
@@ -1060,6 +906,11 @@ namespace SubTask.PanelNavigation
             Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
 
             return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+        }
+
+        public TFunction FindRandomFunction(int widthUnits)
+        {
+            return _activeAuxWindow.FindRandomFunctionByWidth(widthUnits);
         }
 
         public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, MRange distRange)
@@ -1153,9 +1004,9 @@ namespace SubTask.PanelNavigation
             _activeAuxWindow.ShowStartBtn(btnW, btnH, btnColor, mouseEvents);
         }
 
-        public int ShowStartBtn(Side side, int largerSide, Brush btnColor, int prevDis, MouseEvents mouseEvents)
+        public int ShowStartBtn(int largerSide, Brush btnColor, int prevDis, MouseEvents mouseEvents)
         {
-            _activeAuxWindow = GetAuxWindow(side);
+            //_activeAuxWindow = GetAuxWindow(side);
             return _activeAuxWindow.CreateStartButton(largerSide, btnColor, prevDis, mouseEvents);
         }
 
