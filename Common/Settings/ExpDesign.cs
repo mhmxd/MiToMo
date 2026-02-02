@@ -20,8 +20,8 @@
         public static readonly int OS_N_REP = 10;
 
         // Subtask: Panel Selection
-        public static readonly int PS_N_BLOCKS = 16;
-        public static readonly int PS_N_REP = 4;
+        public static readonly int PanelSelectNumBlocks = 16;
+        public static readonly int PanelSelectNumRep = 4;
 
         // Subtask: Panel Navigation
         public static readonly int PaneNavNumBlocks = 4;
