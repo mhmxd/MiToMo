@@ -179,7 +179,7 @@ namespace SubTask.PanelNavigation
         {
             TrialEvent trialEvent = new TrialEvent(type, id);
             Events.Add(trialEvent);
-            this.TrialInfo($"[+] {trialEvent.ToString()}");
+            //this.TrialInfo($"[+] {trialEvent.ToString()}");
 
             if (type == ExpStrs.TAP_UP)
             {

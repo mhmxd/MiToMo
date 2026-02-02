@@ -712,7 +712,7 @@ namespace SubTask.PanelNavigation
             }
 
             SButton markedButton = _buttonWraps[_lastMarkedButtonId].Button;
-            this.TrialInfo($"markedButton: {markedButton.ToString()}");
+            //this.TrialInfo($"markedButton: {markedButton.ToString()}");
             // --- Process Horizontal Movement ---
             if (dGridX > 0) // Move Right
             {
@@ -752,11 +752,11 @@ namespace SubTask.PanelNavigation
 
             if (markedButton.Id != _lastMarkedButtonId)
             {
-                this.TrialInfo($"Moving marker to button ID#{markedButton.Id} at position {markedButton.RowCol}");
+                //this.TrialInfo($"Moving marker to button ID#{markedButton.Id} at position {markedButton.RowCol}");
                 // STEP 1: Handle the old button's state change
                 if (_lastMarkedButtonId != -1 && _buttonWraps.ContainsKey(_lastMarkedButtonId))
                 {
-                    this.TrialInfo($"Changing the background from last id {_lastMarkedButtonId}");
+                    //this.TrialInfo($"Changing the background from last id {_lastMarkedButtonId}");
 
                     var oldButton = _buttonWraps[_lastMarkedButtonId].Button;
                     oldButton.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER;

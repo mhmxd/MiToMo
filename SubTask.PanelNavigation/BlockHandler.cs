@@ -123,18 +123,17 @@ namespace SubTask.PanelNavigation
             {
                 case Result.HIT:
                     MSounder.PlayHit();
-                    //_activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
                 case Result.MISS:
                     MSounder.PlayTargetMiss();
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
-                    //_activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
             }
 
             //-- Log
             ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
 
+            // Next trial
             GoToNextTrial();
         }
         public void GoToNextTrial()
@@ -155,6 +154,18 @@ namespace SubTask.PanelNavigation
             {
                 // Log block time
                 ExperiLogger.LogBlockTime(_activeBlock);
+
+                // Show pause pop-up if reached the number of defined blocks
+                if (_activeBlockNum == ExpDesign.PaneNavBreakAfterBlocks)
+                {
+                    // Clear MainWindow
+                    _mainWindow.ClearAll();
+
+                    // Show the popup
+                    PausePopUp pausePopUp = new();
+                    pausePopUp.Owner = _mainWindow;
+                    pausePopUp.ShowDialog();
+                }
 
                 // Go to next block
                 _mainWindow.GoToNextBlock();

@@ -136,26 +136,6 @@ namespace SubTask.PanelNavigation
 
         public void ShuffleBackTrial(int trialNum)
         {
-            //if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
-            //{
-            //    Trial trialToCopy = _trials[trialNum - 1];
-            //    int insertIndex = _random.Next(trialNum + 1, _trials.Count);
-
-            //    _trials.Insert(insertIndex, trialToCopy);
-            //}
-            //else if (trialNum == _trials.Count && _trials.Count > 1)
-            //{
-            //    _trials.Insert(trialNum, _trials[trialNum - 1]);
-            //}
-            //else if (_trials.Count <= 1)
-            //{
-            //    Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
-            //}
-            //else
-            //{
-            //    Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
-            //}
-
             // Shuffle the trial based on its function side
             Trial trialToCopy = _trials[trialNum - 1];
             if (trialNum == _trials.Count && _trials.Count > 1)

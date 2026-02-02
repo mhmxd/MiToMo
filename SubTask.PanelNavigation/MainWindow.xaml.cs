@@ -721,6 +721,12 @@ namespace SubTask.PanelNavigation
             canvas.Children.Clear();
         }
 
+        public void ClearAll()
+        {
+            canvas.Children.Clear();
+            _activeAuxWindow.Reset();
+        }
+
         public async Task<bool> SetupLayout()
         {
             // Create a list to hold the tasks for placing the grids

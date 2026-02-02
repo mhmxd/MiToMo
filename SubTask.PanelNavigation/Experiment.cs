@@ -37,7 +37,7 @@ namespace SubTask.PanelNavigation
             {
                 // Create blocks, then shuffle them before adding to the overall list
                 List<Block> blocks = new List<Block>();
-                for (int i = 0; i < ExpDesign.PN_N_BLOCKS; i++)
+                for (int i = 0; i < ExpDesign.PaneNavNumBlocks; i++)
                 {
                     int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
                     blocks.Add(Block.CreateBlock(
