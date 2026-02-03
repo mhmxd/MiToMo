@@ -1,6 +1,4 @@
-﻿using Common.Settings;
-using CommonUI;
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -32,13 +30,9 @@ namespace SubTask.Panel.Selection
         {
             InitializeComponent();
             Side = Side.Top;
-            //this.DataContext = this; // Set DataContext for data binding
 
             EnableMouseInPointer(true);
             SetForegroundWindow(new WindowInteropHelper(this).Handle); // Bring this window to the foreground
-
-            _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
-
         }
 
         public override Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
@@ -79,8 +73,6 @@ namespace SubTask.Panel.Selection
                     RegisterAllButtons(_buttonsGrid);
                     LinkButtonNeighbors();
 
-                    FindMiddleButton();
-
                     // Indicate that the task is successfully completed.
                     tcs.SetResult(true);
                 }
@@ -93,11 +85,6 @@ namespace SubTask.Panel.Selection
 
             return tcs.Task; // Return the task to be awaited
 
-        }
-
-        public void DeactivateGridNavigator()
-        {
-            _gridNavigator.Deactivate();
         }
 
         public override void ShowPoint(Point p)

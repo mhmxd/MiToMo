@@ -1,4 +1,5 @@
 ﻿using Common.Helpers;
+using Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,7 +50,7 @@ namespace SubTask.Panel.Selection
 
         public Block(int ptcNum, Technique technique, Complexity complexity, ExperimentType expType, int id)
         {
-            this.Id = id;
+            Id = id;
             PtcNum = ptcNum;
             _technique = technique;
             _complexity = complexity;
@@ -74,61 +75,94 @@ namespace SubTask.Panel.Selection
             int ptc,
             int id,
             Complexity complexity,
-            ExperimentType expType,
-            int nRep)
+            ExperimentType expType)
         {
 
             // Create block
-            Block block = new Block(ptc, technique, complexity, expType, id);
+            Block block = new(ptc, technique, complexity, expType, id);
 
-            // Create and add trials to the block
             int trialNum = 1;
-            bool wasLeft = false;
-            for (int rep = 0; rep < nRep; rep++)
+            // Create Top trials for each button width
+            Side side = Side.Top;
+            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][side])
             {
-                // One Top in reach rep
-                Trial trial = Trial.CreateTrial(
-                            id * 100 + trialNum,
-                            technique,
-                            ptc,
-                            complexity,
-                            expType,
-                            Side.Top);
+                Trial trial = Trial.CreateTrial(id * 100 + trialNum,
+                            technique, ptc,
+                            complexity, expType,
+                            side, btnWidth);
 
                 block._trials.Add(trial);
                 trialNum++;
-
-                // One Left/Right in reach rep (equal number of left and right in all blocks together)
-                if (wasLeft)
-                {
-                    trial = Trial.CreateTrial(
-                            id * 100 + trialNum,
-                            technique,
-                            ptc,
-                            complexity,
-                            expType,
-                            Side.Right);
-                    wasLeft = false;
-                }
-                else
-                {
-                    trial = Trial.CreateTrial(
-                            id * 100 + trialNum,
-                            technique,
-                            ptc,
-                            complexity,
-                            expType,
-                            Side.Left);
-                    wasLeft = true;
-                }
-
-                block._trials.Add(trial);
-                trialNum++;
-
             }
 
-            // Shuffle the trials
+            // Create Left trials
+            side = Side.Left;
+            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][side])
+            {
+                Trial trial = Trial.CreateTrial(id * 100 + trialNum,
+                            technique, ptc,
+                            complexity, expType,
+                            side, btnWidth);
+                block._trials.Add(trial);
+                trialNum++;
+            }
+
+            // Create Right trials
+            side = Side.Right;
+            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][side])
+            {
+                Trial trial = Trial.CreateTrial(id * 100 + trialNum,
+                            technique, ptc,
+                            complexity, expType,
+                            side, btnWidth);
+                block._trials.Add(trial);
+                trialNum++;
+            }
+
             block.ShuffleTrials();
+
+            //bool wasLeft = false;
+            // One Top in reach rep
+            //Trial trial = Trial.CreateTrial(
+            //            id * 100 + trialNum,
+            //            technique,
+            //            ptc,
+            //            complexity,
+            //            expType,
+            //            Side.Top);
+
+            //block._trials.Add(trial);
+            //trialNum++;
+
+            //// One Left/Right in reach rep (equal number of left and right in all blocks together)
+            //if (wasLeft)
+            //{
+            //    trial = Trial.CreateTrial(
+            //            id * 100 + trialNum,
+            //            technique,
+            //            ptc,
+            //            complexity,
+            //            expType,
+            //            Side.Right);
+            //    wasLeft = false;
+            //}
+            //else
+            //{
+            //    trial = Trial.CreateTrial(
+            //            id * 100 + trialNum,
+            //            technique,
+            //            ptc,
+            //            complexity,
+            //            expType,
+            //            Side.Left);
+            //    wasLeft = true;
+            //}
+
+            //block._trials.Add(trial);
+            //trialNum++;
+
+            //// Shuffle the trials
+            //block.ShuffleTrials();
 
             // Return the block
             return block;

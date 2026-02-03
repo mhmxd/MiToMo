@@ -3,7 +3,6 @@ using Common.Settings;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.Panel.Selection
@@ -16,7 +15,7 @@ namespace SubTask.Panel.Selection
         //public int ParticipantNumber { get; private set; }
         public string Technique { get; private set; }
         public string SelectedExperiment { get; private set; }
-        public string SelectedComplexity { get; private set; }
+        //public string SelectedComplexity { get; private set; }
 
         private bool _isClosingFromButton = false; // Begin button was pressed to close, not x
 
@@ -50,15 +49,15 @@ namespace SubTask.Panel.Selection
                     Technique = TechniqueComboBox.SelectedItem as string;
                     SelectedExperiment = ExperimentComboBox.SelectedItem as string;
                     ExperimentType expType = (ExperimentType)Enum.Parse(typeof(ExperimentType), SelectedExperiment, true);
-                    SelectedComplexity = (ComplexityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-                    Complexity complexity = (Complexity)Enum.Parse(typeof(Complexity), SelectedComplexity, true);
+                    //SelectedComplexity = (ComplexityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+                    //Complexity complexity = (Complexity)Enum.Parse(typeof(Complexity), SelectedComplexity, true);
 
                     //_experimentSet = true;
 
                     BigButton.Content = "Initializing...";
                     //BigButton.IsEnabled = false;
 
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(Technique.ToString(), complexity, expType));
+                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(Technique.ToString(), expType));
 
                     if (_experimentSet)
                     {

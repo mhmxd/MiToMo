@@ -2,6 +2,7 @@
 using Common.Helpers;
 using Common.Settings;
 using CommonUI;
+using SubTask.PanelNavigation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace SubTask.Panel.Selection
     public class BlockHandler : IGestureHandler
     {
         // Attributes
-        protected List<TrialRecord> _trialRecords = new List<TrialRecord>(); // Trial id is stored in TrialRecord
+        protected List<TrialRecord> _trialRecords = new(); // Trial id is stored in TrialRecord
         protected MainWindow _mainWindow;
         protected Block _activeBlock;
         protected int _activeBlockNum;
@@ -25,10 +26,10 @@ namespace SubTask.Panel.Selection
         protected TrialRecord _activeTrialRecord;
         protected int _nSelectedObjects = 0; // Number of clicked objects in the current trial
 
-        protected List<int> _functionsVisitMap = new List<int>();
-        protected List<int> _objectsVisitMap = new List<int>();
+        protected List<int> _functionsVisitMap = new();
+        protected List<int> _objectsVisitMap = new();
 
-        protected Random _random = new Random();
+        protected Random _random = new();
 
         public BlockHandler(MainWindow mainWindow, Block activeBlock, int activeBlockNum)
         {
@@ -39,7 +40,7 @@ namespace SubTask.Panel.Selection
 
         public void BeginActiveBlock()
         {
-            this.TrialInfo("------------------- Beginning block ----------------------------");
+            this.TrialInfo("------------------- Beginning block -----------------------------------------");
             this.TrialInfo(ExpStrs.MINOR_LINE);
 
             _activeTrialNum = 1;
@@ -48,15 +49,6 @@ namespace SubTask.Panel.Selection
             _trialRecords.Add(trialRecord);
             _activeTrialRecord = _trialRecords.Last();
             this.TrialInfo($"Active block id: {_activeBlock.Id}");
-            // Start the log
-            //ExperiLogger.StartBlockLog(_activeBlock.Id, _activeBlock.GetBlockType(), _activeBlock.GetComplexity());
-
-            // Update the main window label
-            //this.TrialInfo($"nTrials = {_activeBlock.GetNumTrials()}");
-            //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
-
-            // Show the Start Trial button
-            //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
@@ -72,7 +64,7 @@ namespace SubTask.Panel.Selection
         public void ShowActiveTrial()
         {
             this.TrialInfo(ExpStrs.MINOR_LINE);
-            this.TrialInfo($"Showing " + _activeTrial.ToStr());
+            this.TrialInfo($"Showing " + _activeTrial.Str());
 
             LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
 
@@ -104,18 +96,17 @@ namespace SubTask.Panel.Selection
             this.TrialInfo(ExpStrs.MAJOR_LINE);
             _activeTrialRecord.Result = result;
             LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
-            _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
 
             switch (result)
             {
                 case Result.HIT:
-                    Sounder.PlayHit();
+                    MSounder.PlayHit();
                     double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
                     _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
 
                     break;
                 case Result.MISS:
-                    Sounder.PlayTargetMiss();
+                    MSounder.PlayTargetMiss();
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
                     break;
             }
@@ -129,8 +120,7 @@ namespace SubTask.Panel.Selection
         {
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
-                //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
-                _mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
+                _mainWindow.ResetAllAuxWindows();
                 _mainWindow.ClearCanvas();
                 _activeTrialRecord.ClearTimestamps();
                 _nSelectedObjects = 0; // Reset the number of selected objects
@@ -139,7 +129,7 @@ namespace SubTask.Panel.Selection
 
                 _activeTrialNum++;
                 _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-                TrialRecord trialRecord = new TrialRecord(_activeTrial.Id);
+                TrialRecord trialRecord = new(_activeTrial.Id);
                 _trialRecords.Add(trialRecord);
                 _activeTrialRecord = _trialRecords.Last();
 
@@ -150,10 +140,25 @@ namespace SubTask.Panel.Selection
                 // Log block time
                 ExperiLogger.LogBlockTime(_activeBlock);
 
+                // Show pause pop-up if reached the number of defined blocks
+                if (_activeBlockNum == ExpDesign.PaneNavBreakAfterBlocks)
+                {
+                    // Clear MainWindow
+                    _mainWindow.ClearAll();
+
+                    // Show the popup
+                    PausePopUp pausePopUp = new();
+                    pausePopUp.Owner = _mainWindow;
+                    pausePopUp.ShowDialog();
+                }
+
+                // Go to next block
+                _mainWindow.GoToNextBlock();
+
                 // Show end of block window
-                BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
-                blockEndWindow.Owner = _mainWindow;
-                blockEndWindow.ShowDialog();
+                //BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
+                //blockEndWindow.Owner = _mainWindow;
+                //blockEndWindow.ShowDialog();
             }
         }
 
@@ -172,50 +177,13 @@ namespace SubTask.Panel.Selection
             return false;
         }
 
-        protected bool DoesFirstTrialsFunInclMidBtn()
-        {
-            // Get the function Ids of first trial of each side
-            bool leftChecked = false;
-            bool rightChecked = false;
-            bool topChecked = false;
-            foreach (Trial trial in _activeBlock.Trials)
-            {
-                if (trial.FuncSide == Side.Left && !leftChecked)
-                {
-                    leftChecked = true;
-                    List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
-                    int midBtnId = _mainWindow.GetMiddleButtonId(Side.Left);
-                    if (functionIds.Contains(midBtnId)) return true;
-                }
-
-                if (trial.FuncSide == Side.Right && !rightChecked)
-                {
-                    rightChecked = true;
-                    List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
-                    int midBtnId = _mainWindow.GetMiddleButtonId(Side.Right);
-                    if (functionIds.Contains(midBtnId)) return true;
-                }
-
-                if (trial.FuncSide == Side.Top && !topChecked)
-                {
-                    topChecked = true;
-                    List<int> functionIds = _trialRecords[trial.Id]?.GetFunctionIds();
-                    int midBtnId = _mainWindow.GetMiddleButtonId(Side.Top);
-                    if (functionIds.Contains(midBtnId)) return true;
-                }
-            }
-
-            return false;
-
-        }
-
         public virtual void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(ExpStrs.MAIN_WIN_PRESS);
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -236,7 +204,7 @@ namespace SubTask.Panel.Selection
         {
             if (IsStartPressed() && !IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -253,7 +221,7 @@ namespace SubTask.Panel.Selection
 
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -299,7 +267,7 @@ namespace SubTask.Panel.Selection
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return;
             }
@@ -356,9 +324,12 @@ namespace SubTask.Panel.Selection
             {
                 _mainWindow.RemoveStartTrialButton();
 
-                // Color a random function button in the aux window and set the width in trialRecord
-                TFunction selectedFunc = _mainWindow.ColorRandomFunction(_activeTrial.FuncSide, UIColors.COLOR_FUNCTION_DEFAULT);
+                // Find a random function button in the aux window and set it in TrialRecord
+                TFunction selectedFunc = _mainWindow.FindRandomFunction(_activeTrial.GetFunctionWidth(0));
                 _activeTrialRecord.Functions.Add(selectedFunc);
+
+                // Color the found function as enabled
+                _mainWindow.SetFunctionDefault(selectedFunc.Id);
             }
             else // Pressed outside the button => miss
             {
@@ -468,14 +439,13 @@ namespace SubTask.Panel.Selection
             if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
             {
                 LogEventOnce(ExpStrs.FLICK); // First flick after activation
-                _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked);
+                // (Probably) Show error!
             }
 
         }
 
         public override void IndexUp()
         {
-            _mainWindow.StopAuxNavigator();
             LogEvent(ExpStrs.JoinUs(ExpStrs.INDEX, ExpStrs.UP));
         }
 
@@ -628,6 +598,16 @@ namespace SubTask.Panel.Selection
         public int GetActiveTrialNum()
         {
             return _activeTrialNum;
+        }
+
+        public Technique GetTechnique()
+        {
+            return _activeBlock.Technique;
+        }
+
+        public Complexity GetComplexity()
+        {
+            return _activeBlock.Complexity;
         }
 
         public int GetNumTrialsInBlock()

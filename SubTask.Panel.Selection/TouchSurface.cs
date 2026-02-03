@@ -71,7 +71,7 @@ namespace SubTask.Panel.Selection
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Tools.InInc(key, keyMin, keyMax)) return true;
+                    if (MTools.InInc(key, keyMin, keyMax)) return true;
                 }
 
                 return false;
@@ -81,7 +81,7 @@ namespace SubTask.Panel.Selection
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Tools.InInc(key, keyMin, keyMax)) return false;
+                    if (MTools.InInc(key, keyMin, keyMax)) return false;
                 }
 
                 return true;
@@ -91,7 +91,7 @@ namespace SubTask.Panel.Selection
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Tools.InInc(key, finger.MinCol, finger.MaxCol)) return false;
+                    if (MTools.InInc(key, finger.MinCol, finger.MaxCol)) return false;
                 }
 
                 return true;
@@ -106,7 +106,7 @@ namespace SubTask.Panel.Selection
             {
                 foreach (var kv in Pointers)
                 {
-                    if (Tools.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
+                    if (MTools.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
                 }
 
                 return null;
@@ -757,7 +757,7 @@ namespace SubTask.Panel.Selection
 
         private bool PassTapConditions(long dT, double dX, double dY)
         {
-            return Tools.In(dT, ExpEnvironment.TAP_TIME_MIN, ExpEnvironment.TAP_TIME_MAX)
+            return MTools.In(dT, ExpEnvironment.TAP_TIME_MIN, ExpEnvironment.TAP_TIME_MAX)
                         && dX < ExpEnvironment.TAP_GENERAL_THRESHOLD.DX
                         && dY < ExpEnvironment.TAP_GENERAL_THRESHOLD.DY;
         }

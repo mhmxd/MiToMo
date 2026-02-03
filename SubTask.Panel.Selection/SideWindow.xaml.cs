@@ -323,12 +323,12 @@ namespace SubTask.Panel.Selection
         public void MoveCursor(double dX, double dY)
         {
             // Potential new position
-            PositionInfo<SideWindow>($"Position before moving: {_cursorTransform.X:F2}, {_cursorTransform.Y:F2}");
-            PositionInfo<SideWindow>($"Movement: {dX:F2}, {dY:F2}");
+            this.PositionInfo($"Position before moving: {_cursorTransform.X:F2}, {_cursorTransform.Y:F2}");
+            this.PositionInfo($"Movement: {dX:F2}, {dY:F2}");
 
             double potentialX = _cursorTransform.X + dX;
             double potentialY = _cursorTransform.Y + dY;
-            PositionInfo<SideWindow>($"Potential Pos: {potentialX:F2}, {potentialY:F2}");
+            this.PositionInfo($"Potential Pos: {potentialX:F2}, {potentialY:F2}");
 
             // x: Within boundaries
             if (potentialX < 0)
@@ -856,8 +856,6 @@ namespace SubTask.Panel.Selection
             //double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
             //Canvas.SetLeft(_buttonsGrid, leftPosition);
 
-
-
             // Subscribe to the Loaded event to get the correct width.
             _buttonsGrid.Loaded += (sender, e) =>
             {
@@ -869,8 +867,6 @@ namespace SubTask.Panel.Selection
 
                     RegisterAllButtons(_buttonsGrid);
                     LinkButtonNeighbors();
-
-                    FindMiddleButton();
 
                     // Indicate that the task is successfully completed.
                     tcs.SetResult(true);

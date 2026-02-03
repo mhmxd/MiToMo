@@ -1,36 +1,34 @@
 ﻿using Common.Helpers;
 using System.Windows;
-using System.Windows.Media;
 
 namespace CommonUI
 {
-    // Class to store all the info regarding each button (positions, etc.)
-    public class ButtonInfo
+    public class ButtonWrap
     {
         public SButton Button { get; set; }
         public Point Position { get; set; }
         public Rect Rect { get; set; }
         public MRange DistToStartRange { get; set; } // In pixels
-        public Brush ButtonFill { get; set; } // Default background color for the button
 
-        public ButtonInfo(SButton button)
+        public ButtonWrap(SButton button)
         {
             Button = button;
             Position = new Point(0, 0);
             Rect = new Rect();
             DistToStartRange = new MRange(0, 0);
-            ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL;
+            //ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL;
         }
 
         public void ChangeBackFill()
         {
-            Button.Background = ButtonFill; // Reset the button background to the default color
+            //Button.Background = ButtonFill; // Reset the button background to the default color
+            Button.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL;
         }
 
         public void ResetButtonFill()
         {
-            ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Reset the button fill color to the default
-            Button.Background = ButtonFill; // Change the button background to the default color
+            //ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Need this!!
+            Button.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Change the button background to the default color
         }
 
         public void ResetButonBorder()

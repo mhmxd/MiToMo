@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ButtonFactory.cs" />
-    <Compile Include="ButtonInfo.cs" />
+    <Compile Include="ButtonWrap.cs" />
     <Compile Include="ColumnFactory.cs" />
     <Compile Include="Element.cs" />
     <Compile Include="GridFactory.cs" />

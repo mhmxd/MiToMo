@@ -21,47 +21,10 @@ namespace SubTask.PanelNavigation
 
         protected Border _startButton;
 
-        // Class to store all the info regarding each button (positions, etc.)
-        protected class ButtonWrap
-        {
-            public SButton Button { get; set; }
-            public Point Position { get; set; }
-            public Rect Rect { get; set; }
-            public MRange DistToStartRange { get; set; } // In pixels
-            //public Brush ButtonFill { get; set; } // Default background color for the button
-
-            public ButtonWrap(SButton button)
-            {
-                Button = button;
-                Position = new Point(0, 0);
-                Rect = new Rect();
-                DistToStartRange = new MRange(0, 0);
-                //ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL;
-            }
-
-            public void ChangeBackFill()
-            {
-                //Button.Background = ButtonFill; // Reset the button background to the default color
-                Button.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL;
-            }
-
-            public void ResetButtonFill()
-            {
-                //ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Need this!!
-                Button.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Change the button background to the default color
-            }
-
-            public void ResetButonBorder()
-            {
-                Button.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER; // Reset the button border to the default color
-            }
-
-        }
-
         public Side Side { get; set; } // Side of the window (left, right, top)
 
         protected Grid _buttonsGrid; // The grid containing all buttons
-        protected List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
+        protected List<Grid> _gridColumns = new(); // List of grid columns
         protected Dictionary<int, List<int>> _widthButtons = new(); // Dictionary to hold button Ids by their width multiples
         protected Dictionary<int, ButtonWrap> _buttonWraps = new(); // Id to ButtonWrap mapping
         protected SButton _targetButton; // Currently selected button (if any)
@@ -72,12 +35,12 @@ namespace SubTask.PanelNavigation
         protected double _gridMaxX = double.MinValue;
         protected double _gridMaxY = double.MinValue;
 
-        protected GridNavigator _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
+        protected GridNavigator _gridNavigator = new(ExpEnvironment.FRAME_DUR_MS / 1000.0);
         protected int _lastMarkedButtonId = -1; // ID of the currently highlighted button
-        protected Point _topLeftButtonPosition = new Point(10000, 10000); // Initialize to a large value to find the top-left button
+        protected Point _topLeftButtonPosition = new(10000, 10000); // Initialize to a large value to find the top-left button
         protected int _middleButtonId = -1; // ID of the middle button in the grid
 
-        protected Rect _objectConstraintRectAbsolute = new Rect();
+        protected Rect _objectConstraintRectAbsolute = new();
 
         private const double Tolerance = 5.0; // A small tolerance for alignment checks (e.g., for slightly misaligned buttons)
 
@@ -87,19 +50,17 @@ namespace SubTask.PanelNavigation
         private MouseEventHandler _currentFuncMouseExitHandler;
         private MouseButtonEventHandler _currentNonFuncMouseDownHandler;
 
-        //public abstract void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators);
-
         public abstract Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding);
 
         public void SetObjectConstraintRect(Rect rect)
         {
             _objectConstraintRectAbsolute = rect;
-            this.PositionInfo($"Object constraint rect set to: {rect.ToString()}");
+            this.PositionInfo($"Object constraint rect set to: {rect}");
         }
 
         protected void RegisterAllButtons(DependencyObject parent)
         {
-            this.PositionInfo($"Registering buttons in parent: {parent.ToString()}");
+            this.PositionInfo($"Registering buttons in parent: {parent}");
             //-- Recursively find all SButton instances in the entire _buttonsGrid
             // Get the number of children in the current parent object
             int childrenCount = VisualTreeHelper.GetChildrenCount(parent);
@@ -123,7 +84,7 @@ namespace SubTask.PanelNavigation
 
         protected void RegisterButton(SButton button)
         {
-            this.PositionInfo($"Registering button {button.ToString()}");
+            this.PositionInfo($"Registering button {button}");
             _widthButtons.TryAdd(button.WidthMultiple, new List<int>());
             _widthButtons[button.WidthMultiple].Add(button.Id); // Add the button to the dictionary with its width as the key
             _buttonWraps[button.Id] = new ButtonWrap(button);
@@ -464,10 +425,6 @@ namespace SubTask.PanelNavigation
 
         public virtual void Reset()
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-
-            });
 
             foreach (int buttonId in _buttonWraps.Keys)
             {

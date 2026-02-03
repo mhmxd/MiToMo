@@ -40,12 +40,6 @@ namespace SubTask.Panel.Selection
                 "{Message:lj}{NewLine}")
                 .MinimumLevel.Information() // Ignore Debug and Verbose
                 .CreateLogger();
-
-            //FILOG = new LoggerConfiguration()
-            //    .WriteTo.Async(a => a.File(LOG_PATH,
-            //    outputTemplate: "[{Level:u3}] [{TrialEvent:HH:mm:ss.fff}] {Message:lj}{NewLine}"))
-            //    .MinimumLevel.Information()
-            //    .CreateLogger();
         }
 
         public static void Conlog<T>(string mssg, [CallerMemberName] string memberName = "")
@@ -70,9 +64,9 @@ namespace SubTask.Panel.Selection
             //FILOG.Information(mssg);
         }
 
-        public static void PositionInfo<T>(string mssg, [CallerMemberName] string memberName = "")
+        public static void PositionInfo(this object source, string mssg, [CallerMemberName] string memberName = "")
         {
-            var className = typeof(T).Name;
+            var className = source.GetType().Name;
             //NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
         }
 

@@ -12,7 +12,7 @@ namespace SubTask.Panel.Selection
         {
             this.Type = type;
             this.Id = id;
-            this.Time = Timer.GetCurrentMillis();
+            this.Time = MTimer.GetCurrentMillis();
         }
 
         public TrialEvent(string type, string id, long time)

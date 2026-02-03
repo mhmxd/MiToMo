@@ -1,4 +1,5 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using Common.Settings;
 using CommonUI;
 using System.Collections.Generic;
@@ -11,8 +12,8 @@ namespace SubTask.Panel.Selection
     {
 
         //--- Setting
-        public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
-        public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
+        public Technique ActiveTechnique = Technique.TOMO_TAP; // Set in the info dialog
+        public Complexity ActiveComplexity = Complexity.Simple; // Set in the info dialog
 
         private readonly List<Block> _blocks = new();
         public List<Block> Blocks { get { return _blocks; } }
@@ -22,31 +23,38 @@ namespace SubTask.Panel.Selection
             //Participant_Number = DEFAULT_PTC; // Default
         }
 
-        public void Init(string tech, Complexity complexity, ExperimentType expType)
+        public void Init(string tech, ExperimentType expType)
         {
             this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}, Technique: {tech}");
-            //Participant_Number = ptc;
+
             if (tech == ExpStrs.TAP_C)
             {
-                Active_Technique = Technique.TOMO_TAP;
+                ActiveTechnique = Technique.TOMO_TAP;
 
             }
             else if (tech == ExpStrs.SWIPE_C)
             {
-                Active_Technique = Technique.TOMO_SWIPE;
+                ActiveTechnique = Technique.TOMO_SWIPE;
 
             }
 
-            Active_Complexity = complexity;
-
-            // Create and add blocks
-            for (int i = 0; i < ExpDesign.PN_N_BLOCKS; i++)
+            //-- For each complexity, create blocks and randomize them before adding to the list
+            foreach (Complexity complexity in ExpEnums.GetRandomComplexityList())
             {
-                int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(
-                    Active_Technique, ExpEnvironment.PTC_NUM, blockId,
-                    complexity, expType, ExpDesign.PS_N_REP);
-                _blocks.Add(block);
+                // Create blocks, then shuffle them before adding to the overall list
+                List<Block> blocks = new();
+                for (int i = 0; i < ExpDesign.PaneNavNumBlocks; i++)
+                {
+                    int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
+                    blocks.Add(Block.CreateBlock(
+                        ActiveTechnique, ExpEnvironment.PTC_NUM,
+                        blockId, complexity, expType));
+
+                }
+
+                // Shuffle blocks inside the complexity
+                blocks.Shuffle();
+                _blocks.AddRange(blocks);
             }
         }
 
