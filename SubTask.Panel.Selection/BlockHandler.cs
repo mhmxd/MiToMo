@@ -45,7 +45,7 @@ namespace SubTask.Panel.Selection
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-            TrialRecord trialRecord = new TrialRecord(_activeTrial.Id);
+            TrialRecord trialRecord = new(_activeTrial.Id);
             _trialRecords.Add(trialRecord);
             _activeTrialRecord = _trialRecords.Last();
             this.TrialInfo($"Active block id: {_activeBlock.Id}");
@@ -436,12 +436,8 @@ namespace SubTask.Panel.Selection
 
         public override void IndexMove(TouchPoint indPoint)
         {
-            if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
-            {
-                LogEventOnce(ExpStrs.FLICK); // First flick after activation
-                // (Probably) Show error!
-            }
-
+            LogEventOnce(ExpStrs.FLICK); // First flick after activation
+            // Maybe show error? (Since there is no flick here)
         }
 
         public override void IndexUp()
@@ -549,10 +545,9 @@ namespace SubTask.Panel.Selection
 
         protected void LogEvent(string type, string id)
         {
-
-            //string timeKey = type + "_" + _trialRecords[_activeTrial.Id].EventCounts[type];
-            _activeTrialRecord.RecordEvent(type, id); // Let them have the same name. We know the count from EventCounts
-
+            // Only log if there is an _activeTrialRecord (Trial is actually started)
+            _activeTrialRecord?.RecordEvent(type, id);
+            // Note: Let them have the same name. We know the count from EventCounts
         }
 
         protected void LogEvent(string type, int id)
@@ -575,14 +570,8 @@ namespace SubTask.Panel.Selection
 
         protected int GetEventCount(string type)
         {
-            //if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(type))
-            //{
-            //    return _trialRecords[_activeTrial.Id].EventCounts[type];
-            //}
-            //return 0; // TrialEvent has not occurred
-
-            return _activeTrialRecord.CountEvent(type);
-
+            if (_activeTrialRecord != null) return _activeTrialRecord.CountEvent(type);
+            return 0;
         }
 
         protected double GetDuration(string begin, string end)
@@ -615,7 +604,7 @@ namespace SubTask.Panel.Selection
             return _activeBlock.GetNumTrials();
         }
 
-        public void RecordToMoAction(Finger finger, string action)
+        public override void RecordToMoAction(Finger finger, string action)
         {
             LogEvent(action, finger.ToString().ToLower());
         }

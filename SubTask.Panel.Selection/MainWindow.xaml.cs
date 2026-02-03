@@ -626,15 +626,15 @@ namespace SubTask.Panel.Selection
                 ExperiLogger.Init(_activeBlockHandler.GetTechnique());
 
                 _isTouchMouseActive = true;
-                if (_touchSurface == null) _touchSurface = new TouchSurface(_activeBlockHandler.GetTechnique());
+                _touchSurface ??= new TouchSurface(_activeBlockHandler.GetTechnique());
                 _touchSurface.SetGestureHandler(_activeBlockHandler);
-                this.TrialInfo($"TouchSurface Initiated");
+                this.TrialInfo($"TouchSurface Initiated.");
 
                 _stopWatch.Start();
 
                 // Show layout before starting the block
                 await SetGrids(_activeBlockHandler.GetComplexity());
-
+                this.TrialInfo($"Grid set.");
                 // Begin the block
                 _activeBlockHandler.BeginActiveBlock();
             }
