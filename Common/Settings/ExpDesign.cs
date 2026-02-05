@@ -16,8 +16,8 @@
 
         // Subtask: Object Selection
         public static readonly int[] OS_N_OBJS = { 3, 5 };
-        public static readonly int OS_N_BLOCKS = 24;
-        public static readonly int OS_N_REP = 10;
+        public static readonly int OS_N_BLOCKS = 8;
+        public static readonly int OS_N_REP = 1; // No repetitions. Just 8 of everything
 
         // Subtask: Panel Selection
         public static readonly int PaneSelectNumBlocks = 4;

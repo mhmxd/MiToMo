@@ -53,7 +53,6 @@ namespace SubTask.ObjectSelection
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
-            _mainWindow.ResetAllAuxWindows();
 
             // Show the first trial
             ShowActiveTrial();
@@ -131,12 +130,13 @@ namespace SubTask.ObjectSelection
 
             //-- Log
             ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogTotalTrialTime(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogCursorPositions();
 
             GoToNextTrial();
         }
         public void GoToNextTrial()
         {
-            _mainWindow.ResetTargetWindow(_activeTrial.FuncSide); // Reset the target window
             _mainWindow.ClearCanvas(); // Clear the main canvas
 
             _nSelectedObjects = 0; // Reset the number of applied objects
@@ -158,10 +158,8 @@ namespace SubTask.ObjectSelection
                 // Log block time
                 ExperiLogger.LogBlockTime(_activeBlock);
 
-                // Show end of block window
-                BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
-                blockEndWindow.Owner = _mainWindow;
-                blockEndWindow.ShowDialog();
+                _mainWindow.GoToNextBlock();
+
             }
         }
 
@@ -183,7 +181,7 @@ namespace SubTask.ObjectSelection
                 {
                     // 1. Generate a random potential center for the new square
                     Point potentialCenter = GenerateRandomPointInSquare(objAreaCenterPosition, areaW, objW);
-                    this.TrialInfo($"Object {i + 1}, Attempt {attempt + 1}: Potential center at {potentialCenter}");
+                    this.PositionInfo($"Object {i + 1}, Attempt {attempt + 1}: Potential center at {potentialCenter}");
                     // Calculate the top-left corner from the potential center
                     Point topLeft = new Point(potentialCenter.X - objW / 2, potentialCenter.Y - objW / 2);
 
@@ -200,7 +198,7 @@ namespace SubTask.ObjectSelection
 
                 if (!placed)
                 {
-                    this.TrialInfo($"Warning: Could not place object {i + 1} after {maxAttemptsPerObject} attempts.");
+                    this.PositionInfo($"Warning: Could not place object {i + 1} after {maxAttemptsPerObject} attempts.");
                 }
             }
 
@@ -218,7 +216,7 @@ namespace SubTask.ObjectSelection
             double maxX = areaCenter.X + areaHalf - margin;
             double minY = areaCenter.Y - areaHalf + margin;
             double maxY = areaCenter.Y + areaHalf - margin;
-            this.TrialInfo($"Valid range X: [{minX}, {maxX}], Y: [{minY}, {maxY}]");
+            this.PositionInfo($"Valid range X: [{minX}, {maxX}], Y: [{minY}, {maxY}]");
             // Generate a random point inside that range
             double x = minX + _random.NextDouble() * (maxX - minX);
             double y = minY + _random.NextDouble() * (maxY - minY);
@@ -270,7 +268,7 @@ namespace SubTask.ObjectSelection
             LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
-            ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
+            ExperiLogger.RecordCursorPosition(e.GetPosition(_mainWindow.Owner));
         }
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
@@ -530,22 +528,6 @@ namespace SubTask.ObjectSelection
         public void OnStartButtonMouseExit(Object sender, MouseEventArgs e)
         {
             LogEvent(ExpStrs.STR_EXIT);
-        }
-
-        public void SetFunctionAsEnabled(int funcId)
-        {
-            _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide,
-                funcId,
-                UIColors.COLOR_FUNCTION_ENABLED);
-        }
-
-        public void SetFunctionAsDisabled(int funcId)
-        {
-            _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide,
-                funcId,
-                UIColors.COLOR_FUNCTION_DEFAULT);
         }
 
         protected void SetObjectAsDisabled(int objId)

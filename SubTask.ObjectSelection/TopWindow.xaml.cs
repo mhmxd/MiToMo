@@ -1,6 +1,4 @@
-﻿using Common.Settings;
-using CommonUI;
-using static Common.Constants.ExpEnums;
+﻿using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
 {
@@ -14,13 +12,6 @@ namespace SubTask.ObjectSelection
         {
             InitializeComponent();
             Side = Side.Top;
-            //this.DataContext = this; // Set DataContext for data binding
-
-            //EnableMouseInPointer(true);
-            //SetForegroundWindow(new WindowInteropHelper(this).Handle); // Bring this window to the foreground
-
-            _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
-
         }
 
 

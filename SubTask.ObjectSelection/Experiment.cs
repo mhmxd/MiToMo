@@ -22,16 +22,16 @@ namespace SubTask.ObjectSelection
 
         public void Init(ExperimentType expType)
         {
-            this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}");
-            //Participant_Number = ptc;
 
             // Create and add blocks
             for (int i = 0; i < ExpDesign.OS_N_BLOCKS; i++)
             {
                 int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, ExpEnvironment.PTC_NUM, blockId, expType, ExpDesign.OS_N_REP);
+                Block block = Block.CreateBlock(ExpEnvironment.PTC_NUM, blockId, expType, ExpDesign.OS_N_REP);
                 _blocks.Add(block);
             }
+
+            // No need to shuffle: 3 and 5 objects are already shuffled inside blocks
         }
 
         public int GetNumBlocks()

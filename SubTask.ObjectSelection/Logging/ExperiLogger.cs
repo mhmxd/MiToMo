@@ -2,14 +2,12 @@
 using Common.Helpers;
 using Common.Logs;
 using Common.Settings;
-using Serilog.Core;
 using SubTask.ObjectSelection.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Windows;
 using static Common.Constants.ExpEnums;
 
@@ -37,9 +35,6 @@ namespace SubTask.ObjectSelection
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
 
-        private static Logger _gestureFileLog;
-        private static Logger _blockFileLog;
-
         private static StreamWriter _detailTrialLogWriter;
         private static StreamWriter _totalTrialLogWriter;
         private static StreamWriter _cursorLogWriter;
@@ -66,27 +61,6 @@ namespace SubTask.ObjectSelection
             _blockLogWriter = MIO.PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
         }
 
-        private static void PrepareFileWithHeader<T>(ref string filePath, StreamWriter writer, string header)
-        {
-            string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-            filePath = $"{filePath}_{timestamp}.csv";
-
-            string directoryPath = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            bool timedFileExists = File.Exists(filePath);
-            bool timedFileIsEmpty = !timedFileExists || new FileInfo(filePath).Length == 0;
-            writer = new StreamWriter(filePath, append: true, Encoding.UTF8);
-            writer.AutoFlush = true;
-            if (timedFileIsEmpty)
-            {
-                writer.WriteLine(header);
-            }
-        }
-
         public static void StartTrialCursorLog(int trialId)
         {
 
@@ -97,17 +71,12 @@ namespace SubTask.ObjectSelection
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 "SubTask.ObjectSelection.Logs", $"P{ExpEnvironment.PTC_NUM}-{Technique}", "Cursor", $"trial{trialId}-cursor-log"
             );
-            PrepareFileWithHeader<PositionRecord>(ref _cursorLogFilePath, _cursorLogWriter, PositionRecord.GetHeader());
+            _cursorLogWriter = MIO.PrepareFileWithHeader<PositionRecord>(_cursorLogFilePath, PositionRecord.GetHeader());
         }
 
         public static void LogGestureEvent(string message)
         {
             //_gestureFileLog.Information(message);
-        }
-
-        public static void LogTrialMessage(string message)
-        {
-            _blockFileLog.Information(message);
         }
 
         private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -131,8 +100,7 @@ namespace SubTask.ObjectSelection
 
         public static void LogDetailTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            Output.Conlog<ExperiLogger>("Logging Trial");
-            DetailTrialLog log = new DetailTrialLog();
+            DetailTrialLog log = new();
 
             // Information
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
@@ -174,11 +142,9 @@ namespace SubTask.ObjectSelection
 
             WriteTrialLog(log, _detiledTrialLogPath, _detailTrialLogWriter);
             //_detailedTrialLogWriter?.Dispose();
-
-            LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
         }
 
-        private static void LogTotalTrialTime(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
+        public static void LogTotalTrialTime(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
             TotalTrialLog log = new TotalTrialLog();
 
@@ -191,16 +157,16 @@ namespace SubTask.ObjectSelection
             _trialTimes[trial.Id] = log.trial_time;
 
             WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
+        }
 
-            StreamWriter writer = new StreamWriter(_cursorLogFilePath, append: true, Encoding.UTF8);
-            writer.AutoFlush = true;
+        public static void LogCursorPositions()
+        {
             foreach (var record in _trialCursorRecords[_activeTrialId])
             {
-                writer.WriteLine($"{record.timestamp};{record.x};{record.y}");
+                _cursorLogWriter.WriteLine($"{record.timestamp};{record.x};{record.y}");
             }
-            writer.Dispose();
-            // Clear records after writing
-            //_trialCursorRecords[trialId].Clear();
+
+            _cursorLogWriter.Dispose();
         }
 
 
@@ -210,7 +176,7 @@ namespace SubTask.ObjectSelection
 
             log.ptc = block.PtcNum;
             log.id = block.Id;
-            log.tech = block.Technique.ToString().ToLower();
+            log.tech = Block.Technique.ToString().ToLower();
             log.cmplx = "-";
             log.exptype = block.ExpType.ToString().ToLower();
             log.n_fun = 1;
@@ -221,35 +187,6 @@ namespace SubTask.ObjectSelection
 
             WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 
-        }
-
-        private static void WriteHeader<T>(StreamWriter streamWriter)
-        {
-            //var fields = typeof(T).GetFields();
-            //var headers = fields.Select(f => f.Name);
-            //_detailedTrialLogWriter.WriteLine(string.Join(";", headers));
-
-            // Writing first the parent class fields, then the child class fields
-            var type = typeof(T);
-            var baseType = type.BaseType;
-
-            // 1. Get fields from the base class (parent)
-            // BindingFlags.DeclaredOnly ensures we only get fields directly defined in the base class,
-            // not its own base classes, or the derived class's fields.
-            var parentFields = baseType != null && baseType != typeof(object)
-                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                : Enumerable.Empty<FieldInfo>();
-
-            // 2. Get fields from the derived class (child)
-            // BindingFlags.DeclaredOnly ensures we only get fields directly defined in the derived class.
-            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-            // 3. Combine them: Parent fields first, then Child fields.
-            var allFields = parentFields.Concat(childFields);
-
-            // 4. Extract names and write to the file.
-            var headers = allFields.Select(f => f.Name);
-            streamWriter.WriteLine(string.Join(";", headers));
         }
 
         private static void WriteTrialLog<T>(T log, string filePath, StreamWriter writer)
@@ -283,7 +220,7 @@ namespace SubTask.ObjectSelection
             //streamWriter.Flush();
         }
 
-        public static void LogCursorPosition(Point cursorPos)
+        public static void RecordCursorPosition(Point cursorPos)
         {
             _trialCursorRecords[_activeTrialId].Add(new PositionRecord(cursorPos.X, cursorPos.Y));
         }
@@ -299,11 +236,11 @@ namespace SubTask.ObjectSelection
                 // 3. Set the Value
                 // Pass the object instance (dataInstance) and the new value
                 field.SetValue(instance, newValue);
-                Console.WriteLine($"Successfully set field '{fieldName}' to {newValue}.");
+                //MOuter.LogsInfo<ExperiLogger>($"Successfully set field '{fieldName}' to {newValue}.");
             }
             else
             {
-                Console.WriteLine($"Error: Field '{fieldName}' not found.");
+                //MOuter.LogsInfo<ExperiLogger>($"Error: Field '{fieldName}' not found.");
             }
         }
 

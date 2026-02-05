@@ -33,17 +33,6 @@ namespace SubTask.ObjectSelection
         }
         public double TargetWidthPX => UITools.MM2PX(TargetWidthMM);
 
-        // Distance to the target center, from start's center
-        //private double _distanceMM;
-        //public double DistanceMM
-        //{
-        //    get => _distanceMM;
-        //    set => _distanceMM = value;
-        //}
-        //public int DistancePX => UITools.MM2PX(DistanceMM);
-
-        //public List<double> Distances = new List<double>(); // Distances in px
-
         public MRange DistRangeMM { get; set; }
         public MRange DistRangePX => new MRange(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label); // Distance range in px
 

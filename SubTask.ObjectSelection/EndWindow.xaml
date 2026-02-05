@@ -1,4 +1,4 @@
-﻿<Window x:Class="SubTask.ObjectSelection.BlockEndWindow"
+﻿<Window x:Class="SubTask.ObjectSelection.EndWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Block Finished"
@@ -8,18 +8,19 @@
         Topmost="True">
     <Grid>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock x:Name="BlockFinishedText"
+            <TextBlock x:Name="TopText"
                        FontSize="32"
                        FontWeight="Bold"
                        TextAlignment="Center"
-                       Text="Block 1 is finished."
+                       Text="Techniuqe is finished."
                        Foreground="#353535"
                        Margin="0,0,0,20"/>
-            <TextBlock FontSize="36"
+            <TextBlock x:Name="MainText"
+                       FontSize="36"
                        FontWeight="ExtraBold"
                        Foreground="#353535"
                        TextAlignment="Center">
-                Press <Run Foreground="Blue">Blue</Run> + <Run Foreground="Red">Red</Run> on your keyboard to start the next block.
+                You did a great job!
             </TextBlock>
         </StackPanel>
     </Grid>

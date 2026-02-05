@@ -22,11 +22,9 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using static Common.Constants.ExpEnums;
-using static SubTask.ObjectSelection.Output;
 using MessageBox = System.Windows.Forms.MessageBox;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
-using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.ObjectSelection
 {
@@ -173,9 +171,6 @@ namespace SubTask.ObjectSelection
         {
             InitializeComponent();
 
-            // Initialize logging
-            Output.Init();
-
             // Initialize random
             _random = new Random();
 
@@ -184,18 +179,6 @@ namespace SubTask.ObjectSelection
 
             // Initialize windows
             InitializeWindows();
-
-            // Set object constraint rect here and in aux windows
-            //_objectConstraintRectAbsolue = new Rect(
-            //    _mainWinRect.Left + VERTICAL_PADDING + GetStartHalfWidth(),
-            //    _mainWinRect.Top + VERTICAL_PADDING + GetStartHalfWidth(),
-            //    _mainWinRect.Width - 2 * VERTICAL_PADDING,
-            //    _mainWinRect.Height - 2 * VERTICAL_PADDING - _infoLabelHeight
-            // );
-
-            //_topWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
-            //_leftWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
-            //_rightWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
 
             UpdateLabelPosition();
 
@@ -343,13 +326,9 @@ namespace SubTask.ObjectSelection
                 _backgroundWindow.Show();
                 _backgroundWindow.WindowState = WindowState.Maximized;
 
-                Outlog<MainWindow>().Information($"Monitor WorkingArea H = {secondScreen.WorkingArea.Height}");
-                Outlog<MainWindow>().Information($"BackgroundWindow Actual H (after maximize) = {_backgroundWindow.ActualHeight}");
-
                 // Set the height as mm
                 //_monitorHeightMM = Utils.PX2MM(secondScreen.WorkingArea.Height);
                 _monitorHeightMM = 335;
-                Outlog<MainWindow>().Information($"Monitor H = {secondScreen.WorkingArea.Height}");
 
                 //---
 
@@ -610,16 +589,6 @@ namespace SubTask.ObjectSelection
 
             _stopWatch.Start();
             _activeBlockHandler.BeginActiveBlock();
-
-            //if (TaskType == TaskType.REPEATING) _activeBlockHandler = new MultiObjectBlockHandler(this, block);
-            //else if (TaskType == TaskType.ALTERNATING) _activeBlockHandler = new SingleObjectBlockHandler(this, block);
-
-            //bool positionsFound = _activeBlockHandler.FindPositionsForActiveBlock();
-            //if (positionsFound)
-            //{
-            //    UpdateInfoLabel(1, _activeBlockNum);
-            //    _activeBlockHandler.BeginActiveBlock();
-            //}
         }
 
         public Point FindRandPointWithDist(Rect rect, Point src, double dist, Side side)
@@ -664,32 +633,18 @@ namespace SubTask.ObjectSelection
             if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
             {
                 _activeBlockNum++;
-                Block block = _experiment.GetBlock(_activeBlockNum);
-
                 _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
                 _activeBlockHandler.BeginActiveBlock();
             }
             else // All blocks finished
             {
-                MessageBoxResult dialogResult = SysWin.MessageBox.Show(
-                    "Technique finished!",
-                    "End",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
-
-                if (dialogResult == MessageBoxResult.OK)
+                // Show the full screen message...
+                EndWindow endWindow = new()
                 {
-                    if (Debugger.IsAttached)
-                    {
-                        Environment.Exit(0); // Prevents hanging during debugging
-                    }
-                    else
-                    {
-                        SysWin.Application.Current.Shutdown();
-                    }
-                }
+                    Owner = this
+                };
+                endWindow.Show();
             }
 
         }
@@ -971,70 +926,9 @@ namespace SubTask.ObjectSelection
             _activeBlockHandler.UpdateScene();
         }
 
-        public void ResetTargetWindow(Side side)
-        {
-            if (_targetWindow != null)
-            {
-                _targetWindow.ResetButtons();
-                _targetWindow.DeactivateGridNavigator();
-            }
-            else
-            {
-                this.TrialInfo("Target window is null, cannot reset it.");
-            }
-        }
-
         public void ResetAllAuxWindows()
         {
-            _leftWindow.ResetButtons();
-            _rightWindow.ResetButtons();
-            _topWindow.ResetButtons();
-        }
 
-        public void FillButtonsInAuxWindow(Side side, List<int> buttonIds, Brush color)
-        {
-            foreach (int buttonId in buttonIds)
-            {
-                FillButtonInAuxWindow(side, buttonId, color);
-            }
-        }
-
-        public void FillButtonInAuxWindow(Side side, int buttonId, Brush color)
-        {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            //auxWindow.ResetButtons();
-            auxWindow.FillGridButton(buttonId, color);
-        }
-
-        public void SetAuxButtonsHandlers(Side side, List<int> funcIds,
-            SysIput.MouseEventHandler mouseEnterHandler,
-            MouseButtonEventHandler mouseDownHandler,
-            MouseButtonEventHandler mouseUpHandler,
-            SysIput.MouseEventHandler mouseExitHandler,
-            MouseButtonEventHandler nonFunctionDownHandler)
-        {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.SetGridButtonHandlers(funcIds,
-                mouseEnterHandler, mouseDownHandler, mouseUpHandler,
-                mouseExitHandler, nonFunctionDownHandler);
-        }
-
-        public void SetGridButtonHandlers(Side side, int targetId,
-            SysIput.MouseButtonEventHandler mouseDownHandler,
-            SysIput.MouseButtonEventHandler mouseUpHandler,
-            MouseButtonEventHandler nonTargetDownHandler)
-        {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.SetGridButtonHandlers(targetId, mouseDownHandler, mouseUpHandler, nonTargetDownHandler);
-        }
-
-        public Point GetCenterAbsolutePosition(Side side, int buttonId)
-        {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(buttonId);
-            return new Point(
-                centerPositionInAuxWindow.X + auxWindow.Left,
-                centerPositionInAuxWindow.Y + auxWindow.Top);
         }
 
         //public Rect GetObjAreaCenterConstraintRect()
@@ -1071,38 +965,6 @@ namespace SubTask.ObjectSelection
             }
         }
 
-        public int FunctionIdUnderMarker(Side side, List<int> ids)
-        {
-            foreach (int id in ids)
-            {
-                if (IsMarkerOnButton(side, id)) return id;
-            }
-
-            return -1;
-        }
-
-        public bool IsMarkerOnButton(Side side, int buttonId)
-        {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            return auxWindow.IsNavigatorOnButton(buttonId);
-        }
-
-        public void MoveMarker(TouchPoint touchPoint, Action<int> OnFunctionMarked, Action<int> OnFunctionDeMarked)
-        {
-            _activeAuxWindow?.MoveMarker(touchPoint, OnFunctionMarked, OnFunctionDeMarked);
-
-        }
-
-        public void StopAuxNavigator()
-        {
-            _activeAuxWindow?.StopGridNavigator();
-        }
-
-        //public Technique GetActiveTechnique()
-        //{
-        //    return _experiment.Active_Technique;
-        //}
-
         public void ShowStartTrialButton(Rect objAreaRect, int btnW, int btnH, Brush btnColor, MouseEvents mouseEvents)
         {
             //canvas.Children.Clear(); // Clear the canvas before adding the button
@@ -1122,7 +984,7 @@ namespace SubTask.ObjectSelection
             // Add label inside
             var label = new TextBlock
             {
-                Text = ExpStrs.START,
+                Text = ExpStrs.START_CAP,
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
@@ -1199,12 +1061,6 @@ namespace SubTask.ObjectSelection
             {
                 canvas.Children.Remove(_startButton);
             }
-        }
-
-        public int GetMiddleButtonId(Side side)
-        {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            return auxWindow.GetMiddleButtonId();
         }
 
         internal void ChangeStartButtonText(string text)

@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using static Common.Constants.ExpEnums;
-using static SubTask.ObjectSelection.Output;
 using static System.Math;
 
 namespace SubTask.ObjectSelection
@@ -897,40 +896,6 @@ namespace SubTask.ObjectSelection
         }
 
         /// <summary>
-        /// Tracking the middle finger
-        /// </summary>
-        private void SwipeTechTrackMiddle()
-        {
-            TouchFrame currentFrame = _frames.Last; // Get current frame
-            Finger finger = Finger.Middle;
-
-            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
-            {
-                Point center = currentFrame.GetPointer(finger).GetCenter();
-                if (_touchTimers[finger].IsRunning) // Already active => update position (move)
-                {
-                    _lastPositions[finger] = center;
-
-                }
-                else // First touch
-                {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
-                    _downPositions[finger] = center;
-                    _lastPositions[finger] = center;
-                    _touchTimers[finger].Restart(); // Start the timer
-                }
-            }
-            else // FullFinger NOT present in the current frame
-            {
-                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
-                {
-                    _touchTimers[finger].Stop();
-                }
-            }
-
-        }
-
-        /// <summary>
         /// Tracking the ring finger
         /// </summary>
         private void SwipeTechTrackRing()
@@ -947,7 +912,6 @@ namespace SubTask.ObjectSelection
                 }
                 else // First touch
                 {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -980,7 +944,6 @@ namespace SubTask.ObjectSelection
                 }
                 else // First touch
                 {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer

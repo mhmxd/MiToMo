@@ -26,9 +26,9 @@ namespace SubTask.ObjectSelection
             set => _id = value;
         }
 
-        public Technique _technique = Technique.MOUSE;
+        private static Technique _technique = Technique.MOUSE;
 
-        public Technique Technique
+        public static Technique Technique
         {
             get => _technique;
             set => _technique = value;
@@ -43,11 +43,10 @@ namespace SubTask.ObjectSelection
 
         public int PtcNum { get; set; }
 
-        public Block(int ptc, Technique technique, int id, ExperimentType expType)
+        public Block(int ptc, int id, ExperimentType expType)
         {
             this.Id = id;
             PtcNum = ptc;
-            _technique = technique;
             _expType = expType;
         }
 
@@ -65,7 +64,6 @@ namespace SubTask.ObjectSelection
         /// <param name="nObj"></param>
         /// <returns></returns>
         public static Block CreateBlock(
-            Technique technique,
             int ptc,
             int id,
             ExperimentType expType,
@@ -73,7 +71,7 @@ namespace SubTask.ObjectSelection
         {
 
             // Create block
-            Block block = new Block(ptc, technique, id, expType);
+            Block block = new Block(ptc, id, expType);
 
             // Create the same number of 3 and 5 object trials in each block
             int trialNum = 1;
@@ -81,7 +79,7 @@ namespace SubTask.ObjectSelection
             {
                 Trial trial3 = Trial.CreateTrial(
                             id * 100 + trialNum,
-                            technique,
+                            Technique,
                             expType,
                             ExpEnvironment.PTC_NUM,
                             ExpDesign.OS_N_OBJS[0]);
@@ -91,7 +89,7 @@ namespace SubTask.ObjectSelection
 
                 Trial trial5 = Trial.CreateTrial(
                             id * 100 + trialNum,
-                            technique,
+                            Technique,
                             expType,
                             ExpEnvironment.PTC_NUM,
                             ExpDesign.OS_N_OBJS[1]);
