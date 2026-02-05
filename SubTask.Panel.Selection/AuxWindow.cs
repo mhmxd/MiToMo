@@ -71,9 +71,6 @@ namespace SubTask.Panel.Selection
             _widthButtons.TryAdd(button.WidthMultiple, new List<int>());
             _widthButtons[button.WidthMultiple].Add(button.Id); // Add the button to the dictionary with its width as the key
             _buttonWraps[button.Id] = new ButtonWrap(button);
-            //_allButtons.Add(button.Id, button); // Add to the list of all buttons
-
-            // Add button position to the dictionary
 
             // Get the transform from the button to the Window (or the root visual)
             GeneralTransform transformToWindow = button.TransformToVisual(Window.GetWindow(button));
@@ -101,6 +98,9 @@ namespace SubTask.Panel.Selection
                 _topLeftButtonPosition = positionInWindow; // Update the top-left button position
                                                            //_lastMarkedButtonId = button.Id; // Set the last highlighted button to this one
             }
+
+            // Register globally instead of locally
+            ButtonRegistry.Register(button.Id, button, this);
         }
 
         public int SelectRandButton(int widthMult)
@@ -173,17 +173,18 @@ namespace SubTask.Panel.Selection
             return resultFunction;
         }
 
-        public virtual void FillGridButton(int buttonId, Brush color)
+        public void FillGridButton(int buttonId, Brush color)
         {
-            // Find the button with the specified ID
-            if (_buttonWraps.ContainsKey(buttonId))
+            if (_buttonWraps.TryGetValue(buttonId, out var wrap))
             {
-                _buttonWraps[buttonId].Button.Background = color; // Change the background color of the button
-                this.TrialInfo($"Button {buttonId} filled with color {color}.");
-            }
-            else
-            {
-                this.TrialInfo($"Button with ID {buttonId} not found.");
+                // If the button isn't loaded, it's a ghost from a previous grid
+                if (!wrap.Button.IsLoaded)
+                {
+                    this.TrialInfo($"Button {buttonId} is a GHOST. Ignoring fill request.");
+                    return;
+                }
+
+                wrap.Button.Background = color;
             }
         }
 
@@ -633,17 +634,6 @@ namespace SubTask.Panel.Selection
             return new MRange(minDist, maxDist);
         }
 
-        public abstract void ShowPoint(Point p);
-
-        public void DeactivateMarker()
-        {
-            if (_lastMarkedButtonId != -1 && _buttonWraps.ContainsKey(_lastMarkedButtonId))
-            {
-                _buttonWraps[_lastMarkedButtonId].ChangeBackFill();
-                _buttonWraps[_lastMarkedButtonId].Button.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER; // Reset the border color
-            }
-        }
-
         public virtual void Reset()
         {
 
@@ -651,10 +641,6 @@ namespace SubTask.Panel.Selection
             {
                 _buttonWraps[buttonId].ResetButtonFill();
             }
-
-
-            // Hide marker
-            DeactivateMarker();
         }
 
     }

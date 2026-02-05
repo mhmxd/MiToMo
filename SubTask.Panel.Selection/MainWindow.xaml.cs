@@ -240,7 +240,7 @@ namespace SubTask.Panel.Selection
             bool result = await SetupLayout();
             this.TrialInfo($"Setup Layout: {result}");
             // Begin the blocks
-            BeginBlocksAsync();
+            await BeginBlocksAsync();
         }
 
         private void UpdateLabelPosition()
@@ -435,21 +435,6 @@ namespace SubTask.Panel.Selection
                 _absTop = TopWindowHeight;
                 _absRight = _absLeft + (int)this.Width;
                 _absBottom = _absTop + (int)Height;
-
-                //--- Overlay window
-                //var bounds = screens[1].Bounds;
-                //_overlayWindow = new OverlayWindow
-                //{
-                //    WindowStartupLocation = WindowStartupLocation.Manual,
-                //    Left = bounds.Left,
-                //    Top = bounds.Top,
-                //    Width = bounds.Width,
-                //    Height = bounds.Height,
-
-                //    WindowState = WindowState.Normal, // Start as normal to set position
-                //};
-                //WindowHelper.SetAlwaysOnTop( _overlayWindow );
-                //_overlayWindow.Show();
             }
 
 
@@ -458,14 +443,6 @@ namespace SubTask.Panel.Selection
 
             // Synchronize window movement with main window
             this.LocationChanged += MainWindow_LocationChanged;
-
-            // Thresholds
-            //distThresh.min = Math.Sqrt(2 * (NOISE_MIN_THRESH * NOISE_MIN_THRESH));
-            //distThresh.max = Math.Sqrt(2 * (NOISE_MAX_THRESH * NOISE_MAX_THRESH));
-            //distThresh = (0.05, 1.0);
-            //Console.WriteLine($"Dist Threshold = {distThresh}");
-
-
 
             //AdjustWindowPositions();
         }
@@ -594,29 +571,59 @@ namespace SubTask.Panel.Selection
 
         private async Task SetGrids(Complexity complexity)
         {
+            // 1. Wipe the global map before starting any new registrations
+            ButtonRegistry.Clear();
+
+            // 2. Declare the tasks so they are accessible outside the switch
+            Task topTask = Task.CompletedTask;
+            Task leftTask = Task.CompletedTask;
+            Task rightTask = Task.CompletedTask;
+
+            // 3. Kick off all grid placements simultaneously (Parallel execution)
             switch (complexity)
             {
-                // ... (your switch statement logic remains the same)
                 case Complexity.Simple:
-                    await _topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING);
-                    await _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
-                    await _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
+                    topTask = _topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING);
+                    leftTask = _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
+                    rightTask = _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
                     break;
+
                 case Complexity.Moderate:
-                    await _topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING);
-                    await _leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
-                    await _rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
+                    topTask = _topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING);
+                    leftTask = _leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
+                    rightTask = _rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
                     break;
+
                 case Complexity.Complex:
-                    await _topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING);
-                    await _leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
-                    await _rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
+                    topTask = _topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING);
+                    leftTask = _leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
+                    rightTask = _rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
                     break;
             }
+
+            // 4. Wait until ALL windows have fired their 'Loaded' event and called 'RegisterAllButtons'
+            await Task.WhenAll(topTask, leftTask, rightTask);
+
+            this.TrialInfo($"All grids synchronized and registered for {complexity}. ready for trials.");
+        }
+
+        private async Task SetupActiveBlockAsync()
+        {
+            // Set the TouchSurface and GenstureHandler
+            _touchSurface ??= new TouchSurface(_activeBlockHandler.GetTechnique());
+            _touchSurface.SetGestureHandler(_activeBlockHandler);
+            this.TrialInfo($"TouchSurface Initiated.");
+
+            _stopWatch.Start();
+
+            // Show layout before starting the block
+            await SetGrids(_activeBlockHandler.GetComplexity());
+            this.TrialInfo($"Grid set for {_activeBlockHandler.GetComplexity()}");
         }
 
         private async Task BeginBlocksAsync()
         {
+            _isTouchMouseActive = true;
             _activeBlockNum = 1;
 
             if (_blockHandlers.Count > 0)
@@ -625,16 +632,8 @@ namespace SubTask.Panel.Selection
 
                 ExperiLogger.Init(_activeBlockHandler.GetTechnique());
 
-                _isTouchMouseActive = true;
-                _touchSurface ??= new TouchSurface(_activeBlockHandler.GetTechnique());
-                _touchSurface.SetGestureHandler(_activeBlockHandler);
-                this.TrialInfo($"TouchSurface Initiated.");
+                await SetupActiveBlockAsync();
 
-                _stopWatch.Start();
-
-                // Show layout before starting the block
-                await SetGrids(_activeBlockHandler.GetComplexity());
-                this.TrialInfo($"Grid set.");
                 // Begin the block
                 _activeBlockHandler.BeginActiveBlock();
             }
@@ -645,54 +644,49 @@ namespace SubTask.Panel.Selection
             }
         }
 
-        public void GoToNextBlock()
+        public async Task GoToNextBlock()
         {
             if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
             {
                 _activeBlockNum++;
-                Block block = _experiment.GetBlock(_activeBlockNum);
-
                 _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
-                if (_experiment.ActiveTechnique.IsTomo()) _touchSurface.SetGestureHandler(_activeBlockHandler);
+
+                await SetupActiveBlockAsync();
 
                 _activeBlockHandler.BeginActiveBlock();
-
-                //if (TaskType == TaskType.REPEATING) _activeBlockHandler = new MultiObjectBlockHandler(this, block);
-                //else if (TaskType == TaskType.ALTERNATING) _activeBlockHandler = new SingleObjectBlockHandler(this, block);
-
-                //bool positionsFound = _activeBlockHandler.FindPositionsForActiveBlock();
-                //if (positionsFound) _activeBlockHandler.BeginActiveBlock();
             }
             else // All blocks finished
             {
-                MessageBoxResult dialogResult = SysWin.MessageBox.Show(
-                    "Technique finished!",
-                    "End",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
-
-                if (dialogResult == MessageBoxResult.OK)
+                // Show the full screen message...
+                EndWindow endWindow = new()
                 {
-                    if (Debugger.IsAttached)
-                    {
-                        Environment.Exit(0); // Prevents hanging during debugging
-                    }
-                    else
-                    {
-                        SysWin.Application.Current.Shutdown();
-                    }
-                }
+                    Owner = this
+                };
+                endWindow.Show();
+
+
+                //MessageBoxResult dialogResult = SysWin.MessageBox.Show(
+                //    "Blocks finished!",
+                //    "End",
+                //    MessageBoxButton.OK,
+                //    MessageBoxImage.Information
+                //);
+
+                //if (dialogResult == MessageBoxResult.OK)
+                //{
+                //    if (Debugger.IsAttached)
+                //    {
+                //        Environment.Exit(0); // Prevents hanging during debugging
+                //    }
+                //    else
+                //    {
+                //        SysWin.Application.Current.Shutdown();
+                //    }
+                //}
             }
 
         }
 
-        public void UpdateInfoLabel(int trialNum, int nTrials, int blockNum = 0)
-        {
-            if (blockNum == 0) blockNum = _activeBlockNum;
-            infoLabel.Text = $"Trial {trialNum}/{nTrials} --- Block {blockNum}/{_experiment.GetNumBlocks()}";
-            UpdateLabelPosition();
-        }
 
         public void UpdateInfoLabel()
         {
@@ -700,42 +694,6 @@ namespace SubTask.Panel.Selection
             int nTrials = _activeBlockHandler.GetNumTrialsInBlock();
             infoLabel.Text = $"Trial {trialNum}/{nTrials} --- Block {_activeBlockNum}/{_experiment.GetNumBlocks()}";
             UpdateLabelPosition();
-        }
-
-        public void ShowStart(
-            Point absolutePosition, Brush color,
-            SysIput.MouseEventHandler mouseEnterHandler, SysIput.MouseEventHandler mouseLeaveHandler,
-            MouseButtonEventHandler buttonDownHandler, MouseButtonEventHandler buttonUpHandler)
-        {
-            // Clear the previous objects
-            canvas.Children.Clear();
-
-            // Convert the absolute position to relative position
-            Point positionInMain = UITools.Offset(absolutePosition,
-                -this.Left,
-                -this.Top);
-
-            // Create the square
-            _startRectangle = new Rectangle
-            {
-                Width = UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
-                Height = UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
-                Fill = color
-            };
-
-            // Position the Start on the Canvas
-            Canvas.SetLeft(_startRectangle, positionInMain.X);
-            Canvas.SetTop(_startRectangle, positionInMain.Y);
-
-            // Add event
-            _startRectangle.MouseEnter += mouseEnterHandler;
-            _startRectangle.MouseLeave += mouseLeaveHandler;
-            _startRectangle.MouseDown += buttonDownHandler;
-            _startRectangle.MouseUp += buttonUpHandler;
-
-            // Add the circle to the Canvas
-            //canvas.Children.Add(_startCircle);
-            canvas.Children.Add(_startRectangle);
         }
 
         public void ClearAll()
@@ -762,36 +720,12 @@ namespace SubTask.Panel.Selection
                 this.TrialInfo($"Setting up handler for block#{bl.Id}");
 
                 // Use a local variable to store the handler
-                BlockHandler blockHandler = new BlockHandler(this, bl, bn);
+                BlockHandler blockHandler = new(this, bl, bn);
                 _blockHandlers.Add(blockHandler);
 
             }
 
             return true;
-        }
-
-        public void ShowObjectsArea(Rect areaRect, Brush areaColor, MouseEvents mouseEvents)
-        {
-            // Show the area rectangle
-            _objectArea = new Rectangle
-            {
-                Width = areaRect.Width,
-                Height = areaRect.Height,
-                Fill = areaColor
-            };
-
-            // Position the area rectangle on the Canvas
-            Canvas.SetLeft(_objectArea, areaRect.Left - this.Left);
-            Canvas.SetTop(_objectArea, areaRect.Top - this.Top);
-
-            // Add the event handler
-            _objectArea.MouseEnter += mouseEvents.MouseEnter;
-            _objectArea.MouseDown += mouseEvents.MouseDown;
-            _objectArea.MouseUp += mouseEvents.MouseUp;
-            _objectArea.MouseLeave += mouseEvents.MouseLeave;
-
-            // Add the rectangle to the Canvas
-            canvas.Children.Add(_objectArea);
         }
 
         public void SetTargetWindow(Side side,
@@ -855,19 +789,6 @@ namespace SubTask.Panel.Selection
             }
         }
 
-        public void FillObject(int objId, Brush color)
-        {
-            // Find the object by its ID in the canvas children
-            foreach (var child in canvas.Children)
-            {
-                if (child is Rectangle rectangle && rectangle.Tag is int tag && tag == objId)
-                {
-                    rectangle.Fill = color;
-                    return; // Exit after filling the first matching object
-                }
-            }
-        }
-
         public void SetFunctionAsApplied(int funcId)
         {
             _activeBlockHandler.SetFunctionAsApplied(funcId);
@@ -904,42 +825,6 @@ namespace SubTask.Panel.Selection
             auxWindow.FillGridButton(buttonId, color);
         }
 
-        public void SetAuxButtonsHandlers(Side side, List<int> funcIds,
-            SysIput.MouseEventHandler mouseEnterHandler,
-            MouseButtonEventHandler mouseDownHandler,
-            MouseButtonEventHandler mouseUpHandler,
-            SysIput.MouseEventHandler mouseExitHandler,
-            MouseButtonEventHandler nonFunctionDownHandler)
-        {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.SetGridButtonHandlers(funcIds,
-                mouseEnterHandler, mouseDownHandler, mouseUpHandler,
-                mouseExitHandler, nonFunctionDownHandler);
-        }
-
-        public void SetGridButtonHandlers(Side side, int targetId,
-            SysIput.MouseButtonEventHandler mouseDownHandler,
-            SysIput.MouseButtonEventHandler mouseUpHandler,
-            MouseButtonEventHandler nonTargetDownHandler)
-        {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.SetGridButtonHandlers(targetId, mouseDownHandler, mouseUpHandler, nonTargetDownHandler);
-        }
-
-        public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
-        {
-            double padding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
-            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
-            double smallButtonHalfWidth = UITools.MM2PX(smallButtonHalfWidthMM);
-
-            AuxWindow auxWindow = GetAuxWindow(side);
-            int id = auxWindow.SelectRandButton(widthUnits);
-            Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
-            Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
-
-            return (id, centerPositionAbsolute);
-        }
-
         public TFunction FindRandomFunction(Side side, int widthUnits, MRange distRange)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
@@ -964,12 +849,6 @@ namespace SubTask.Panel.Selection
             return new Point(
                 centerPositionInAuxWindow.X + auxWindow.Left,
                 centerPositionInAuxWindow.Y + auxWindow.Top);
-        }
-
-        public bool IsTechniqueToMo()
-        {
-            return _experiment.ActiveTechnique == Technique.TOMO_SWIPE
-                || _experiment.ActiveTechnique == Technique.TOMO_TAP;
         }
 
         public bool IsAuxWindowActivated(Side side)

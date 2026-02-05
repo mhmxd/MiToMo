@@ -20,12 +20,11 @@
         public static readonly int OS_N_REP = 10;
 
         // Subtask: Panel Selection
-        public static readonly int PaneSelectNumBlocks = 16;
-        public static readonly int PaneSelectNumRep = 4;
+        public static readonly int PaneSelectNumBlocks = 4;
         public static readonly int PaneSelBreakAfterBlocks = 2;
 
         // Subtask: Panel Navigation
-        public static readonly int PaneNavNumBlocks = 4;
-        public static readonly int PaneNavBreakAfterBlocks = 2;
+        public static readonly int PaneNavNumBlocks = 2;
+        public static readonly int PaneNavBreakAfterBlocks = 1;
     }
 }

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.Panel.Selection
@@ -15,6 +12,7 @@ namespace SubTask.Panel.Selection
     /// </summary>
     public partial class TopWindow : AuxWindow
     {
+        public string WindowTitle { get; set; }
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -26,10 +24,11 @@ namespace SubTask.Panel.Selection
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
+
         public TopWindow()
         {
             InitializeComponent();
-            Side = Side.Top;
+            this.Side = Side.Top;
 
             EnableMouseInPointer(true);
             SetForegroundWindow(new WindowInteropHelper(this).Handle); // Bring this window to the foreground
@@ -37,6 +36,11 @@ namespace SubTask.Panel.Selection
 
         public override Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
         {
+            // 1. IMMEDIATELY kill the old dictionary references
+            // This prevents any "Fill" calls from finding old buttons during the transition
+            _buttonWraps.Clear();
+            _widthButtons.Clear();
+
             // A TaskCompletionSource allows us to create a Task
             // that we can complete manually later.
             var tcs = new TaskCompletionSource<bool>();
@@ -52,14 +56,6 @@ namespace SubTask.Panel.Selection
             // Add to the Canvas
             canvas.Children.Add(_buttonsGrid);
             //this.TrialInfo($"Grid added to canvas. Canvas size: {canvas.ActualWidth}x{canvas.ActualHeight}");
-
-            //this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
-            // Now ActualWidth has a valid value.
-            //double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
-            //Canvas.SetTop(_buttonsGrid, topPosition);
-
-            //RegisterAllButtons(_buttonsGrid);
-            //LinkButtonNeighbors();
 
             // Subscribe to the Loaded event to get the correct width.
             _buttonsGrid.Loaded += (sender, e) =>
@@ -85,29 +81,6 @@ namespace SubTask.Panel.Selection
 
             return tcs.Task; // Return the task to be awaited
 
-        }
-
-        public override void ShowPoint(Point p)
-        {
-            // Create a small circle to represent the point
-            Ellipse pointCircle = new Ellipse
-            {
-                Width = 5, // Diameter of the circle
-                Height = 5,
-                Fill = Brushes.Red // Color of the circle
-            };
-            // Position the circle on the canvas
-            Canvas.SetLeft(pointCircle, p.X - pointCircle.Width / 2);
-            Canvas.SetTop(pointCircle, p.Y - pointCircle.Height / 2);
-            // Add the circle to the canvas
-            if (this.canvas != null)
-            {
-                this.canvas.Children.Add(pointCircle);
-            }
-            else
-            {
-                this.TrialInfo("Canvas is not initialized, cannot show point.");
-            }
         }
 
     }

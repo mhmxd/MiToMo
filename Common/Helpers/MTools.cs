@@ -331,25 +331,29 @@ namespace Common.Helpers
                 return "null";
             }
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             sb.Append("{ ");
-            bool first = true;
+            bool firstKey = true;
             foreach (TKey key in dictionary.Keys)
             {
-                if (!first)
+                bool firstValue = true;
+                if (!firstKey)
                 {
-                    sb.Append("| ");
+                    sb.Append(" | ");
                 }
-                sb.Append($"{key}:");
+                sb.Append($"{key}: ");
+
                 foreach (T value in dictionary[key])
                 {
-                    if (!first)
+                    if (!firstValue)
                     {
                         sb.Append(", ");
                     }
                     sb.Append($"{value}");
+                    firstValue = false;
                 }
-                first = false;
+
+                firstKey = false;
             }
             sb.Append(" }");
             return sb.ToString();

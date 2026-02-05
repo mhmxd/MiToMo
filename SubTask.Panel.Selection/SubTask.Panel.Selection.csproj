@@ -271,6 +271,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ButtonRegistry.cs" />
     <Compile Include="Logging\DetailTrialLog.cs" />
     <Compile Include="Logging\TotalTrialLog.cs" />
     <Compile Include="PausePopUp.xaml.cs">
@@ -286,8 +287,8 @@
       <DependentUpon>BackgroundWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Block.cs" />
-    <Compile Include="BlockEndWindow.xaml.cs">
-      <DependentUpon>BlockEndWindow.xaml</DependentUpon>
+    <Compile Include="EndWindow.xaml.cs">
+      <DependentUpon>EndWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Experiment.cs" />
     <Compile Include="FullFinger.cs" />
@@ -359,7 +360,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="BlockEndWindow.xaml">
+    <Page Include="EndWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

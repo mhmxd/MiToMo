@@ -6,6 +6,7 @@ using SubTask.PanelNavigation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -40,7 +41,7 @@ namespace SubTask.Panel.Selection
 
         public void BeginActiveBlock()
         {
-            this.TrialInfo("------------------- Beginning block -----------------------------------------");
+            this.TrialInfo("------------------- Beginning block -------------------------------------------");
             this.TrialInfo(ExpStrs.MINOR_LINE);
 
             _activeTrialNum = 1;
@@ -48,14 +49,11 @@ namespace SubTask.Panel.Selection
             TrialRecord trialRecord = new(_activeTrial.Id);
             _trialRecords.Add(trialRecord);
             _activeTrialRecord = _trialRecords.Last();
-            this.TrialInfo($"Active block id: {_activeBlock.Id}");
+            this.TrialInfo($"Block #{_activeBlock.Id} active");
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
             _mainWindow.ResetAllAuxWindows();
-
-            // Show layout
-            //_mainWindow.SetupLayout(_activeBlock.GetComplexity());
 
             // Show the first trial
             ShowActiveTrial();
@@ -90,7 +88,7 @@ namespace SubTask.Panel.Selection
             _mainWindow.UpdateInfoLabel();
         }
 
-        public virtual void EndActiveTrial(Result result)
+        public virtual async Task EndActiveTrialAsync(Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
             this.TrialInfo(ExpStrs.MAJOR_LINE);
@@ -113,10 +111,14 @@ namespace SubTask.Panel.Selection
 
             //-- Log
             ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogTotalTrialTime(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogCursorPositions();
 
-            GoToNextTrial();
+            // Next trial
+            await GoToNextTrial();
         }
-        public void GoToNextTrial()
+
+        public async Task GoToNextTrial()
         {
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
@@ -152,29 +154,9 @@ namespace SubTask.Panel.Selection
                     pausePopUp.ShowDialog();
                 }
 
-                // Go to next block
-                _mainWindow.GoToNextBlock();
-
-                // Show end of block window
-                //BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
-                //blockEndWindow.Owner = _mainWindow;
-                //blockEndWindow.ShowDialog();
+                // Go to the next block
+                await _mainWindow.GoToNextBlock();
             }
-        }
-
-        protected bool AreFunctionsRepeated()
-        {
-            List<int> functionIds = new List<int>();
-            for (int i = 0; i < _activeBlock.Trials.Count - 1; i++)
-            {
-                functionIds = _trialRecords[_activeBlock.Trials[i].Id]?.GetFunctionIds();
-                foreach (int id in _trialRecords[_activeBlock.Trials[i + 1].Id]?.GetFunctionIds())
-                {
-                    if (functionIds.Contains(id)) return true;
-                }
-            }
-
-            return false;
         }
 
         public virtual void OnMainWindowMouseDown(Object sender, MouseButtonEventArgs e)
@@ -187,7 +169,7 @@ namespace SubTask.Panel.Selection
             }
             else
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
             }
 
             //e.Handled = true; // Mark the event as handled to prevent further processing
@@ -225,7 +207,7 @@ namespace SubTask.Panel.Selection
             }
             else
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -241,7 +223,7 @@ namespace SubTask.Panel.Selection
 
             if (IsStartPressed()) // Pressed in Start, released in aux window
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
             }
 
             e.Handled = true;
@@ -274,7 +256,7 @@ namespace SubTask.Panel.Selection
 
             if (_activeTrial.Technique.GetDevice() == Technique.TOMO) // No function pressing in TOMO
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
                 e.Handled = true;
                 return;
             }
@@ -333,7 +315,7 @@ namespace SubTask.Panel.Selection
             }
             else // Pressed outside the button => miss
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -377,11 +359,6 @@ namespace SubTask.Panel.Selection
             _activeTrialRecord.SetFunctionAsApplied(funcId);
         }
 
-        protected void SetObjectAsDisabled(int objId)
-        {
-            _mainWindow.FillObject(objId, UIColors.COLOR_OBJ_DEFAULT);
-        }
-
         public void UpdateScene()
         {
             foreach (var func in _activeTrialRecord.Functions)
@@ -407,7 +384,7 @@ namespace SubTask.Panel.Selection
         {
             if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
                 return;
             }
 
@@ -426,11 +403,11 @@ namespace SubTask.Panel.Selection
                 LogEvent(ExpStrs.PNL_SELECT);
                 //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
 
-                EndActiveTrial(Result.HIT);
+                EndActiveTrialAsync(Result.HIT);
             }
             else
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
             }
         }
 
@@ -447,9 +424,11 @@ namespace SubTask.Panel.Selection
 
         public override void ThumbSwipe(Direction dir)
         {
+            if (_activeTrial == null) return;
+
             if (_activeTrial.Technique != Technique.TOMO_SWIPE) // Wrong technique for swipe
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
                 return;
             }
 
@@ -473,11 +452,11 @@ namespace SubTask.Panel.Selection
                 //_mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide);
 
                 // End trial
-                EndActiveTrial(Result.HIT);
+                EndActiveTrialAsync(Result.HIT);
             }
             else
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
             }
         }
 
@@ -485,7 +464,7 @@ namespace SubTask.Panel.Selection
         {
             if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
                 return;
             }
 
@@ -504,11 +483,11 @@ namespace SubTask.Panel.Selection
                 LogEvent(ExpStrs.PNL_SELECT);
                 //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
 
-                EndActiveTrial(Result.HIT);
+                EndActiveTrialAsync(Result.HIT);
             }
             else
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
             }
         }
 
@@ -516,7 +495,7 @@ namespace SubTask.Panel.Selection
         {
             if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
                 return;
             }
 
@@ -535,11 +514,11 @@ namespace SubTask.Panel.Selection
                 LogEvent(ExpStrs.PNL_SELECT);
                 //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
 
-                EndActiveTrial(Result.HIT);
+                EndActiveTrialAsync(Result.HIT);
             }
             else
             {
-                EndActiveTrial(Result.MISS);
+                EndActiveTrialAsync(Result.MISS);
             }
         }
 
