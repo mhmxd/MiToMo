@@ -36,5 +36,10 @@ namespace CommonUI
             Button.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER; // Reset the button border to the default color
         }
 
+        public override string ToString()
+        {
+            return $"ButtonWrap[Button#{Button.Id}]";
+        }
+
     }
 }

@@ -106,11 +106,11 @@ namespace SubTask.FunctionSelection
             switch (result)
             {
                 case Result.HIT:
-                    Sounder.PlayHit();
+                    MSounder.PlayHit();
                     _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
                 case Result.MISS:
-                    Sounder.PlayTargetMiss();
+                    MSounder.PlayTargetMiss();
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
                     _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
@@ -118,15 +118,19 @@ namespace SubTask.FunctionSelection
 
             //-- Log
             ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogTotalTrialTime(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogCursorPositions();
 
+            // Go to the next trial
             GoToNextTrial();
         }
+
         public void GoToNextTrial()
         {
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
                 //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
-                _mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
+                _mainWindow.ResetAllAuxWindows();
                 _mainWindow.ClearCanvas();
                 _functionsVisitMap.Clear();
 
@@ -142,10 +146,13 @@ namespace SubTask.FunctionSelection
                 // Log block time
                 ExperiLogger.LogBlockTime(_activeBlock);
 
+                // Go to next block
+                _mainWindow.GoToNextBlock();
+
                 // Show end of block window
-                BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
-                blockEndWindow.Owner = _mainWindow;
-                blockEndWindow.ShowDialog();
+                //BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
+                //blockEndWindow.Owner = _mainWindow;
+                //blockEndWindow.ShowDialog();
             }
         }
 
@@ -207,7 +214,7 @@ namespace SubTask.FunctionSelection
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -221,14 +228,14 @@ namespace SubTask.FunctionSelection
             LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
-            ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
+            ExperiLogger.RecordCursorPosition(e.GetPosition(_mainWindow.Owner));
         }
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
             if (IsStartPressed() && !IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -245,7 +252,7 @@ namespace SubTask.FunctionSelection
 
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -310,7 +317,7 @@ namespace SubTask.FunctionSelection
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return;
             }
@@ -331,7 +338,7 @@ namespace SubTask.FunctionSelection
 
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
@@ -340,7 +347,7 @@ namespace SubTask.FunctionSelection
             SetFunctionAsApplied(funId);
 
             // If all functions are applied => end trial with HIT
-            if (_activeTrialRecord.AreAllFunctionsApplied())
+            if (_activeTrialRecord.AreAllFunctionsSelected())
             {
                 //EndActiveTrial(Result.HIT);
                 _mainWindow.ChangeStartButtonColor(UIColors.COLOR_FUNCTION_ENABLED);
@@ -359,7 +366,7 @@ namespace SubTask.FunctionSelection
         {
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -390,7 +397,7 @@ namespace SubTask.FunctionSelection
             if (startButtonPressed)
             {
                 // Change Start to End in the main window
-                _mainWindow.SwitchStartToEnd(_activeTrial.FuncSide);
+
                 // Remove the Start
                 //_mainWindow.RemoveStartTrialButton();
                 UpdateScene();
@@ -401,7 +408,7 @@ namespace SubTask.FunctionSelection
             }
 
             //--- Correctly pressed
-            if (_activeTrialRecord.AreAllFunctionsApplied())
+            if (_activeTrialRecord.AreAllFunctionsSelected())
             {
                 EndActiveTrial(Result.HIT);
             }
@@ -447,26 +454,13 @@ namespace SubTask.FunctionSelection
                 UIColors.COLOR_FUNCTION_ENABLED);
         }
 
-        public void SetFunctionAsDisabled(int funcId)
-        {
-            _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide,
-                funcId,
-                UIColors.COLOR_FUNCTION_DEFAULT);
-        }
-
         public void SetFunctionAsApplied(int funcId)
         {
-            _activeTrialRecord.SetFunctionAsApplied(funcId);
+            _activeTrialRecord.SetFunctionAsSelected(funcId);
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
                 funcId,
                 UIColors.COLOR_FUNCTION_APPLIED);
-        }
-
-        protected void SetObjectAsDisabled(int objId)
-        {
-            _mainWindow.FillObject(objId, UIColors.COLOR_OBJ_DEFAULT);
         }
 
         public void UpdateScene()
@@ -556,6 +550,11 @@ namespace SubTask.FunctionSelection
         protected bool IsStartClicked()
         {
             return GetEventCount(ExpStrs.STR_RELEASE) > 0;
+        }
+
+        public Complexity GetComplexity()
+        {
+            return _activeBlock.Complexity;
         }
     }
 

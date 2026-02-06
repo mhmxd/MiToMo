@@ -271,6 +271,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ButtonRegistry.cs" />
+    <Compile Include="EndWindow.xaml.cs">
+      <DependentUpon>EndWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Logging\DetailTrialLog.cs" />
     <Compile Include="Logging\TotalTrialLog.cs" />
     <Compile Include="App.xaml.cs">
@@ -288,6 +292,9 @@
     <Compile Include="Experiment.cs" />
     <Compile Include="FullFinger.cs" />
     <Compile Include="FingerTracker.cs" />
+    <Compile Include="PausePopUp.xaml.cs">
+      <DependentUpon>PausePopUp.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TrialEvent.cs" />
     <Compile Include="Logging\ExperiLogger.cs" />
     <Compile Include="TopWindow.xaml.cs">
@@ -302,7 +309,6 @@
     <Compile Include="IntroDialog.xaml.cs">
       <DependentUpon>IntroDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Output.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -310,7 +316,6 @@
       <DependentUpon>SideWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="TouchSimulator.cs" />
-    <Compile Include="TouchSurface.cs" />
     <Compile Include="Trial.cs" />
     <Compile Include="BlockHandler.cs" />
     <Compile Include="TrialRecord.cs" />
@@ -360,11 +365,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="EndWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="IntroDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="PausePopUp.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

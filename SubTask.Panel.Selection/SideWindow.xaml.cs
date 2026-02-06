@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.Panel.Selection
@@ -16,25 +14,12 @@ namespace SubTask.Panel.Selection
     {
         public string WindowTitle { get; set; }
 
-        [DllImport("User32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool SetCursorPos(int X, int Y);
-
-        [DllImport("User32.dll")]
-        private static extern void EnableMouseInPointer(bool fEnable);
-
-        [DllImport("user32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        public SideWindow(Side side, Point relPos)
+        public SideWindow(Side side)
         {
             InitializeComponent();
 
             this.Side = side;
             this.DataContext = this; // Set DataContext for data binding
-
-            EnableMouseInPointer(true);
-            SetForegroundWindow(new WindowInteropHelper(this).Handle);
 
             //this.Loaded += SideWindow_Loaded; // Add this line
         }

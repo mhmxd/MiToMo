@@ -82,7 +82,7 @@ namespace SubTask.ObjectSelection
                             Technique,
                             expType,
                             ExpEnvironment.PTC_NUM,
-                            ExpDesign.OS_N_OBJS[0]);
+                            ExpDesign.ObjSelectNumObjects[0]);
 
                 block._trials.Add(trial3);
                 trialNum++;
@@ -92,7 +92,7 @@ namespace SubTask.ObjectSelection
                             Technique,
                             expType,
                             ExpEnvironment.PTC_NUM,
-                            ExpDesign.OS_N_OBJS[1]);
+                            ExpDesign.ObjSelectNumObjects[1]);
 
                 block._trials.Add(trial5);
                 trialNum++;

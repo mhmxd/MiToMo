@@ -24,10 +24,10 @@ namespace SubTask.ObjectSelection
         {
 
             // Create and add blocks
-            for (int i = 0; i < ExpDesign.OS_N_BLOCKS; i++)
+            for (int i = 0; i < ExpDesign.ObjectSelectNumBlocks; i++)
             {
                 int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(ExpEnvironment.PTC_NUM, blockId, expType, ExpDesign.OS_N_REP);
+                Block block = Block.CreateBlock(ExpEnvironment.PTC_NUM, blockId, expType, ExpDesign.ObjectSelectNumRep);
                 _blocks.Add(block);
             }
 
