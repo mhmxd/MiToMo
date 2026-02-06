@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using static Common.Constants.ExpEnums;
-using static SubTask.PanelNavigation.Output;
 using static System.Math;
 
 namespace SubTask.PanelNavigation
@@ -881,7 +880,6 @@ namespace SubTask.PanelNavigation
                 }
                 else // First touch
                 {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -914,7 +912,6 @@ namespace SubTask.PanelNavigation
                 }
                 else // First touch
                 {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -947,7 +944,6 @@ namespace SubTask.PanelNavigation
                 }
                 else // First touch
                 {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer

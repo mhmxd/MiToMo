@@ -151,7 +151,6 @@ namespace SubTask.PanelNavigation
         public static void LogDetailTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
 
-            Output.Conlog<ExperiLogger>("Logging Trial");
             DetailTrialLog log = new DetailTrialLog();
 
             // Information

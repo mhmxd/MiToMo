@@ -19,7 +19,6 @@ using System.Windows.Threading;
 using WindowsInput;
 using static Common.Constants.ExpEnums;
 using static SubTask.PanelNavigation.Experiment;
-using static SubTask.PanelNavigation.Output;
 using MessageBox = System.Windows.Forms.MessageBox;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
@@ -88,8 +87,6 @@ namespace SubTask.PanelNavigation
         private AuxWindow _leftWindow;
         private AuxWindow _rightWindow;
         private AuxWindow _activeAuxWindow;
-
-        private double _monitorHeightMM;
 
         private int _absLeft, _absRight, _absTop, _absBottom;
         private double thisLeft, thisTop, thisRight, thisBottom; // Absolute positions of the main window (set to not call this.)
@@ -172,9 +169,6 @@ namespace SubTask.PanelNavigation
         public MainWindow()
         {
             InitializeComponent();
-
-            // Initialize logging
-            Output.Init();
 
             // Initialize random
             _random = new Random();
@@ -359,14 +353,6 @@ namespace SubTask.PanelNavigation
                 _backgroundWindow.Show();
                 _backgroundWindow.WindowState = WindowState.Maximized;
 
-                Outlog<MainWindow>().Information($"Monitor WorkingArea H = {secondScreen.WorkingArea.Height}");
-                Outlog<MainWindow>().Information($"BackgroundWindow Actual H (after maximize) = {_backgroundWindow.ActualHeight}");
-
-                // Set the height as mm
-                //_monitorHeightMM = Utils.PX2MM(secondScreen.WorkingArea.Height);
-                _monitorHeightMM = 335;
-                Outlog<MainWindow>().Information($"Monitor H = {secondScreen.WorkingArea.Height}");
-
                 //---
 
                 // Set the window position to the second monitor's working area
@@ -450,20 +436,6 @@ namespace SubTask.PanelNavigation
                 _absRight = _absLeft + (int)this.Width;
                 _absBottom = _absTop + (int)Height;
 
-                //--- Overlay window
-                //var bounds = screens[1].Bounds;
-                //_overlayWindow = new OverlayWindow
-                //{
-                //    WindowStartupLocation = WindowStartupLocation.Manual,
-                //    Left = bounds.Left,
-                //    Top = bounds.Top,
-                //    Width = bounds.Width,
-                //    Height = bounds.Height,
-
-                //    WindowState = WindowState.Normal, // Start as normal to set position
-                //};
-                //WindowHelper.SetAlwaysOnTop( _overlayWindow );
-                //_overlayWindow.Show();
             }
 
 
@@ -472,14 +444,6 @@ namespace SubTask.PanelNavigation
 
             // Synchronize window movement with main window
             this.LocationChanged += MainWindow_LocationChanged;
-
-            // Thresholds
-            //distThresh.min = Math.Sqrt(2 * (NOISE_MIN_THRESH * NOISE_MIN_THRESH));
-            //distThresh.max = Math.Sqrt(2 * (NOISE_MAX_THRESH * NOISE_MAX_THRESH));
-            //distThresh = (0.05, 1.0);
-            //Console.WriteLine($"Dist Threshold = {distThresh}");
-
-
 
             //AdjustWindowPositions();
         }

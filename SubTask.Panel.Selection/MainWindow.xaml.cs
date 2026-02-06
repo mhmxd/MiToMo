@@ -1,10 +1,4 @@
-﻿/********************************************************
-*                                                       *
-*   Copyright (C) Microsoft. All rights reserved.       *
-*                                                       *
-********************************************************/
-
-using Common.Constants;
+﻿using Common.Constants;
 using Common.Helpers;
 using Common.Settings;
 using CommonUI;
@@ -23,7 +17,6 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using static Common.Constants.ExpEnums;
-using static SubTask.Panel.Selection.Output;
 using MessageBox = System.Windows.Forms.MessageBox;
 using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
@@ -115,8 +108,6 @@ namespace SubTask.Panel.Selection
         private AuxWindow _rightWindow;
         private AuxWindow _activeAuxWindow;
 
-        private double _monitorHeightMM;
-
         private int _absLeft, _absRight, _absTop, _absBottom;
         private double thisLeft, thisTop, thisRight, thisBottom; // Absolute positions of the main window (set to not call this.)
 
@@ -170,9 +161,6 @@ namespace SubTask.Panel.Selection
         public MainWindow()
         {
             InitializeComponent();
-
-            // Initialize logging
-            Output.Init();
 
             // Initialize random
             _random = new Random();
@@ -345,14 +333,6 @@ namespace SubTask.Panel.Selection
                 _backgroundWindow.Show();
                 _backgroundWindow.WindowState = WindowState.Maximized;
 
-                Outlog<MainWindow>().Information($"Monitor WorkingArea H = {secondScreen.WorkingArea.Height}");
-                Outlog<MainWindow>().Information($"BackgroundWindow Actual H (after maximize) = {_backgroundWindow.ActualHeight}");
-
-                // Set the height as mm
-                //_monitorHeightMM = Utils.PX2MM(secondScreen.WorkingArea.Height);
-                _monitorHeightMM = 335;
-                Outlog<MainWindow>().Information($"Monitor H = {secondScreen.WorkingArea.Height}");
-
                 //---
 
                 // Set the window position to the second monitor's working area
@@ -391,7 +371,7 @@ namespace SubTask.Panel.Selection
                 //topWinHeightRatio = topWindow.Height / TOMOPAD_SIDE_SIZE;
 
                 // Create left window
-                _leftWindow = new SideWindow(Side.Left, new Point(0, SideWindowWidth));
+                _leftWindow = new SideWindow(Side.Left);
                 _leftWindow.Background = UIColors.GRAY_F3F3F3;
                 _leftWindow.Width = SideWindowWidth;
                 _leftWindow.Height = this.Height;
@@ -411,7 +391,7 @@ namespace SubTask.Panel.Selection
                 //leftWinHeightRatio = leftWindow.Height / (TOMOPAD_LAST_ROW - TOMOPAD_SIDE_SIZE);
 
                 // Create right window
-                _rightWindow = new SideWindow(Side.Right, new Point(SideWindowWidth + this.Width, SideWindowWidth));
+                _rightWindow = new SideWindow(Side.Right);
                 _rightWindow.Background = UIColors.GRAY_F3F3F3;
                 _rightWindow.Width = SideWindowWidth;
                 _rightWindow.Height = this.Height;

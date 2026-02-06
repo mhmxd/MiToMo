@@ -111,7 +111,6 @@ namespace SubTask.Panel.Selection
         public static void LogDetailTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
 
-            Output.Conlog<ExperiLogger>("Logging Trial");
             DetailTrialLog log = new();
 
             // Information
@@ -124,10 +123,6 @@ namespace SubTask.Panel.Selection
             log.strpr_strrl = trialRecord.GetLastSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
             // Log the rest of the times
-
-            // Testing
-            //Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            //Output.Conlog<ExperiLogger>(log.ToString());
 
             WriteTrialLog(log, _detiledTrialLogPath, _detailTrialLogWriter);
             //_detailTrialLogWriter?.Dispose();            
