@@ -1,20 +1,16 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using Common.Settings;
 using CommonUI;
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media;
 using System.Windows.Shapes;
 using WindowsInput;
 using static Common.Constants.ExpEnums;
-using static SubTask.FunctionPointSelect.Output;
-using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.FunctionPointSelect
 {
@@ -53,238 +49,19 @@ namespace SubTask.FunctionPointSelect
 
         private Rectangle _target = new Rectangle();
         private int targetHalfW;
-        private Point _relPos;
-        public Point Rel_Pos
-        {
-            get { return _relPos; }
-            set { _relPos = value; }
-        }
 
-        private GridNavigator _gridNavigator;
-        private (int colInd, int rowInd) _selectedElement = (0, 0);
-
-        private TranslateTransform _cursorTransform;
-
-        private Dictionary<string, Element> _gridElements = new Dictionary<string, Element>(); // Key: "C{col}-R{row}", Value: Rectangle element
-        //private Dictionary<int, string> _elementWidths = new Dictionary<int, string>(); // Key: Width (px), Value: Element Key
-
-        //private Grid[] _gridColumns = new Grid[4]; // List of grid columns
-        private List<Grid> _gridGroups = new List<Grid>(); // List of grid rows
-        //private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
-        //private Grid _gridCol1, _gridCol2, _gridCol3; // Grid columns
-
-        public SideWindow(Side side, Point relPos)
+        public SideWindow(Side side)
         {
             InitializeComponent();
             //WindowTitle = title;
             Side = side;
             this.DataContext = this; // Set DataContext for data binding
 
-            EnableMouseInPointer(true);
-            SetForegroundWindow(new WindowInteropHelper(this).Handle);
-
-            _relPos = relPos;
-
-            _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
-
-
             this.Loaded += SideWindow_Loaded; // Add this line
         }
 
         private void SideWindow_Loaded(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        /// <summary>
-        /// Show the target for measurement purposes
-        /// </summary>
-        /// <param name="widthMM"></param>
-        /// <param name="fill"></param>
-        /// <returns></returns>
-        public void ShowDummyTarget(double widthMM, Brush fill)
-        {
-
-            // Radius in pixels
-            //const double PPI = 109;
-            //const double MM_IN_INCH = 25.4;
-            int targetWidth = UITools.MM2PX(widthMM);
-
-            // Get canvas dimensions
-            int canvasWidth = (int)canvas.ActualWidth;
-            int canvasHeight = (int)canvas.ActualHeight;
-
-            // Ensure the Target stays fully within bounds (min/max for top-left)
-            int marginPX = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
-            int minX = marginPX;
-            int maxX = canvasWidth - marginPX - targetWidth;
-            int minY = marginPX;
-            int maxY = canvasHeight - marginPX - targetWidth;
-
-            // Create the target
-            targetHalfW = targetWidth / 2;
-            _target = new Rectangle
-            {
-                Width = targetWidth,
-                Height = targetWidth,
-                Fill = fill,
-            };
-
-            // Longest dist
-            Canvas.SetLeft(_target, (canvasWidth - targetWidth) / 2);
-            Canvas.SetTop(_target, minY);
-            // Shortest dist
-            //Canvas.SetLeft(_target, maxX - targetWidth);
-            //Canvas.SetTop(_target, minY);
-
-            // Add the circle to the Canvas
-            canvas.Children.Add(_target);
-
-            // Set index
-            Canvas.SetZIndex(_target, 0);
-            //Canvas.SetZIndex(activeCursor, 1);
-            //Canvas.SetZIndex(inactiveCursor, 1);
-        }
-
-        public void ColorTarget(Brush color)
-        {
-            _target.Fill = color;
-        }
-
-        public bool IsCursorInsideTarget()
-        {
-            // Get circle's center
-            //double centerX = Canvas.GetLeft(_target) + targetHalfW;
-            //double centerY = Canvas.GetTop(_target) + targetHalfW;
-
-            //// Calculate distance from the point to the circle's center
-            //double distance = Math.Sqrt(
-            //    Math.Pow(_cursorTransform.x - centerX, 2) + Math.Pow(_cursorTransform.y - centerY, 2)
-            //    );
-
-            //// Check if the distance is less than or equal to the radius
-            //return distance <= targetHalfW;
-
-            return false; // TEMP
-        }
-
-        /// <summary>
-        /// Check if the point is positioned inside the target
-        /// </summary>
-        /// <param name="p">Point (window coordinates)</param>
-        /// <returns></returns>
-        public bool IsPointInsideTarget(Point p)
-        {
-            // Target position
-            double targetLeft = Canvas.GetLeft(_target);
-            double targetTop = Canvas.GetTop(_target);
-
-            // Get the Rect from _target
-            Rect targetRect = new Rect(targetLeft, targetTop, _target.Width, _target.Height);
-
-            // Get circle's center
-            //double centerX = Canvas.GetLeft(_target) + _targetRadius;
-            //double centerY = Canvas.GetTop(_target) + _targetRadius;
-            //TRIAL_LOG.Information($"Target Center: {centerX}, {centerY}");
-            // Calculate distance from the point to the circle's center
-            //double distance = Math.Sqrt(
-            //    Math.Pow(p.x - centerX, 2) + Math.Pow(p.y - centerY, 2)
-            //    );
-
-            // Check if the distance is less than or equal to the radius
-            return targetRect.Contains(p);
-        }
-
-        public void ShowCursor(int x, int y)
-        {
-
-            // Show the simulated cursor
-            //inactiveCursor.Visibility = Visibility.Hidden;
-            //activeCursor.Visibility = Visibility.Visible;
-            //_cursorTransform.x = x;
-            //_cursorTransform.y = y;
-        }
-
-        public void ShowCursor(Point p)
-        {
-            ShowCursor((int)p.X, (int)p.Y);
-        }
-
-        public void ShowCursor(Side location)
-        {
-            Point position = new Point();
-
-            switch (location)
-            {
-                case Side.Left:
-                    position.X = canvas.ActualWidth / 4.0; // Middle of the left
-                    position.Y = canvas.ActualHeight / 2.0; // Middle of height
-                    break;
-                case Side.Top:
-                    position.X = canvas.ActualWidth / 2.0; // Middle of width
-                    position.Y = canvas.ActualHeight / 4.0; // Middle of the top
-                    break;
-                case Side.Down:
-                    position.X = canvas.ActualWidth / 2.0; // Middle of width
-                    position.Y = canvas.ActualHeight * 3 / 4.0; // Middle of the top
-                    break;
-                case Side.Right:
-                    position.X = canvas.ActualWidth * 3 / 4.0; // Middle of the right
-                    position.Y = canvas.ActualHeight / 2.0; // Middle of height
-                    break;
-                case Side.Middle:
-                    position.X = canvas.ActualWidth / 2.0; // Middle of width
-                    position.Y = canvas.ActualHeight / 2.0; // Middle of height
-                    break;
-            }
-
-            //inactiveCursor.Visibility = Visibility.Visible;
-            //activeCursor.Visibility = Visibility.Visible;
-
-            _cursorTransform.X = position.X;
-            _cursorTransform.Y = position.Y;
-
-            //_cursorTransform.x = position.x;
-            //_cursorTransform.y = 10;
-        }
-
-        public void ActivateGridNavigator()
-        {
-            _gridNavigator.Activate();
-        }
-
-        public void ActivateCursor()
-        {
-            //inactiveCursor.Visibility = Visibility.Hidden;
-            //activeCursor.Visibility = Visibility.Visible;
-            //_auxursor.Activate();
-        }
-
-        public void DeactivateCursor()
-        {
-            //activeCursor.Visibility = Visibility.Hidden;
-            //inactiveCursor.Visibility = Visibility.Visible;
-            //_auxursor.Deactivate();
-        }
-
-        public void UpdateCursor(TouchPoint tp)
-        {
-            //(double dX, double dY) = _auxursor.Update(tp);
-            //// Only move if above the threshold
-            //double moveMagnitude = Math.Sqrt(dX * dX + dY * dY);
-            //if (moveMagnitude >= Config.MIN_MOVEMENT_THRESHOLD)
-            //{
-            //    MoveCursor(dX, dY);
-            //}
-
-            (int dGridX, int dGridY) = _gridNavigator.Update(tp);
-
-            // Apply the calculated movement to the grid's current position
-            if (dGridX != 0 || dGridY != 0)
-            {
-                this.TrialInfo($"Grid movement: dX = {dGridX}, dY = {dGridY}");
-                MoveSelection(dGridX, dGridY);
-            }
 
         }
 
@@ -296,9 +73,6 @@ namespace SubTask.FunctionPointSelect
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
             var cursorPoint = e.GetPosition(this);
-
-            _cursorTransform.X = cursorPoint.X;
-            _cursorTransform.Y = cursorPoint.Y;
         }
 
         private void Window_MouseUp(object sender, MouseEventArgs e)
@@ -306,114 +80,14 @@ namespace SubTask.FunctionPointSelect
 
         }
 
-        private void AddElementToCanvas(Element element, int left, int top)
-        {
-            Canvas.SetLeft(element, left);
-            Canvas.SetTop(element, top);
-            canvas.Children.Add(element);
-            Conlog<SideWindow>($"Adding element: {element.Id}, Left: {left}, Top: {top}, W: {element.ElementWidth}, H: {element.ElementHeight}");
-            _gridElements.Add(element.Id, element); // Cast to Element if needed
-        }
-
-
-
-        public void SelectElement()
-        {
-            // De-select all elements first
-            foreach (var element in _gridElements.Values)
-            {
-                element.ElementStroke = UIColors.COLOR_BUTTON_DEFAULT_BORDER;
-                element.ElementStrokeThickness = ExpLayouts.ELEMENT_BORDER_THICKNESS;
-            }
-
-            string elementKey = $"C{_selectedElement.colInd}-R{_selectedElement.rowInd}";
-            if (_gridElements.ContainsKey(elementKey))
-            {
-                Element element = _gridElements[elementKey];
-                element.ElementStroke = UIColors.COLOR_ELEMENT_HIGHLIGHT;
-                element.ElementStrokeThickness = ExpLayouts.ELEMENT_BORDER_THICKNESS;
-            }
-            else
-            {
-                Console.WriteLine($"Element {elementKey} not found.");
-            }
-        }
-
-        public void SelectElement(int rowId, int colId)
-        {
-            _selectedElement.rowInd = rowId;
-            _selectedElement.colInd = colId;
-            SelectElement();
-        }
-
-        public void MoveSelection(int dCol, int dRow)
-        {
-            _selectedElement.rowInd += dRow;
-            _selectedElement.colInd += dCol;
-            if (_selectedElement.rowInd < 0) _selectedElement.rowInd = 0;
-            if (_selectedElement.colInd < 0) _selectedElement.colInd = 0;
-            SelectElement();
-        }
-
-        public void ColorElement(string elementId, Brush color)
-        {
-            this.TrialInfo($"Element Key: {elementId}");
-            if (_gridElements.ContainsKey(elementId))
-            {
-                Element element = _gridElements[elementId];
-                element.ElementFill = color;
-            }
-            else
-            {
-                Console.WriteLine($"Element {elementId} not found.");
-            }
-        }
-
-        public void ResetElements()
-        {
-            foreach (Element element in _gridElements.Values)
-            {
-                element.ElementFill = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Reset to default color
-            }
-        }
-
-        public Point GetElementCenter(string key)
-        {
-            Element element = _gridElements[key];
-
-            return new Point
-            {
-                X = Canvas.GetLeft(element) + element.ElementWidth / 2,
-                Y = Canvas.GetTop(element) + element.ElementWidth / 2
-            };
-        }
-
-        public override void ShowPoint(Point p)
-        {
-            // Create a small circle to represent the point
-            Ellipse pointCircle = new Ellipse
-            {
-                Width = 5, // Diameter of the circle
-                Height = 5,
-                Fill = Brushes.Red // Color of the circle
-            };
-            // Position the circle on the canvas
-            Canvas.SetLeft(pointCircle, p.X - pointCircle.Width / 2);
-            Canvas.SetTop(pointCircle, p.Y - pointCircle.Height / 2);
-            // Add the circle to the canvas
-            if (this.canvas != null)
-            {
-                this.canvas.Children.Add(pointCircle);
-            }
-            else
-            {
-                this.TrialInfo("Canvas is not initialized, cannot show point.");
-            }
-
-        }
 
         public override Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
         {
+            // 1. IMMEDIATELY kill the old dictionary references
+            // This prevents any "Fill" calls from finding old buttons during the transition
+            _buttonWraps.Clear();
+            _widthButtons.Clear();
+
             // A TaskCompletionSource allows us to create a Task
             // that we can complete manually later.
             var tcs = new TaskCompletionSource<bool>();
@@ -423,21 +97,11 @@ namespace SubTask.FunctionPointSelect
 
             _buttonsGrid = gridCreator(); // Create the new column Grid
 
-            // Set left position on the Canvas (horizontally centered)
-            //Output.TrialInfo(this, $"Placing single grid with size {grid.Width} in {this.Width}...");
-            //double leftPosition = (this.Width - grid.Width) / 2;
-            //Canvas.SetLeft(grid, leftPosition);
-
             // Set top position on the Canvas (from padding)
             Canvas.SetTop(_buttonsGrid, topPadding);
 
             // Add to the Canvas
             canvas.Children.Add(_buttonsGrid);
-
-            //double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
-            //Canvas.SetLeft(_buttonsGrid, leftPosition);
-
-
 
             // Subscribe to the Loaded event to get the correct width.
             _buttonsGrid.Loaded += (sender, e) =>
@@ -445,23 +109,15 @@ namespace SubTask.FunctionPointSelect
                 try
                 {
                     // Now ActualWidth has a valid value.
+                    this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
                     double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
                     Canvas.SetLeft(_buttonsGrid, leftPosition);
 
                     RegisterAllButtons(_buttonsGrid);
                     LinkButtonNeighbors();
 
-                    FindMiddleButton();
-
                     // Indicate that the task is successfully completed.
                     tcs.SetResult(true);
-
-                    // Register buttons after the grid is loaded and positioned.
-                    //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-                    //{
-                    //    RegisterAllButtons();
-                    //    LinkButtonNeighbors();
-                    //}));
                 }
                 catch (Exception ex)
                 {

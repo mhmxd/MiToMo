@@ -3,7 +3,6 @@ using Common.Settings;
 using CommonUI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -11,7 +10,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
-using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.FunctionPointSelect
 {
@@ -19,11 +17,11 @@ namespace SubTask.FunctionPointSelect
     {
 
         public Side Side { get; set; } // Side of the window (left, right, top)
-                                       // 
+
         protected Grid _buttonsGrid; // The grid containing all buttons
         protected List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
-        protected Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
-        protected Dictionary<int, ButtonInfo> _buttonInfos = new Dictionary<int, ButtonInfo>();
+        protected Dictionary<int, List<int>> _widthButtons = new(); // Dictionary to hold button Ids by their width multiples
+        protected Dictionary<int, ButtonWrap> _buttonWraps = new(); // Id to ButtonWrap mapping
         protected SButton _targetButton; // Currently selected button (if any)
 
         // Boundary of the grid (encompassing all buttons)
@@ -82,35 +80,20 @@ namespace SubTask.FunctionPointSelect
 
         protected void RegisterButton(SButton button)
         {
-            //this.TrialInfo($"Registering button {button.ToString()}");
-            _widthButtons.TryAdd(button.WidthMultiple, new List<SButton>());
-            _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
-            _buttonInfos[button.Id] = new ButtonInfo(button);
-            //_allButtons.Add(button.Id, button); // Add to the list of all buttons
-
-            // Add button position to the dictionary
+            this.PositionInfo($"Registering button {button}");
+            _widthButtons.TryAdd(button.WidthMultiple, new List<int>());
+            _widthButtons[button.WidthMultiple].Add(button.Id); // Add the button to the dictionary with its width as the key
+            _buttonWraps[button.Id] = new ButtonWrap(button);
 
             // Get the transform from the button to the Window (or the root visual)
             GeneralTransform transformToWindow = button.TransformToVisual(Window.GetWindow(button));
             // Get the point representing the top-left corner of the button relative to the Window
             Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
-            _buttonInfos[button.Id].Position = positionInWindow;
-            //_buttonPositions.Add(button.Id, positionInWindow); // Store the position of the button
-            //this.TrialInfo($"Button Position: {positionInWindow}");
+            _buttonWraps[button.Id].Position = positionInWindow;
 
             Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
-            _buttonInfos[button.Id].Rect = buttonRect;
-            this.TrialInfo($"ButtonRect: {buttonRect}");
-            //_buttonRects.Add(button.Id, buttonRect); // Store the rect for later
-
-            // Set possible distance range to the Start positions
-            Point buttonCenterAbsolute =
-                positionInWindow
-                .OffsetPosition(button.ActualWidth / 2, button.ActualHeight / 2)
-                .OffsetPosition(this.Left, this.Top);
-
-            // Correct way of finding min and max dist
-            _buttonInfos[button.Id].DistToStartRange = GetMinMaxDistances(buttonCenterAbsolute, _objectConstraintRectAbsolute);
+            _buttonWraps[button.Id].Rect = buttonRect;
+            this.PositionInfo($"ButtonRect: {buttonRect}");
 
             // Update min/max x and y for grid bounds
             _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
@@ -125,6 +108,9 @@ namespace SubTask.FunctionPointSelect
                 _topLeftButtonPosition = positionInWindow; // Update the top-left button position
                                                            //_lastMarkedButtonId = button.Id; // Set the last highlighted button to this one
             }
+
+            // Register globally instead of locally
+            ButtonRegistry.Register(button.Id, button, this);
         }
 
         protected void FindMiddleButton()
@@ -153,10 +139,10 @@ namespace SubTask.FunctionPointSelect
             double centerDistance = double.MaxValue;
             int closestButtonId = -1;
 
-            foreach (int buttonId in _buttonInfos.Keys)
+            foreach (int buttonId in _buttonWraps.Keys)
             {
-                Rect buttonRect = _buttonInfos[buttonId].Rect;
-                this.TrialInfo($"Button#{buttonId}; Rect: {buttonRect.ToString()}; Btn: {_buttonInfos[buttonId].Button.ToString()}");
+                Rect buttonRect = _buttonWraps[buttonId].Rect;
+                this.TrialInfo($"Button#{buttonId}; Rect: {buttonRect.ToString()}; Btn: {_buttonWraps[buttonId].Button}");
                 // Check which button contains the grid center point
                 if (buttonRect.Contains(gridCenterPoint))
                 {
@@ -185,44 +171,43 @@ namespace SubTask.FunctionPointSelect
             return _middleButtonId;
         }
 
+        public int SelectRandButton(int widthMulti)
+        {
+            if (_widthButtons[widthMulti] == null) return -1;
+
+            return _widthButtons[widthMulti].GetRandomElement();
+        }
+
         public int SelectRandButtonByConstraints(int widthMult, Rect objConstraintRect, int dist)
         {
-            //this.TrialInfo($"Selecting button by multiple: {widthMult}");
-            //this.TrialInfo($"All buttons: ");
-            //foreach (int bid in _allButtons.Keys)
-            //{
-            //    this.TrialInfo($"Button#{bid} -> {_allButtons[bid].Id}");
-            //}
 
             //this.TrialInfo($"Available buttons:");
-            foreach (int wm in _widthButtons.Keys)
-            {
-                string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-                //this.TrialInfo($"WM {wm} -> {ids}");
-            }
+            //foreach (int wm in _widthButtons.Keys)
+            //{
+            //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
+            //    //this.TrialInfo($"WM {wm} -> {ids}");
+            //}
+
+            this.TrialInfo($"Width: {widthMult}; Rect: {objConstraintRect}; Dist: {dist}");
+
+            if (_widthButtons[widthMult] == null) return -1;
 
             if (_widthButtons[widthMult].Count > 0)
             {
-
                 // Find the buttons with dist laying inside their dist to start range
-                List<int> possibleButtons = new List<int>();
-                foreach (int buttonId in _buttonInfos.Keys)
+                List<int> possibleButtons = new();
+                foreach (int buttonId in _widthButtons[widthMult])
                 {
-                    Point buttonCenter = new Point(
-                        _buttonInfos[buttonId].Rect.X + _buttonInfos[buttonId].Rect.Width / 2,
-                        _buttonInfos[buttonId].Rect.Y + _buttonInfos[buttonId].Rect.Height / 2);
+                    Point buttonCenter = new(
+                        _buttonWraps[buttonId].Rect.X + _buttonWraps[buttonId].Rect.Width / 2,
+                        _buttonWraps[buttonId].Rect.Y + _buttonWraps[buttonId].Rect.Height / 2);
                     Point buttonCenterAbsolute = buttonCenter.OffsetPosition(this.Left, this.Top); // Offset to the top-left position
-                    //this.TrialInfo($"ButtonCenter: {buttonCenterAbsolute}; Rect: {objConstraintRect.ToString()}; " +
-                    //    $"Dist: {dist}; MaxDist: {objConstraintRect.MaxDistanceFromPoint(buttonCenterAbsolute)}");
+                    this.TrialInfo($"ButtonCenter: {buttonCenterAbsolute}; Rect: {objConstraintRect}; " +
+                        $"Dist: {dist}; MaxDist: {objConstraintRect.MaxDistanceFromPoint(buttonCenterAbsolute)}");
                     if (objConstraintRect.MaxDistanceFromPoint(buttonCenterAbsolute) > dist)
                     {
                         possibleButtons.Add(buttonId);
                     }
-                    //this.TrialInfo($"Dist = {dist} | DistToStart: {_buttonInfos[buttonId].DistToStartRange.ToString()}");
-                    //if (_buttonInfos[buttonId].DistToStartRange.ContainsExc(dist))
-                    //{
-                    //    possibleButtons.Add(buttonId);
-                    //}
                 }
 
                 // If we have options, return a random from them
@@ -230,18 +215,12 @@ namespace SubTask.FunctionPointSelect
                 {
                     return possibleButtons.GetRandomElement();
                 }
+                else
+                {
+                    this.TrialInfo($"No buttons with width multiple {widthMult} matched the distance!");
+                    return -1; // Return an invalid point if no buttons are found
+                }
 
-
-                //if (button != null)
-                //{
-                //    //this.TrialInfo($"Selected button id: {button.Id}");
-                //    return button.Id;
-                //}
-                //else
-                //{
-                //    this.TrialInfo($"No buttons found for width multiple {widthMult}.");
-                //    return -1; // Return an invalid point if no buttons are found
-                //}
             }
             else
             {
@@ -249,32 +228,23 @@ namespace SubTask.FunctionPointSelect
                 return -1; // Return an invalid point if no buttons are found
             }
 
-            this.TrialInfo($"No buttons with width multiple {widthMult} matched the distance!");
-            return -1; // Return an invalid point if no buttons are found
-
         }
 
-        public int SelectRandButtonByConstraints(int widthMult, Range distRange)
+        public int SelectRandButtonByConstraints(int widthMult, MRange distRange)
         {
-            //this.TrialInfo($"Available buttons: ");
-            //foreach (int wm in _widthButtons.Keys)
-            //{
-            //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-            //    this.TrialInfo($"WM {wm} -> {ids}");
-            //}
+            this.TrialInfo($"Width: {widthMult}; Dist: {distRange}");
 
-            //this.TrialInfo($"Look for {widthMult}");
             if (_widthButtons[widthMult].Count > 0)
             {
 
                 // Find the buttons with dist laying inside their dist to start range
-                List<int> possibleButtons = new List<int>();
-                foreach (SButton button in _widthButtons[widthMult])
+                List<int> possibleButtons = new();
+                foreach (int btnId in _widthButtons[widthMult])
                 {
                     //this.TrialInfo($"Dist range = {distRange.ToString()} | DistToStart: {_buttonInfos[button.Id].DistToStartRange.ToString()}");
-                    if (_buttonInfos[button.Id].DistToStartRange.ContainsExc(distRange))
+                    if (_buttonWraps[btnId].DistToStartRange.ContainsExc(distRange))
                     {
-                        possibleButtons.Add(button.Id);
+                        possibleButtons.Add(btnId);
                     }
                 }
 
@@ -283,31 +253,31 @@ namespace SubTask.FunctionPointSelect
                 {
                     return possibleButtons.GetRandomElement();
                 }
+                else
+                {
+                    this.TrialInfo($"No buttons with width multiple {widthMult} matched the distance!");
+                    return -1; // Return an invalid point if no buttons are found
+                }
             }
             else
             {
                 this.TrialInfo($"No buttons available for width multiple {widthMult}!");
                 return -1; // Return an invalid point if no buttons are found
             }
-
-            this.TrialInfo($"No buttons with width multiple {widthMult} matched the distance!");
-            return -1; // Return an invalid point if no buttons are found
 
         }
 
         public virtual void FillGridButton(int buttonId, Brush color)
         {
             // Find the button with the specified ID
-            if (_buttonInfos.ContainsKey(buttonId))
+            if (_buttonWraps.ContainsKey(buttonId))
             {
-                _buttonInfos[buttonId].ButtonFill = color; // Store the default background color
-                _buttonInfos[buttonId].Button.Background = color; // Change the background color of the button
-                _buttonInfos[buttonId].Button.DisableBackgroundHover = true; // Disable hover fill for this button
-                //this.TrialInfo($"Button {buttonId} filled with color {color}.");
+                _buttonWraps[buttonId].Button.Background = color; // Change the background color of the button
+                this.TrialInfo($"Button {buttonId} filled with color {color}.");
             }
             else
             {
-                //this.TrialInfo($"Button with ID {buttonId} not found.");
+                this.TrialInfo($"Button with ID {buttonId} not found.");
             }
         }
 
@@ -333,13 +303,13 @@ namespace SubTask.FunctionPointSelect
             // Remove OLD handlers (using stored references)
             if (_currentFuncMouseDownHandler != null)
             {
-                foreach (int id in _buttonInfos.Keys)
+                foreach (int id in _buttonWraps.Keys)
                 {
-                    _buttonInfos[id].Button.RemoveHandler(UIElement.MouseEnterEvent, _currentFuncMouseEnterHandler);
-                    _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, _currentFuncMouseDownHandler);
-                    _buttonInfos[id].Button.RemoveHandler(UIElement.MouseUpEvent, _currentFuncMouseUpHandler);
-                    _buttonInfos[id].Button.RemoveHandler(UIElement.MouseLeaveEvent, _currentFuncMouseExitHandler);
-                    _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, _currentNonFuncMouseDownHandler);
+                    _buttonWraps[id].Button.RemoveHandler(UIElement.MouseEnterEvent, _currentFuncMouseEnterHandler);
+                    _buttonWraps[id].Button.RemoveHandler(UIElement.MouseDownEvent, _currentFuncMouseDownHandler);
+                    _buttonWraps[id].Button.RemoveHandler(UIElement.MouseUpEvent, _currentFuncMouseUpHandler);
+                    _buttonWraps[id].Button.RemoveHandler(UIElement.MouseLeaveEvent, _currentFuncMouseExitHandler);
+                    _buttonWraps[id].Button.RemoveHandler(UIElement.MouseDownEvent, _currentNonFuncMouseDownHandler);
                 }
             }
 
@@ -351,18 +321,18 @@ namespace SubTask.FunctionPointSelect
             _currentNonFuncMouseDownHandler = nonFuncMouseDownHandler;
 
             // Add NEW handlers
-            foreach (int id in _buttonInfos.Keys)
+            foreach (int id in _buttonWraps.Keys)
             {
                 if (funcIds.Contains(id))
                 {
-                    _buttonInfos[id].Button.AddHandler(UIElement.MouseEnterEvent, _currentFuncMouseEnterHandler, handledEventsToo: true);
-                    _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, _currentFuncMouseDownHandler, handledEventsToo: true);
-                    _buttonInfos[id].Button.AddHandler(UIElement.MouseUpEvent, _currentFuncMouseUpHandler, handledEventsToo: true);
-                    _buttonInfos[id].Button.AddHandler(UIElement.MouseLeaveEvent, _currentFuncMouseExitHandler, handledEventsToo: true);
+                    _buttonWraps[id].Button.AddHandler(UIElement.MouseEnterEvent, _currentFuncMouseEnterHandler, handledEventsToo: true);
+                    _buttonWraps[id].Button.AddHandler(UIElement.MouseDownEvent, _currentFuncMouseDownHandler, handledEventsToo: true);
+                    _buttonWraps[id].Button.AddHandler(UIElement.MouseUpEvent, _currentFuncMouseUpHandler, handledEventsToo: true);
+                    _buttonWraps[id].Button.AddHandler(UIElement.MouseLeaveEvent, _currentFuncMouseExitHandler, handledEventsToo: true);
                 }
                 else
                 {
-                    _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, _currentNonFuncMouseDownHandler, handledEventsToo: true);
+                    _buttonWraps[id].Button.AddHandler(UIElement.MouseDownEvent, _currentNonFuncMouseDownHandler, handledEventsToo: true);
                 }
             }
         }
@@ -373,26 +343,26 @@ namespace SubTask.FunctionPointSelect
             MouseButtonEventHandler nonTargetMouseDownHandler)
         {
             // Clear existing handlers for all buttons
-            foreach (int id in _buttonInfos.Keys)
+            foreach (int id in _buttonWraps.Keys)
             {
-                _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, targetMouseDownHandler);
-                _buttonInfos[id].Button.RemoveHandler(UIElement.MouseUpEvent, targetMouseUpHandler);
-                _buttonInfos[id].Button.RemoveHandler(UIElement.MouseDownEvent, nonTargetMouseDownHandler);
+                _buttonWraps[id].Button.RemoveHandler(UIElement.MouseDownEvent, targetMouseDownHandler);
+                _buttonWraps[id].Button.RemoveHandler(UIElement.MouseUpEvent, targetMouseUpHandler);
+                _buttonWraps[id].Button.RemoveHandler(UIElement.MouseDownEvent, nonTargetMouseDownHandler);
             }
 
             // Set new handlers for buttons
-            foreach (int id in _buttonInfos.Keys)
+            foreach (int id in _buttonWraps.Keys)
             {
                 if (id == targetId) // Handling Target
                 {
                     //this.TrialInfo($"Adding target handler for button #{id}");
-                    _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, targetMouseDownHandler, handledEventsToo: true);
-                    _buttonInfos[id].Button.AddHandler(UIElement.MouseUpEvent, targetMouseUpHandler, handledEventsToo: true);
+                    _buttonWraps[id].Button.AddHandler(UIElement.MouseDownEvent, targetMouseDownHandler, handledEventsToo: true);
+                    _buttonWraps[id].Button.AddHandler(UIElement.MouseUpEvent, targetMouseUpHandler, handledEventsToo: true);
                 }
                 else // Handling non-Targets
                 {
                     //this.TrialInfo($"Adding non-target handler for button #{id}");
-                    _buttonInfos[id].Button.AddHandler(UIElement.MouseDownEvent, nonTargetMouseDownHandler, handledEventsToo: true);
+                    _buttonWraps[id].Button.AddHandler(UIElement.MouseDownEvent, nonTargetMouseDownHandler, handledEventsToo: true);
                 }
             }
 
@@ -400,14 +370,14 @@ namespace SubTask.FunctionPointSelect
 
         public virtual Point GetGridButtonCenter(int buttonId)
         {
-            //this.TrialInfo($"Button positions: {_buttonPositions.Stringify<int, Point>()}");
+            this.PositionInfo($"Buttons: {_buttonWraps.Str()}");
             // Find the button with the specified ID
-            if (_buttonInfos.ContainsKey(buttonId))
+            if (_buttonWraps.ContainsKey(buttonId))
             {
                 //this.TrialInfo($"Button#{targetId} position in window: {position}");
-                double buttonHalfWidth = _buttonInfos[buttonId].Button.ActualWidth / 2;
-                double buttonHalfHeight = _buttonInfos[buttonId].Button.ActualHeight / 2;
-                return _buttonInfos[buttonId].Position.OffsetPosition(buttonHalfWidth, buttonHalfHeight);
+                double buttonHalfWidth = _buttonWraps[buttonId].Button.ActualWidth / 2;
+                double buttonHalfHeight = _buttonWraps[buttonId].Button.ActualHeight / 2;
+                return _buttonWraps[buttonId].Position.OffsetPosition(buttonHalfWidth, buttonHalfHeight);
             }
             else
             {
@@ -419,10 +389,10 @@ namespace SubTask.FunctionPointSelect
         public virtual Point GetGridButtonPosition(int buttonId)
         {
             // Find the button with the specified ID
-            if (_buttonInfos.ContainsKey(buttonId))
+            if (_buttonWraps.ContainsKey(buttonId))
             {
                 //this.TrialInfo($"Button#{targetId} position in window: {position}");
-                return _buttonInfos[buttonId].Position; // Return the position of the button
+                return _buttonWraps[buttonId].Position; // Return the position of the button
             }
             else
             {
@@ -431,292 +401,31 @@ namespace SubTask.FunctionPointSelect
             }
         }
 
-        public virtual void ResetButtons()
+        public virtual void Reset()
         {
-            foreach (int buttonId in _buttonInfos.Keys)
+            foreach (int buttonId in _buttonWraps.Keys)
             {
-                _buttonInfos[buttonId].ResetButtonFill();
-            }
-        }
-
-        //public virtual void MakeTargetAvailable()
-        //{
-        //    // Implemented in the derived classes
-        //}
-
-        //public virtual void MakeTargetUnavailable()
-        //{
-        //    // Implemented in the derived classes
-        //}
-
-        public void ShowMarker(Action<int> OnFunctionMarked)
-        {
-            int buttonId = _lastMarkedButtonId;
-            if (buttonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
-            {
-                //MarkButton(_lastMarkedButtonId, OnFunctionMarked); // Highlight the last highlighted button
-                this.TrialInfo($"Last highlight = {_lastMarkedButtonId}");
-                if (_buttonInfos.ContainsKey(buttonId))
-                {
-                    _buttonInfos[buttonId].Button.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT; // Change the border color to highlight
-                                                                                                  // Change the old button background based on the previous state
-                    if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_BUTTON_HOVER_FILL)) // Gray => White
-                    {
-                        //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
-                        _buttonInfos[buttonId].Button.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL;
-                    }
-                    else if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_ENABLED)) // Light green => Orange
-                    {
-                        _buttonInfos[buttonId].Button.Background = UIColors.COLOR_FUNCTION_DEFAULT;
-                    }
-                }
-                else
-                {
-                    this.TrialInfo($"Button with ID {buttonId} not found.");
-                }
-            }
-            else
-            {
-                this.TrialInfo("No button was highlighted yet.");
-            }
-        }
-
-        public void ActivateMarker(Action<int> OnFunctionMarked)
-        {
-            this.TrialInfo($"Last highlight = {_lastMarkedButtonId}");
-
-            // Find the button with the specified ID
-            if (_buttonInfos.ContainsKey(_lastMarkedButtonId))
-            {
-                _gridNavigator.Activate(); // Activate the grid navigator
-                MarkButton(_lastMarkedButtonId, OnFunctionMarked); // Highlight the button
-            }
-            else
-            {
-                this.TrialInfo($"Button with ID {_lastMarkedButtonId} not found.");
-            }
-        }
-
-        public void DeactivateGridNavigator()
-        {
-            _gridNavigator.Deactivate(); // Deactivate the grid navigator
-            if (_lastMarkedButtonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
-            {
-                _buttonInfos[_lastMarkedButtonId].ChangeBackFill();
-                //button.BorderBrush = UIColors.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of the last highlighted button
-            }
-        }
-
-        public void StopGridNavigator()
-        {
-            _gridNavigator.Stop();
-        }
-
-        private void ResetHighlights()
-        {
-            // Reset the border color of all buttons
-            foreach (int buttonId in _buttonInfos.Keys)
-            {
-                _buttonInfos[buttonId].ResetButonBorder();
-                _buttonInfos[buttonId].ChangeBackFill();
-                //if (_buttonInfos[buttonId].Button.Background != UIColors.COLOR_FUNCTION_ENABLED 
-                //    && _buttonInfos[buttonId].Button.Background != UIColors.COLOR_FUNCTION_DEFAULT)
-                //{
-                //    _buttonInfos[buttonId].Button.Background = UIColors.BUTTON_DEFAULT_FILL_COLOR; // Reset the background color of all buttons
-                //}
-            }
-        }
-
-        //private void MarkButton(int buttonId)
-        //{
-        //    // Find the button with the specified ID
-        //    if (_buttonInfos.ContainsKey(buttonId))
-        //    {
-        //        _buttonInfos[buttonId].Button.BorderBrush = UIColors.ELEMENT_HIGHLIGHT_COLOR; // Change the border color to highlight
-        //                                                                                    // Change the old button background based on the previous state
-        //        if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.BUTTON_HOVER_FILL_COLOR)) // Gray => White
-        //        {
-        //            //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
-        //            _buttonInfos[buttonId].Button.Background = UIColors.BUTTON_DEFAULT_FILL_COLOR;
-        //        }
-        //        else if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_ENABLED)) // Light green => Orange
-        //        {
-        //            _buttonInfos[buttonId].Button.Background = UIColors.COLOR_FUNCTION_DEFAULT;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        this.TrialInfo($"Button with ID {buttonId} not found.");
-        //    }
-        //}
-
-        public void MarkButton(int buttonId, Action<int> OnFunctionMarked)
-        {
-            var buttonBgOrange =
-                _buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_DEFAULT);
-            var buttonBgLightGreen =
-                _buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_ENABLED);
-            var buttonBgDarkGreen =
-                _buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_APPLIED);
-
-            // Reset the border aof all buttons
-            //foreach (var btn in _allButtons.Values)
-            //{
-            //    btn.BorderBrush = UIColors.BUTTON_DEFAULT_BORDER_COLOR; // Reset the border color of all buttons
-            //}
-
-            // Find the button with the specified ID
-            if (_buttonInfos.ContainsKey(buttonId))
-            {
-                _buttonInfos[buttonId].Button.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT; // Change the border color to highlight
-
-                if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_BUTTON_DEFAULT_FILL)) // Normal button
-                {
-                    //this.TrialInfo($"Set {markedButton.Id} to Hover Fill");
-                    _buttonInfos[buttonId].Button.Background = UIColors.COLOR_BUTTON_HOVER_FILL;
-                }
-                else if (_buttonInfos[buttonId].Button.Background.Equals(UIColors.COLOR_FUNCTION_DEFAULT)) // Function (default)
-                {
-                    this.TrialInfo($"Set {_buttonInfos[buttonId].Button.Id} to Enabled");
-                    _buttonInfos[buttonId].Button.Background = UIColors.COLOR_FUNCTION_ENABLED;
-                    // Call the event
-                    OnFunctionMarked(_buttonInfos[buttonId].Button.Id);
-                }
-
-
-                // Change the background to selected (green) if orange or light green
-                //if (buttonBgOrange || buttonBgLightGreen)
-                //{
-                //    _buttonInfos[buttonId].Button.Background = UIColors.COLOR_FUNCTION_APPLIED;
-
-                //    // Tell the MainWindow to mark the mapped object and set function as applied
-                //    ((MainWindow)this.Owner).MarkMappedObject(buttonId);
-                //    ((MainWindow)this.Owner).SetFunctionAsApplied(buttonId);
-                //}
-                //else if (buttonBgDarkGreen) // Don't change if already dark green
-                //{
-                //    // Do nothing, stay dark green
-                //}
-                //else // Change to default hover color
-                //{
-                //    _buttonInfos[buttonId].Button.Background = UIColors.BUTTON_HOVER_FILL_COLOR;
-                //}
-
-                _lastMarkedButtonId = buttonId; // Store the ID of the highlighted button
-            }
-            else
-            {
-                this.TrialInfo($"Button with ID {buttonId} not found.");
-            }
-        }
-
-        public void MoveMarker(TouchPoint tp, Action<int> OnFunctionMarked, Action<int> OnFunctionDeMarked)
-        {
-            // Update the grid navigator with the current touch point
-            var (dGridX, dGridY) = _gridNavigator.Update(tp);
-
-            if ((dGridX == 0 && dGridY == 0) || _lastMarkedButtonId == -1)
-            {
-                return; // No movement needed
-            }
-
-            SButton markedButton = _buttonInfos[_lastMarkedButtonId].Button;
-
-            // --- Process Horizontal Movement ---
-            if (dGridX > 0) // Move Right
-            {
-                for (int i = 0; i < dGridX; i++)
-                {
-                    if (markedButton.RightId == -1) break; // Hit the edge
-                    markedButton = _buttonInfos[markedButton.RightId].Button;
-                }
-            }
-            else // Move Left
-            {
-                for (int i = 0; i < -dGridX; i++)
-                {
-                    if (markedButton.LeftId == -1) break; // Hit the edge
-                    markedButton = _buttonInfos[markedButton.LeftId].Button;
-                }
-            }
-
-            // --- Process Vertical Movement ---
-            if (dGridY > 0) // Move Down
-            {
-                for (int i = 0; i < dGridY; i++)
-                {
-                    if (markedButton.BottomId == -1) break; // Hit the edge
-                    markedButton = _buttonInfos[markedButton.BottomId].Button;
-                }
-            }
-            else // Move Up
-            {
-                for (int i = 0; i < -dGridY; i++)
-                {
-                    if (markedButton.TopId == -1) break; // Hit the edge
-                    markedButton = _buttonInfos[markedButton.TopId].Button;
-                }
-            }
-
-            if (markedButton.Id != _lastMarkedButtonId)
-            {
-                // STEP 1: Handle the old button's state change
-                if (_lastMarkedButtonId != -1 && _buttonInfos.ContainsKey(_lastMarkedButtonId))
-                {
-                    var oldButton = _buttonInfos[_lastMarkedButtonId].Button;
-                    oldButton.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER;
-                    markedButton.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT;
-
-                    // Change the old button background based on the previous state
-                    if (oldButton.Background.Equals(UIColors.COLOR_BUTTON_HOVER_FILL)) // Gray => White
-                    {
-                        //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");
-                        oldButton.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL;
-                    }
-                    else if (oldButton.Background.Equals(UIColors.COLOR_FUNCTION_ENABLED)) // Light green => Orange
-                    {
-                        oldButton.Background = UIColors.COLOR_FUNCTION_DEFAULT;
-                        OnFunctionDeMarked(oldButton.Id); // Call the event
-                    }
-
-                    // Change the new button background based on its previous state
-                    MarkButton(markedButton.Id, OnFunctionMarked);
-                    //if (markedButton.Background.Equals(UIColors.BUTTON_DEFAULT_FILL_COLOR)) // Moved over a normal button
-                    //{
-                    //    //this.TrialInfo($"Set {markedButton.Id} to Hover Fill");
-                    //    markedButton.Background = UIColors.BUTTON_HOVER_FILL_COLOR;
-                    //}
-                    //else if (markedButton.Background.Equals(UIColors.COLOR_FUNCTION_DEFAULT)) // Moved over a function
-                    //{
-                    //    this.TrialInfo($"Set {markedButton.Id} to Enabled");
-                    //    markedButton.Background = UIColors.COLOR_FUNCTION_ENABLED;
-                    //    // Call the event
-                    //    OnFunctionMarked(markedButton.Id);
-                    //}
-                }
-
-                // STEP 2: Update the last marked button ID
-                _lastMarkedButtonId = markedButton.Id;
+                _buttonWraps[buttonId].ResetButtonFill();
             }
         }
 
         public SButton GetNeighbor(SButton currentButton, Side direction)
         {
-            if (currentButton == null || !_buttonInfos.ContainsKey(currentButton.Id))
+            if (currentButton == null || !_buttonWraps.ContainsKey(currentButton.Id))
             {
                 return null; // Cannot navigate from an unregistered button.
             }
 
             // Use the Rect property for bounds
-            Rect currentRect = _buttonInfos[currentButton.Id].Rect;
+            Rect currentRect = _buttonWraps[currentButton.Id].Rect;
 
             List<SButton> potentialCandidates = new List<SButton>();
 
-            foreach (int candidateId in _buttonInfos.Keys)
+            foreach (int candidateId in _buttonWraps.Keys)
             {
                 if (candidateId == currentButton.Id) continue; // Don't compare a button to itself.
 
-                Rect candidateRect = _buttonInfos[candidateId].Rect;
+                Rect candidateRect = _buttonWraps[candidateId].Rect;
 
                 bool isCandidate = false;
 
@@ -769,7 +478,7 @@ namespace SubTask.FunctionPointSelect
 
                 if (isCandidate)
                 {
-                    potentialCandidates.Add(_buttonInfos[candidateId].Button);
+                    potentialCandidates.Add(_buttonWraps[candidateId].Button);
                 }
             }
 
@@ -785,7 +494,7 @@ namespace SubTask.FunctionPointSelect
 
             foreach (SButton candidate in potentialCandidates)
             {
-                Rect candidateRect = _buttonInfos[candidate.Id].Rect;
+                Rect candidateRect = _buttonWraps[candidate.Id].Rect;
 
                 // Calculate Euclidean distance between centers
                 double currentCenterX = currentRect.X + currentRect.Width / 2;
@@ -821,17 +530,17 @@ namespace SubTask.FunctionPointSelect
 
         protected void LinkButtonNeighbors()
         {
-            if (_buttonInfos.Count == 0) return;
+            if (_buttonWraps.Count == 0) return;
             //if (_allButtons.Count == 0) return;
 
             // For each button in the grid...
-            foreach (int buttonId in _buttonInfos.Keys)
+            foreach (int buttonId in _buttonWraps.Keys)
             {
                 // ...find its neighbor in each of the four directions.
-                SButton topNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Top);
-                SButton bottomNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Down);
-                SButton leftNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Left);
-                SButton rightNeighbor = GetNeighbor(_buttonInfos[buttonId].Button, Side.Right);
+                SButton topNeighbor = GetNeighbor(_buttonWraps[buttonId].Button, Side.Top);
+                SButton bottomNeighbor = GetNeighbor(_buttonWraps[buttonId].Button, Side.Down);
+                SButton leftNeighbor = GetNeighbor(_buttonWraps[buttonId].Button, Side.Left);
+                SButton rightNeighbor = GetNeighbor(_buttonWraps[buttonId].Button, Side.Right);
 
                 // Get the ID of each neighbor, or -1 if the neighbor is null.
                 int topId = topNeighbor?.Id ?? -1;
@@ -840,7 +549,7 @@ namespace SubTask.FunctionPointSelect
                 int rightId = rightNeighbor?.Id ?? -1;
 
                 // Call the method on the button to store its neighbor IDs.
-                _buttonInfos[buttonId].Button.SetNeighbors(topId, bottomId, leftId, rightId);
+                _buttonWraps[buttonId].Button.SetNeighbors(topId, bottomId, leftId, rightId);
             }
         }
 
@@ -870,7 +579,7 @@ namespace SubTask.FunctionPointSelect
         /// <param name="outsidePoint">The point outside (or potentially inside/on the edge of) the rectangle.</param>
         /// <param name="rect">The WPF Rect object.</param>
         /// <returns>A Tuple where Item1 is the minimum distance and Item2 is the maximum distance.</returns>
-        public static Range GetMinMaxDistances(Point outsidePoint, Rect rect)
+        public static MRange GetMinMaxDistances(Point outsidePoint, Rect rect)
         {
             double minDist;
             double maxDist;
@@ -913,10 +622,8 @@ namespace SubTask.FunctionPointSelect
                 }
             }
 
-            return new Range(minDist, maxDist);
+            return new MRange(minDist, maxDist);
         }
-
-        public abstract void ShowPoint(Point p);
 
 
     }

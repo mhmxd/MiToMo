@@ -15,11 +15,10 @@ namespace SubTask.FunctionPointSelect
         //--- Setting
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
 
-
         //private static List<double> _distances = new List<double>(); // Generated in constructor
-        private Range _shortDistRangeMM; // Short distances range (mm)
-        private Range _midDistRangeMM; // Mid distances range (mm)
-        private Range _longDistRangeMM; // Long distances range (mm)
+        private MRange _shortDistRangeMM; // Short distances range (mm)
+        private MRange _midDistRangeMM; // Mid distances range (mm)
+        private MRange _longDistRangeMM; // Long distances range (mm)
 
         private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
 
@@ -50,39 +49,55 @@ namespace SubTask.FunctionPointSelect
             double twoThird = Shortest_Dist_MM + distDiff * 2 / 3;
 
             // Set the distRanges
-            _shortDistRangeMM = new Range(Shortest_Dist_MM, oneThird - Dist_PADDING_MM, ExpStrs.SHORT_DIST); // Short distances range
-            _midDistRangeMM = new Range(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM, ExpStrs.MID_DIST); // Middle distances range (will be set later)
-            _longDistRangeMM = new Range(twoThird + Dist_PADDING_MM, Longest_Dist_MM, ExpStrs.LONG_DIST); // Long distances range
+            _shortDistRangeMM = new MRange(Shortest_Dist_MM, oneThird - Dist_PADDING_MM, ExpStrs.SHORT_DIST); // Short distances range
+            _midDistRangeMM = new MRange(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM, ExpStrs.MID_DIST); // Middle distances range (will be set later)
+            _longDistRangeMM = new MRange(twoThird + Dist_PADDING_MM, Longest_Dist_MM, ExpStrs.LONG_DIST); // Long distances range
 
-            this.TrialInfo($"Short dist range (mm): {_shortDistRangeMM.ToString()}");
-            this.TrialInfo($"Mid dist range (mm): {_midDistRangeMM.ToString()}");
-            this.TrialInfo($"Long dist range (mm): {_longDistRangeMM.ToString()}");
+            this.TrialInfo($"Short dist range (mm): {_shortDistRangeMM}");
+            this.TrialInfo($"Mid dist range (mm): {_midDistRangeMM}");
+            this.TrialInfo($"Long dist range (mm): {_longDistRangeMM}");
 
         }
 
-        public void Init(Complexity complexity, ExperimentType expType)
+        public void Init(ExperimentType expType)
         {
-            this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}");
-            //Participant_Number = ptc;
-
-            Active_Complexity = complexity;
-
             // Create factor levels
-            List<Range> distRanges = new List<Range>()
+            List<MRange> distRanges = new List<MRange>()
             {
                 _shortDistRangeMM, // Short distances
                 _midDistRangeMM,   // Mid distances
                 _longDistRangeMM    // Long distances
             };
 
+            //-- For each complexity, create blocks and randomize them before adding to the list
+            List<Complexity> randomizedComplexities = ExpEnums.GetRandomComplexityList();
+            foreach (Complexity complexity in randomizedComplexities)
+            {
+                // Create blocks, then shuffle them before adding to the overall list
+                List<Block> blocks = new List<Block>();
+                for (int i = 0; i < ExpDesign.FuncPointSelectNumBlocks; i++)
+                {
+                    int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
+                    blocks.Add(Block.CreateBlock(
+                        ExpEnvironment.PTC_NUM,
+                        blockId, complexity, expType,
+                        distRanges));
+
+                }
+
+                // Shuffle blocks inside the complexity
+                blocks.Shuffle();
+                _blocks.AddRange(blocks);
+            }
+
             //List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
             // Create and add blocks
-            for (int i = 0; i < ExpDesign.FPS_N_BLOCKS; i++)
-            {
-                int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(ExpEnvironment.PTC_NUM, blockId, complexity, expType, distRanges);
-                _blocks.Add(block);
-            }
+            //for (int i = 0; i < ExpDesign.FuncPointSelectNumBlocks; i++)
+            //{
+            //    int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
+            //    Block block = Block.CreateBlock(ExpEnvironment.PTC_NUM, blockId, complexity, expType, distRanges);
+            //    _blocks.Add(block);
+            //}
 
             //CreateAltBlocks(1, targetMultiples, distRanges);
             //CreateRepBlocks(1, targetMultiples, distRanges);

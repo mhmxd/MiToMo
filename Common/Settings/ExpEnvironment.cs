@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Common.Settings
+﻿namespace Common.Settings
 {
     public class ExpEnvironment
     {
         public static readonly int PTC_NUM = 1000;
+
+        public static readonly double PPI = 93.54; // BenQ = 93.54; Apple = 109
+
 
         //-- Mouse settings --------------------------------------------
         public static int TIME_CURSOR_MOVE_RESET = 2; // Cursor timer is reset after 2 seconds 

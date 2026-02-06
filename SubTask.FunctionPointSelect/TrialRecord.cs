@@ -167,32 +167,6 @@ namespace SubTask.FunctionPointSelect
                 func.State = ButtonState.SELECTED;
             }
 
-            // Apply to the specified object
-            //if (objId != -1) ChangeObjectState(objId, ButtonState.APPLIED);
-
-            //int nFuncs = Functions.Count;
-            //int nObjs = Objects.Count;
-
-            ////this.TrialInfo($"nFunc: {nFuncs}; nObj: {nObjs}");
-
-            //switch (nFuncs, nObjs) 
-            //{
-            //    case (1, 1): // One function and one object => apply the function to the object
-            //        ChangeObjectState(1, ButtonState.APPLIED);
-            //        break;
-            //    case (1, _): // One function and multiple objects => apply the function to the marked/enabled object
-            //        int markedObjId = Objects.FirstOrDefault(o => o.State == ButtonState.MARKED)?.Id ?? -1;
-            //        ChangeObjectState(markedObjId, ButtonState.APPLIED);
-            //        break;
-            //    case (_, 1): // Multiple functions and one object => apply the function to the single object
-            //        //ChangeObjectState(1, ButtonState.APPLIED);
-            //        break;
-            //    default: // Multiple functions and multiple objects => apply the function to the object mapped to the function
-            //        int mappedObjId = FindMappedObjectId(funcId);
-            //        ChangeObjectState(mappedObjId, ButtonState.APPLIED);
-            //        break;
-            //}
-
         }
 
         public void MarkFunction(int id)
@@ -236,6 +210,7 @@ namespace SubTask.FunctionPointSelect
         {
             ChangeFunctionState(funcId, ButtonState.SELECTED);
         }
+
 
         public void EnableFunction()
         {
@@ -401,7 +376,7 @@ namespace SubTask.FunctionPointSelect
             this.TrialInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetLastTime(endLabel);
             this.TrialInfo($"End time ({endLabel}): {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurtionToFirstAfter(string startLabel, string endLabel)
@@ -410,7 +385,7 @@ namespace SubTask.FunctionPointSelect
             this.TrialInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetFirstAfterLast(startLabel, endLabel);
             this.TrialInfo($"End time ({endLabel}): {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetFirstSeqDuration(string startType, string endType)
@@ -427,7 +402,7 @@ namespace SubTask.FunctionPointSelect
                     {
                         if (Events[j].Type == endType)
                         {
-                            return Tools.GetDuration(Events[i].Time, Events[j].Time);
+                            return MTools.GetDuration(Events[i].Time, Events[j].Time);
                         }
                     }
                 }
@@ -443,7 +418,7 @@ namespace SubTask.FunctionPointSelect
         /// <param name="startType">The type of the starting event (e.g., "Pressed").</param>
         /// <param name="endType">The type of the ending event (e.g., "Released").</param>
         /// <param name="n">The 1-based index (occurrence) to find (e.g., 3 for the third time).</param>
-        /// <returns>The duration in a suitable unit (depending on Tools.GetDuration), or -1 if the N-th sequence is not found.</returns>
+        /// <returns>The duration in a suitable unit (depending on MTools.GetDuration), or -1 if the N-th sequence is not found.</returns>
         public int GetNthSeqDuration(string startType, string endType, int n)
         {
             // 1. Handle edge cases for empty list or invalid index
@@ -475,7 +450,7 @@ namespace SubTask.FunctionPointSelect
                                 var endTime = Events[j].Time;
                                 this.TrialInfo($"End time of {n}th {endType}: {endTime}");
                                 // 4. Return the calculated duration
-                                return Tools.GetDuration(startTime, endTime);
+                                return MTools.GetDuration(startTime, endTime);
                             }
                             // Optimization: If the sequence is [Press, Press, Release], 
                             // we are only looking for the *first* Release after the N-th Press.
@@ -511,7 +486,7 @@ namespace SubTask.FunctionPointSelect
                 {
                     this.TrialInfo($"Start time {startLabel}: {Events[i].Time}");
                     this.TrialInfo($"End time {endLabel}: {Events[afterIndex].Time}");
-                    return Tools.GetDuration(
+                    return MTools.GetDuration(
                         Events[i].Time,
                         Events[afterIndex].Time
                     );
@@ -527,7 +502,7 @@ namespace SubTask.FunctionPointSelect
             this.TrialInfo($"StartTime {startLabel}: {startTime}");
             long endTime = GetGestureStartTime(technique);
             this.TrialInfo($"End time {technique}: {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromGestureEnd(Technique technique, string endLabel)
@@ -536,7 +511,7 @@ namespace SubTask.FunctionPointSelect
             this.TrialInfo($"Start time {technique}: {startTime}");
             long endTime = GetLastTime(endLabel);
             this.TrialInfo($"End time {endLabel}: {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationToFingerAction(string type, string action)
@@ -545,7 +520,7 @@ namespace SubTask.FunctionPointSelect
             this.TrialInfo($"Start time {type}: {startTime}");
             long endTime = GetFirstAfterLast(type, action);
             this.TrialInfo($"End time {action}: {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromFingerAction(string action, string endLabel)
@@ -554,7 +529,7 @@ namespace SubTask.FunctionPointSelect
             this.TrialInfo($"Start time {action}: {startTime}");
             long endTime = GetLastTime(endLabel);
             this.TrialInfo($"End time {endLabel}: {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetGestureDuration(Technique gesture)
@@ -564,13 +539,13 @@ namespace SubTask.FunctionPointSelect
                 case Technique.TOMO_TAP:
                     //long tapEndTime = GetLastFingerActionTime(ExpStrs.TAP_UP);
                     //long tapStartTime = GetFingerTimeBefore(ExpStrs.DOWN, tapEndTime);
-                    //return Tools.GetDuration(tapStartTime, tapEndTime);
+                    //return MTools.GetDuration(tapStartTime, tapEndTime);
                     return GetLastSeqDuration(ExpStrs.TAP_DOWN, ExpStrs.TAP_UP);
 
                 case Technique.TOMO_SWIPE:
                     //long swipeEndTime = GetLastFingerActionTime(ExpStrs.SWIPE_END);
                     //long swipeStartTime = GetFingerTimeBefore(ExpStrs.SWIPE_START, swipeEndTime);
-                    //return Tools.GetDuration(swipeStartTime, swipeEndTime);
+                    //return MTools.GetDuration(swipeStartTime, swipeEndTime);
                     return GetLastSeqDuration(ExpStrs.SWIPE_START, ExpStrs.SWIPE_END);
             }
 
@@ -660,6 +635,15 @@ namespace SubTask.FunctionPointSelect
         public List<int> GetFunctionIds()
         {
             return Functions.Select(f => f.Id).ToList();
+        }
+
+        public int GetFunctionIdByIndex(int index)
+        {
+            if (index >= 0 && index < Functions.Count)
+            {
+                return Functions[index].Id;
+            }
+            return -1; // Return -1 if index is out of range
         }
 
         public List<Point> GetFunctionCenters()

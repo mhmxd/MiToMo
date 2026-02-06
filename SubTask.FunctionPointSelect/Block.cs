@@ -95,7 +95,7 @@ namespace SubTask.FunctionPointSelect
             int id,
             Complexity complexity,
             ExperimentType expType,
-            List<Range> distRanges)
+            List<MRange> distRanges)
         {
 
             // Create block
@@ -110,7 +110,7 @@ namespace SubTask.FunctionPointSelect
                 // Get the function widths based on side and complexity
                 List<int> buttonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][functionSide];
 
-                foreach (Range range in distRanges)
+                foreach (MRange range in distRanges)
                 {
                     // For now all function Ws are the same. We may later create trials with multiple function Ws
                     foreach (int funcW in buttonWidths)

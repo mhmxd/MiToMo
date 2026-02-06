@@ -1,4 +1,5 @@
 ﻿using Common.Helpers;
+using Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,19 +11,19 @@ namespace CommonUI
 
     public static class UITools
     {
-        private static readonly double PPI = 93.54; // BenQ = 93.54; Apple = 109
+
         private const double MM_IN_INCH = 25.4;
 
         private static readonly Random _random = new Random();
 
         public static double PX2MM(double px)
         {
-            return px * MM_IN_INCH / PPI;
+            return px * MM_IN_INCH / ExpEnvironment.PPI;
         }
 
         public static int MM2PX(double mm)
         {
-            return (int)Math.Round(mm / MM_IN_INCH * PPI);
+            return (int)Math.Round(mm / MM_IN_INCH * ExpEnvironment.PPI);
         }
 
         public static double Dist(Point p1, Point p2)
@@ -380,7 +381,7 @@ namespace CommonUI
 
         public static int ThicknessInPX(double dips)
         {
-            return (int)(dips * PPI / 96.0);
+            return (int)(dips * ExpEnvironment.PPI / 96.0);
         }
 
         public static bool IsInside(Point p, int Xmin, int Xmax, int Ymin, int Ymax)

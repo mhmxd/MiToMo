@@ -44,8 +44,8 @@ namespace SubTask.FunctionPointSelect
 
         //public List<double> Distances = new List<double>(); // Distances in px
 
-        public Range DistRangeMM { get; set; }
-        public Range DistRangePX => new Range(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label);
+        public MRange DistRangeMM { get; set; }
+        public MRange DistRangePX => new MRange(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label);
 
         //public Point StartPosition, TargetPosition; // Relative to the respective windows
 
@@ -114,7 +114,7 @@ namespace SubTask.FunctionPointSelect
         /// <returns></returns>
         public static Trial CreateTrial(
             int id, int ptc, Complexity complexity, ExperimentType expType,
-            Side side, Range distRangeMM, List<int> functionWidthsMX)
+            Side side, MRange distRangeMM, List<int> functionWidthsMX)
         {
             Trial trial = new Trial(id);
             trial.PtcNum = ptc;
@@ -145,6 +145,11 @@ namespace SubTask.FunctionPointSelect
         public List<int> GetFunctionWidths()
         {
             return _functionWidths;
+        }
+
+        public int GetFunctionWidth(int index)
+        {
+            return _functionWidths[index];
         }
 
         public int GetFunctionWidthMM()

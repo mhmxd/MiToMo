@@ -80,14 +80,6 @@ namespace SubTask.FunctionSelection
                 blocks.Shuffle();
                 _blocks.AddRange(blocks);
             }
-
-            // Create and add blocks
-            //for (int i = 0; i < ExpDesign.MultiFuncSelectNumBlocks; i++)
-            //{
-            //    int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-            //    Block block = Block.CreateBlock(ExpEnvironment.PTC_NUM, blockId, complexity, expType, ExpDesign.MultiFuncSelectNumFunc);
-            //    _blocks.Add(block);
-            //}
         }
 
         public int GetNumBlocks()
