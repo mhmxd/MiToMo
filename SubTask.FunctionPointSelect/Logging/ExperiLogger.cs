@@ -56,22 +56,17 @@ namespace SubTask.FunctionPointSelect
             _blockLogWriter = MIO.PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
         }
 
-        public static void StartTrialCursorLog(int trialId)
+        public static void StartTrialCursorLog(int trialId, int trialNum)
         {
             _activeTrialId = trialId;
             _trialCursorRecords[_activeTrialId] = new List<PositionRecord>();
 
-            _cursorLogFilePath = System.IO.Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "SubTask.FunctionPointSelect.Logs", $"P{ExpEnvironment.PTC_NUM}-{Technique}", "Cursor", $"trial{trialId}-cursor-log"
+            _cursorLogFilePath = Path.Combine(
+                MyDocumentsPath, LogsFolderName,
+                $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.CURSOR_C, $"trial-n{trialNum}-id{trialId}-{ExpStrs.CURSOR_S}"
             );
 
             _cursorLogWriter = MIO.PrepareFileWithHeader<PositionRecord>(_cursorLogFilePath, PositionRecord.GetHeader());
-        }
-
-        public static void LogGestureEvent(string message)
-        {
-            //_gestureFileLog.Information(message);
         }
 
         private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)

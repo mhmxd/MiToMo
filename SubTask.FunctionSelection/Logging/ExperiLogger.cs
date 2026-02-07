@@ -35,7 +35,6 @@ namespace SubTask.FunctionSelection
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
 
-        private static Logger _gestureFileLog;
         private static Logger _blockFileLog;
 
         private static StreamWriter _detailTrialLogWriter;
@@ -161,7 +160,6 @@ namespace SubTask.FunctionSelection
 
             _cursorLogWriter.Dispose();
         }
-
 
         public static void LogBlockTime(Block block)
         {

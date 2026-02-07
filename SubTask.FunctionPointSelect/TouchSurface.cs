@@ -454,7 +454,7 @@ namespace SubTask.FunctionPointSelect
                     _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
                     _thumbGestureStart = currentFrame;
-                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.DOWN);
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.DOWN, tpCenter);
                 }
             }
             else // FullFinger NOT present in the current frame
@@ -477,7 +477,7 @@ namespace SubTask.FunctionPointSelect
                     {
 
                         //_gestureInstants[upStr] = _touchTimers[finger].ElapsedMilliseconds;
-                        _gestureHandler?.RecordToMoAction(finger, ExpStrs.TAP_UP);
+                        _gestureHandler?.RecordToMoAction(finger, ExpStrs.TAP_UP, lastPosition);
 
                         // Perform the tap
                         _gestureHandler?.ThumbTap(0, 0);
@@ -499,7 +499,7 @@ namespace SubTask.FunctionPointSelect
 
                     }
 
-                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.UP);
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.UP, lastPosition);
                     _touchTimers[finger].Stop();
                 }
 
@@ -535,7 +535,7 @@ namespace SubTask.FunctionPointSelect
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
-                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.DOWN);
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.DOWN, tpCenter);
                 }
             }
             else // FullFinger not present in the current frame
@@ -557,7 +557,7 @@ namespace SubTask.FunctionPointSelect
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
                         _gestureInstants[upStr] = _touchTimers[finger].ElapsedMilliseconds;
                         LogTap(finger.ToString(), Side.Left, currentFrame.Timestamp); // LOG
-                        _gestureHandler?.RecordToMoAction(finger, ExpStrs.TAP_UP);
+                        _gestureHandler?.RecordToMoAction(finger, ExpStrs.TAP_UP, lastPosition);
                         //this.TrialInfo($"_gestureHandler: {_gestureHandler}");
                         _gestureHandler?.IndexTap();
                     }
@@ -797,7 +797,7 @@ namespace SubTask.FunctionPointSelect
                             {
                                 // Swipe along x
                                 _gestureHandler?.ThumbSwipe(dX > 0 ? Direction.Right : Direction.Left);
-                                _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_END);
+                                _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_END, center);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
                                 //GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
@@ -811,7 +811,7 @@ namespace SubTask.FunctionPointSelect
                             {
                                 // Swipe along y
                                 _gestureHandler?.ThumbSwipe(dY > 0 ? Direction.Down : Direction.Up);
-                                _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_END);
+                                _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_END, center);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
                                 //GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
@@ -823,7 +823,7 @@ namespace SubTask.FunctionPointSelect
                     else // (Probably) gesture Time expired => start over
                     {
                         _thumbGestureStart = currentFrame;
-                        _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_START);
+                        _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_START, center);
                     }
 
                 }
@@ -833,7 +833,7 @@ namespace SubTask.FunctionPointSelect
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
                     _thumbGestureStart = currentFrame;
-                    _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_START);
+                    _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_START, center);
 
                 }
             }
@@ -1064,22 +1064,18 @@ namespace SubTask.FunctionPointSelect
 
         private void LogUp(string fingerName, long duration, double dX, double dY)
         {
-            ExperiLogger.LogGestureEvent($"{fingerName} Up! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
         }
 
         private void LogTap(string fingerName, Side loc, long timestamp)
         {
-            ExperiLogger.LogGestureEvent($"{fingerName} Tapped! Location: {loc}");
         }
 
         private void LogMove(string fingerName, long duration, double dX, double dY)
         {
-            ExperiLogger.LogGestureEvent($"{fingerName} Moved! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
         }
 
         private void LogSwipe(string fingerName, int duration, double dX, double dY)
         {
-            ExperiLogger.LogGestureEvent($"{fingerName} Swiped! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
         }
 
     }

@@ -173,7 +173,7 @@ namespace SubTask.FunctionPointSelect
             LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
 
             // Start logging cursor positions
-            ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
+            ExperiLogger.StartTrialCursorLog(_activeTrial.Id, _activeTrialNum);
 
             // Update the main window label
             //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());

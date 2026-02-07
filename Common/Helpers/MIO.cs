@@ -36,8 +36,8 @@ namespace Common.Helpers
 
         public static StreamWriter PrepareFileWithHeader<T>(string filePath, string header)
         {
-            string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-            filePath = $"{filePath}_{timestamp}.csv";
+            string timestamp = DateTime.Now.ToString("dd_MM_yyyy-HH_mm");
+            filePath = $"{filePath}-{timestamp}.csv";
 
             string directoryPath = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directoryPath))
@@ -62,8 +62,8 @@ namespace Common.Helpers
 
         public static StreamWriter PrepareFileWithHeader<T>(string filePath)
         {
-            string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-            filePath = $"{filePath}_{timestamp}.csv";
+            string timestamp = DateTime.Now.ToString("dd_MM_yyyy-HH_mm");
+            filePath = $"{filePath}-{timestamp}.csv";
 
             string directoryPath = Path.GetDirectoryName(filePath);
             if (!Directory.Exists(directoryPath))

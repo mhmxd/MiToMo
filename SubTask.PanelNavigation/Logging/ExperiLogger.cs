@@ -202,24 +202,5 @@ namespace SubTask.PanelNavigation
             });
         }
 
-        public static void DynamiclySetFieldValue(TrialLog instance, string fieldName, int newValue)
-        {
-            // 2. Get the FieldInfo
-            Type dataType = instance.GetType();
-            FieldInfo field = dataType.GetField(fieldName);
-
-            if (field != null)
-            {
-                // 3. Set the Value
-                // Pass the object instance (dataInstance) and the new value
-                field.SetValue(instance, newValue);
-                Console.WriteLine($"Successfully set field '{fieldName}' to {newValue}.");
-            }
-            else
-            {
-                Console.WriteLine($"Error: Field '{fieldName}' not found.");
-            }
-        }
-
     }
 }
