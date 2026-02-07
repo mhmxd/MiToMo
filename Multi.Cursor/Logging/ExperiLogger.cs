@@ -95,27 +95,6 @@ namespace Multi.Cursor
 
         }
 
-        private static void PrepareFileWithHeader<T>(ref string filePath, StreamWriter writer, string header)
-        {
-            string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-            filePath = $"{filePath}_{timestamp}.csv";
-
-            string directoryPath = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            bool timedFileExists = File.Exists(filePath);
-            bool timedFileIsEmpty = !timedFileExists || new FileInfo(filePath).Length == 0;
-            writer = new StreamWriter(filePath, append: true, Encoding.UTF8);
-            writer.AutoFlush = true;
-            if (timedFileIsEmpty)
-            {
-                writer.WriteLine(header);
-            }
-        }
-
         public static void StartTrialCursorLog(int trialId, int trialNum)
         {
             _activeTrialId = trialId;
@@ -123,7 +102,7 @@ namespace Multi.Cursor
 
             _cursorLogFilePath = Path.Combine(
                 MyDocumentsPath, LogsFolderName,
-                $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.CURSOR_C, $"trial-id{trialId}-n{trialNum}-{ExpStrs.CURSOR_S}"
+                $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.CURSOR_C, $"trial-n{trialNum}-id{trialId}-{ExpStrs.CURSOR_S}"
             );
 
             _cursorLogWriter = MIO.PrepareFileWithHeader<PositionRecord>(_cursorLogFilePath, PositionRecord.GetHeader());
@@ -537,7 +516,7 @@ namespace Multi.Cursor
 
         }
 
-        public static void LogCursorPosition(Point cursorPos)
+        public static void RecordCursorPosition(Point cursorPos)
         {
             _trialCursorRecords[_activeTrialId].Add(new PositionRecord(cursorPos.X, cursorPos.Y));
         }

@@ -204,7 +204,7 @@ namespace Multi.Cursor
             LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
-            ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
+            ExperiLogger.RecordCursorPosition(e.GetPosition(_mainWindow.Owner));
         }
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
