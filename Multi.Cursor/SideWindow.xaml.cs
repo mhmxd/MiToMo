@@ -1,4 +1,4 @@
-﻿using Common.Constants;
+﻿using Common.Helpers;
 using Common.Settings;
 using CommonUI;
 using System;
@@ -11,10 +11,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using WindowsInput;
 using static Common.Constants.ExpEnums;
-using static Multi.Cursor.Output;
-using Seril = Serilog.Log;
 
 namespace Multi.Cursor
 {
@@ -73,7 +70,7 @@ namespace Multi.Cursor
 
         private void SideWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
 
@@ -104,7 +101,7 @@ namespace Multi.Cursor
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
             var cursorPoint = e.GetPosition(this);
-            
+
             _cursorTransform.X = cursorPoint.X;
             _cursorTransform.Y = cursorPoint.Y;
         }
@@ -220,7 +217,7 @@ namespace Multi.Cursor
             //double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
             //Canvas.SetLeft(_buttonsGrid, leftPosition);
 
-            
+
 
             // Subscribe to the Loaded event to get the correct width.
             _buttonsGrid.Loaded += (sender, e) =>

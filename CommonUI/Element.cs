@@ -129,10 +129,6 @@ namespace CommonUI
             // For mouse feedback (fill color changes), you'll still modify _visualBorder.Background
         }
 
-        // --- Internal MOUSE TrialEvent Handlers for Visual Feedback ---
-        // Change from VisualRectangle_... to Element_... if attaching to 'this'
-        private Brush _originalFillBrush;
-
         private void Element_MouseEnter(object sender, MouseEventArgs e)
         {
             //_originalFillBrush = _visualBorder.Background; // Store original background

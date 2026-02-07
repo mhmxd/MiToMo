@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Common.Helpers;
+using CommonUI;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using Common.Helpers;
-using CommonUI;
 using static Common.Constants.ExpEnums;
 
 namespace Multi.Cursor
@@ -25,9 +25,9 @@ namespace Multi.Cursor
         public Complexity Complexity { get; set; }
         public ExperimentType ExpType { get; set; }
 
-        public Range DistRangeMM { get; set; }
-        public Range DistRangePX => new Range(
-            UITools.MM2PX(DistRangeMM.Min), 
+        public MRange DistRangeMM { get; set; }
+        public MRange DistRangePX => new MRange(
+            UITools.MM2PX(DistRangeMM.Min),
             UITools.MM2PX(DistRangeMM.Max),
             DistRangeMM.Label);
 
@@ -97,12 +97,12 @@ namespace Multi.Cursor
         /// <param name="functionWidthsMX"></param>
         /// <returns></returns>
         public static Trial CreateTrial(
-            int id, Technique tech, int ptc, 
-            TaskType type, 
+            int id, Technique tech, int ptc,
+            TaskType type,
             Complexity complexity,
             ExperimentType expType,
-            Side side, Range distRangeMM, 
-            int nObj, 
+            Side side, MRange distRangeMM,
+            int nObj,
             List<int> functionWidthsMX)
         {
             Trial trial = new Trial(id);

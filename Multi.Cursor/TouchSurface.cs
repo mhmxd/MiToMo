@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using static Common.Constants.ExpEnums;
-using static Multi.Cursor.Output;
 using static System.Math;
 
 namespace Multi.Cursor
@@ -71,7 +70,7 @@ namespace Multi.Cursor
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Tools.InInc(key, keyMin, keyMax)) return true;
+                    if (MTools.InInc(key, keyMin, keyMax)) return true;
                 }
 
                 return false;
@@ -81,7 +80,7 @@ namespace Multi.Cursor
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Tools.InInc(key, keyMin, keyMax)) return false;
+                    if (MTools.InInc(key, keyMin, keyMax)) return false;
                 }
 
                 return true;
@@ -91,7 +90,7 @@ namespace Multi.Cursor
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Tools.InInc(key, finger.MinCol, finger.MaxCol)) return false;
+                    if (MTools.InInc(key, finger.MinCol, finger.MaxCol)) return false;
                 }
 
                 return true;
@@ -106,7 +105,7 @@ namespace Multi.Cursor
             {
                 foreach (var kv in Pointers)
                 {
-                    if (Tools.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
+                    if (MTools.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
                 }
 
                 return null;
@@ -757,7 +756,7 @@ namespace Multi.Cursor
 
         private bool PassTapConditions(long dT, double dX, double dY)
         {
-            return Tools.In(dT, ExpEnvironment.TAP_TIME_MIN, ExpEnvironment.TAP_TIME_MAX)
+            return MTools.In(dT, ExpEnvironment.TAP_TIME_MIN, ExpEnvironment.TAP_TIME_MAX)
                         && dX < ExpEnvironment.TAP_GENERAL_THRESHOLD.DX
                         && dY < ExpEnvironment.TAP_GENERAL_THRESHOLD.DY;
         }
@@ -914,7 +913,6 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -947,7 +945,6 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -980,7 +977,6 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer

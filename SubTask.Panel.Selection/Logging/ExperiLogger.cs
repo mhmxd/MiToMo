@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Windows;
 using static Common.Constants.ExpEnums;
 
@@ -124,7 +123,7 @@ namespace SubTask.Panel.Selection
 
             // Log the rest of the times
 
-            WriteTrialLog(log, _detiledTrialLogPath, _detailTrialLogWriter);
+            MIO.WriteTrialLog(log, _detiledTrialLogPath, _detailTrialLogWriter);
             //_detailTrialLogWriter?.Dispose();            
         }
 
@@ -140,7 +139,7 @@ namespace SubTask.Panel.Selection
 
             _trialTimes[trial.Id] = log.trial_time;
 
-            WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
+            MIO.WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
         }
 
         public static void LogCursorPositions()
@@ -170,39 +169,8 @@ namespace SubTask.Panel.Selection
             double avgTime = _trialTimes.Values.Average() / 1000;
             log.block_time = $"{avgTime:F2}";
 
-            WriteTrialLog(log, _blockLogPath, _blockLogWriter);
+            MIO.WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 
-        }
-
-        private static void WriteTrialLog<T>(T log, string filePath, StreamWriter writer)
-        {
-            //var fields = typeof(T).GetFields();
-            //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
-            //_detailTrialLogWriter.WriteLine(string.Join(";", values));
-            //_detailTrialLogWriter.Flush();
-
-            var type = typeof(T);
-            var baseType = type.BaseType;
-
-            // 1. Get fields from the base class (parent)
-            // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
-            var parentFields = baseType != null && baseType != typeof(object)
-                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                : Enumerable.Empty<FieldInfo>();
-
-            // 2. Get fields from the derived class (child)
-            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-            // 3. Combine them: Parent fields first, then Child fields.
-            var orderedFields = parentFields.Concat(childFields);
-
-            // 4. Get values in the same order.
-            var values = orderedFields
-                .Select(f => f.GetValue(log)?.ToString() ?? "");
-
-            // 5. Write the values.
-            writer.WriteLine(string.Join(";", values));
-            //streamWriter.Flush();
         }
 
         public static void LogCursorPosition(Point cursorPos)

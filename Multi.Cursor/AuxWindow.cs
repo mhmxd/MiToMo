@@ -23,7 +23,7 @@ namespace Multi.Cursor
             public SButton Button { get; set; }
             public Point Position { get; set; }
             public Rect Rect { get; set; }
-            public Range DistToStartRange { get; set; } // In pixels
+            public MRange DistToStartRange { get; set; } // In pixels
             public Brush ButtonFill { get; set; } // Default background color for the button
 
             public ButtonInfo(SButton button)
@@ -31,7 +31,7 @@ namespace Multi.Cursor
                 Button = button;
                 Position = new Point(0, 0);
                 Rect = new Rect();
-                DistToStartRange = new Range(0, 0);
+                DistToStartRange = new MRange(0, 0);
                 ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL;
             }
 
@@ -283,7 +283,7 @@ namespace Multi.Cursor
 
         }
 
-        public int SelectRandButtonByConstraints(int widthMult, Range distRange)
+        public int SelectRandButtonByConstraints(int widthMult, MRange distRange)
         {
             //this.TrialInfo($"Available buttons: ");
             //foreach (int wm in _widthButtons.Keys)
@@ -899,7 +899,7 @@ namespace Multi.Cursor
         /// <param name="outsidePoint">The point outside (or potentially inside/on the edge of) the rectangle.</param>
         /// <param name="rect">The WPF Rect object.</param>
         /// <returns>A Tuple where Item1 is the minimum distance and Item2 is the maximum distance.</returns>
-        public static Range GetMinMaxDistances(Point outsidePoint, Rect rect)
+        public static MRange GetMinMaxDistances(Point outsidePoint, Rect rect)
         {
             double minDist;
             double maxDist;
@@ -942,7 +942,7 @@ namespace Multi.Cursor
                 }
             }
 
-            return new Range(minDist, maxDist);
+            return new MRange(minDist, maxDist);
         }
 
         public abstract void ShowPoint(Point p);

@@ -111,11 +111,11 @@ namespace Multi.Cursor
             switch (result)
             {
                 case Result.HIT:
-                    Common.Helpers.Sounder.PlayHit();
+                    MSounder.PlayHit();
 
                     break;
                 case Result.MISS:
-                    Common.Helpers.Sounder.PlayTargetMiss();
+                    MSounder.PlayTargetMiss();
 
                     //-- Reset the trial times and shuffle it back
                     _trialRecords[_activeTrial.Id].ClearTimestamps();
@@ -190,7 +190,7 @@ namespace Multi.Cursor
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Common.Helpers.Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -211,7 +211,7 @@ namespace Multi.Cursor
         {
             if (IsStartPressed() && !IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -228,7 +228,7 @@ namespace Multi.Cursor
 
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -336,7 +336,7 @@ namespace Multi.Cursor
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return;
             }

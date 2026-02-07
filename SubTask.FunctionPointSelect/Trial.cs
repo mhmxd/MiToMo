@@ -17,7 +17,7 @@ namespace SubTask.FunctionPointSelect
             set => _id = value;
         }
 
-        public Technique Technique { get; set; }
+        public Technique Technique { get; set; } // Always MOUSE for this susbtask
         public int PtcNum { get; set; }
 
         public TaskType TaskType { get; set; }
@@ -33,24 +33,9 @@ namespace SubTask.FunctionPointSelect
         }
         public double TargetWidthPX => UITools.MM2PX(TargetWidthMM);
 
-        // DistanceMM to the target center, from start's center
-        //private double _distanceMM;
-        //public double DistanceMM
-        //{
-        //    get => _distanceMM;
-        //    set => _distanceMM = value;
-        //}
-        //public int DistancePX => UITools.MM2PX(DistanceMM);
-
-        //public List<double> Distances = new List<double>(); // Distances in px
-
         public MRange DistRangeMM { get; set; }
         public MRange DistRangePX => new MRange(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label);
 
-        //public Point StartPosition, TargetPosition; // Relative to the respective windows
-
-        // Trial number (not needed for now)
-        //private int _number { get; set; }
 
         private Side _funcSide; // Side window to show target in
         public Side FuncSide
@@ -70,37 +55,12 @@ namespace SubTask.FunctionPointSelect
 
         public int NFunctions => _functionWidths.Count;
 
-        //private int _targetMultiple; // Multiples of the target width (ref. the Experiment.TARGET_WIDTHS_MM list)
-        //public int TargetMultiple
-        //{
-        //    get => _targetMultiple;
-        //    set => _targetMultiple = value;
-        //}
-
         //=========================================================================
 
         public Trial(int id)
         {
             this._id = id;
         }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="targetWidthMM"> Target width in mm</param>
-        /// <param name="distMM">DistanceMM to target in mm</param>
-        //public Trial(int id, int functionWidthMX, double distMM, Side sideWin)
-        //{
-        //    _id = id;
-        //    //_targetWidthMM = targetWidthMM;
-        //    //_targetMultiple = functionWidthMX;
-        //    _functionWidths.Add(functionWidthMX);
-        //    _distanceMM = distMM;
-        //    _funcSide = sideWin;
-        //    //Side[] validDirections = { Side.Top, Side.Left, Side.Right };
-        //    //_sideWindow = validDirections[Utils.Random.Next(validDirections.Length)];
-        //    //_straightPath = true;
-        //}
 
         /// <summary>
         /// Create trials
@@ -118,6 +78,7 @@ namespace SubTask.FunctionPointSelect
         {
             Trial trial = new Trial(id);
             trial.PtcNum = ptc;
+            trial.Technique = Technique.MOUSE;
             trial.Complexity = complexity;
             trial.ExpType = expType;
             trial.FuncSide = side;

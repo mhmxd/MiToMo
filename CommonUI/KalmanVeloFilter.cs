@@ -5,8 +5,6 @@ namespace CommonUI
 {
     public class KalmanVeloFilter
     {
-        private double dt;
-
         private Matrix<double> F;
         private Matrix<double> Q;
         private Matrix<double> H;

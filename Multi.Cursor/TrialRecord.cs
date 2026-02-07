@@ -17,7 +17,7 @@ namespace Multi.Cursor
         public List<TObject> Objects;
         public Dictionary<int, int> ObjFuncMap;
         public double AvgDistanceMM; // Average distance from different sources
-        
+
         public Rect ObjectAreaRect;
         //public Dictionary<string, int> EventCounts;
         private List<TrialEvent> Events;
@@ -379,19 +379,19 @@ namespace Multi.Cursor
         public int GetDuration(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TimeInfo($"Start time ({startLabel}): {startTime}");
+            this.LogsInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TimeInfo($"End time ({endLabel}): {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            this.LogsInfo($"End time ({endLabel}): {endTime}");
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurtionToFirstAfter(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TimeInfo($"Start time ({startLabel}): {startTime}");
+            this.LogsInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetFirstAfterLast(startLabel, endLabel);
-            this.TimeInfo($"End time ({endLabel}): {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            this.LogsInfo($"End time ({endLabel}): {endTime}");
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetFirstSeqDuration(string startType, string endType)
@@ -408,7 +408,7 @@ namespace Multi.Cursor
                     {
                         if (Events[j].Type == endType)
                         {
-                            return Tools.GetDuration(Events[i].Time, Events[j].Time);
+                            return MTools.GetDuration(Events[i].Time, Events[j].Time);
                         }
                     }
                 }
@@ -424,7 +424,7 @@ namespace Multi.Cursor
         /// <param name="startType">The type of the starting event (e.g., "Pressed").</param>
         /// <param name="endType">The type of the ending event (e.g., "Released").</param>
         /// <param name="n">The 1-based index (occurrence) to find (e.g., 3 for the third time).</param>
-        /// <returns>The duration in a suitable unit (depending on Tools.GetDuration), or -1 if the N-th sequence is not found.</returns>
+        /// <returns>The duration in a suitable unit (depending on MTools.GetDuration), or -1 if the N-th sequence is not found.</returns>
         public int GetNthSeqDuration(string startType, string endType, int n)
         {
             // 1. Handle edge cases for empty list or invalid index
@@ -440,12 +440,12 @@ namespace Multi.Cursor
                 if (Events[i].Type == startType)
                 {
                     occurrenceCount++;
-                    this.TimeInfo($"nOccurences of {startType}: {occurrenceCount}");
+                    this.LogsInfo($"nOccurences of {startType}: {occurrenceCount}");
                     // 2. Check if this is the N-th occurrence we are looking for
                     if (occurrenceCount == n)
                     {
                         var startTime = Events[i].Time; // Capture the start time
-                        this.TimeInfo($"Start time of {n}th {startType}: {startTime}");
+                        this.LogsInfo($"Start time of {n}th {startType}: {startTime}");
 
                         // 3. Found the N-th start. Now, look *forward* for the first end event
                         for (int j = i + 1; j < Events.Count; j++)
@@ -454,9 +454,9 @@ namespace Multi.Cursor
                             {
                                 // Found the corresponding end event
                                 var endTime = Events[j].Time;
-                                this.TimeInfo($"End time of {n}th {endType}: {endTime}");
+                                this.LogsInfo($"End time of {n}th {endType}: {endTime}");
                                 // 4. Return the calculated duration
-                                return Tools.GetDuration(startTime, endTime);
+                                return MTools.GetDuration(startTime, endTime);
                             }
                             // Optimization: If the sequence is [Press, Press, Release], 
                             // we are only looking for the *first* Release after the N-th Press.
@@ -475,24 +475,24 @@ namespace Multi.Cursor
 
         public int GetLastSeqDuration(string startLabel, string endLabel)
         {
-            this.TimeInfo($"From {startLabel} to {endLabel}");
+            this.LogsInfo($"From {startLabel} to {endLabel}");
             if (Events == null || Events.Count == 0)
                 return -1;
 
             // find the last occurrence of endType
             int afterIndex = Events.FindLastIndex(t => t.Type == endLabel);
-            this.TimeInfo($"Index of {endLabel}: {afterIndex}");
+            this.LogsInfo($"Index of {endLabel}: {afterIndex}");
             if (afterIndex < 0)
                 return -1;
-            
+
             // scan backwards from that point to find the last startType
             for (int i = afterIndex - 1; i >= 0; i--)
             {
                 if (Events[i].Type == startLabel)
                 {
-                    this.TimeInfo($"Start time {startLabel}: {Events[i].Time}");
-                    this.TimeInfo($"End time {endLabel}: {Events[afterIndex].Time}");
-                    return Tools.GetDuration(
+                    this.LogsInfo($"Start time {startLabel}: {Events[i].Time}");
+                    this.LogsInfo($"End time {endLabel}: {Events[afterIndex].Time}");
+                    return MTools.GetDuration(
                         Events[i].Time,
                         Events[afterIndex].Time
                     );
@@ -505,37 +505,37 @@ namespace Multi.Cursor
         public int GetDurationToGestureStart(string startLabel, Technique technique)
         {
             long startTime = GetLastTime(startLabel);
-            this.TimeInfo($"StartTime {startLabel}: {startTime}");
+            this.LogsInfo($"StartTime {startLabel}: {startTime}");
             long endTime = GetGestureStartTime(technique);
-            this.TimeInfo($"End time {technique}: {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            this.LogsInfo($"End time {technique}: {endTime}");
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromGestureEnd(Technique technique, string endLabel)
         {
             long startTime = GetGestureEndTimestamp(technique);
-            this.TimeInfo($"Start time {technique}: {startTime}");
+            this.LogsInfo($"Start time {technique}: {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TimeInfo($"End time {endLabel}: {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            this.LogsInfo($"End time {endLabel}: {endTime}");
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationToFingerAction(string type, string action)
         {
             long startTime = GetLastTime(type);
-            this.TimeInfo($"Start time {type}: {startTime}");
+            this.LogsInfo($"Start time {type}: {startTime}");
             long endTime = GetFirstAfterLast(type, action);
-            this.TimeInfo($"End time {action}: {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            this.LogsInfo($"End time {action}: {endTime}");
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromFingerAction(string action, string endLabel)
         {
             long startTime = GetLastFingerActionTime(action);
-            this.TimeInfo($"Start time {action}: {startTime}");
+            this.LogsInfo($"Start time {action}: {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TimeInfo($"End time {endLabel}: {endTime}");
-            return Tools.GetDuration(startTime, endTime);
+            this.LogsInfo($"End time {endLabel}: {endTime}");
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetGestureDuration(Technique gesture)
@@ -545,13 +545,13 @@ namespace Multi.Cursor
                 case Technique.TOMO_TAP:
                     //long tapEndTime = GetLastFingerActionTime(ExpStrs.TAP_UP);
                     //long tapStartTime = GetFingerTimeBefore(ExpStrs.DOWN, tapEndTime);
-                    //return Tools.GetDuration(tapStartTime, tapEndTime);
+                    //return MTools.GetDuration(tapStartTime, tapEndTime);
                     return GetLastSeqDuration(ExpStrs.TAP_DOWN, ExpStrs.TAP_UP);
-                
+
                 case Technique.TOMO_SWIPE:
                     //long swipeEndTime = GetLastFingerActionTime(ExpStrs.SWIPE_END);
                     //long swipeStartTime = GetFingerTimeBefore(ExpStrs.SWIPE_START, swipeEndTime);
-                    //return Tools.GetDuration(swipeStartTime, swipeEndTime);
+                    //return MTools.GetDuration(swipeStartTime, swipeEndTime);
                     return GetLastSeqDuration(ExpStrs.SWIPE_START, ExpStrs.SWIPE_END);
             }
 

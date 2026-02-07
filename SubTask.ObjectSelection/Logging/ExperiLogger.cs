@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Windows;
 using static Common.Constants.ExpEnums;
 
@@ -115,17 +114,17 @@ namespace SubTask.ObjectSelection
 
             for (int i = 1; i <= trial.NObjects; i++)
             {
-                DynamiclySetFieldValue(
+                MIO.DynamiclySetFieldValue(
                     log, $"obj{i}nt_obj{i}pr",
                     trialRecord.GetNthSeqDuration(ExpStrs.OBJ_ENTER, ExpStrs.OBJ_PRESS, i));
-                DynamiclySetFieldValue(
+                MIO.DynamiclySetFieldValue(
                     log, $"obj{i}pr_obj{i}rl",
                     trialRecord.GetNthSeqDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE, i));
 
                 // Transition to the Next Object (i + 1)
                 if (i < trial.NObjects)
                 {
-                    DynamiclySetFieldValue(
+                    MIO.DynamiclySetFieldValue(
                     log, $"obj{i}rl_obj{i + 1}nt",
                     trialRecord.GetNthSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_PRESS, i));
                 }
@@ -136,11 +135,7 @@ namespace SubTask.ObjectSelection
 
             log.arapr_ararl = trialRecord.GetLastSeqDuration(ExpStrs.ARA_PRESS, ExpStrs.ARA_RELEASE);
 
-            // Testing
-            //Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            //Output.Conlog<ExperiLogger>(log.ToString());
-
-            WriteTrialLog(log, _detiledTrialLogPath, _detailTrialLogWriter);
+            MIO.WriteTrialLog(log, _detiledTrialLogPath, _detailTrialLogWriter);
             //_detailedTrialLogWriter?.Dispose();
         }
 
@@ -156,7 +151,7 @@ namespace SubTask.ObjectSelection
 
             _trialTimes[trial.Id] = log.trial_time;
 
-            WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
+            MIO.WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
         }
 
         public static void LogCursorPositions()
@@ -185,64 +180,13 @@ namespace SubTask.ObjectSelection
             double avgTime = _trialTimes.Values.Average() / 1000;
             log.block_time = $"{avgTime:F2}";
 
-            WriteTrialLog(log, _blockLogPath, _blockLogWriter);
+            MIO.WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 
-        }
-
-        private static void WriteTrialLog<T>(T log, string filePath, StreamWriter writer)
-        {
-            //var fields = typeof(T).GetFields();
-            //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
-            //_detailedTrialLogWriter.WriteLine(string.Join(";", values));
-            //_detailedTrialLogWriter.Flush();
-
-            var type = typeof(T);
-            var baseType = type.BaseType;
-
-            // 1. Get fields from the base class (parent)
-            // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
-            var parentFields = baseType != null && baseType != typeof(object)
-                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                : Enumerable.Empty<FieldInfo>();
-
-            // 2. Get fields from the derived class (child)
-            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-            // 3. Combine them: Parent fields first, then Child fields.
-            var orderedFields = parentFields.Concat(childFields);
-
-            // 4. Get values in the same order.
-            var values = orderedFields
-                .Select(f => f.GetValue(log)?.ToString() ?? "");
-
-            // 5. Write the values.
-            writer.WriteLine(string.Join(";", values));
-            //streamWriter.Flush();
         }
 
         public static void RecordCursorPosition(Point cursorPos)
         {
             _trialCursorRecords[_activeTrialId].Add(new PositionRecord(cursorPos.X, cursorPos.Y));
         }
-
-        public static void DynamiclySetFieldValue(TrialLog instance, string fieldName, int newValue)
-        {
-            // 2. Get the FieldInfo
-            Type dataType = instance.GetType();
-            FieldInfo field = dataType.GetField(fieldName);
-
-            if (field != null)
-            {
-                // 3. Set the Value
-                // Pass the object instance (dataInstance) and the new value
-                field.SetValue(instance, newValue);
-                //MOuter.LogsInfo<ExperiLogger>($"Successfully set field '{fieldName}' to {newValue}.");
-            }
-            else
-            {
-                //MOuter.LogsInfo<ExperiLogger>($"Error: Field '{fieldName}' not found.");
-            }
-        }
-
     }
 }

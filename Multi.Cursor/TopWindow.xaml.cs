@@ -1,4 +1,5 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using Common.Settings;
 using CommonUI;
 using System;
@@ -140,7 +141,7 @@ namespace Multi.Cursor
 
         //    RegisterAllButtons(_buttonsGrid); // Register buttons in all columns after they are created
         //    LinkButtonNeighbors();
-            
+
 
         //    //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
         //    //{
@@ -226,7 +227,7 @@ namespace Multi.Cursor
         //{
         //    //this.TrialInfo($"Registering buttons in column with {column.Children.Count} children...");
 
-            
+
 
         //    // Iterate through all direct children of the Grid column
         //    foreach (UIElement childOfColumn in column.Children)
@@ -243,7 +244,7 @@ namespace Multi.Cursor
         //                    _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
         //                    _buttonInfos[button.Id] = new ButtonInfo(button);
         //                    //_allButtons.Add(button.Id, button); // Add to the list of all buttons
-                            
+
         //                    // Add button position to the dictionary
 
         //                    // Get the transform from the button to the Window (or the root visual)
@@ -293,7 +294,7 @@ namespace Multi.Cursor
         //        }
         //    }
 
-            
+
 
         //}
 

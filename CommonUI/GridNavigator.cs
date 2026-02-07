@@ -12,8 +12,6 @@ namespace CommonUI
         private Point _prevPosition;
 
         // --- New State for Grid Navigation ---
-        private int _currentRow;
-        private int _currentCol;
         private double _accumulatedX_displacement = 0.0;
         private double _accumulatedY_displacement = 0.0;
 

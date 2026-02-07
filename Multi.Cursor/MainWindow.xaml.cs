@@ -201,9 +201,6 @@ namespace Multi.Cursor
         {
             InitializeComponent();
 
-            // Initialize logging
-            Output.Init();
-
             // Initialize random
             _random = new Random();
 
@@ -857,7 +854,7 @@ namespace Multi.Cursor
             double angleToCenter = Math.Atan2(dy, dx); // This is in radians
 
             // 3. Compute the spread around that angle
-            double spreadRad = Tools.DegToRad(angleSpreadDeg);
+            double spreadRad = MTools.DegToRad(angleSpreadDeg);
             double minRad = angleToCenter - spreadRad / 2;
             double maxRad = angleToCenter + spreadRad / 2;
 
@@ -1403,7 +1400,7 @@ namespace Multi.Cursor
             return (id, centerPositionAbsolute);
         }
 
-        public TFunction FindRandomFunction(Side side, int widthUnits, Range distRange)
+        public TFunction FindRandomFunction(Side side, int widthUnits, MRange distRange)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
             int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
@@ -1415,7 +1412,7 @@ namespace Multi.Cursor
             return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
         }
 
-        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, Range distRange)
+        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, MRange distRange)
         {
             //this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
             List<TFunction> functions = new List<TFunction>();

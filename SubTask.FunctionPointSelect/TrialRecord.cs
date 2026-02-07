@@ -160,7 +160,7 @@ namespace SubTask.FunctionPointSelect
 
         public void ApplyFunction(int funcId, int objId)
         {
-            this.TrialInfo($"FuncId: {funcId}");
+            this.LogsInfo($"FuncId: {funcId}");
             TFunction func = GetFunctionById(funcId);
             if (func != null)
             {
@@ -172,13 +172,13 @@ namespace SubTask.FunctionPointSelect
         public void MarkFunction(int id)
         {
             ChangeFunctionState(id, ButtonState.MARKED);
-            this.TrialInfo($"Function#{id} marked.");
+            this.LogsInfo($"Function#{id} marked.");
         }
 
         public void UnmarkFunction(int id)
         {
             ChangeFunctionState(id, ButtonState.DEFAULT);
-            this.TrialInfo($"Function#{id} demarked.");
+            this.LogsInfo($"Function#{id} demarked.");
         }
 
 
@@ -228,11 +228,11 @@ namespace SubTask.FunctionPointSelect
 
         public void ChangeObjectState(int objId, ButtonState newState)
         {
-            this.TrialInfo($"Change Obj#{objId} to {newState}");
+            this.LogsInfo($"Change Obj#{objId} to {newState}");
             TObject markedObj = Objects.FirstOrDefault(o => o.Id == objId);
             if (markedObj != null)
             {
-                this.TrialInfo($"Changed Obj#{objId} to {newState}");
+                this.LogsInfo($"Changed Obj#{objId} to {newState}");
                 markedObj.State = newState;
             }
         }
@@ -255,12 +255,12 @@ namespace SubTask.FunctionPointSelect
         {
             TrialEvent trialEvent = new TrialEvent(type, id);
             Events.Add(trialEvent);
-            this.TrialInfo($"[+] {trialEvent.ToString()}");
+            this.LogsInfo($"[+] {trialEvent.ToString()}");
 
             if (type == ExpStrs.TAP_UP)
             {
                 long endTime = GetLastFingerActionTime(type);
-                this.TrialInfo($"End Time: {endTime}");
+                this.LogsInfo($"End Time: {endTime}");
                 var gestureStartTimestamp = Events.LastOrDefault(ts => ts.Type == ExpStrs.DOWN && ts.Time < endTime);
                 if (gestureStartTimestamp != null)
                 {
@@ -373,18 +373,18 @@ namespace SubTask.FunctionPointSelect
         public int GetDuration(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"Start time ({startLabel}): {startTime}");
+            this.LogsInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time ({endLabel}): {endTime}");
+            this.LogsInfo($"End time ({endLabel}): {endTime}");
             return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurtionToFirstAfter(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"Start time ({startLabel}): {startTime}");
+            this.LogsInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetFirstAfterLast(startLabel, endLabel);
-            this.TrialInfo($"End time ({endLabel}): {endTime}");
+            this.LogsInfo($"End time ({endLabel}): {endTime}");
             return MTools.GetDuration(startTime, endTime);
         }
 
@@ -434,12 +434,12 @@ namespace SubTask.FunctionPointSelect
                 if (Events[i].Type == startType)
                 {
                     occurrenceCount++;
-                    this.TrialInfo($"nOccurences of {startType}: {occurrenceCount}");
+                    this.LogsInfo($"nOccurences of {startType}: {occurrenceCount}");
                     // 2. Check if this is the N-th occurrence we are looking for
                     if (occurrenceCount == n)
                     {
                         var startTime = Events[i].Time; // Capture the start time
-                        this.TrialInfo($"Start time of {n}th {startType}: {startTime}");
+                        this.LogsInfo($"Start time of {n}th {startType}: {startTime}");
 
                         // 3. Found the N-th start. Now, look *forward* for the first end event
                         for (int j = i + 1; j < Events.Count; j++)
@@ -448,7 +448,7 @@ namespace SubTask.FunctionPointSelect
                             {
                                 // Found the corresponding end event
                                 var endTime = Events[j].Time;
-                                this.TrialInfo($"End time of {n}th {endType}: {endTime}");
+                                this.LogsInfo($"End time of {n}th {endType}: {endTime}");
                                 // 4. Return the calculated duration
                                 return MTools.GetDuration(startTime, endTime);
                             }
@@ -469,13 +469,13 @@ namespace SubTask.FunctionPointSelect
 
         public int GetLastSeqDuration(string startLabel, string endLabel)
         {
-            this.TrialInfo($"From {startLabel} to {endLabel}");
+            this.LogsInfo($"From {startLabel} to {endLabel}");
             if (Events == null || Events.Count == 0)
                 return -1;
 
             // find the last occurrence of endType
             int afterIndex = Events.FindLastIndex(t => t.Type == endLabel);
-            this.TrialInfo($"Index of {endLabel}: {afterIndex}");
+            this.LogsInfo($"Index of {endLabel}: {afterIndex}");
             if (afterIndex < 0)
                 return -1;
 
@@ -484,8 +484,8 @@ namespace SubTask.FunctionPointSelect
             {
                 if (Events[i].Type == startLabel)
                 {
-                    this.TrialInfo($"Start time {startLabel}: {Events[i].Time}");
-                    this.TrialInfo($"End time {endLabel}: {Events[afterIndex].Time}");
+                    this.LogsInfo($"Start time {startLabel}: {Events[i].Time}");
+                    this.LogsInfo($"End time {endLabel}: {Events[afterIndex].Time}");
                     return MTools.GetDuration(
                         Events[i].Time,
                         Events[afterIndex].Time
@@ -499,36 +499,36 @@ namespace SubTask.FunctionPointSelect
         public int GetDurationToGestureStart(string startLabel, Technique technique)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"StartTime {startLabel}: {startTime}");
+            this.LogsInfo($"StartTime {startLabel}: {startTime}");
             long endTime = GetGestureStartTime(technique);
-            this.TrialInfo($"End time {technique}: {endTime}");
+            this.LogsInfo($"End time {technique}: {endTime}");
             return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromGestureEnd(Technique technique, string endLabel)
         {
             long startTime = GetGestureEndTimestamp(technique);
-            this.TrialInfo($"Start time {technique}: {startTime}");
+            this.LogsInfo($"Start time {technique}: {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time {endLabel}: {endTime}");
+            this.LogsInfo($"End time {endLabel}: {endTime}");
             return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationToFingerAction(string type, string action)
         {
             long startTime = GetLastTime(type);
-            this.TrialInfo($"Start time {type}: {startTime}");
+            this.LogsInfo($"Start time {type}: {startTime}");
             long endTime = GetFirstAfterLast(type, action);
-            this.TrialInfo($"End time {action}: {endTime}");
+            this.LogsInfo($"End time {action}: {endTime}");
             return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromFingerAction(string action, string endLabel)
         {
             long startTime = GetLastFingerActionTime(action);
-            this.TrialInfo($"Start time {action}: {startTime}");
+            this.LogsInfo($"Start time {action}: {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time {endLabel}: {endTime}");
+            this.LogsInfo($"End time {endLabel}: {endTime}");
             return MTools.GetDuration(startTime, endTime);
         }
 

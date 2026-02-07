@@ -21,10 +21,10 @@ namespace Multi.Cursor
         //private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30}; // BenQ
 
         //private static List<double> _distances = new List<double>(); // Generated in constructor
-        private Range _shortDistRangeMM; // Short distances range (mm)
-        private Range _midDistRangeMM; // Mid distances range (mm)
-        private Range _longDistRangeMM; // Long distances range (mm)
-        
+        private MRange _shortDistRangeMM; // Short distances range (mm)
+        private MRange _midDistRangeMM; // Mid distances range (mm)
+        private MRange _longDistRangeMM; // Long distances range (mm)
+
 
         private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
 
@@ -35,7 +35,7 @@ namespace Multi.Cursor
         //-- Information
 
         //public int Participant_Number { get; set; } // Set in the info dialog
-        
+
         private List<Block> _blocks = new List<Block>();
         public List<Block> Blocks { get { return _blocks; } }
 
@@ -52,9 +52,9 @@ namespace Multi.Cursor
             double twoThird = Shortest_Dist_MM + distDiff * 2 / 3;
 
             // Set the distRanges
-            _shortDistRangeMM = new Range(Shortest_Dist_MM, oneThird - Dist_PADDING_MM, ExpStrs.SHORT_DIST); // Short distances range
-            _midDistRangeMM = new Range(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM, ExpStrs.MID_DIST); // Middle distances range (will be set later)
-            _longDistRangeMM = new Range(twoThird + Dist_PADDING_MM, Longest_Dist_MM, ExpStrs.LONG_DIST); // Long distances range
+            _shortDistRangeMM = new MRange(Shortest_Dist_MM, oneThird - Dist_PADDING_MM, ExpStrs.SHORT_DIST); // Short distances range
+            _midDistRangeMM = new MRange(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM, ExpStrs.MID_DIST); // Middle distances range (will be set later)
+            _longDistRangeMM = new MRange(twoThird + Dist_PADDING_MM, Longest_Dist_MM, ExpStrs.LONG_DIST); // Long distances range
 
             this.TrialInfo($"Short dist range (mm): {_shortDistRangeMM.ToString()}");
             this.TrialInfo($"Mid dist range (mm): {_midDistRangeMM.ToString()}");
@@ -86,24 +86,24 @@ namespace Multi.Cursor
             Active_Complexity = complexity;
 
             // Create factor levels
-            List<Range> distRanges = new List<Range>()
+            List<MRange> distRanges = new List<MRange>()
             {
                 _shortDistRangeMM, // Short distances
                 _midDistRangeMM,   // Mid distances
                 _longDistRangeMM    // Long distances
             };
-            
+
             //List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
             // Create and add blocks
             for (int i = 0; i < ExpDesign.LT_N_BLOCKS; i++)
             {
                 int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
                 Block block = Block.CreateBlock(
-                    Active_Technique, ExpEnvironment.PTC_NUM, 
-                    blockId, 
+                    Active_Technique, ExpEnvironment.PTC_NUM,
+                    blockId,
                     complexity,
                     expType,
-                    distRanges, 
+                    distRanges,
                     nFun, nObj);
                 _blocks.Add(block);
             }

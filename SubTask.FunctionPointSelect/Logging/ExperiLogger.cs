@@ -2,13 +2,11 @@
 using Common.Helpers;
 using Common.Logs;
 using Common.Settings;
-using Serilog.Core;
 using SubTask.FunctionPointSelect.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Windows;
 using static Common.Constants.ExpEnums;
 
@@ -36,17 +34,10 @@ namespace SubTask.FunctionPointSelect
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
 
-        private static Logger _gestureFileLog;
-        private static Logger _blockFileLog;
-
         private static StreamWriter _detailTrialLogWriter;
         private static StreamWriter _totalTrialLogWriter;
         private static StreamWriter _cursorLogWriter;
         private static StreamWriter _blockLogWriter;
-
-        private static Dictionary<string, int> _trialLogs = new Dictionary<string, int>();
-
-        private static bool _headerWritten = false;
 
         private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
 
@@ -78,20 +69,9 @@ namespace SubTask.FunctionPointSelect
             _cursorLogWriter = MIO.PrepareFileWithHeader<PositionRecord>(_cursorLogFilePath, PositionRecord.GetHeader());
         }
 
-        public static void StartTrialLog(Trial trial)
-        {
-            //_blockFileLog.Information($"{trial.ToString()}");
-            //_blockFileLog.Information($"----------------------------------------------------------------------------------");
-        }
-
         public static void LogGestureEvent(string message)
         {
             //_gestureFileLog.Information(message);
-        }
-
-        public static void LogTrialMessage(string message)
-        {
-            _blockFileLog.Information(message);
         }
 
         private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -120,9 +100,6 @@ namespace SubTask.FunctionPointSelect
             // Information
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
 
-            // Information
-            LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
-
             // Log events
             log.trlsh_curmv = trialRecord.GetDuration(ExpStrs.TRIAL_SHOW, ExpStrs.FIRST_MOVE);
             log.curmv_strnt = trialRecord.GetLastSeqDuration(ExpStrs.FIRST_MOVE, ExpStrs.STR_ENTER);
@@ -136,7 +113,7 @@ namespace SubTask.FunctionPointSelect
             log.funnt_funpr = trialRecord.GetLastSeqDuration(ExpStrs.FUN_ENTER, ExpStrs.FUN_PRESS);
             log.funpr_funrl = trialRecord.GetLastSeqDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE);
 
-            WriteTrialLog(log, _detilTrialLogPath, _detailTrialLogWriter);
+            MIO.WriteTrialLog(log, _detilTrialLogPath, _detailTrialLogWriter);
             //_detailTrialLogWriter?.Dispose();
         }
 
@@ -151,7 +128,7 @@ namespace SubTask.FunctionPointSelect
             log.trial_time = trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.FUN_PRESS);
             _trialTimes[trial.Id] = log.trial_time;
 
-            WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
+            MIO.WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
         }
 
         public static void LogCursorRecords()
@@ -178,39 +155,8 @@ namespace SubTask.FunctionPointSelect
             double avgTime = _trialTimes.Values.Average() / 1000;
             log.block_time = $"{avgTime:F2}";
 
-            WriteTrialLog(log, _blockLogPath, _blockLogWriter);
+            MIO.WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 
-        }
-
-        private static void WriteTrialLog<T>(T log, string filePath, StreamWriter writer)
-        {
-            //var fields = typeof(T).GetFields();
-            //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
-            //_detailTrialLogWriter.WriteLine(string.Join(";", values));
-            //_detailTrialLogWriter.Flush();
-
-            var type = typeof(T);
-            var baseType = type.BaseType;
-
-            // 1. Get fields from the base class (parent)
-            // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
-            var parentFields = baseType != null && baseType != typeof(object)
-                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                : Enumerable.Empty<FieldInfo>();
-
-            // 2. Get fields from the derived class (child)
-            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-            // 3. Combine them: Parent fields first, then Child fields.
-            var orderedFields = parentFields.Concat(childFields);
-
-            // 4. Get values in the same order.
-            var values = orderedFields
-                .Select(f => f.GetValue(log)?.ToString() ?? "");
-
-            // 5. Write the values.
-            writer.WriteLine(string.Join(";", values));
-            //streamWriter.Flush();
         }
 
         public static void RecordCursorPosition(Point cursorPos)

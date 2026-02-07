@@ -1,4 +1,5 @@
 ﻿using Common.Constants;
+using Common.Logs;
 using System.Reflection;
 using System.Text;
 
@@ -109,6 +110,25 @@ namespace Common.Helpers
             // 5. Write the values.
             writer.WriteLine(string.Join(";", values));
             //streamWriter.Flush();
+        }
+
+        public static void DynamiclySetFieldValue(TrialLog instance, string fieldName, int newValue)
+        {
+            // 2. Get the FieldInfo
+            Type dataType = instance.GetType();
+            FieldInfo field = dataType.GetField(fieldName);
+
+            if (field != null)
+            {
+                // 3. Set the Value
+                // Pass the object instance (dataInstance) and the new value
+                field.SetValue(instance, newValue);
+                //MOuter.LogsInfo<ExperiLogger>($"Successfully set field '{fieldName}' to {newValue}.");
+            }
+            else
+            {
+                //MOuter.LogsInfo<ExperiLogger>($"Error: Field '{fieldName}' not found.");
+            }
         }
     }
 }

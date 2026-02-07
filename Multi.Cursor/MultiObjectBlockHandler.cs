@@ -233,7 +233,7 @@ namespace Multi.Cursor
         //    switch (result)
         //    {
         //        case Result.HIT:
-        //            Sounder.PlayHit();
+        //            MSounder.PlayHit();
         //            double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
         //            _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
 
@@ -241,7 +241,7 @@ namespace Multi.Cursor
         //            GoToNextTrial();
         //            break;
         //        case Result.MISS:
-        //            Sounder.PlayTargetMiss();
+        //            MSounder.PlayTargetMiss();
 
         //            _activeBlock.ShuffleBackTrial(_activeTrialNum);
         //            _trialRecords[_activeTrial.Id].ClearTimestamps();
@@ -341,7 +341,7 @@ namespace Multi.Cursor
 
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true;
                 return;
             }
@@ -593,7 +593,7 @@ namespace Multi.Cursor
 
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
@@ -618,7 +618,7 @@ namespace Multi.Cursor
             // Pressed on the Object without starting the trial
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
@@ -699,7 +699,7 @@ namespace Multi.Cursor
             if (!IsStartClicked())
             {
                 this.TrialInfo($"Start wasn't clicked");
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
@@ -769,7 +769,7 @@ namespace Multi.Cursor
         //    if (!IsStartClicked())
         //    {
         //        this.TrialInfo($"Start wasn't clicked");
-        //        Sounder.PlayStartMiss();
+        //        MSounder.PlayStartMiss();
         //        e.Handled = true; // Mark the event as handled to prevent further processing
         //        return; // Do nothing if start button was not clicked
         //    }
