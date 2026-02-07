@@ -39,10 +39,6 @@ namespace SubTask.ObjectSelection
         private static StreamWriter _cursorLogWriter;
         private static StreamWriter _blockLogWriter;
 
-        private static Dictionary<string, int> _trialLogs = new Dictionary<string, int>();
-
-        private static bool _headerWritten = false;
-
         private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
 
         private static Dictionary<int, List<PositionRecord>> _trialCursorRecords = new Dictionary<int, List<PositionRecord>>();
@@ -60,22 +56,17 @@ namespace SubTask.ObjectSelection
             _blockLogWriter = MIO.PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
         }
 
-        public static void StartTrialCursorLog(int trialId)
+        public static void StartTrialCursorLog(int trialId, int trialNum)
         {
 
             _activeTrialId = trialId;
             _trialCursorRecords[_activeTrialId] = new List<PositionRecord>();
 
-            _cursorLogFilePath = System.IO.Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "SubTask.ObjectSelection.Logs", $"P{ExpEnvironment.PTC_NUM}-{Technique}", "Cursor", $"trial{trialId}-cursor-log"
+            _cursorLogFilePath = Path.Combine(
+                MyDocumentsPath, LogsFolderName,
+                $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.CURSOR_C, $"trial-id{trialId}-n{trialNum}-{ExpStrs.CURSOR_S}"
             );
             _cursorLogWriter = MIO.PrepareFileWithHeader<PositionRecord>(_cursorLogFilePath, PositionRecord.GetHeader());
-        }
-
-        public static void LogGestureEvent(string message)
-        {
-            //_gestureFileLog.Information(message);
         }
 
         private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -136,7 +127,6 @@ namespace SubTask.ObjectSelection
             log.arapr_ararl = trialRecord.GetLastSeqDuration(ExpStrs.ARA_PRESS, ExpStrs.ARA_RELEASE);
 
             MIO.WriteTrialLog(log, _detiledTrialLogPath, _detailTrialLogWriter);
-            //_detailedTrialLogWriter?.Dispose();
         }
 
         public static void LogTotalTrialTime(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)

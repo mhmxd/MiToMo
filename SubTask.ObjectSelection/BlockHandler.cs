@@ -66,7 +66,7 @@ namespace SubTask.ObjectSelection
             LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
 
             // Start logging cursor positions
-            ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
+            ExperiLogger.StartTrialCursorLog(_activeTrial.Id, _activeTrialNum);
 
             // Set object area position
             _activeTrialRecord.ObjectAreaRect.Location = _mainWindow.FindRandomPositionForObjectArea(_activeTrialRecord.ObjectAreaRect.Size);
