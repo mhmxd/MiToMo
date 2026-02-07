@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
+using static SubTask.Panel.Selection.MainWindow;
 using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.Panel.Selection
@@ -66,7 +67,7 @@ namespace SubTask.Panel.Selection
             LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
 
             // Start logging cursor positions
-            ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
+            ExperiLogger.StartTrialCursorLog(_activeTrial.Id, _activeTrialNum);
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
@@ -112,6 +113,7 @@ namespace SubTask.Panel.Selection
             ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
             ExperiLogger.LogTotalTrialTime(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
             ExperiLogger.LogCursorPositions();
+            ExperiLogger.LogGestures();
 
             // Next trial
             await GoToNextTrial();
@@ -178,7 +180,7 @@ namespace SubTask.Panel.Selection
             LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
-            ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
+            ExperiLogger.RecordCursorPosition(e.GetPosition(_mainWindow.Owner));
         }
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
@@ -582,15 +584,14 @@ namespace SubTask.Panel.Selection
             return _activeBlock.GetNumTrials();
         }
 
-        public override void RecordToMoAction(Finger finger, string action)
+        public override void RecordToMoAction(Finger finger, string action, Point point)
         {
             LogEvent(action, finger.ToString().ToLower());
+
+            // Record gesture (in a separate file)
+            ExperiLogger.RecordGesture(MTimer.GetCurrentMillis(), finger, action, point);
         }
 
-        //public void RecordToMoAction(string action)
-        //{
-        //    LogEvent(action);
-        //}
 
         protected bool IsStartPressed()
         {

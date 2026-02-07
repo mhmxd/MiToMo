@@ -627,7 +627,7 @@ namespace SubTask.PanelNavigation
         public override void RecordToMoAction(Finger finger, string action, Point point)
         {
             // Normal event
-            LogEvent(finger.ToString().ToLower(), action);
+            LogEvent(action, finger.ToString().ToLower());
 
             // Record gesture (in a separate file)
             ExperiLogger.RecordGesture(MTimer.GetCurrentMillis(), finger, action, point);

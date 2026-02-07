@@ -33,10 +33,12 @@ namespace SubTask.Panel.Selection
             $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.BLOCKS_C);
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
+        private static string _gestureLogFilePath = ""; // Will be set when starting trial cursor log
 
         private static StreamWriter _detailTrialLogWriter;
         private static StreamWriter _totalTrialLogWriter;
         private static StreamWriter _cursorLogWriter;
+        private static StreamWriter _gestureLogWriter;
         private static StreamWriter _blockLogWriter;
 
         private static Dictionary<string, int> _trialLogs = new Dictionary<string, int>();
@@ -44,6 +46,7 @@ namespace SubTask.Panel.Selection
         private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
 
         private static Dictionary<int, List<PositionRecord>> _trialCursorRecords = new Dictionary<int, List<PositionRecord>>();
+        private static List<GestureLog> _trialGestureRecords = new();
         private static int _activeTrialId = -1;
 
         public static void Init(Technique tech)
@@ -70,22 +73,24 @@ namespace SubTask.Panel.Selection
 
         }
 
-        public static void StartTrialCursorLog(int trialId)
+        public static void StartTrialCursorLog(int trialId, int trialNum)
         {
             _activeTrialId = trialId;
             _trialCursorRecords[_activeTrialId] = new List<PositionRecord>();
 
             _cursorLogFilePath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "SubTask.Panel.Selection.Logs", $"P{ExpEnvironment.PTC_NUM}-{_technique}", "Cursor", $"trial{trialId}-cursor-log"
+                MyDocumentsPath, LogsFolderName,
+                $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.CURSOR_C, $"trial-id{trialId}-n{trialNum}-{ExpStrs.CURSOR_S}"
             );
 
             _cursorLogWriter = MIO.PrepareFileWithHeader<PositionRecord>(_cursorLogFilePath, PositionRecord.GetHeader());
-        }
 
-        public static void LogGestureEvent(string message)
-        {
-            //_gestureFileLog.Information(message);
+            _gestureLogFilePath = Path.Combine(
+                MyDocumentsPath, LogsFolderName,
+                $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.GestureCap, $"trial-id{trialId}-n{trialNum}-{ExpStrs.Gesture}"
+            );
+
+            _gestureLogWriter = MIO.PrepareFileWithHeader<GestureLog>(_gestureLogFilePath);
         }
 
         private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -152,6 +157,15 @@ namespace SubTask.Panel.Selection
             _cursorLogWriter.Dispose();
         }
 
+        public static void LogGestures()
+        {
+            foreach (var log in _trialGestureRecords)
+            {
+                _gestureLogWriter.WriteLine($"{log.timestamp};{log.finger};{log.action};{log.x};{log.y}");
+            }
+            _gestureLogWriter.Dispose();
+        }
+
 
         public static void LogBlockTime(Block block)
         {
@@ -173,9 +187,21 @@ namespace SubTask.Panel.Selection
 
         }
 
-        public static void LogCursorPosition(Point cursorPos)
+        public static void RecordCursorPosition(Point cursorPos)
         {
             _trialCursorRecords[_activeTrialId].Add(new PositionRecord(cursorPos.X, cursorPos.Y));
+        }
+
+        public static void RecordGesture(long timestamp, Finger finger, string action, Point point)
+        {
+            _trialGestureRecords.Add(new GestureLog
+            {
+                timestamp = timestamp,
+                finger = finger.ToString().ToLower(),
+                action = action,
+                x = point.X.ToString("F2"),
+                y = point.Y.ToString("F2")
+            });
         }
 
         private static void Dispose()
