@@ -177,7 +177,7 @@ namespace SubTask.PanelNavigation
         /// <param name="label"></param>
         public void RecordEvent(string type, string id)
         {
-            TrialEvent trialEvent = new TrialEvent(type, id);
+            TrialEvent trialEvent = new(type, id);
             Events.Add(trialEvent);
             //this.TrialInfo($"[+] {trialEvent.ToString()}");
 

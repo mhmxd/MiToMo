@@ -11,8 +11,6 @@ namespace CommonUI
         private int _totalPressure;
         private int _weightedSumX;
         private int _weightedSumY;
-
-
         public TouchPoint()
         {
 
@@ -67,5 +65,6 @@ namespace CommonUI
         {
             return GetCenter().Y;
         }
+
     }
 }

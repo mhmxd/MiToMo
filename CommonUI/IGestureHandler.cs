@@ -1,4 +1,5 @@
-﻿using static Common.Constants.ExpEnums;
+﻿using System.Windows;
+using static Common.Constants.ExpEnums;
 
 namespace CommonUI
 {
@@ -27,6 +28,6 @@ namespace CommonUI
 
         public virtual void PinkyTap(Side side) { }
 
-        public virtual void RecordToMoAction(Finger finger, string action) { }
+        public virtual void RecordToMoAction(Finger finger, string action, Point point) { }
     }
 }

@@ -21,8 +21,11 @@ namespace Common.Helpers
 
             bool timedFileExists = File.Exists(filePath);
             bool timedFileIsEmpty = !timedFileExists || new FileInfo(filePath).Length == 0;
-            StreamWriter writer = new StreamWriter(filePath, append: true, Encoding.UTF8);
-            writer.AutoFlush = true;
+            StreamWriter writer = new(filePath, append: true, Encoding.UTF8)
+            {
+                AutoFlush = true
+            };
+
             if (timedFileIsEmpty)
             {
                 WriteHeader<T>(writer);
@@ -52,6 +55,32 @@ namespace Common.Helpers
             if (timedFileIsEmpty)
             {
                 writer.WriteLine(header);
+            }
+
+            return writer;
+        }
+
+        public static StreamWriter PrepareFileWithHeader<T>(string filePath)
+        {
+            string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
+            filePath = $"{filePath}_{timestamp}.csv";
+
+            string directoryPath = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            bool timedFileExists = File.Exists(filePath);
+            bool timedFileIsEmpty = !timedFileExists || new FileInfo(filePath).Length == 0;
+            StreamWriter writer = new(filePath, append: true, Encoding.UTF8)
+            {
+                AutoFlush = true
+            };
+
+            if (timedFileIsEmpty)
+            {
+                WriteHeader<T>(writer);
             }
 
             return writer;

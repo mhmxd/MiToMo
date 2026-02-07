@@ -2,6 +2,7 @@
 using Common.Helpers;
 using Common.Logs;
 using Common.Settings;
+using CommonUI;
 using SubTask.PanelNavigation.Logging;
 using System;
 using System.Collections.Generic;
@@ -35,72 +36,31 @@ namespace SubTask.PanelNavigation
             $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.BLOCKS_C);
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
+        private static string _gestureLogFilePath = ""; // Will be set when starting trial cursor log
 
         private static StreamWriter _detailTrialLogWriter;
         private static StreamWriter _totalTrialLogWriter;
         private static StreamWriter _cursorLogWriter;
+        private static StreamWriter _gestureLogWriter;
         private static StreamWriter _blockLogWriter;
 
         private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
 
-        private static Dictionary<int, List<PositionRecord>> _trialCursorRecords = new Dictionary<int, List<PositionRecord>>();
-        private static Dictionary<int, List<PositionRecord>> _trialMarkerRecords = new Dictionary<int, List<PositionRecord>>();
+        private static Dictionary<int, List<PositionRecord>> _trialCursorRecords = new();
+        private static Dictionary<int, List<PositionRecord>> _trialMarkerRecords = new();
+        private static List<GestureLog> _trialGestureRecords = new();
         private static int _activeTrialId = -1;
 
         public static void Init()
         {
             // Create detailed trial log if not exists
-            _detailTrialLogWriter = PrepareFile<DetailTrialLog>(_detailTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
+            _detailTrialLogWriter = MIO.PrepareFile<DetailTrialLog>(_detailTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
 
             // Create total log if not exists
-            _totalTrialLogWriter = PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
+            _totalTrialLogWriter = MIO.PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
 
             // Create block log if not exists
-            _blockLogWriter = PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
-        }
-
-        private static void PrepareFileWithHeader<T>(ref string filePath, StreamWriter writer, string header)
-        {
-            string timestamp = DateTime.Now.ToString(ExpStrs.DATE_TIME_FORMAT);
-            filePath = $"{filePath}-{timestamp}.csv";
-
-            string directoryPath = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            bool timedFileExists = File.Exists(filePath);
-            bool timedFileIsEmpty = !timedFileExists || new FileInfo(filePath).Length == 0;
-            writer = new StreamWriter(filePath, append: true, Encoding.UTF8);
-            writer.AutoFlush = true;
-            if (timedFileIsEmpty)
-            {
-                writer.WriteLine(header);
-            }
-        }
-
-        private static StreamWriter PrepareFile<T>(string filePath, string fileName)
-        {
-            //string directoryPath = Path.GetDirectoryName(timedFilePath);
-            if (!Directory.Exists(filePath))
-            {
-                Directory.CreateDirectory(filePath);
-            }
-
-            string timestamp = DateTime.Now.ToString(ExpStrs.DATE_TIME_FORMAT);
-            filePath = Path.Combine(filePath, $"{fileName}-{timestamp}.csv");
-
-            bool timedFileExists = File.Exists(filePath);
-            bool timedFileIsEmpty = !timedFileExists || new FileInfo(filePath).Length == 0;
-            StreamWriter writer = new StreamWriter(filePath, append: true, Encoding.UTF8);
-            writer.AutoFlush = true;
-            if (timedFileIsEmpty)
-            {
-                MIO.WriteHeader<T>(writer);
-            }
-
-            return writer;
+            _blockLogWriter = MIO.PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
         }
 
         public static void StartTrialCursorLog(int trialId, int trialNum)
@@ -114,11 +74,13 @@ namespace SubTask.PanelNavigation
             );
 
             _cursorLogWriter = MIO.PrepareFileWithHeader<PositionRecord>(_cursorLogFilePath, PositionRecord.GetHeader());
-        }
 
-        public static void LogGestureEvent(string message)
-        {
-            //_gestureFileLog.Information(message);
+            _gestureLogFilePath = Path.Combine(
+                MyDocumentsPath, LogsFolderName,
+                $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.GestureCap, $"trial-id{trialId}-n{trialNum}-{ExpStrs.Gesture}"
+            );
+
+            _gestureLogWriter = MIO.PrepareFileWithHeader<GestureLog>(_gestureLogFilePath);
         }
 
         private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -167,7 +129,7 @@ namespace SubTask.PanelNavigation
 
         public static void LogTotalTrialTime(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            TotalTrialLog log = new TotalTrialLog();
+            TotalTrialLog log = new();
 
             // Information
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
@@ -190,6 +152,15 @@ namespace SubTask.PanelNavigation
             _cursorLogWriter.Dispose();
         }
 
+        public static void LogGestures()
+        {
+            foreach (var log in _trialGestureRecords)
+            {
+                _gestureLogWriter.WriteLine($"{log.timestamp};{log.finger};{log.action};{log.x};{log.y}");
+            }
+            _gestureLogWriter.Dispose();
+        }
+
         public static void LogBlockTime(Block block)
         {
             BlockLog log = new BlockLog();
@@ -209,14 +180,26 @@ namespace SubTask.PanelNavigation
 
         }
 
-        public static void LogCursorPosition(Point cursorPos)
+        public static void RecordCursorPosition(Point cursorPos)
         {
             _trialCursorRecords[_activeTrialId].Add(new PositionRecord(cursorPos.X, cursorPos.Y));
         }
 
-        public static void LogMarkerPosition(int row, int column)
+        public static void RecordMarkerPosition(int row, int column)
         {
             _trialMarkerRecords[_activeTrialId].Add(new PositionRecord(row, column));
+        }
+
+        public static void RecordGesture(long timestamp, Finger finger, string action, Point point)
+        {
+            _trialGestureRecords.Add(new GestureLog
+            {
+                timestamp = timestamp,
+                finger = finger.ToString().ToLower(),
+                action = action,
+                x = point.X.ToString("F2"),
+                y = point.Y.ToString("F2")
+            });
         }
 
         public static void DynamiclySetFieldValue(TrialLog instance, string fieldName, int newValue)

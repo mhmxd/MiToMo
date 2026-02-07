@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 using static Common.Constants.ExpEnums;
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.PanelNavigation
 {
@@ -132,6 +133,9 @@ namespace SubTask.PanelNavigation
 
             //-- Log
             ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogTotalTrialTime(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogCursorPositions();
+            ExperiLogger.LogGestures();
 
             // Next trial
             GoToNextTrial();
@@ -212,7 +216,7 @@ namespace SubTask.PanelNavigation
             LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
-            ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
+            ExperiLogger.RecordCursorPosition(e.GetPosition(_mainWindow.Owner));
         }
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
@@ -430,33 +434,14 @@ namespace SubTask.PanelNavigation
 
         public override void IndexTap()
         {
-            if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
-            {
-                EndActiveTrial(Result.MISS);
-                return;
-            }
-
             //-- TAP:
-
             if (!IsStartClicked())
             {
                 return; // Do nothing if Start was not clicked
             }
 
-            Side correspondingSide = Side.Top;
-            var funcOnCorrespondingSide = _activeTrial.FuncSide == correspondingSide;
-
-            if (funcOnCorrespondingSide)
-            {
-                LogEvent(ExpStrs.PNL_SELECT);
-                //_mainWindow.ActivateAuxWindowMarker(correspondingSide);
-
-                EndActiveTrial(Result.HIT);
-            }
-            else
-            {
-                EndActiveTrial(Result.MISS);
-            }
+            //-- Trial started
+            // Maybe MISS?
         }
 
         public override void IndexMove(double dX, double dY)
@@ -464,7 +449,7 @@ namespace SubTask.PanelNavigation
 
         }
 
-        public override void IndexMove(CommonUI.TouchPoint indPoint)
+        public override void IndexMove(TouchPoint indPoint)
         {
             if (IsStartClicked())
             {
@@ -586,10 +571,8 @@ namespace SubTask.PanelNavigation
 
         protected void LogEvent(string type, string id)
         {
-
-            //string timeKey = type + "_" + _trialRecords[_activeTrial.Id].EventCounts[type];
-            _activeTrialRecord.RecordEvent(type, id); // Let them have the same name. We know the count from EventCounts
-
+            // Let them have the same name. We know the count from EventCounts
+            _activeTrialRecord?.RecordEvent(type, id);
         }
 
         protected void LogEvent(string type, int id)
@@ -641,9 +624,13 @@ namespace SubTask.PanelNavigation
             return _activeBlock.GetNumTrials();
         }
 
-        public void RecordToMoAction(Finger finger, string action)
+        public override void RecordToMoAction(Finger finger, string action, Point point)
         {
-            LogEvent(action, finger.ToString().ToLower());
+            // Normal event
+            LogEvent(finger.ToString().ToLower(), action);
+
+            // Record gesture (in a separate file)
+            ExperiLogger.RecordGesture(MTimer.GetCurrentMillis(), finger, action, point);
         }
 
         protected bool IsStartPressed()
