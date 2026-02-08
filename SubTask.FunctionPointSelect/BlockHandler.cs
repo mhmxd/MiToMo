@@ -28,11 +28,10 @@ namespace SubTask.FunctionPointSelect
         protected TrialRecord _activeTrialRecord;
         protected int _nSelectedObjects = 0; // Number of clicked objects in the current trial
 
-        protected List<int> _functionsVisitMap = new List<int>();
-        protected List<int> _objectsVisitMap = new List<int>();
-        protected Dictionary<int, TrialRecord> _trialRecords = new Dictionary<int, TrialRecord>(); // Trial id -> Record
+        protected List<int> _functionsVisitMap = new();
+        protected Dictionary<int, TrialRecord> _trialRecords = new(); // Trial id -> Record
 
-        protected Random _random = new Random();
+        protected Random _random = new();
 
         public BlockHandler(MainWindow mainWindow, Block activeBlock, int activeBlockNum)
         {
@@ -43,116 +42,224 @@ namespace SubTask.FunctionPointSelect
 
         public bool FindPositionsForActiveBlock()
         {
+            int maxAttempts = 500;
+
+            // 1. Get the constraint RECT ONCE on the UI thread
+            Rect startBtnConstraintRect = _mainWindow.Dispatcher.Invoke(() => _mainWindow.GetStartBtnConstraintRect());
+
             foreach (Trial trial in _activeBlock.Trials)
             {
-                if (!FindPositionsForTrial(trial))
+                int attempt = 0;
+                bool positionsFound = false;
+
+                while (attempt < maxAttempts)
                 {
-                    this.TrialInfo($"Failed to find positions for Trial#{trial.Id}");
-                    return false; // If any trial fails, return false
+                    // 2. Pass the pre-calculated Rect into the method
+                    positionsFound = FindPositionsForTrial(trial, startBtnConstraintRect);
+                    if (positionsFound) break;
+                    attempt++;
+                }
+
+                if (!positionsFound)
+                {
+                    this.TrialInfo($"Failed to find position for Trial#{trial.Id} after {maxAttempts} attempts.");
+                    return false;
                 }
             }
 
-
-            // If consecutive trials have the same function Ids or first trial's functions are over the middle button,
-            // re-order them (so marker doesn't stay on the same function)
-            int maxAttempts = 100;
-            int attempt = 0;
-            while (attempt < maxAttempts && AreFunctionsRepeated() && DoesFirstTrialsFunInclMidBtn())
+            // 3. Optimized Shuffle Logic: Only shuffle if necessary
+            int shuffleAttempt = 0;
+            while (shuffleAttempt < maxAttempts && AreFunctionsRepeated())
             {
                 _activeBlock.Trials.Shuffle();
-                attempt++;
+                shuffleAttempt++;
             }
 
-            if (attempt == maxAttempts)
+            if (shuffleAttempt == maxAttempts)
             {
-                this.TrialInfo($"Warning: Could not eliminate repeated functions in consecutive trials after {maxAttempts} attempts.");
+                this.TrialInfo("Warning: Could not eliminate repeated functions.");
                 return false;
             }
 
             return true;
         }
 
-        public bool FindPositionsForTrial(Trial trial)
+        public bool FindPositionsForTrial(Trial trial, Rect constraintRect)
         {
-
-            //this.TrialInfo(trial.ToStr());
-
-            // Ensure TrialRecord exists for this trial
+            // Ensure TrialRecord exists
             if (!_trialRecords.ContainsKey(trial.Id))
-            {
                 _trialRecords[trial.Id] = new TrialRecord();
-            }
 
+            // 1. Find the target function first
             TFunction randFunc = _mainWindow.FindRandomFunction(trial.FuncSide, trial.GetFunctionWidth(0), trial.DistRangePX);
-            this.TrialInfo($"Found functions: {randFunc}");
+            if (randFunc == null) return false;
+
+            // 2. Optimized "Ring Sampling" for the Start Button
+            // We need to find a Start Point that is trial.DistRangePX away from randFunc.Center
+            Point targetCenter = randFunc.Center;
+            MRange range = trial.DistRangePX;
+
+            bool found = false;
+            Point startCenter = new(-1, -1);
+            double finalDist = -1;
+
+            // We try fewer times here because the math is much more targeted
+            for (int i = 0; i < 200; i++)
+            {
+                double angle = _random.NextDouble() * Math.PI * 2;
+                double dist = range.Min + _random.NextDouble() * (range.Max - range.Min);
+
+                double x = targetCenter.X + Math.Cos(angle) * dist;
+                double y = targetCenter.Y + Math.Sin(angle) * dist;
+                Point candidate = new Point(x, y);
+
+                if (constraintRect.Contains(candidate))
+                {
+                    startCenter = candidate;
+                    finalDist = UITools.PX2MM(dist);
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) return false;
+
+            // 3. Update Record
+            _trialRecords[trial.Id].Functions.Clear(); // Ensure clean state if retrying
             _trialRecords[trial.Id].Functions.Add(randFunc);
-            //_mainWindow.Dispatcher.Invoke(() =>
-            //{
-            //    int functionWidth = trial.GetFunctionWidth(0);
-            //    _trialRecords[trial.Id].Functions.Add(
-            //        _mainWindow.FindRandomFunction(trial.FuncSide, functionWidth, trial.DistRangePX)
-            //    );
-            //});
 
+            int startBtnW = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Width);
+            int startBtnH = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Height);
 
+            _trialRecords[trial.Id].StartBtnRect = new Rect(
+                startCenter.X - (startBtnW / 2.0),
+                startCenter.Y - (startBtnH / 2.0),
+                startBtnW,
+                startBtnH);
 
-            // Find a position for the start button
-            Rect StartBtnConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
-            {
-                return _mainWindow.GetStartBtnConstraintRect();
-            });
-
-            (Point startCenter, double dist) = StartBtnConstraintRect.FindPointWithinDistRangeFromMultipleSources(
-                _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
-
-
-            if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position 
-            {
-                this.TrialInfo($"No valid position found for object in Trial#{trial.Id}!");
-                return false; // Return false to indicate failure
-            }
-            else
-            {
-                //this.TrialInfo($"Found object position: {startCenter.ToStr()}");
-
-                // Get the top-left corner of the start button rectangle
-                int startBtnW = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Width);
-                int startBtnH = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Height);
-                int startBtnHalfW = startBtnW / 2;
-                Point startBtnPosition = startCenter.OffsetPosition(-startBtnHalfW);
-
-                //this.TrialInfo($"Found object area position: {startBtnPosition.ToStr()}");
-
-                _trialRecords[trial.Id].StartBtnRect = new Rect(
-                        startBtnPosition.X,
-                        startBtnPosition.Y,
-                        startBtnW,
-                        startBtnH);
-
-                _trialRecords[trial.Id].DistanceMM = dist;
-
-                return true;
-            }
+            _trialRecords[trial.Id].DistanceMM = finalDist;
+            return true;
         }
+
+        //public bool FindPositionsForActiveBlock()
+        //{
+        //    int maxAttempts = 500;
+        //    int attempt = 0;
+        //    foreach (Trial trial in _activeBlock.Trials)
+        //    {
+        //        attempt = 0;
+        //        bool positionsFound = FindPositionsForTrial(trial);
+        //        while (attempt < maxAttempts && !positionsFound)
+        //        {
+        //            this.TrialInfo($"Attemp#{attempt} for Trial#{trial.Id} -- Failed to find position");
+        //            positionsFound = FindPositionsForTrial(trial);
+        //            attempt++;
+        //        }
+
+        //        if (attempt == maxAttempts)
+        //        {
+        //            this.TrialInfo($"Failed to find position for Trial#{trial.Id}");
+        //            return false;
+        //        }
+        //    }
+
+        //    // If consecutive trials have the same function Ids or first trial's functions are over the middle button,
+        //    // re-order them (so marker doesn't stay on the same function)
+        //    attempt = 0;
+        //    while (attempt < maxAttempts && AreFunctionsRepeated())
+        //    {
+        //        _activeBlock.Trials.Shuffle();
+        //        attempt++;
+        //    }
+
+        //    if (attempt == maxAttempts)
+        //    {
+        //        this.TrialInfo($"Warning: Could not eliminate repeated functions in consecutive trials after {maxAttempts} attempts.");
+        //        return false;
+        //    }
+
+        //    return true;
+        //}
+
+        //public bool FindPositionsForTrial(Trial trial, Rect startBtnConstraintRect)
+        //{
+
+        //    this.TrialInfo(trial.ToStr());
+
+        //    // Ensure TrialRecord exists for this trial
+        //    if (!_trialRecords.ContainsKey(trial.Id))
+        //    {
+        //        _trialRecords[trial.Id] = new TrialRecord();
+        //    }
+
+        //    TFunction randFunc = _mainWindow.FindRandomFunction(trial.FuncSide, trial.GetFunctionWidth(0), trial.DistRangePX);
+        //    this.TrialInfo($"Found functions: {randFunc}");
+        //    if (randFunc == null)
+        //    {
+        //        this.TrialInfo($"Failed to find functions for Trial#{trial.Id}");
+        //        return false; // Return false to indicate failure
+        //    }
+
+        //    //-- Valid function found
+        //    _trialRecords[trial.Id].Functions.Add(randFunc);
+
+        //    // Find a position for the start button
+        //    //Rect StartBtnConstraintRect = _mainWindow.GetStartBtnConstraintRect();
+        //    //Rect StartBtnConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+        //    //{
+        //    //    return _mainWindow.GetStartBtnConstraintRect();
+        //    //});
+
+        //    (Point startCenter, double dist) = startBtnConstraintRect.FindPointWithinDistRangeFromMultipleSources(
+        //        _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
+
+        //    if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position 
+        //    {
+        //        this.PositionInfo($"No valid position found for object in Trial#{trial.Id}!");
+        //        return false; // Return false to indicate failure
+        //    }
+        //    else
+        //    {
+        //        //this.TrialInfo($"Found object position: {startCenter.ToStr()}");
+
+        //        // Get the top-left corner of the start button rectangle
+        //        int startBtnW = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Width);
+        //        int startBtnH = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Height);
+        //        int startBtnHalfW = startBtnW / 2;
+        //        Point startBtnPosition = startCenter.OffsetPosition(-startBtnHalfW);
+
+        //        //this.TrialInfo($"Found object area position: {startBtnPosition.ToStr()}");
+
+        //        _trialRecords[trial.Id].StartBtnRect = new Rect(
+        //                startBtnPosition.X,
+        //                startBtnPosition.Y,
+        //                startBtnW,
+        //                startBtnH);
+
+        //        _trialRecords[trial.Id].DistanceMM = dist;
+
+        //        return true;
+        //    }
+        //}
 
         public void BeginActiveBlock()
         {
-            this.TrialInfo("------------------- Beginning block ----------------------------");
+            this.TrialInfo(ExpStrs.MINOR_LINE);
+            this.TrialInfo("--- Beginning block");
             this.TrialInfo(ExpStrs.MINOR_LINE);
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-            _activeTrialRecord = _trialRecords[_activeTrial.Id];
-            this.TrialInfo($"Active block id: {_activeBlock.Id}");
-            // Start the log
-            //ExperiLogger.StartBlockLog(_activeBlock.Id, _activeBlock.GetBlockType(), _activeBlock.GetComplexity());
-
-            // Update the main window label
-            //this.TrialInfo($"nTrials = {_activeBlock.GetNumTrials()}");
-            //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
-
-            // Show the Start Trial button
-            //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
+            // Get the TrialRecord (if doesn't exist, create one)
+            if (_trialRecords.ContainsKey(_activeTrial.Id))
+            {
+                _activeTrialRecord = _trialRecords[_activeTrial.Id];
+            }
+            else
+            {
+                _activeTrialRecord = new TrialRecord();
+                _trialRecords[_activeTrial.Id] = _activeTrialRecord;
+            }
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
@@ -167,59 +274,33 @@ namespace SubTask.FunctionPointSelect
 
         public virtual void ShowActiveTrial()
         {
-            this.TrialInfo(ExpStrs.MINOR_LINE);
-            this.TrialInfo($"Showing " + _activeTrial.ToStr());
-
-            LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
-
-            // Start logging cursor positions
-            ExperiLogger.StartTrialCursorLog(_activeTrial.Id, _activeTrialNum);
-
-            // Update the main window label
-            //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
+            this.TrialInfo($"{_activeTrial.ToStr()}");
 
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the target button and set the handlers
-            this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
-            Brush funcDefaultColor = UIColors.COLOR_FUNCTION_DEFAULT;
+            this.TrialInfo($"Functions: {_activeTrialRecord.GetFunctions().Str()}");
             UpdateScene(); // (comment for measuring panel selection time)
-            //_mainWindow.FillButtonInTargetWindow(
-            //    _activeTrial.FuncSide, 
-            //    _activeTrialRecord.FunctionId, 
-            //    funcDefaultColor);
 
             _mainWindow.SetAuxButtonsHandlers(
                 _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
                 OnFunctionMouseEnter, this.OnFunctionMouseDown, this.OnFunctionMouseUp,
                 OnFunctionMouseExit, this.OnNonTargetMouseDown);
 
-            // Clear the main window canvas (to add shapes)
-            _mainWindow.ClearCanvas();
-
-            // Show the area
-            //MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
-            //_mainWindow.ShowStartBtn(
-            //    _activeTrialRecord.StartBtnRect,
-            //    UIColors.COLOR_START_AVAILABLE,
-            //    objAreaEvents);
-
-            // Show objects
-            //Brush objDefaultColor = UIColors.COLOR_OBJ_DEFAULT;
-            //MouseEvents objectEvents = new MouseEvents(
-            //    OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
-            //_mainWindow.ShowObjects(
-            //    _activeTrialRecord.Objects, objDefaultColor, objectEvents);
-
-            // Show Start Trial button
-            MouseEvents startButtonEvents = new MouseEvents(
+            // Show Start
+            MouseEvents startButtonEvents = new(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
+            _mainWindow.ClearCanvas();
             _mainWindow.ShowStartBtn(
                 _activeTrialRecord.StartBtnRect,
                 UIColors.COLOR_START_INIT,
                 startButtonEvents);
-            //_mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
+
+            LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
+
+            // Start logging cursor positions
+            ExperiLogger.StartTrialCursorLog(_activeTrial.Id, _activeTrialNum);
 
             // Update info label
             _mainWindow.UpdateInfoLabel();
@@ -231,7 +312,7 @@ namespace SubTask.FunctionPointSelect
             this.TrialInfo(ExpStrs.MAJOR_LINE);
             _activeTrialRecord.Result = result;
             LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
-            _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
+            //_mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
 
             switch (result)
             {
@@ -258,18 +339,17 @@ namespace SubTask.FunctionPointSelect
 
             GoToNextTrial();
         }
+
         public void GoToNextTrial()
         {
+            // Clear the canvas and reset the target window for the next trial
+            _mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
+            _mainWindow.ClearCanvas();
+            _activeTrialRecord.ClearTimestamps();
+            _functionsVisitMap.Clear();
+
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
-                //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
-                _mainWindow.ResetAuxWindow(_activeTrial.FuncSide);
-                _mainWindow.ClearCanvas();
-                _activeTrialRecord.ClearTimestamps();
-                _nSelectedObjects = 0; // Reset the number of selected objects
-                _functionsVisitMap.Clear();
-                _objectsVisitMap.Clear();
-
                 _activeTrialNum++;
                 _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
                 _activeTrialRecord = _trialRecords[_activeTrial.Id];
@@ -279,15 +359,13 @@ namespace SubTask.FunctionPointSelect
             else // Last trial of the block
             {
                 // Log the avg times
-                LogAverageTimeOnDistances();
+                //LogAverageTimeOnDistances();
 
                 // Log block time
                 ExperiLogger.LogBlockTime(_activeBlock);
 
-                // Show end of block window
-                BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
-                blockEndWindow.Owner = _mainWindow;
-                blockEndWindow.ShowDialog();
+                // Go to the next block (pauses and ends are managed in MainWindow)
+                _mainWindow.GoToNextBlock();
             }
         }
 
@@ -599,7 +677,6 @@ namespace SubTask.FunctionPointSelect
             _activeTrialRecord.MarkFunction(funId);
             LogEvent(ExpStrs.FUN_MARKED, funId.ToString());
 
-            _activeTrialRecord.MarkObject(1);
             UpdateScene();
         }
 
@@ -608,7 +685,6 @@ namespace SubTask.FunctionPointSelect
             _activeTrialRecord.UnmarkFunction(funId);
             LogEvent(ExpStrs.FUN_DEMARKED, funId.ToString());
 
-            _activeTrialRecord.UnmarkObject(1);
             UpdateScene();
         }
 
@@ -619,24 +695,27 @@ namespace SubTask.FunctionPointSelect
 
         public void UpdateScene()
         {
-            foreach (var func in _activeTrialRecord.Functions)
+            foreach (var func in _activeTrialRecord.GetFunctions())
             {
-                Brush funcColor = UIColors.COLOR_FUNCTION_DEFAULT;
                 //this.TrialInfo($"Function#{func.Id} state: {func.State}");
                 switch (func.State)
                 {
-                    case ButtonState.ENABLED:
-                        funcColor = UIColors.COLOR_FUNCTION_ENABLED;
+                    case ButtonState.DEFAULT:
+                        _mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id,
+                            UIColors.COLOR_FUNCTION_DEFAULT);
                         break;
+                    case ButtonState.ENABLED:
                     case ButtonState.MARKED:
-                        funcColor = UIColors.COLOR_FUNCTION_ENABLED;
+                        _mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id,
+                            UIColors.COLOR_FUNCTION_ENABLED);
                         break;
                     case ButtonState.SELECTED:
-                        funcColor = UIColors.COLOR_FUNCTION_APPLIED;
+                        _mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id,
+                            UIColors.COLOR_FUNCTION_APPLIED);
                         break;
                 }
 
-                _mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id, funcColor);
+
             }
         }
 

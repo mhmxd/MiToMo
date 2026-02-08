@@ -72,43 +72,89 @@ namespace CommonUI
             List<Point> srcPoints,
             MRange distRange)
         {
-            const int maxAttempts = 5000; // Increased attempts as the search space is more constrained
+            if (srcPoints.Count == 0) return (new Point(-1, -1), -1);
+
+            const int maxAttempts = 1000; // Can be lower now because search is smarter
+            Point firstSrc = srcPoints[0];
 
             for (int i = 0; i < maxAttempts; i++)
             {
-                // 1. Generate a random candidate point *inside* the rectangle
-                double candidateX = rect.Left + _random.NextDouble() * rect.Width;
-                double candidateY = rect.Top + _random.NextDouble() * rect.Height;
+                // Smarter Sampling: Pick a point in the valid ring around the first source
+                double angle = _random.NextDouble() * Math.PI * 2;
+                double r = distRange.Min + _random.NextDouble() * (distRange.Max - distRange.Min);
+
+                double candidateX = firstSrc.X + r * Math.Cos(angle);
+                double candidateY = firstSrc.Y + r * Math.Sin(angle);
                 Point candidate = new Point(candidateX, candidateY);
 
-                // 2. Check if this candidate point satisfies the distance criteria for *all* source points
-                bool allDistancesValid = true;
-                List<double> distMMList = new List<double>();
-                foreach (Point src in srcPoints)
+                // 1. Check if inside bounds first (fastest check)
+                if (!rect.Contains(candidate)) continue;
+
+                // 2. Check other sources
+                bool allValid = true;
+                double sumDistMM = 0;
+
+                for (int j = 0; j < srcPoints.Count; j++)
                 {
-                    double dist = candidate.DistanceTo(src);
-
-                    if (!distRange.ContainsExc(dist))
+                    double d = candidate.DistanceTo(srcPoints[j]);
+                    if (!distRange.ContainsExc(d))
                     {
-                        allDistancesValid = false;
-                        break; // No need to check other source points if one fails
+                        allValid = false;
+                        break;
                     }
-
-                    // Add the valid dist to the list
-                    distMMList.Add(PX2MM(dist));
+                    sumDistMM += PX2MM(d);
                 }
 
-                // Found a valid point
-                if (allDistancesValid)
+                if (allValid)
                 {
-                    double avgDist = distMMList.Average();
-                    return (candidate, avgDist);
+                    return (candidate, sumDistMM / srcPoints.Count);
                 }
             }
-
-            // No valid point found within maxAttempts
-            return (new Point(-1, -1), -1); // Indicate failure
+            return (new Point(-1, -1), -1);
         }
+
+        //public static (Point, double) FindPointWithinDistRangeFromMultipleSources(
+        //    this Rect rect,
+        //    List<Point> srcPoints,
+        //    MRange distRange)
+        //{
+        //    const int maxAttempts = 5000; // Increased attempts as the search space is more constrained
+
+        //    for (int i = 0; i < maxAttempts; i++)
+        //    {
+        //        // 1. Generate a random candidate point *inside* the rectangle
+        //        double candidateX = rect.Left + _random.NextDouble() * rect.Width;
+        //        double candidateY = rect.Top + _random.NextDouble() * rect.Height;
+        //        Point candidate = new Point(candidateX, candidateY);
+
+        //        // 2. Check if this candidate point satisfies the distance criteria for *all* source points
+        //        bool allDistancesValid = true;
+        //        List<double> distMMList = new List<double>();
+        //        foreach (Point src in srcPoints)
+        //        {
+        //            double dist = candidate.DistanceTo(src);
+
+        //            if (!distRange.ContainsExc(dist))
+        //            {
+        //                allDistancesValid = false;
+        //                break; // No need to check other source points if one fails
+        //            }
+
+        //            // Add the valid dist to the list
+        //            distMMList.Add(PX2MM(dist));
+        //        }
+
+        //        // Found a valid point
+        //        if (allDistancesValid)
+        //        {
+        //            double avgDist = distMMList.Average();
+        //            return (candidate, avgDist);
+        //        }
+        //    }
+
+        //    // No valid point found within maxAttempts
+        //    return (new Point(-1, -1), -1); // Indicate failure
+        //}
 
         public static double MaxDistanceFromPoint(this Rect rect, Point src)
         {

@@ -179,7 +179,7 @@ namespace SubTask.PanelNavigation
             // Initialize windows
             InitializeWindows();
 
-            // Set object constraint rect here and in aux windows
+            // Set Start constraint rect here and in aux windows
             _objectConstraintRectAbsolue = new Rect(
                 _mainWinRect.Left + VERTICAL_PADDING + GetStartHalfWidth(),
                 _mainWinRect.Top + VERTICAL_PADDING + GetStartHalfWidth(),

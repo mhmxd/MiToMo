@@ -35,7 +35,7 @@ namespace SubTask.FunctionPointSelect
         protected Point _topLeftButtonPosition = new Point(10000, 10000); // Initialize to a large value to find the top-left button
         protected int _middleButtonId = -1; // ID of the middle button in the grid
 
-        protected Rect _objectConstraintRectAbsolute = new Rect();
+        protected Rect _startConstraintRectAbsolute = new();
 
         private const double Tolerance = 5.0; // A small tolerance for alignment checks (e.g., for slightly misaligned buttons)
 
@@ -49,10 +49,10 @@ namespace SubTask.FunctionPointSelect
 
         public abstract Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding);
 
-        public void SetObjectConstraintRect(Rect rect)
+        public void SetStartConstraintRect(Rect rect)
         {
-            _objectConstraintRectAbsolute = rect;
-            this.TrialInfo($"Object constraint rect set to: {rect.ToString()}");
+            _startConstraintRectAbsolute = rect;
+            this.PositionInfo($"Start constraint rect set to: {rect.ToString()}");
         }
 
         protected void RegisterAllButtons(DependencyObject parent)
@@ -80,20 +80,37 @@ namespace SubTask.FunctionPointSelect
 
         protected void RegisterButton(SButton button)
         {
+            var window = Window.GetWindow(this); // Get current window instance
+            if (window == null) return;
+
+            _buttonWraps[button.Id] = new ButtonWrap(button);
+
+            // Transform specifically to the window we are currently in
+            GeneralTransform transformToWindow = button.TransformToVisual(window);
+            Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
+
             this.PositionInfo($"Registering button {button}");
             _widthButtons.TryAdd(button.WidthMultiple, new List<int>());
             _widthButtons[button.WidthMultiple].Add(button.Id); // Add the button to the dictionary with its width as the key
             _buttonWraps[button.Id] = new ButtonWrap(button);
 
             // Get the transform from the button to the Window (or the root visual)
-            GeneralTransform transformToWindow = button.TransformToVisual(Window.GetWindow(button));
+            //GeneralTransform transformToWindow = button.TransformToVisual(Window.GetWindow(button));
             // Get the point representing the top-left corner of the button relative to the Window
-            Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
+            //Point positionInWindow = transformToWindow.Transform(new Point(0, 0));
             _buttonWraps[button.Id].Position = positionInWindow;
 
             Rect buttonRect = new Rect(positionInWindow.X, positionInWindow.Y, button.ActualWidth, button.ActualHeight);
             _buttonWraps[button.Id].Rect = buttonRect;
             this.PositionInfo($"ButtonRect: {buttonRect}");
+
+            // Set the distance to start range for the button based on the object constraint rect
+            Point buttonCenterAbsolute =
+                positionInWindow
+                .OffsetPosition(button.ActualWidth / 2, button.ActualHeight / 2)
+                .OffsetPosition(this.Left, this.Top);
+
+            _buttonWraps[button.Id].DistToStartRange = GetMinMaxDistances(buttonCenterAbsolute, _startConstraintRectAbsolute);
 
             // Update min/max x and y for grid bounds
             _gridMinX = Math.Min(_gridMinX, buttonRect.Left);
@@ -106,7 +123,6 @@ namespace SubTask.FunctionPointSelect
             {
                 //this.TrialInfo($"Top-left button position updated: {positionInWindow} for button ID#{button.Id}");
                 _topLeftButtonPosition = positionInWindow; // Update the top-left button position
-                                                           //_lastMarkedButtonId = button.Id; // Set the last highlighted button to this one
             }
 
             // Register globally instead of locally
@@ -142,7 +158,7 @@ namespace SubTask.FunctionPointSelect
             foreach (int buttonId in _buttonWraps.Keys)
             {
                 Rect buttonRect = _buttonWraps[buttonId].Rect;
-                this.TrialInfo($"Button#{buttonId}; Rect: {buttonRect.ToString()}; Btn: {_buttonWraps[buttonId].Button}");
+                this.PositionInfo($"Button#{buttonId}; Rect: {buttonRect.ToString()}; Btn: {_buttonWraps[buttonId].Button}");
                 // Check which button contains the grid center point
                 if (buttonRect.Contains(gridCenterPoint))
                 {
@@ -173,7 +189,11 @@ namespace SubTask.FunctionPointSelect
 
         public int SelectRandButton(int widthMulti)
         {
-            if (_widthButtons[widthMulti] == null) return -1;
+            if (!_widthButtons.ContainsKey(widthMulti) || _widthButtons[widthMulti] == null)
+            {
+                this.TrialInfo($"No buttons available for width multiple {widthMulti}!");
+                return -1;
+            }
 
             return _widthButtons[widthMulti].GetRandomElement();
         }
@@ -232,7 +252,7 @@ namespace SubTask.FunctionPointSelect
 
         public int SelectRandButtonByConstraints(int widthMult, MRange distRange)
         {
-            this.TrialInfo($"Width: {widthMult}; Dist: {distRange}");
+            this.PositionInfo($"Width: {widthMult}; Dist: {distRange}");
 
             if (_widthButtons[widthMult].Count > 0)
             {
@@ -241,8 +261,8 @@ namespace SubTask.FunctionPointSelect
                 List<int> possibleButtons = new();
                 foreach (int btnId in _widthButtons[widthMult])
                 {
-                    //this.TrialInfo($"Dist range = {distRange.ToString()} | DistToStart: {_buttonInfos[button.Id].DistToStartRange.ToString()}");
-                    if (_buttonWraps[btnId].DistToStartRange.ContainsExc(distRange))
+                    this.PositionInfo($"DistRange: {distRange} | DistToStart: {_buttonWraps[btnId].DistToStartRange}");
+                    if (_buttonWraps[btnId].DistToStartRange.ContainsInc(distRange))
                     {
                         possibleButtons.Add(btnId);
                     }
@@ -255,8 +275,9 @@ namespace SubTask.FunctionPointSelect
                 }
                 else
                 {
-                    this.TrialInfo($"No buttons with width multiple {widthMult} matched the distance!");
-                    return -1; // Return an invalid point if no buttons are found
+                    this.PositionInfo($"No buttons with width multiple {widthMult} matched the distance!");
+                    return -1; // Return an invalid point if no buttons are found 0
+
                 }
             }
             else
@@ -269,16 +290,63 @@ namespace SubTask.FunctionPointSelect
 
         public virtual void FillGridButton(int buttonId, Brush color)
         {
+            // Use Background priority to ensure the UI has finished "Resetting" from the previous trial
+            //Owner.Dispatcher.BeginInvoke(new Action(() =>
+            //{
+            //    if (_buttonWraps.TryGetValue(buttonId, out var wrap))
+            //    {
+            //        var btn = wrap.Button;
+
+            //        // 1. Force the window to the front and visible
+            //        this.Visibility = Visibility.Visible;
+
+            //        // 2. Apply the color
+            //        btn.Background = color;
+
+            //        // 3. Force a layout update for this specific element
+            //        btn.UpdateLayout();
+
+            //        this.TrialInfo($"[Post-Dispatch] Button {buttonId} IsVisible: {btn.IsVisible} | Parent: {VisualTreeHelper.GetParent(btn)}");
+
+            //        if (!btn.IsVisible)
+            //        {
+            //            // Logic Check: If it's still not visible, check the opacity or parent visibility
+            //            this.TrialInfo($"CRITICAL: Button {buttonId} is still hidden. Window Opacity: {this.Opacity}");
+            //        }
+            //    }
+            //}), System.Windows.Threading.DispatcherPriority.Background);
+
+            if (_buttonWraps.TryGetValue(buttonId, out var wrap))
+            {
+                var btn = wrap.Button;
+                btn.Background = color;
+
+                // DEBUG: Trace visibility up the tree
+                //DependencyObject parent = btn;
+                //this.TrialInfo($"--- Visibility Trace for Button {buttonId} ---");
+                //while (parent != null)
+                //{
+                //    if (parent is UIElement ui)
+                //    {
+                //        this.TrialInfo($"{ui.GetType().Name} (ID: {(ui is FrameworkElement fe ? fe.Name : "N/A")}) - Visibility: {ui.Visibility}, IsVisible: {ui.IsVisible}");
+                //    }
+                //    parent = VisualTreeHelper.GetParent(parent);
+                //}
+            }
+
             // Find the button with the specified ID
-            if (_buttonWraps.ContainsKey(buttonId))
-            {
-                _buttonWraps[buttonId].Button.Background = color; // Change the background color of the button
-                this.TrialInfo($"Button {buttonId} filled with color {color}.");
-            }
-            else
-            {
-                this.TrialInfo($"Button with ID {buttonId} not found.");
-            }
+            //if (_buttonWraps.ContainsKey(buttonId))
+            //{
+            //    this.TrialInfo($"Window Hash: {this.GetHashCode()}");
+            //    this.TrialInfo($"Button {buttonId} IsVisible: {_buttonWraps[buttonId].Button.IsVisible}");
+            //    this.TrialInfo($"Button {buttonId} Parent: {VisualTreeHelper.GetParent(_buttonWraps[buttonId].Button)}");
+            //    _buttonWraps[buttonId].Button.Background = color; // Change the background color of the button
+            //    this.TrialInfo($"Button {buttonId} filled with color {color}.");
+            //}
+            //else
+            //{
+            //    this.TrialInfo($"Button with ID {buttonId} not found.");
+            //}
         }
 
         public void ClearAllEventHandlers(UIElement element)
@@ -401,7 +469,7 @@ namespace SubTask.FunctionPointSelect
             }
         }
 
-        public virtual void Reset()
+        public virtual void ResetButtonFills()
         {
             foreach (int buttonId in _buttonWraps.Keys)
             {

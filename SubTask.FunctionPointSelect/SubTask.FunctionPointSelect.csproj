@@ -238,9 +238,6 @@
       <DependentUpon>BackgroundWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Block.cs" />
-    <Compile Include="BlockEndWindow.xaml.cs">
-      <DependentUpon>BlockEndWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Experiment.cs" />
     <Compile Include="FullFinger.cs" />
     <Compile Include="FingerTracker.cs" />
@@ -313,10 +310,6 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="BackgroundWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="BlockEndWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -12,6 +12,8 @@ namespace SubTask.FunctionPointSelect
     public class Experiment
     {
 
+        public static int START_FONT_SIZE = 12; // Font size for the start button (px)
+
         //--- Setting
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
 
@@ -25,12 +27,6 @@ namespace SubTask.FunctionPointSelect
         //-- Calculated
         public double Longest_Dist_MM;
         public double Shortest_Dist_MM;
-
-        //-- Constants
-        //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
-        public static double OBJ_WIDTH_MM = ExpSizes.EXCEL_CELL_W;
-        public static double OBJ_AREA_WIDTH_MM = ExpSizes.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
-        public static double START_WIDTH_MM = OBJ_WIDTH_MM;
 
         //-- Information
         private List<Block> _blocks = new List<Block>();
@@ -53,16 +49,16 @@ namespace SubTask.FunctionPointSelect
             _midDistRangeMM = new MRange(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM, ExpStrs.MID_DIST); // Middle distances range (will be set later)
             _longDistRangeMM = new MRange(twoThird + Dist_PADDING_MM, Longest_Dist_MM, ExpStrs.LONG_DIST); // Long distances range
 
-            this.TrialInfo($"Short dist range (mm): {_shortDistRangeMM}");
-            this.TrialInfo($"Mid dist range (mm): {_midDistRangeMM}");
-            this.TrialInfo($"Long dist range (mm): {_longDistRangeMM}");
+            this.PositionInfo($"Short dist range (mm): {_shortDistRangeMM}");
+            this.PositionInfo($"Mid dist range (mm): {_midDistRangeMM}");
+            this.PositionInfo($"Long dist range (mm): {_longDistRangeMM}");
 
         }
 
         public void Init(ExperimentType expType)
         {
             // Create factor levels
-            List<MRange> distRanges = new List<MRange>()
+            List<MRange> distRanges = new()
             {
                 _shortDistRangeMM, // Short distances
                 _midDistRangeMM,   // Mid distances
@@ -74,7 +70,7 @@ namespace SubTask.FunctionPointSelect
             foreach (Complexity complexity in randomizedComplexities)
             {
                 // Create blocks, then shuffle them before adding to the overall list
-                List<Block> blocks = new List<Block>();
+                List<Block> blocks = new();
                 for (int i = 0; i < ExpDesign.FuncPointSelectNumBlocks; i++)
                 {
                     int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
@@ -85,22 +81,10 @@ namespace SubTask.FunctionPointSelect
 
                 }
 
-                // Shuffle blocks inside the complexity
-                blocks.Shuffle();
+                // No need to shuffle blocks because they are already randomized by complexity and trials inside each block are shuffled
+                //blocks.Shuffle(); 
                 _blocks.AddRange(blocks);
             }
-
-            //List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
-            // Create and add blocks
-            //for (int i = 0; i < ExpDesign.FuncPointSelectNumBlocks; i++)
-            //{
-            //    int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-            //    Block block = Block.CreateBlock(ExpEnvironment.PTC_NUM, blockId, complexity, expType, distRanges);
-            //    _blocks.Add(block);
-            //}
-
-            //CreateAltBlocks(1, targetMultiples, distRanges);
-            //CreateRepBlocks(1, targetMultiples, distRanges);
         }
 
         public int GetNumBlocks()
@@ -115,9 +99,14 @@ namespace SubTask.FunctionPointSelect
             else return null;
         }
 
+        public static double GetStartWidthMM()
+        {
+            return ExpLayouts.OBJ_WIDTH_MM;
+        }
+
         public static int GetStartHalfWidth()
         {
-            return UITools.MM2PX(OBJ_WIDTH_MM / 2);
+            return UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM / 2);
         }
     }
 }

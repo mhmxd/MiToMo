@@ -16,10 +16,5 @@ namespace SubTask.FunctionPointSelect.Logging
         public int pnlnt_funnt;     // (last) panel enter -\ (last) function enter
         public int funnt_funpr;     // (last) function enter -\ (last) function press
         public int funpr_funrl;     // function press -\ function relese (trial end)
-
-        //public DetailTrialLog(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
-        //: base(blockNum, trialNum, trial, trialRecord)
-        //{
-        //}
     }
 }

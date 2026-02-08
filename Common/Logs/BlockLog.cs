@@ -15,7 +15,7 @@ namespace Common.Logs
         public int n_obj;               // number of objects
         public int n_fun;               // number of functions
         public int n_trials;            // number of trials
-
-        public string block_time = "-1"; // Average trial time in the block (sec, .2F)
+        public string blck_time = "-1"; // Total time for the block (sec, .2F)
+        public string avg_time = "-1"; // Average trial time in the block (sec, .2F)
     }
 }

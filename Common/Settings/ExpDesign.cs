@@ -9,7 +9,7 @@
 
         // Subtask: Function Point-and-Select
         public static readonly int FuncPointSelectNumBlocks = 8;
-        public static readonly int FuncPointSelectBreakAfterBlocks = 2;
+        public static readonly int FuncPointSelectBreakAfterBlocks = 4;
 
         // Subtask: Multi Function Selection
         public static readonly int MultiFuncSelectNumFunc = 3;

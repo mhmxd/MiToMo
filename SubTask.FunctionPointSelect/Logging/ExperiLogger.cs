@@ -39,9 +39,9 @@ namespace SubTask.FunctionPointSelect
         private static StreamWriter _cursorLogWriter;
         private static StreamWriter _blockLogWriter;
 
-        private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
+        private static Dictionary<int, int> _trialTimes = new();
 
-        private static Dictionary<int, List<PositionRecord>> _trialCursorRecords = new Dictionary<int, List<PositionRecord>>();
+        private static Dictionary<int, List<PositionRecord>> _trialCursorRecords = new();
         private static int _activeTrialId = -1;
 
         public static void Init()
@@ -90,7 +90,7 @@ namespace SubTask.FunctionPointSelect
 
         public static void LogDetailTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            DetailTrialLog log = new DetailTrialLog();
+            DetailTrialLog log = new();
 
             // Information
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
@@ -139,16 +139,16 @@ namespace SubTask.FunctionPointSelect
 
         public static void LogBlockTime(Block block)
         {
-            BlockLog log = new BlockLog();
-
-            log.ptc = block.PtcNum;
-            log.id = block.Id;
-            log.cmplx = block.Complexity.ToString().ToLower();
-            log.exptype = block.ExpType.ToString().ToLower();
-            log.n_trials = block.GetNumTrials();
-
-            double avgTime = _trialTimes.Values.Average() / 1000;
-            log.block_time = $"{avgTime:F2}";
+            BlockLog log = new()
+            {
+                ptc = block.PtcNum,
+                id = block.Id,
+                cmplx = block.Complexity.ToString().ToLower(),
+                exptype = block.ExpType.ToString().ToLower(),
+                n_trials = block.GetNumTrials(),
+                blck_time = $"{(_trialTimes.Values.Sum() / 1000):F2}",
+                avg_time = $"{(_trialTimes.Values.Average() / 1000):F2}"
+            };
 
             MIO.WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 

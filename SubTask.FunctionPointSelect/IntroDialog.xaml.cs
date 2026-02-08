@@ -31,35 +31,40 @@ namespace SubTask.FunctionPointSelect
 
         private async void BeginButton_ClickAsync(object sender, RoutedEventArgs e)
         {
-            if (_experimentSet)
+            if (Owner is MainWindow ownerWindow)
             {
-                _isClosingFromButton = true;
-                DialogResult = true;
+                SelectedExperiment = ExperimentComboBox.SelectedItem as string;
+                ExperimentType expType = (ExperimentType)Enum.Parse(typeof(ExperimentType), SelectedExperiment, true);
 
-                Close();
-            }
-            else
-            {
-                if (Owner is MainWindow ownerWindow)
+                BigButton.Content = "Initializing...";
+
+                _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(expType));
+
+                if (_experimentSet)
                 {
-                    SelectedExperiment = ExperimentComboBox.SelectedItem as string;
-                    ExperimentType expType = (ExperimentType)Enum.Parse(typeof(ExperimentType), SelectedExperiment, true);
-
-                    BigButton.Content = "Initializing...";
-
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(expType));
-
-                    if (_experimentSet)
-                    {
-                        BigButton.Content = "Begin";
-                    }
-                    else
-                    {
-                        BigButton.Content = "Retry";
-                    }
-
+                    //BigButton.Content = "Begin";
+                    _isClosingFromButton = true;
+                    DialogResult = true;
+                    Close();
                 }
+                else
+                {
+                    BigButton.Content = "Retry";
+                }
+
             }
+
+            //if (_experimentSet)
+            //{
+            //    _isClosingFromButton = true;
+            //    DialogResult = true;
+
+            //    Close();
+            //}
+            //else
+            //{
+
+            //}
 
 
 

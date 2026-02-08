@@ -70,7 +70,7 @@ namespace Common.Settings
         public static readonly (int W, int H) START_BUTTON_SMALL_DIM_MM = (20, 10);
         public static readonly (double W, double H) START_BUTTON_IN_SIDE_MM = (ExpSizes.EXCEL_CELL_W, ExpSizes.EXCEL_CELL_W);
         public static readonly double START_BUTTON_DIST_MM = 10;
-        public static readonly int START_BUTTON_FONT_SIZE = 16;
+        //public static readonly int START_BUTTON_FONT_SIZE = 16;
 
         //--- Objects ----------------------------------------------------
         public static readonly double OBJ_WIDTH_MM = ExpSizes.EXCEL_CELL_W; // Width of the square objects (mm)

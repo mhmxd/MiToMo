@@ -99,7 +99,7 @@ namespace SubTask.FunctionPointSelect
         {
 
             // Create block
-            Block block = new Block(ptc, complexity, expType, id);
+            Block block = new(ptc, complexity, expType, id);
 
             // Create and add trials to the block
             int trialNum = 1;

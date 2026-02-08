@@ -44,6 +44,11 @@
             return ContainsExc(valueRange.Min) && ContainsExc(valueRange.Max);
         }
 
+        public bool ContainsInc(MRange valueRange)
+        {
+            return ContainsInc(valueRange.Min) && ContainsInc(valueRange.Max);
+        }
+
         public double GetRandomValue()
         {
             return _rand.NextDouble() * (_max - _min) + _min; // Generate a random value within the range

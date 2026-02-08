@@ -38,6 +38,8 @@ namespace SubTask.FunctionPointSelect
 
             // Clear any existing columns from the canvas and the list before generating new ones
             canvas.Children.Clear();
+            _buttonWraps.Clear(); // Ensure the dictionary is empty before Block 2 starts
+            _widthButtons.Clear();
 
             _buttonsGrid = gridCreator(); // Create the new column Grid
 
@@ -48,29 +50,53 @@ namespace SubTask.FunctionPointSelect
             canvas.Children.Add(_buttonsGrid);
             //this.TrialInfo($"Grid added to canvas. Canvas size: {canvas.ActualWidth}x{canvas.ActualHeight}");
 
-            // Subscribe to the Loaded event to get the correct width.
-            _buttonsGrid.Loaded += (sender, e) =>
+            // Use a local reference to capture the specific grid instance for this task
+            Grid currentGrid = _buttonsGrid;
+
+            currentGrid.Loaded += (sender, e) =>
             {
                 try
                 {
-                    this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
-                    double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
-                    Canvas.SetTop(_buttonsGrid, topPosition);
+                    // Use 'sender' to be 100% sure we are talking to the grid that just loaded
+                    Grid loadedGrid = sender as Grid;
 
-                    RegisterAllButtons(_buttonsGrid);
+                    double topPosition = (this.Height - loadedGrid.ActualHeight) / 2;
+                    Canvas.SetTop(loadedGrid, topPosition);
+
+                    // Register only the grid that was just successfully placed in the canvas
+                    RegisterAllButtons(loadedGrid);
+
                     LinkButtonNeighbors();
-
                     FindMiddleButton();
 
-                    // Indicate that the task is successfully completed.
                     tcs.SetResult(true);
                 }
-                catch (Exception ex)
-                {
-                    // If any error occurs, set the exception on the TaskCompletionSource
-                    tcs.SetException(ex);
-                }
+                catch (Exception ex) { tcs.SetException(ex); }
             };
+
+            // Subscribe to the Loaded event to get the correct width.
+            //_buttonsGrid.Loaded += (sender, e) =>
+            //{
+            //    try
+            //    {
+            //        this.PositionInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
+            //        double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
+            //        Canvas.SetTop(_buttonsGrid, topPosition);
+
+            //        RegisterAllButtons(_buttonsGrid);
+            //        LinkButtonNeighbors();
+
+            //        FindMiddleButton();
+
+            //        // Indicate that the task is successfully completed.
+            //        tcs.SetResult(true);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        // If any error occurs, set the exception on the TaskCompletionSource
+            //        tcs.SetException(ex);
+            //    }
+            //};
 
             return tcs.Task; // Return the task to be awaited
 

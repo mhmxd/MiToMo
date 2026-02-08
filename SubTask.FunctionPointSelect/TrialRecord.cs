@@ -15,13 +15,10 @@ namespace SubTask.FunctionPointSelect
 
         //public int FunctionId;
         public List<TFunction> Functions;
-        public List<TObject> Objects;
-        public Dictionary<int, int> ObjFuncMap;
+
         public double DistanceMM; // in mm
 
         public Rect StartBtnRect;
-        //public Rect ObjectAreaRect;
-        //public Dictionary<string, int> EventCounts;
         private List<TrialEvent> Events;
         private Dictionary<string, double> Times;
 
@@ -30,23 +27,17 @@ namespace SubTask.FunctionPointSelect
         public TrialRecord()
         {
             Functions = new List<TFunction>();
-            Objects = new List<TObject>();
-            ObjFuncMap = new Dictionary<int, int>();
-            StartBtnRect = new Rect(0, 0, ExpLayouts.START_BUTTON_LARGE_SIDE_MM, ExpLayouts.START_BUTTON_LARGE_SIDE_MM);
-            //ObjectAreaRect = new Rect();
-            //EventCounts = new Dictionary<string, int>();
+
+            double startBtnWidthMM = Experiment.GetStartWidthMM();
+            StartBtnRect = new Rect(0, 0, startBtnWidthMM, startBtnWidthMM);
+
             Events = new List<TrialEvent>();
             Times = new Dictionary<string, double>();
         }
 
-        public void MapObjectToFunction(int objectId, int functionId)
+        public List<TFunction> GetFunctions()
         {
-            ObjFuncMap[objectId] = functionId;
-            //var pair = new Pair(objectId, functionId);
-            //if (!ObjFuncMap.Contains(pair))
-            //{
-            //    ObjFuncMap.Add(pair);
-            //}
+            return Functions;
         }
 
         public TFunction GetFunctionById(int id)
@@ -69,33 +60,6 @@ namespace SubTask.FunctionPointSelect
             return -1;
         }
 
-        public int FindMappedFunctionId(int objectId)
-        {
-            if (ObjFuncMap.ContainsKey(objectId))
-            {
-                return ObjFuncMap[objectId];
-            }
-            return -1;
-            // Find the first function that is mapped to the given object funcId
-            //var pair = ObjFuncMap.FirstOrDefault(p => p.First == objectId);
-            //return pair != null ? pair.Second : -1; // Return -1 if no mapping found
-        }
-
-        public int FindMappedObjectId(int functionId)
-        {
-            foreach (var pair in ObjFuncMap)
-            {
-                if (pair.Value == functionId)
-                {
-                    return pair.Key;
-                }
-            }
-            return -1;
-            // Find the first object that is mapped to the given function funcId
-            //var pair = ObjFuncMap.FirstOrDefault(p => p.Second == functionId);
-            //return pair != null ? pair.First : -1; // Return -1 if no mapping found
-        }
-
         public bool IsEnabledFunction(int id)
         {
             // Check if it's the funcId of a function and its newState is enabled
@@ -116,18 +80,6 @@ namespace SubTask.FunctionPointSelect
             return true; // All functions are selected
         }
 
-        public bool AreAllObjectsApplied()
-        {
-            foreach (TObject obj in Objects)
-            {
-                if (obj.State != ButtonState.SELECTED)
-                {
-                    return false; // If any object is not applied, return false
-                }
-            }
-            return true; // All objects are applied
-        }
-
         public bool IsAnyFunctionEnabled()
         {
             foreach (TFunction func in Functions)
@@ -138,24 +90,6 @@ namespace SubTask.FunctionPointSelect
                 }
             }
             return false; // No functions are enabled
-        }
-
-        public void MarkObject(int id)
-        {
-            TObject obj = Objects.FirstOrDefault(o => o.Id == id);
-            if (obj != null)
-            {
-                obj.State = ButtonState.MARKED;
-            }
-        }
-
-        public void UnmarkObject(int id)
-        {
-            TObject obj = Objects.FirstOrDefault(o => o.Id == id);
-            if (obj != null)
-            {
-                obj.State = ButtonState.DEFAULT;
-            }
         }
 
         public void ApplyFunction(int funcId, int objId)
@@ -190,22 +124,6 @@ namespace SubTask.FunctionPointSelect
             }
         }
 
-        public void MarkAllObjects()
-        {
-            foreach (TObject obj in Objects)
-            {
-                obj.State = ButtonState.MARKED;
-            }
-        }
-
-        public void UnmarkAllObjects()
-        {
-            foreach (TObject obj in Objects)
-            {
-                obj.State = ButtonState.DEFAULT;
-            }
-        }
-
         public void SetFunctionAsApplied(int funcId)
         {
             ChangeFunctionState(funcId, ButtonState.SELECTED);
@@ -215,26 +133,6 @@ namespace SubTask.FunctionPointSelect
         public void EnableFunction()
         {
             ChangeFunctionState(Functions[0].Id, ButtonState.ENABLED);
-        }
-
-        public void MarkMappedObject(int funcId)
-        {
-            int objId = FindMappedObjectId(funcId);
-            if (objId != -1)
-            {
-                ChangeObjectState(objId, ButtonState.MARKED);
-            }
-        }
-
-        public void ChangeObjectState(int objId, ButtonState newState)
-        {
-            this.LogsInfo($"Change Obj#{objId} to {newState}");
-            TObject markedObj = Objects.FirstOrDefault(o => o.Id == objId);
-            if (markedObj != null)
-            {
-                this.LogsInfo($"Changed Obj#{objId} to {newState}");
-                markedObj.State = newState;
-            }
         }
 
         public void ChangeFunctionState(int funcId, ButtonState newState)
@@ -600,11 +498,6 @@ namespace SubTask.FunctionPointSelect
             return Events.Any(ts => ts.Type == label);
         }
 
-        public int GetMarketObjectId()
-        {
-            return Objects.FirstOrDefault(o => o.State == ButtonState.MARKED)?.Id ?? -1;
-        }
-
         public void ClearTimestamps()
         {
             Events.Clear();
@@ -616,18 +509,11 @@ namespace SubTask.FunctionPointSelect
             {
                 func.State = ButtonState.DEFAULT;
             }
-
-            foreach (TObject obj in Objects)
-            {
-                obj.State = ButtonState.DEFAULT;
-            }
         }
 
         public void Reset()
         {
             Functions.Clear();
-            Objects.Clear();
-            ObjFuncMap.Clear();
             Events.Clear();
             Times.Clear();
         }

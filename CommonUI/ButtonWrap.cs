@@ -27,7 +27,6 @@ namespace CommonUI
 
         public void ResetButtonFill()
         {
-            //ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Need this!!
             Button.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Change the button background to the default color
         }
 

@@ -510,7 +510,7 @@ namespace Multi.Cursor
             log.n_obj = block.NObjects;
 
             double avgTime = _trialTimes.Values.Average() / 1000;
-            log.block_time = $"{avgTime:F2}";
+            log.avg_time = $"{avgTime:F2}";
 
             MIO.WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 

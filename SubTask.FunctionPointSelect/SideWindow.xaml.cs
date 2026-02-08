@@ -103,13 +103,16 @@ namespace SubTask.FunctionPointSelect
             // Add to the Canvas
             canvas.Children.Add(_buttonsGrid);
 
+            // Use a local reference to capture the specific grid instance for this task
+            Grid currentGrid = _buttonsGrid;
+
             // Subscribe to the Loaded event to get the correct width.
-            _buttonsGrid.Loaded += (sender, e) =>
+            currentGrid.Loaded += (sender, e) =>
             {
                 try
                 {
                     // Now ActualWidth has a valid value.
-                    this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
+                    this.PositionInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
                     double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
                     Canvas.SetLeft(_buttonsGrid, leftPosition);
 
