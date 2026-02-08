@@ -463,6 +463,11 @@ namespace SubTask.ObjectSelection
             return -1;
         }
 
+        public List<TrialEvent> GetTrialEvents()
+        {
+            return Events;
+        }
+
         public bool HasTimestamp(string label)
         {
             return Events.Any(ts => ts.Type == label);
