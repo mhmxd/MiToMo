@@ -90,12 +90,9 @@ namespace SubTask.FunctionSelection
                 }
 
                 Trial trial = Trial.CreateTrial(
-                    id * 100 + trialNum,
-                    ptc,
-                    complexity,
-                    expType,
-                    Side.Top,
-                    functionWidths);
+                    id * 100 + trialNum, ptc,
+                    complexity, expType,
+                    Side.Top, functionWidths);
 
                 block._trials.Add(trial);
                 trialNum++;

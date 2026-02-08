@@ -13,7 +13,7 @@ namespace SubTask.FunctionSelection
         public static readonly int START_FONT_SIZE = 18; // Font size for the start button (px)
 
         //--- Setting
-        public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
+        public Technique Active_Technique = Technique.MOUSE; // Set in the info dialog
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
         public ExperimentType Active_Type = ExperimentType.Practice; // Set from the intro dialog
 
@@ -57,8 +57,6 @@ namespace SubTask.FunctionSelection
 
         public void Init(ExperimentType expType)
         {
-            this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}");
-
             Active_Type = expType;
 
             //-- For each complexity, create blocks and randomize them before adding to the list
