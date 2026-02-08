@@ -10,6 +10,7 @@ namespace SubTask.FunctionSelection
 {
     public class Experiment
     {
+        public static readonly int START_FONT_SIZE = 18; // Font size for the start button (px)
 
         //--- Setting
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
@@ -76,8 +77,8 @@ namespace SubTask.FunctionSelection
 
                 }
 
-                // Shuffle blocks inside the complexity
-                blocks.Shuffle();
+                // No need to shuffle the blocks, as they are already randomized by complexity, and there is only one block per complexity
+                //blocks.Shuffle();
                 _blocks.AddRange(blocks);
             }
         }
@@ -94,9 +95,14 @@ namespace SubTask.FunctionSelection
             else return null;
         }
 
+        public static int GetStartButtonWidth()
+        {
+            return UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
+        }
+
         public static int GetStartHalfWidth()
         {
-            return UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM / 2);
+            return UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM / 2);
         }
     }
 }

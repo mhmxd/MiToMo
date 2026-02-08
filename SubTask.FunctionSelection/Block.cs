@@ -114,12 +114,9 @@ namespace SubTask.FunctionSelection
                 // Choose a ranodm side
                 Side side = (Side)(_random.Next(0, 2) * 2); // Randomly select Left or Right
                 Trial trial = Trial.CreateTrial(
-                    id * 100 + trialNum,
-                    ptc,
-                    complexity,
-                    expType,
-                    Side.Left,
-                    functionWidths);
+                    id * 100 + trialNum, ptc,
+                    complexity, expType,
+                    side, functionWidths);
 
                 block._trials.Add(trial);
                 trialNum++;
