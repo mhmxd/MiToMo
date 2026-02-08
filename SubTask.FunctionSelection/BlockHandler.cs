@@ -120,6 +120,7 @@ namespace SubTask.FunctionSelection
             ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
             ExperiLogger.LogTotalTrialTime(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
             ExperiLogger.LogCursorPositions();
+            ExperiLogger.LogTrialEvents(_activeTrialRecord.GetTrialEvents());
 
             // Go to the next trial
             GoToNextTrial();

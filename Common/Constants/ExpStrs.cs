@@ -135,6 +135,8 @@ namespace Common.Constants
         public static readonly string CURSOR_C = "Cursor";
         public static readonly string Gesture = "gesture";
         public static readonly string GestureCap = "Gesture";
+        public static readonly string Events = "events";
+        public static readonly string EventsCap = "Events";
         public static readonly string DATE_TIME_FORMAT = "dd_MM_yyyy-HH_mm_ss";
 
         // Task type abbreviations

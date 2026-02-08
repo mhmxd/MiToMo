@@ -50,6 +50,11 @@ namespace SubTask.FunctionPointSelect
             return null;
         }
 
+        public List<TrialEvent> GetTrialEvents()
+        {
+            return Events;
+        }
+
         public int FindFunctionIndex(int funId)
         {
             for (int i = 0; i < Functions.Count; i++)

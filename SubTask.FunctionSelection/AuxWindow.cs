@@ -417,11 +417,11 @@ namespace SubTask.FunctionSelection
             if (_buttonWraps.ContainsKey(buttonId))
             {
                 _buttonWraps[buttonId].Button.Background = color; // Change the background color of the button
-                this.TrialInfo($"Button {buttonId} filled with color {color}.");
+                this.PositionInfo($"Button {buttonId} filled with color {color}.");
             }
             else
             {
-                this.TrialInfo($"Button with ID {buttonId} not found.");
+                this.PositionInfo($"Button with ID {buttonId} not found.");
             }
         }
 
@@ -606,7 +606,7 @@ namespace SubTask.FunctionSelection
 
         public virtual Point GetGridButtonCenter(int buttonId)
         {
-            this.TrialInfo($"Buttons: {_buttonWraps.Str()}");
+            this.PositionInfo($"Buttons: {_buttonWraps.Str()}");
             // Find the button with the specified ID
             if (_buttonWraps.ContainsKey(buttonId))
             {

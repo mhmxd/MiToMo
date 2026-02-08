@@ -49,7 +49,7 @@ namespace SubTask.FunctionSelection
             {
                 try
                 {
-                    this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
+                    this.PositionInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
                     double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
                     Canvas.SetTop(_buttonsGrid, topPosition);
 
