@@ -1,2 +1,0 @@
-﻿Configuration --------------------------------------------
-> Set the N_OBJ and N_FUNC (Block flags will be set automatically))

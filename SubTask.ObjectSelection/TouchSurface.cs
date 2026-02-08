@@ -1,13 +1,15 @@
-﻿using CommunityToolkit.HighPerformance;
+﻿using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
+using CommunityToolkit.HighPerformance;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Windows;
-using Common.Constants;
-using static SubTask.ObjectSelection.Output;
-using static System.Math;
 using static Common.Constants.ExpEnums;
+using static System.Math;
 
 namespace SubTask.ObjectSelection
 {
@@ -68,7 +70,7 @@ namespace SubTask.ObjectSelection
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Utils.InInc(key, keyMin, keyMax)) return true;
+                    if (MTools.InInc(key, keyMin, keyMax)) return true;
                 }
 
                 return false;
@@ -78,7 +80,7 @@ namespace SubTask.ObjectSelection
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Utils.InInc(key, keyMin, keyMax)) return false;
+                    if (MTools.InInc(key, keyMin, keyMax)) return false;
                 }
 
                 return true;
@@ -88,7 +90,7 @@ namespace SubTask.ObjectSelection
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Utils.InInc(key, finger.MinCol, finger.MaxCol)) return false;
+                    if (MTools.InInc(key, finger.MinCol, finger.MaxCol)) return false;
                 }
 
                 return true;
@@ -103,7 +105,7 @@ namespace SubTask.ObjectSelection
             {
                 foreach (var kv in Pointers)
                 {
-                    if (Utils.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
+                    if (MTools.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
                 }
 
                 return null;
@@ -191,7 +193,7 @@ namespace SubTask.ObjectSelection
             {
                 for (int x = 0; x < shotSpan.Width; x++)
                 {
-                    if (shotSpan[y, x] > Config.MIN_PRESSURE && !visited[y, x])
+                    if (shotSpan[y, x] > ExpEnvironment.MIN_PRESSURE && !visited[y, x])
                     {
                         List<(int, int)> blob = new List<(int, int)>();
                         Queue<(int, int)> toVisit = new Queue<(int, int)>();
@@ -209,7 +211,7 @@ namespace SubTask.ObjectSelection
                                 int nx = currentX + dx[i];
                                 int ny = currentY + dy[i];
                                 if (nx >= 0 && nx < shotSpan.Width && ny >= 0 && ny < shotSpan.Height &&
-                                    shotSpan[ny, nx] > Config.MIN_PRESSURE && !visited[ny, nx])
+                                    shotSpan[ny, nx] > ExpEnvironment.MIN_PRESSURE && !visited[ny, nx])
                                 {
                                     visited[ny, nx] = true;
                                     toVisit.Enqueue((nx, ny));
@@ -261,8 +263,8 @@ namespace SubTask.ObjectSelection
                                     byte leftPressure = (blob.Contains((x - 1, y))) ? shotSpan[y, x - 1] : (byte)0;
                                     byte rightPressure = (blob.Contains((x + 1, y))) ? shotSpan[y, x + 1] : (byte)0;
 
-                                    if (currentPressure < leftPressure - Config.LOCAL_MINIMA_DROP_THRESHOLD &&
-                                        currentPressure < rightPressure - Config.LOCAL_MINIMA_DROP_THRESHOLD)
+                                    if (currentPressure < leftPressure - ExpEnvironment.LOCAL_MINIMA_DROP_THRESHOLD &&
+                                        currentPressure < rightPressure - ExpEnvironment.LOCAL_MINIMA_DROP_THRESHOLD)
                                     {
                                         if (currentPressure < minPressure)
                                         {
@@ -345,7 +347,7 @@ namespace SubTask.ObjectSelection
             // 8. Final Activation Check
             foreach (var kvp in potentialFingers)
             {
-                if (kvp.Value.GetTotalPressure() > Config.MIN_TOTAL_PRESSURE) // Your min pressure
+                if (kvp.Value.GetTotalPressure() > ExpEnvironment.MIN_TOTAL_PRESSURE) // Your min pressure
                 {
                     activeFrame.AddPointer(kvp.Key, kvp.Value);
                 }
@@ -403,7 +405,7 @@ namespace SubTask.ObjectSelection
                     TrackTapIndex();
                     TrackTapMiddle();
                     TrackTapRing();
-                    TrackTapPinky();
+                    //TrackTapPinky();
                 }
 
                 if (_activeTechnique == Technique.TOMO_SWIPE)
@@ -447,12 +449,12 @@ namespace SubTask.ObjectSelection
                 else // First touch
                 {
                     //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.TrialEvent}");
-                    LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
+                    //LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
                     _thumbGestureStart = currentFrame;
-                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.DOWN);
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.DOWN, tpCenter);
                 }
             }
             else // FullFinger NOT present in the current frame
@@ -466,8 +468,8 @@ namespace SubTask.ObjectSelection
                     //GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                     //    $" | dX = {Abs(lastPosition.x - downPosition.x):F2}" +
                     //    $" | dY = {Abs(lastPosition.y - downPosition.y):F2}");
-                    LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
-                        Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
+                    //LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
+                    //    Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
 
                     if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X),
@@ -475,29 +477,29 @@ namespace SubTask.ObjectSelection
                     {
 
                         //_gestureInstants[upStr] = _touchTimers[finger].ElapsedMilliseconds;
-                        _gestureHandler?.RecordToMoAction(finger, ExpStrs.TAP_UP);
+                        _gestureHandler?.RecordToMoAction(finger, ExpStrs.TAP_UP, lastPosition);
 
                         // Perform the tap
                         _gestureHandler?.ThumbTap(0, 0);
 
                         // Find the Tap position (Top or Down)
-                        if (lastPosition.Y < THUMB_TOP_LOWEST_ROW) // Top
-                        {
-                            //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
-                            LogTap(finger.ToString(), Side.Top, currentFrame.Timestamp); // LOG
-                                                                                         //_gestureReceiver?.ThumbTap(Side.Top);
+                        //if (lastPosition.Y < THUMB_TOP_LOWEST_ROW) // Top
+                        //{
+                        //    //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
+                        //    LogTap(finger.ToString(), Side.Top, currentFrame.Timestamp); // LOG
+                        //                                                                 //_gestureReceiver?.ThumbTap(Side.Top);
 
-                        }
-                        else // Down
-                        {
-                            //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Down.");
-                            LogTap(finger.ToString(), Side.Down, currentFrame.Timestamp); // LOG
-                            //_gestureReceiver?.ThumbTap(Side.Down);
-                        }
+                        //}
+                        //else // Down
+                        //{
+                        //    //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Down.");
+                        //    LogTap(finger.ToString(), Side.Down, currentFrame.Timestamp); // LOG
+                        //    //_gestureReceiver?.ThumbTap(Side.Down);
+                        //}
 
                     }
 
-                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.UP);
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.UP, lastPosition);
                     _touchTimers[finger].Stop();
                 }
 
@@ -529,11 +531,11 @@ namespace SubTask.ObjectSelection
                 else // First touch
                 {
                     //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.TrialEvent}");
-                    LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
+                    //LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
-                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.DOWN);
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.DOWN, tpCenter);
                 }
             }
             else // FullFinger not present in the current frame
@@ -545,8 +547,8 @@ namespace SubTask.ObjectSelection
                     //GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                     //    $" | dX = {Abs(lastPosition.x - downPosition.x):F3}" +
                     //    $" | dY = {Abs(lastPosition.y - downPosition.y):F3}");
-                    LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
-                        Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
+                    //LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
+                    //    Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
 
                     if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X),
@@ -554,12 +556,13 @@ namespace SubTask.ObjectSelection
                     {
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
                         _gestureInstants[upStr] = _touchTimers[finger].ElapsedMilliseconds;
-                        LogTap(finger.ToString(), Side.Left, currentFrame.Timestamp); // LOG
-                        _gestureHandler?.RecordToMoAction(finger, ExpStrs.TAP_UP);
+                        //LogTap(finger.ToString(), Side.Left, currentFrame.Timestamp); // LOG
+                        _gestureHandler?.RecordToMoAction(finger, ExpStrs.TAP_UP, lastPosition);
                         //this.TrialInfo($"_gestureHandler: {_gestureHandler}");
                         _gestureHandler?.IndexTap();
                     }
 
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.UP, lastPosition);
                     _gestureHandler?.IndexUp();
                     _touchTimers[finger].Stop();
                 }
@@ -589,7 +592,8 @@ namespace SubTask.ObjectSelection
                 else // First touch
                 {
                     //GestInfo<TouchSurface>($"{finger.ToString()} Down.");
-                    LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
+                    //LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.DOWN, tpCenter);
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -606,16 +610,18 @@ namespace SubTask.ObjectSelection
                         //GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                         //    $" | dX = {Abs(lastPosition.x - downPosition.x):F3}" +
                         //    $" | dY = {Abs(lastPosition.y - downPosition.y):F3}");
-                        LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
-                            Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
+                        //LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
+                        //    Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
                         if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds,
                             Abs(lastPosition.X - downPosition.X),
                             Abs(lastPosition.Y - downPosition.Y)))
                         {
-                            LogTap(finger.ToString(), Side.Middle, currentFrame.Timestamp); // LOG
+                            //LogTap(finger.ToString(), Side.Middle, currentFrame.Timestamp); // LOG
+                            _gestureHandler?.RecordToMoAction(finger, ExpStrs.TAP_UP, lastPosition);
                             _gestureHandler?.MiddleTap();
                         }
 
+                        _gestureHandler?.RecordToMoAction(finger, ExpStrs.UP, lastPosition);
                         _touchTimers[finger].Stop();
                     }
                 }
@@ -647,7 +653,8 @@ namespace SubTask.ObjectSelection
                 else // First touch
                 {
                     //GestInfo<TouchSurface>($"{finger.ToString()} Down.");
-                    LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
+                    //LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.DOWN, tpCenter);
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -663,88 +670,20 @@ namespace SubTask.ObjectSelection
                     //GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                     //    $" | dX = {Abs(lastPosition.x - downPosition.x):F3}" +
                     //    $" | dY = {Abs(lastPosition.y - downPosition.y):F3}");
-                    LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
-                        Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
+                    //LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
+                    //    Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
                     if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X),
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
-                        LogTap(finger.ToString(), Side.Right, currentFrame.Timestamp); // LOG
+                        //LogTap(finger.ToString(), Side.Right, currentFrame.Timestamp); // LOG
+                        _gestureHandler?.RecordToMoAction(finger, ExpStrs.TAP_UP, lastPosition);
                         _gestureHandler?.RingTap();
 
                     }
 
-                    _touchTimers[finger].Stop();
-                }
-
-            }
-
-        }
-
-        /// <summary>
-        /// Tracking the pinky finger
-        /// </summary>
-        private void TrackTapPinky()
-        {
-
-            // Get the last frame
-            TouchFrame currentFrame = _frames.Last;
-            //TouchFrame beforeLastFrame = _frames.BeforeLast;
-            //TouchPoint littleTouchPoint = lastFrame.GetPointer(FullFinger.Little);
-
-            Finger finger = Finger.Pinky;
-
-            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
-            {
-                Point tpCenter = currentFrame.GetPointer(finger).GetCenter();
-                //GestInfo<TouchSurface>($"Pinky Pos: {tpCenter.ToStr()}");
-                if (_touchTimers[finger].IsRunning) // Already active => update position (move)
-                {
-                    _lastPositions[finger] = tpCenter;
-                    // Mange the Swipe (later)
-                }
-                else // First touch
-                {
-                    //GestInfo<TouchSurface>($"{finger.ToString()} Down.");
-                    LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
-                    _downPositions[finger] = tpCenter;
-                    _lastPositions[finger] = tpCenter;
-                    _touchTimers[finger].Restart(); // Start the timer
-                }
-            }
-            else // FullFinger NOT present in the current frame
-            {
-                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
-                {
-                    Point downPosition = _downPositions[finger];
-                    Point lastPosition = _lastPositions[finger];
-
-                    // Check Tap Time and movement conditions
-                    //GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
-                    //    $" | dX = {Abs(lastPosition.x - downPosition.x):F2}" +
-                    //    $" | dY = {Abs(lastPosition.y - downPosition.y):F2}");
-                    LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
-                        Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
-                    if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds,
-                        Abs(lastPosition.X - downPosition.X),
-                        Abs(lastPosition.Y - downPosition.Y)))
-                    {
-                        // Find the Tap position (Top or Down)
-                        if (lastPosition.Y < LITTLE_TOP_LOWEST_ROW) // Top
-                        {
-                            //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
-                            LogTap(finger.ToString(), Side.Top, currentFrame.Timestamp); // LOG
-                            _gestureHandler?.PinkyTap(Side.Top);
-                        }
-                        else // Down
-                        {
-                            //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Down.");
-                            LogTap(finger.ToString(), Side.Down, currentFrame.Timestamp); // LOG
-                            _gestureHandler?.PinkyTap(Side.Down);
-                        }
-                    }
-
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.UP, lastPosition);
                     _touchTimers[finger].Stop();
                 }
 
@@ -754,9 +693,9 @@ namespace SubTask.ObjectSelection
 
         private bool PassTapConditions(long dT, double dX, double dY)
         {
-            return Utils.In(dT, Config.TAP_TIME_MIN, Config.TAP_TIME_MAX)
-                        && dX < Config.TAP_GENERAL_THRESHOLD.DX
-                        && dY < Config.TAP_GENERAL_THRESHOLD.DY;
+            return MTools.In(dT, ExpEnvironment.TAP_TIME_MIN, ExpEnvironment.TAP_TIME_MAX)
+                        && dX < ExpEnvironment.TAP_GENERAL_THRESHOLD.DX
+                        && dY < ExpEnvironment.TAP_GENERAL_THRESHOLD.DY;
         }
 
         //========= Swipe tech tracking ==========================
@@ -781,7 +720,7 @@ namespace SubTask.ObjectSelection
                     int gestureDT = (int)((deltaTicks / (float)Stopwatch.Frequency) * 1000); //in ms
 
                     // Duration is good => Check movement
-                    if (gestureDT < Config.SWIPE_TIME_MAX)
+                    if (gestureDT < ExpEnvironment.SWIPE_TIME_MAX)
                     {
                         TouchPoint firstTouchPoint = _thumbGestureStart.GetPointer(finger);
                         double dX = center.X - firstTouchPoint.GetX();
@@ -789,31 +728,31 @@ namespace SubTask.ObjectSelection
                         //GestInfo<TouchSurface>($"dT = {gestureDT:F2} | dX = {dX:F2}, dY = {dY:F2}");
                         //LogMove(finger.ToString(), gestureDT, dX, dY); // LOG
                         //-- Check for swipe left-right
-                        if (Abs(dX) > Config.SWIPE_MOVE_THRESHOLD) // Good amount of movement along x
+                        if (Abs(dX) > ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Good amount of movement along x
                         {
-                            if (Abs(dY) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
+                            if (Abs(dY) < ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
                             {
                                 // Swipe along x
                                 _gestureHandler?.ThumbSwipe(dX > 0 ? Direction.Right : Direction.Left);
-                                _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_END);
+                                _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_END, center);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
                                 //GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
-                                LogSwipe(finger.ToString(), gestureDT, dX, dY); // LOG
+                                //LogSwipe(finger.ToString(), gestureDT, dX, dY); // LOG
                             }
                         }
                         // -- Check for swipe up-down (either this or left-right)
-                        else if (Abs(dY) > Config.SWIPE_MOVE_THRESHOLD) // Good amount of movement along y
+                        else if (Abs(dY) > ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Good amount of movement along y
                         {
-                            if (Abs(dX) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
+                            if (Abs(dX) < ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
                             {
                                 // Swipe along y
                                 _gestureHandler?.ThumbSwipe(dY > 0 ? Direction.Down : Direction.Up);
-                                _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_END);
+                                _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_END, center);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
                                 //GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
-                                LogSwipe(finger.ToString(), gestureDT, dX, dY); // LOG
+                                //LogSwipe(finger.ToString(), gestureDT, dX, dY); // LOG
                             }
                         }
 
@@ -821,7 +760,7 @@ namespace SubTask.ObjectSelection
                     else // (Probably) gesture Time expired => start over
                     {
                         _thumbGestureStart = currentFrame;
-                        _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_START);
+                        _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_START, center);
                     }
 
                 }
@@ -831,7 +770,7 @@ namespace SubTask.ObjectSelection
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
                     _thumbGestureStart = currentFrame;
-                    _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_START);
+                    _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_START, center);
 
                 }
             }
@@ -861,14 +800,15 @@ namespace SubTask.ObjectSelection
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
                     _lastPositions[finger] = tpCenter;
-                    LogMove(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds, tpCenter.X, tpCenter.Y); // LOG
-
+                    //LogMove(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds, tpCenter.X, tpCenter.Y); // LOG
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.MOVE, tpCenter);
                     _gestureHandler?.IndexMove(touchPoint); // Index moving
                 }
                 else // First touch
                 {
                     //GestInfo<TouchSurface>($"{finger.ToString()} Down: {currentFrame.TrialEvent}");
-                    LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
+                    //LogDown(finger.ToString(), currentFrame.Timestamp); // LOG
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.DOWN, tpCenter);
                     _downPositions[finger] = tpCenter;
                     _lastPositions[finger] = tpCenter;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -883,114 +823,14 @@ namespace SubTask.ObjectSelection
                     //GestInfo<TouchSurface>($"{finger.ToString()} Up: {_touchTimers[finger].ElapsedMilliseconds}" +
                     //    $" | dX = {Abs(lastPosition.x - downPosition.x):F3}" +
                     //    $" | dY = {Abs(lastPosition.y - downPosition.y):F3}");
-                    LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
-                        Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
-
+                    //LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
+                    //    Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
+                    _gestureHandler?.RecordToMoAction(finger, ExpStrs.UP, lastPosition);
                     _gestureHandler?.IndexUp();
                     _touchTimers[finger].Stop();
                 }
 
             }
-        }
-
-        /// <summary>
-        /// Tracking the middle finger
-        /// </summary>
-        private void SwipeTechTrackMiddle()
-        {
-            TouchFrame currentFrame = _frames.Last; // Get current frame
-            Finger finger = Finger.Middle;
-
-            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
-            {
-                Point center = currentFrame.GetPointer(finger).GetCenter();
-                if (_touchTimers[finger].IsRunning) // Already active => update position (move)
-                {
-                    _lastPositions[finger] = center;
-
-                }
-                else // First touch
-                {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
-                    _downPositions[finger] = center;
-                    _lastPositions[finger] = center;
-                    _touchTimers[finger].Restart(); // Start the timer
-                }
-            }
-            else // FullFinger NOT present in the current frame
-            {
-                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
-                {
-                    _touchTimers[finger].Stop();
-                }
-            }
-
-        }
-
-        /// <summary>
-        /// Tracking the ring finger
-        /// </summary>
-        private void SwipeTechTrackRing()
-        {
-            TouchFrame currentFrame = _frames.Last; // Get the current frame
-            Finger finger = Finger.Ring;
-
-            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
-            {
-                Point center = currentFrame.GetPointer(finger).GetCenter();
-                if (_touchTimers[finger].IsRunning) // Already active => update position (move)
-                {
-                    _lastPositions[finger] = center;
-                }
-                else // First touch
-                {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
-                    _downPositions[finger] = center;
-                    _lastPositions[finger] = center;
-                    _touchTimers[finger].Restart(); // Start the timer
-                }
-            }
-            else // FullFinger NOT present in the current frame
-            {
-                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
-                {
-                    _touchTimers[finger].Stop();
-                }
-            }
-
-        }
-
-        /// <summary>
-        /// Tracking the pinky finger
-        /// </summary>
-        private void SwipeTechTrackLittle()
-        {
-            TouchFrame currentFrame = _frames.Last; // Get the current frame
-            Finger finger = Finger.Pinky;
-
-            if (currentFrame.HasTouchPoint(finger)) // FullFinger present
-            {
-                Point center = currentFrame.GetPointer(finger).GetCenter();
-                if (_touchTimers[finger].IsRunning) // Already active => update position (move)
-                {
-                    _lastPositions[finger] = center;
-                }
-                else // First touch
-                {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
-                    _downPositions[finger] = center;
-                    _lastPositions[finger] = center;
-                    _touchTimers[finger].Restart(); // Start the timer
-                }
-            }
-            else // FullFinger NOT present in the current frame
-            {
-                if (_touchTimers[finger].IsRunning) // Was active => Lifted up
-                {
-                    _touchTimers[finger].Stop();
-                }
-            }
-
         }
 
         private string ShowPointers(TouchFrame frame)
@@ -1058,30 +898,30 @@ namespace SubTask.ObjectSelection
 
 
         //=========================== Logging =========================
-        private void LogDown(string fingerName, long timestamp)
-        {
-            //ExperiLogger.LogGestureEvent($"{fingerName} Down!");
-        }
+        //private void LogDown(string fingerName, long timestamp)
+        //{
+        //    //ExperiLogger.LogGestureEvent($"{fingerName} Down!");
+        //}
 
-        private void LogUp(string fingerName, long duration, double dX, double dY)
-        {
-            ExperiLogger.LogGestureEvent($"{fingerName} Up! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
-        }
+        //private void LogUp(string fingerName, long duration, double dX, double dY)
+        //{
+        //    ExperiLogger.LogGestureEvent($"{fingerName} Up! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
+        //}
 
-        private void LogTap(string fingerName, Side loc, long timestamp)
-        {
-            ExperiLogger.LogGestureEvent($"{fingerName} Tapped! Location: {loc}");
-        }
+        //private void LogTap(string fingerName, Side loc, long timestamp)
+        //{
+        //    ExperiLogger.LogGestureEvent($"{fingerName} Tapped! Location: {loc}");
+        //}
 
-        private void LogMove(string fingerName, long duration, double dX, double dY)
-        {
-            ExperiLogger.LogGestureEvent($"{fingerName} Moved! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
-        }
+        //private void LogMove(string fingerName, long duration, double dX, double dY)
+        //{
+        //    ExperiLogger.LogGestureEvent($"{fingerName} Moved! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
+        //}
 
-        private void LogSwipe(string fingerName, int duration, double dX, double dY)
-        {
-            ExperiLogger.LogGestureEvent($"{fingerName} Swiped! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
-        }
+        //private void LogSwipe(string fingerName, int duration, double dX, double dY)
+        //{
+        //    ExperiLogger.LogGestureEvent($"{fingerName} Swiped! Duration: {duration} | dX: {dX:F3}, dY: {dY:F3}");
+        //}
 
     }
 }

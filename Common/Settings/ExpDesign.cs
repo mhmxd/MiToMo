@@ -3,30 +3,30 @@
     public class ExpDesign
     {
         // Large Tasks
-        public static readonly int LT_N_OBJ = 1;
-        public static readonly int LT_N_FUN = 3;
+        public static readonly int LT_N_MULTI_OBJ = 3;
+        public static readonly int LT_N_MULTI_FUN = 3;
         public static readonly int LT_N_BLOCKS = 8;
 
         // Subtask: Function Point-and-Select
-        public static readonly int FPS_N_BLOCKS = 8;
+        public static readonly int FuncPointSelectNumBlocks = 8;
+        public static readonly int FuncPointSelectBreakAfterBlocks = 4;
 
         // Subtask: Multi Function Selection
-        public static readonly int FPS_N_FUN = 3;
-        public static readonly int MFS_N_BLOCKS = 8;
+        public static readonly int MultiFuncSelectNumFunc = 3;
+        public static readonly int MultiFuncSelectNumBlocks = 8;
+        public static readonly int MutliFuncSelectBreakAfterBlocks = 2;
 
         // Subtask: Object Selection
-        public static readonly int[] OS_N_OBJS = { 3, 5 };
-        public static readonly int OS_N_BLOCKS = 24;
-        public static readonly int OS_N_REP = 10;
+        public static readonly int[] ObjSelectNumObjects = { 3, 5 };
+        public static readonly int ObjectSelectNumBlocks = 8;
+        public static readonly int ObjectSelectNumRep = 1; // No repetitions. Just 8 of everything
 
         // Subtask: Panel Selection
-        public static readonly int PS_N_BLOCKS = 16;
-        public static readonly int PS_N_REP = 4;
+        public static readonly int PaneSelectNumBlocks = 4;
+        public static readonly int PaneSelBreakAfterBlocks = 2;
 
         // Subtask: Panel Navigation
-        public static readonly int PN_N_BLOCKS = 16;
-        public static readonly int PN_N_REP = 4;
-
-
+        public static readonly int PaneNavNumBlocks = 2;
+        public static readonly int PaneNavBreakAfterBlocks = 1;
     }
 }

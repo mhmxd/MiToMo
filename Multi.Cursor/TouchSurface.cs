@@ -1,22 +1,15 @@
-﻿using CommunityToolkit.HighPerformance;
-using System.Text.Json;
+﻿using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
+using CommunityToolkit.HighPerformance;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using static Multi.Cursor.Output;
-using static Multi.Cursor.Utils;
-using static System.Math;
 using System.Diagnostics;
-using MathNet.Numerics.LinearAlgebra.Factorization;
-using System.Web.UI;
+using System.Text;
 using System.Windows;
-using Serilog.Core;
-using Serilog.Events;
 using static Common.Constants.ExpEnums;
-using Common.Constants;
+using static System.Math;
 
 namespace Multi.Cursor
 {
@@ -77,7 +70,7 @@ namespace Multi.Cursor
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Utils.InInc(key, keyMin, keyMax)) return true;
+                    if (MTools.InInc(key, keyMin, keyMax)) return true;
                 }
 
                 return false;
@@ -87,7 +80,7 @@ namespace Multi.Cursor
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Utils.InInc(key, keyMin, keyMax)) return false;
+                    if (MTools.InInc(key, keyMin, keyMax)) return false;
                 }
 
                 return true;
@@ -97,7 +90,7 @@ namespace Multi.Cursor
             {
                 foreach (int key in Pointers.Keys)
                 {
-                    if (Utils.InInc(key, finger.MinCol, finger.MaxCol)) return false;
+                    if (MTools.InInc(key, finger.MinCol, finger.MaxCol)) return false;
                 }
 
                 return true;
@@ -112,7 +105,7 @@ namespace Multi.Cursor
             {
                 foreach (var kv in Pointers)
                 {
-                    if (Utils.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
+                    if (MTools.InInc(kv.Key, keyMin, keyMax)) return kv.Value;
                 }
 
                 return null;
@@ -200,7 +193,7 @@ namespace Multi.Cursor
             {
                 for (int x = 0; x < shotSpan.Width; x++)
                 {
-                    if (shotSpan[y, x] > Config.MIN_PRESSURE && !visited[y, x])
+                    if (shotSpan[y, x] > ExpEnvironment.MIN_PRESSURE && !visited[y, x])
                     {
                         List<(int, int)> blob = new List<(int, int)>();
                         Queue<(int, int)> toVisit = new Queue<(int, int)>();
@@ -218,7 +211,7 @@ namespace Multi.Cursor
                                 int nx = currentX + dx[i];
                                 int ny = currentY + dy[i];
                                 if (nx >= 0 && nx < shotSpan.Width && ny >= 0 && ny < shotSpan.Height &&
-                                    shotSpan[ny, nx] > Config.MIN_PRESSURE && !visited[ny, nx])
+                                    shotSpan[ny, nx] > ExpEnvironment.MIN_PRESSURE && !visited[ny, nx])
                                 {
                                     visited[ny, nx] = true;
                                     toVisit.Enqueue((nx, ny));
@@ -270,8 +263,8 @@ namespace Multi.Cursor
                                     byte leftPressure = (blob.Contains((x - 1, y))) ? shotSpan[y, x - 1] : (byte)0;
                                     byte rightPressure = (blob.Contains((x + 1, y))) ? shotSpan[y, x + 1] : (byte)0;
 
-                                    if (currentPressure < leftPressure - Config.LOCAL_MINIMA_DROP_THRESHOLD &&
-                                        currentPressure < rightPressure - Config.LOCAL_MINIMA_DROP_THRESHOLD)
+                                    if (currentPressure < leftPressure - ExpEnvironment.LOCAL_MINIMA_DROP_THRESHOLD &&
+                                        currentPressure < rightPressure - ExpEnvironment.LOCAL_MINIMA_DROP_THRESHOLD)
                                     {
                                         if (currentPressure < minPressure)
                                         {
@@ -354,7 +347,7 @@ namespace Multi.Cursor
             // 8. Final Activation Check
             foreach (var kvp in potentialFingers)
             {
-                if (kvp.Value.GetTotalPressure() > Config.MIN_TOTAL_PRESSURE) // Your min pressure
+                if (kvp.Value.GetTotalPressure() > ExpEnvironment.MIN_TOTAL_PRESSURE) // Your min pressure
                 {
                     activeFrame.AddPointer(kvp.Key, kvp.Value);
                 }
@@ -386,7 +379,7 @@ namespace Multi.Cursor
             TouchFrame activeFrame = FillActiveBlobs(shotSpan);
 
             _frames.Add(activeFrame);
-            
+
             if (_frames.Count > 1) // Need at least two frames
             {
                 //TouchFrame lastFrame = _frames.Last;
@@ -494,8 +487,8 @@ namespace Multi.Cursor
                         {
                             //GestInfo<TouchSurface>($"{finger.ToString()} Tapped! Top.");
                             LogTap(finger.ToString(), Side.Top, currentFrame.Timestamp); // LOG
-                            //_gestureReceiver?.ThumbTap(Side.Top);
-                            
+                                                                                         //_gestureReceiver?.ThumbTap(Side.Top);
+
                         }
                         else // Down
                         {
@@ -503,13 +496,13 @@ namespace Multi.Cursor
                             LogTap(finger.ToString(), Side.Down, currentFrame.Timestamp); // LOG
                             //_gestureReceiver?.ThumbTap(Side.Down);
                         }
-                        
+
                     }
 
                     _gestureHandler?.RecordToMoAction(finger, ExpStrs.UP);
                     _touchTimers[finger].Stop();
                 }
-                
+
             }
         }
 
@@ -527,7 +520,7 @@ namespace Multi.Cursor
             {
                 TouchPoint touchPoint = currentFrame.GetPointer(finger);
                 Point tpCenter = touchPoint.GetCenter();
-                
+
                 if (_touchTimers[finger].IsRunning) // Already active => update position (move)
                 {
                     _lastPositions[finger] = tpCenter;
@@ -572,7 +565,7 @@ namespace Multi.Cursor
                     _gestureHandler?.IndexUp();
                     _touchTimers[finger].Stop();
                 }
-                
+
             }
 
         }
@@ -628,7 +621,7 @@ namespace Multi.Cursor
                         _touchTimers[finger].Stop();
                     }
                 }
-                
+
             }
 
         }
@@ -681,12 +674,12 @@ namespace Multi.Cursor
                         //GestInfo<TouchSurface>($"{finger} Tapped!");
                         LogTap(finger.ToString(), Side.Right, currentFrame.Timestamp); // LOG
                         _gestureHandler?.RingTap();
-                        
+
                     }
 
                     _touchTimers[finger].Stop();
                 }
-                
+
             }
 
         }
@@ -735,8 +728,8 @@ namespace Multi.Cursor
                     //    $" | dY = {Abs(lastPosition.y - downPosition.y):F2}");
                     LogUp(finger.ToString(), _touchTimers[finger].ElapsedMilliseconds,
                         Abs(lastPosition.X - downPosition.X), Abs(lastPosition.Y - downPosition.Y)); // LOG
-                    if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds, 
-                        Abs(lastPosition.X - downPosition.X), 
+                    if (PassTapConditions(_touchTimers[finger].ElapsedMilliseconds,
+                        Abs(lastPosition.X - downPosition.X),
                         Abs(lastPosition.Y - downPosition.Y)))
                     {
                         // Find the Tap position (Top or Down)
@@ -763,9 +756,9 @@ namespace Multi.Cursor
 
         private bool PassTapConditions(long dT, double dX, double dY)
         {
-            return Utils.In(dT, Config.TAP_TIME_MIN, Config.TAP_TIME_MAX)
-                        && dX < Config.TAP_GENERAL_THRESHOLD.DX
-                        && dY < Config.TAP_GENERAL_THRESHOLD.DY;
+            return MTools.In(dT, ExpEnvironment.TAP_TIME_MIN, ExpEnvironment.TAP_TIME_MAX)
+                        && dX < ExpEnvironment.TAP_GENERAL_THRESHOLD.DX
+                        && dY < ExpEnvironment.TAP_GENERAL_THRESHOLD.DY;
         }
 
         //========= Swipe tech tracking ==========================
@@ -790,7 +783,7 @@ namespace Multi.Cursor
                     int gestureDT = (int)((deltaTicks / (float)Stopwatch.Frequency) * 1000); //in ms
 
                     // Duration is good => Check movement
-                    if (gestureDT < Config.SWIPE_TIME_MAX)
+                    if (gestureDT < ExpEnvironment.SWIPE_TIME_MAX)
                     {
                         TouchPoint firstTouchPoint = _thumbGestureStart.GetPointer(finger);
                         double dX = center.X - firstTouchPoint.GetX();
@@ -798,9 +791,9 @@ namespace Multi.Cursor
                         //GestInfo<TouchSurface>($"dT = {gestureDT:F2} | dX = {dX:F2}, dY = {dY:F2}");
                         //LogMove(finger.ToString(), gestureDT, dX, dY); // LOG
                         //-- Check for swipe left-right
-                        if (Abs(dX) > Config.SWIPE_MOVE_THRESHOLD) // Good amount of movement along x
+                        if (Abs(dX) > ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Good amount of movement along x
                         {
-                            if (Abs(dY) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
+                            if (Abs(dY) < ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
                             {
                                 // Swipe along x
                                 _gestureHandler?.ThumbSwipe(dX > 0 ? Direction.Right : Direction.Left);
@@ -812,9 +805,9 @@ namespace Multi.Cursor
                             }
                         }
                         // -- Check for swipe up-down (either this or left-right)
-                        else if (Abs(dY) > Config.SWIPE_MOVE_THRESHOLD) // Good amount of movement along y
+                        else if (Abs(dY) > ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Good amount of movement along y
                         {
-                            if (Abs(dX) < Config.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
+                            if (Abs(dX) < ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
                             {
                                 // Swipe along y
                                 _gestureHandler?.ThumbSwipe(dY > 0 ? Direction.Down : Direction.Up);
@@ -841,7 +834,7 @@ namespace Multi.Cursor
                     _touchTimers[finger].Restart(); // Start the timer
                     _thumbGestureStart = currentFrame;
                     _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_START);
-                    
+
                 }
             }
             else // FullFinger NOT present in the current frame
@@ -920,7 +913,6 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -953,7 +945,6 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer
@@ -986,7 +977,6 @@ namespace Multi.Cursor
                 }
                 else // First touch
                 {
-                    GestInfo<TouchSurface>($"{finger.ToString()} Down.");
                     _downPositions[finger] = center;
                     _lastPositions[finger] = center;
                     _touchTimers[finger].Restart(); // Start the timer

@@ -1,11 +1,13 @@
 ﻿using Common.Constants;
 using Common.Helpers;
+using CommonUI;
 using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace Multi.Cursor
 {
@@ -37,7 +39,7 @@ namespace Multi.Cursor
         public abstract bool FindPositionsForTrial(Trial trial);
         public void BeginActiveBlock()
         {
-            this.TrialInfo("------------------- Beginning block ----------------------------");
+            this.TrialInfo("------------------- Beginning block -------------------------------------------");
             this.TrialInfo(ExpStrs.MINOR_LINE);
 
             _activeTrialNum = 1;
@@ -53,7 +55,7 @@ namespace Multi.Cursor
 
             // Show the Start Trial button
             //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
-            
+
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
             _mainWindow.ResetAllAuxWindows();
@@ -81,28 +83,12 @@ namespace Multi.Cursor
         public virtual void EndActiveTrial(Result result)
         {
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
-            this.TrialInfo(ExpStrs.MAJOR_LINE);
             _activeTrialRecord.Result = result;
             LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
             _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
 
-            switch (result)
-            {
-                case Result.HIT:
-                    ExpSounder.PlayHit();
-                    
-                    double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
-                    _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
-                    
-                    break;
-                case Result.MISS:
-                    ExpSounder.PlayTargetMiss();
-
-                    _activeBlock.ShuffleBackTrial(_activeTrialNum);
-                    _trialRecords[_activeTrial.Id].ClearTimestamps();
-                    _trialRecords[_activeTrial.Id].ResetStates();
-                    break;
-            }
+            double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
+            _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
 
             //-- Log
             switch (ExpStrs.TASKTYPE_ABBR[_activeTrial.TaskType])
@@ -121,6 +107,26 @@ namespace Multi.Cursor
                     break;
 
             }
+
+            switch (result)
+            {
+                case Result.HIT:
+                    MSounder.PlayHit();
+
+                    break;
+                case Result.MISS:
+                    MSounder.PlayTargetMiss();
+
+                    //-- Reset the trial times and shuffle it back
+                    _trialRecords[_activeTrial.Id].ClearTimestamps();
+                    _trialRecords[_activeTrial.Id].ResetStates();
+                    _activeBlock.ShuffleBackTrial(_activeTrialNum);
+
+                    break;
+            }
+
+
+            this.TrialInfo(ExpStrs.MINOR_LINE);
 
             GoToNextTrial();
         }
@@ -184,7 +190,7 @@ namespace Multi.Cursor
             this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                ExpSounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -198,14 +204,14 @@ namespace Multi.Cursor
             LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
-            ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
+            ExperiLogger.RecordCursorPosition(e.GetPosition(_mainWindow.Owner));
         }
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
             if (IsStartPressed() && !IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -222,7 +228,7 @@ namespace Multi.Cursor
 
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -295,45 +301,18 @@ namespace Multi.Cursor
             if (_activeTrialRecord.GetLastTrialEventType() != ExpStrs.OBJ_EXIT) LogEvent(ExpStrs.ARA_ENTER);
         }
 
-        public virtual void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
+        public void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(ExpStrs.ARA_PRESS);
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
-            if (!IsStartClicked()) // Start button not clicked yet
-            {
-                //ExpSounder.PlayStartMiss();
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                return;
-            }
 
-            
-
-            //-- Rest of the handling is done in the derived classes
+            e.Handled = true; // Mark the event as handled to prevent further processing
         }
 
         public virtual void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(ExpStrs.ARA_RELEASE);
 
-            if (!IsStartClicked())
-            {
-                this.TrialInfo($"Start wasn't clicked");
-                //Sounder.PlayStartMiss();
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                return; // Do nothing if start button was not clicked
-            }
-
-            if (_activeTrialRecord.AreAllObjectsApplied())
-            {
-                EndActiveTrial(Result.HIT);
-            }
-            else
-            {
-                this.TrialInfo($"Not all objects applied");
-                EndActiveTrial(Result.MISS);
-            }
-
-            e.Handled = true; // Mark the event as handled to prevent further processing
+            //-- Rest of the handling is done in the derived classes
         }
 
         public virtual void OnObjectAreaMouseExit(Object sender, MouseEventArgs e)
@@ -357,7 +336,7 @@ namespace Multi.Cursor
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return;
             }
@@ -441,16 +420,16 @@ namespace Multi.Cursor
         {
             _mainWindow.FillButtonInAuxWindow(
                 _activeTrial.FuncSide,
-                funcId, 
-                Config.FUNCTION_ENABLED_COLOR);
+                funcId,
+                UIColors.COLOR_FUNCTION_ENABLED);
         }
 
         public void SetFunctionAsDisabled(int funcId)
         {
             _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide, 
-                funcId, 
-                Config.FUNCTION_DEFAULT_COLOR);
+                _activeTrial.FuncSide,
+                funcId,
+                UIColors.COLOR_FUNCTION_DEFAULT);
         }
 
         public void SetFunctionAsApplied(int funcId)
@@ -460,22 +439,22 @@ namespace Multi.Cursor
 
         protected void SetObjectAsDisabled(int objId)
         {
-            _mainWindow.FillObject(objId, Config.OBJ_DEFAULT_COLOR);
+            _mainWindow.FillObject(objId, UIColors.COLOR_OBJ_DEFAULT);
         }
 
         public void UpdateScene()
         {
             foreach (var func in _activeTrialRecord.Functions)
             {
-                Brush funcColor = Config.FUNCTION_DEFAULT_COLOR;
+                Brush funcColor = UIColors.COLOR_FUNCTION_DEFAULT;
                 //this.TrialInfo($"Function#{func.Id} state: {func.State}");
                 switch (func.State)
                 {
                     case ButtonState.MARKED:
-                        funcColor = Config.FUNCTION_ENABLED_COLOR;
+                        funcColor = UIColors.COLOR_FUNCTION_ENABLED;
                         break;
                     case ButtonState.SELECTED:
-                        funcColor = Config.FUNCTION_APPLIED_COLOR;
+                        funcColor = UIColors.COLOR_FUNCTION_APPLIED;
                         break;
                 }
 
@@ -484,14 +463,14 @@ namespace Multi.Cursor
 
             foreach (var obj in _activeTrialRecord.Objects)
             {
-                Brush objColor = Config.OBJ_DEFAULT_COLOR;
+                Brush objColor = UIColors.COLOR_OBJ_DEFAULT;
                 switch (obj.State)
                 {
                     case ButtonState.MARKED:
-                        objColor = Config.OBJ_MARKED_COLOR;
+                        objColor = UIColors.COLOR_OBJ_MARKED;
                         break;
                     case ButtonState.SELECTED:
-                        objColor = Config.OBJ_APPLIED_COLOR;
+                        objColor = UIColors.COLOR_OBJ_APPLIED;
                         break;
                 }
 
@@ -501,27 +480,27 @@ namespace Multi.Cursor
 
         public void LeftPress()
         {
-            
+
         }
 
         public void RightPress()
         {
-            
+
         }
 
         public void TopPress()
         {
-            
+
         }
 
         public void LeftMove(double dX, double dY)
         {
-            
+
         }
 
         public void IndexDown(TouchPoint indPoint)
         {
-            
+
         }
 
         public virtual void IndexTap()
@@ -565,7 +544,7 @@ namespace Multi.Cursor
                 LogEventOnce(ExpStrs.FLICK); // First flick after activation
                 _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked);
             }
-            
+
         }
 
         public void IndexUp()
@@ -687,12 +666,12 @@ namespace Multi.Cursor
 
         public void RingTap()
         {
-            
+
         }
 
         public void PinkyTap(Side loc)
         {
-            
+
         }
 
         protected void LogEvent(string type, string id)
@@ -798,7 +777,7 @@ namespace Multi.Cursor
             //return 0; // TrialEvent has not occurred
 
             return _activeTrialRecord.CountEvent(type);
-            
+
         }
 
         protected double GetDuration(string begin, string end)

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Common.Helpers;
 
 namespace Multi.Cursor
 {
@@ -16,7 +12,7 @@ namespace Multi.Cursor
         {
             this.Type = type;
             this.Id = id;
-            this.Time = Timer.GetCurrentMillis();
+            this.Time = MTimer.GetCurrentMillis();
         }
 
         public TrialEvent(string type, string id, long time)

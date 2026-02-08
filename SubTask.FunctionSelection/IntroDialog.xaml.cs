@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Common.Constants;
+using Common.Settings;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using Common.Constants;
-using Common.Settings;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionSelection
@@ -26,7 +25,7 @@ namespace SubTask.FunctionSelection
         {
             InitializeComponent();
 
-            ParticipantNumberTextBlock.Text = ExpPtc.PTC_NUM.ToString();
+            ParticipantNumberTextBlock.Text = ExpEnvironment.PTC_NUM.ToString();
             ExperimentComboBox.ItemsSource = new string[] { ExpStrs.PRACTICE, ExpStrs.TEST };
             ExperimentComboBox.SelectedValue = ExpStrs.PRACTICE;
         }
@@ -46,15 +45,15 @@ namespace SubTask.FunctionSelection
                 {
                     SelectedExperiment = ExperimentComboBox.SelectedItem as string;
                     ExperimentType expType = (ExperimentType)Enum.Parse(typeof(ExperimentType), SelectedExperiment, true);
-                    SelectedComplexity = (ComplexityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-                    Complexity complexity = (Complexity)Enum.Parse(typeof(Complexity), SelectedComplexity, true);
+                    //SelectedComplexity = (ComplexityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+                    //Complexity complexity = (Complexity)Enum.Parse(typeof(Complexity), SelectedComplexity, true);
 
                     //_experimentSet = true;
 
                     BigButton.Content = "Initializing...";
                     //BigButton.IsEnabled = false;
 
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(complexity, expType));
+                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(expType));
 
                     if (_experimentSet)
                     {

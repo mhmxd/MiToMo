@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Common.Helpers;
 
 namespace SubTask.PanelNavigation
 {
@@ -16,7 +12,7 @@ namespace SubTask.PanelNavigation
         {
             this.Type = type;
             this.Value = val;
-            this.Time = Timer.GetCurrentMillis();
+            this.Time = MTimer.GetCurrentMillis();
         }
 
         public TrialEvent(string type, string val, long time)

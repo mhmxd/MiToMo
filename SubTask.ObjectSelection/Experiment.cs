@@ -1,8 +1,6 @@
-﻿using Common.Constants;
-using Common.Settings;
+﻿using Common.Settings;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Media;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
@@ -12,10 +10,6 @@ namespace SubTask.ObjectSelection
 
         //--- Setting
         public Technique Active_Technique = Technique.MOUSE; // Set in the info dialog
-
-        //-- Colors
-        public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
-            (Color)ColorConverter.ConvertFromString(ExpColors.PURPLE));
 
         //-- Information
         private List<Block> _blocks = new List<Block>();
@@ -28,16 +22,16 @@ namespace SubTask.ObjectSelection
 
         public void Init(ExperimentType expType)
         {
-            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}");
-            //Participant_Number = ptc;
 
             // Create and add blocks
-            for (int i = 0; i < ExpDesign.OS_N_BLOCKS; i++)
+            for (int i = 0; i < ExpDesign.ObjectSelectNumBlocks; i++)
             {
-                int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(Active_Technique, ExpPtc.PTC_NUM, blockId, expType, ExpDesign.OS_N_REP);
+                int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
+                Block block = Block.CreateBlock(ExpEnvironment.PTC_NUM, blockId, expType, ExpDesign.ObjectSelectNumRep);
                 _blocks.Add(block);
             }
+
+            // No need to shuffle: 3 and 5 objects are already shuffled inside blocks
         }
 
         public int GetNumBlocks()

@@ -1,18 +1,14 @@
 ﻿using Common.Constants;
-using HarfBuzzSharp;
-using Newtonsoft.Json;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using static Common.Constants.ExpEnums;
-using static Multi.Cursor.Experiment;
-using static Multi.Cursor.Utils;
 
 namespace Multi.Cursor
 {
@@ -76,11 +72,11 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForTrial(Trial trial)
         {
-            int objW = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM);
+            int objW = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM);
             int objHalfW = objW / 2;
-            int objAreaW = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            int objAreaW = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
             int objAreaHalfW = objAreaW / 2;
-            this.TrialInfo($"{trial.ToStr()}");
+            this.PositionInfo($"{trial.ToStr()}");
 
             // Ensure TrialRecord exists for this trial
             if (!_trialRecords.ContainsKey(trial.Id))
@@ -89,13 +85,14 @@ namespace Multi.Cursor
             }
 
             // Find functions
-            _mainWindow.Dispatcher.Invoke(() => {
+            _mainWindow.Dispatcher.Invoke(() =>
+            {
                 _trialRecords[trial.Id].Functions.AddRange(
                         _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
                     );
             });
 
-            this.TrialInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().ToStr()}");
+            this.PositionInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().Str()}");
 
             // Find a position for the object area
             Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
@@ -110,7 +107,7 @@ namespace Multi.Cursor
             // Add objects
             if (objAreaCenter.X == -1 && objAreaCenter.Y == -1) // Failed to find a valid position 
             {
-                this.TrialInfo($"No valid position found for object in Trial#{trial.Id}!");
+                this.PositionInfo($"No valid position found for object in Trial#{trial.Id}!");
                 return false; // Return false to indicate failure
             }
             else
@@ -118,7 +115,7 @@ namespace Multi.Cursor
                 // Get the top-left corner of the object area rectangle
                 Point objAreaPosition = objAreaCenter.OffsetPosition(-objAreaHalfW);
 
-                this.TrialInfo($"Found object area position: {objAreaPosition.ToStr()}");
+                this.PositionInfo($"Found object area position: {objAreaPosition.Str()}");
 
                 _trialRecords[trial.Id].ObjectAreaRect = new Rect(
                         objAreaPosition.X,
@@ -130,7 +127,7 @@ namespace Multi.Cursor
 
                 // Place objects in the area
                 _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenter, trial.NObjects);
-                this.TrialInfo($"Placed {_trialRecords[trial.Id].Objects.Count} objects");
+                this.PositionInfo($"Placed {_trialRecords[trial.Id].Objects.Count} objects");
 
                 // Randomly map objects to functions
                 List<int> objIds = _trialRecords[trial.Id].Objects.Select(o => o.Id).ToList();
@@ -189,8 +186,8 @@ namespace Multi.Cursor
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the function button and set the handlers
-            
-            //Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
+
+            //Brush funcDefaultColor = UIColors.FUNCTION_DEFAULT_COLOR;
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.FuncSide, _activeTrialRecord.FunctionId, 
             //    funcDefaultColor);
@@ -201,7 +198,7 @@ namespace Multi.Cursor
             UpdateScene();
             _mainWindow.SetAuxButtonsHandlers(
                 _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
-                OnFunctionMouseEnter, OnFunctionMouseDown, OnFunctionMouseUp, 
+                OnFunctionMouseEnter, OnFunctionMouseDown, OnFunctionMouseUp,
                 OnFunctionMouseExit, OnNonTargetMouseDown);
 
             // If on ToMo, activate the auxiliary window marker on all sides
@@ -210,13 +207,13 @@ namespace Multi.Cursor
             // Show the area
             MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseEnter, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
-                _activeTrialRecord.ObjectAreaRect, Config.OBJ_AREA_BG_COLOR,
+                _activeTrialRecord.ObjectAreaRect, UIColors.COLOR_OBJ_AREA_BG,
                 objAreaEvents);
 
             // Show the objects
             MouseEvents objectEvents = new MouseEvents(
                 OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
-            _mainWindow.ShowObjects(_activeTrialRecord.Objects, Config.OBJ_DEFAULT_COLOR, objectEvents);
+            _mainWindow.ShowObjects(_activeTrialRecord.Objects, UIColors.COLOR_OBJ_DEFAULT, objectEvents);
 
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseEnter, OnStartButtonMouseExit);
@@ -236,15 +233,15 @@ namespace Multi.Cursor
         //    switch (result)
         //    {
         //        case Result.HIT:
-        //            Sounder.PlayHit();
+        //            MSounder.PlayHit();
         //            double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
         //            _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
-                    
+
         //            //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial Time = {trialTime:F2}s");
         //            GoToNextTrial();
         //            break;
         //        case Result.MISS:
-        //            Sounder.PlayTargetMiss();
+        //            MSounder.PlayTargetMiss();
 
         //            _activeBlock.ShuffleBackTrial(_activeTrialNum);
         //            _trialRecords[_activeTrial.Id].ClearTimestamps();
@@ -301,7 +298,7 @@ namespace Multi.Cursor
             if (_activeTrial.NFunctions > 1)
             {
                 int objId = _activeTrialRecord.FindMappedObjectId(funId);
-                _activeTrialRecord.MarkObject(objId);   
+                _activeTrialRecord.MarkObject(objId);
             }
             else // One function => mark all objects
             {
@@ -344,7 +341,7 @@ namespace Multi.Cursor
 
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true;
                 return;
             }
@@ -352,7 +349,7 @@ namespace Multi.Cursor
             //-- Trial started:
 
             int markedObjId = _activeTrialRecord.GetMarketObjectId();
-            
+
             if (markedObjId == -1) // No object marked
             {
                 EndActiveTrial(Result.MISS);
@@ -418,7 +415,8 @@ namespace Multi.Cursor
             //_trialRecords[trial.Id].FunctionId = -1;
 
             // Find random functions from the main window
-            _mainWindow.Dispatcher.Invoke(() => {
+            _mainWindow.Dispatcher.Invoke(() =>
+            {
                 _trialRecords[trial.Id].Functions.AddRange(
                     _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX));
                 foreach (int funcWidthMX in trial.GetFunctionWidths())
@@ -459,7 +457,7 @@ namespace Multi.Cursor
             //for (int t = 0; t < maxRetries; t++) {
             //    objAreaCenterPosition = objConstraintRect.FindRandPointWithDist(
             //        targetCenterAbsolute, 
-            //        Utils.MM2PX(randDistMM), 
+            //        UITools.MM2PX(randDistMM), 
             //        trial.FuncSide.GetOpposite());
 
             //    if (objAreaCenterPosition.x != 0 && objAreaCenterPosition.y != 0)
@@ -467,10 +465,10 @@ namespace Multi.Cursor
             //        this.TrialInfo($"Found a valid object area center position for Trial#{trial.Id} at {objAreaCenterPosition}.");
             //        // Set the Rect
             //        _trialRecords[trial.Id].ObjectAreaRect = new Rect(
-            //            objAreaCenterPosition.x - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
-            //            objAreaCenterPosition.y - Utils.MM2PX(OBJ_AREA_WIDTH_MM / 2),
-            //            Utils.MM2PX(OBJ_AREA_WIDTH_MM),
-            //            Utils.MM2PX(OBJ_AREA_WIDTH_MM));
+            //            objAreaCenterPosition.x - UITools.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+            //            objAreaCenterPosition.y - UITools.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+            //            UITools.MM2PX(OBJ_AREA_WIDTH_MM),
+            //            UITools.MM2PX(OBJ_AREA_WIDTH_MM));
             //        _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenterPosition, Experiment.REP_TRIAL_NUM_PASS);
             //        return true; // Successfully found positions
             //    }
@@ -506,11 +504,11 @@ namespace Multi.Cursor
         //    }
         //}
 
-        private List<TrialRecord.TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
+        private List<TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
         {
-            List<TrialRecord.TObject> placedObjects = new List<TrialRecord.TObject>();
-            double objW = Utils.MM2PX(ExpSizes.OBJ_WIDTH_MM);
-            double areaW = Utils.MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            List<TObject> placedObjects = new List<TObject>();
+            double objW = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM);
+            double areaW = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
 
             int maxAttemptsPerObject = 1000; // Limit attempts to prevent infinite loops
 
@@ -531,7 +529,7 @@ namespace Multi.Cursor
                     // 2. Check for overlaps with already placed objects
                     if (!HasOverlap(topLeft, objW, placedObjects))
                     {
-                        TrialRecord.TObject trialObject = new TrialRecord.TObject(i + 1, topLeft, potentialCenter);
+                        TObject trialObject = new TObject(i + 1, topLeft, potentialCenter);
 
                         placedObjects.Add(trialObject);
                         placed = true;
@@ -566,12 +564,12 @@ namespace Multi.Cursor
             return new Point(x, y);
         }
 
-        private bool HasOverlap(Point newObjTopLeft, double newObjW, List<TrialRecord.TObject> existingObjs)
+        private bool HasOverlap(Point newObjTopLeft, double newObjW, List<TObject> existingObjs)
         {
             double newObjRight = newObjTopLeft.X + newObjW;
             double newObjBottom = newObjTopLeft.Y + newObjW;
 
-            foreach (TrialRecord.TObject existingObject in existingObjs)
+            foreach (TObject existingObject in existingObjs)
             {
                 double existingObjRight = existingObject.Position.X + newObjW; // Assuming all objects have the same width
                 double existingObjBottom = existingObject.Position.Y + newObjW;
@@ -589,6 +587,30 @@ namespace Multi.Cursor
             return false; // No overlap with any existing object
         }
 
+        public override void OnObjectAreaMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            base.OnObjectAreaMouseUp(sender, e);
+
+            if (!IsStartClicked())
+            {
+                MSounder.PlayStartMiss();
+                e.Handled = true; // Mark the event as handled to prevent further processing
+                return; // Do nothing if start button was not clicked
+            }
+
+            //-- Trial started:
+            if (_activeTrialRecord.AreAllObjectsApplied())
+            {
+                EndActiveTrial(Result.HIT);
+            }
+            else
+            {
+                EndActiveTrial(Result.MISS);
+            }
+
+            e.Handled = true; // Mark the event as handled to prevent further processing
+        }
+
         public override void OnObjectMouseDown(object sender, MouseButtonEventArgs e)
         {
             base.OnObjectMouseDown(sender, e);
@@ -596,7 +618,7 @@ namespace Multi.Cursor
             // Pressed on the Object without starting the trial
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
@@ -623,24 +645,24 @@ namespace Multi.Cursor
                     if (_activeTrialRecord.IsObjectClicked(objId))
                     {
                         EndActiveTrial(Result.MISS);
-                    } 
+                    }
                     else
                     {
                         _pressedObjectId = objId;
                     }
 
-                        
+
                 }
 
             }
 
-                
+
 
             //var startButtonClicked = GetEventCount(ExpStrs.STR_RELEASE) > 0;
             //var device = Utils.GetDevice(_activeBlock.Technique);
             //int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
             //var markerOverFunction = funcIdUnderMarker != -1;
-            
+
 
             //this.TrialInfo($"StartButtonClicked: {startButtonClicked}; Technique: {device}; " +
             //    $"MarkerOnFunction: {markerOverFunction}; AllObjApplied: {allObjectsApplied}");
@@ -655,7 +677,7 @@ namespace Multi.Cursor
 
             //    case (true, Technique.MOUSE, _, false): // MOUSE, any marker state, not all objects selected
             //        //_activeTrialRecord.MarkObject(objId);
-                    
+
             //        //UpdateScene();
             //        //SetFunctionAsEnabled();
             //        break;
@@ -677,7 +699,7 @@ namespace Multi.Cursor
             if (!IsStartClicked())
             {
                 this.TrialInfo($"Start wasn't clicked");
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
@@ -736,7 +758,7 @@ namespace Multi.Cursor
         //public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
         //{
         //    this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
-            
+
 
         //}
 
@@ -747,7 +769,7 @@ namespace Multi.Cursor
         //    if (!IsStartClicked())
         //    {
         //        this.TrialInfo($"Start wasn't clicked");
-        //        Sounder.PlayStartMiss();
+        //        MSounder.PlayStartMiss();
         //        e.Handled = true; // Mark the event as handled to prevent further processing
         //        return; // Do nothing if start button was not clicked
         //    }
@@ -758,6 +780,6 @@ namespace Multi.Cursor
         //    LogEvent(ExpStrs.ARA_EXIT);
         //}
 
-        
+
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Common.Helpers;
+using CommonUI;
+using System.Collections.Generic;
 using System.IO;
 using static Common.Constants.ExpEnums;
 
@@ -22,8 +24,8 @@ namespace SubTask.FunctionSelection
         public Complexity Complexity { get; set; }
         public ExperimentType ExpType { get; set; }
 
-        public Range DistRangeMM { get; set; }
-        public Range DistRangePX => DistRangeMM.GetPx(); // Distance range in px
+        public MRange DistRangeMM { get; set; }
+        public MRange DistRangePX => new(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label); // Distance range in px
 
         private Side _funcSide; // Side window to show target in
         public Side FuncSide
@@ -61,7 +63,7 @@ namespace SubTask.FunctionSelection
         /// <param name="functionWidthsMX"></param>
         /// <returns></returns>
         public static Trial CreateTrial(
-            int id, int ptc, 
+            int id, int ptc,
             Complexity complexity, ExperimentType expType,
             Side side, List<int> functionWidthsMX)
         {

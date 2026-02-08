@@ -1,11 +1,8 @@
-﻿using Common.Constants;
+﻿using Common.Helpers;
+using Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using static Common.Constants.ExpEnums;
 using Seril = Serilog.Log;
 
@@ -98,11 +95,11 @@ namespace SubTask.FunctionPointSelect
             int id,
             Complexity complexity,
             ExperimentType expType,
-            List<Range> distRanges)
+            List<MRange> distRanges)
         {
 
             // Create block
-            Block block = new Block(ptc, complexity, expType, id);
+            Block block = new(ptc, complexity, expType, id);
 
             // Create and add trials to the block
             int trialNum = 1;
@@ -111,9 +108,9 @@ namespace SubTask.FunctionPointSelect
                 Side functionSide = (Side)sInd;
 
                 // Get the function widths based on side and complexity
-                List<int> buttonWidths = ExpSizes.BUTTON_WIDTHS[complexity][functionSide];
+                List<int> buttonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][functionSide];
 
-                foreach (Range range in distRanges)
+                foreach (MRange range in distRanges)
                 {
                     // For now all function Ws are the same. We may later create trials with multiple function Ws
                     foreach (int funcW in buttonWidths)

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         WindowStartupLocation="CenterOwner"
         Title="Setup" 
-        Height="300" Width="400"
+        Height="250" Width="400"
         Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
@@ -25,14 +25,7 @@
         <TextBlock Text="Experiment:" Grid.Row="2" Grid.Column="0" Margin="10" VerticalAlignment="Center"/>
         <ComboBox Name="ExperimentComboBox" Grid.Row="2" Grid.Column="1" Margin="10"/>
 
-        <TextBlock Text="Complexity:" Grid.Row="3" Grid.Column="0" Margin="10" VerticalAlignment="Center"/>
-        <ComboBox Name="ComplexityComboBox" Grid.Row="3" Grid.Column="1" Margin="10">
-            <ComboBoxItem Content="Simple" IsSelected="True"/>
-            <ComboBoxItem Content="Moderate"/>
-            <ComboBoxItem Content="Complex"/>
-        </ComboBox>
-
-        <Button Name ="BigButton" Content="Initialize" Grid.Row="4" Grid.ColumnSpan="2" Height="40" Width="200" FontSize="15" Margin="100,35,0,65" 
+        <Button Name ="BigButton" Content="Initialize" Grid.Row="4" Grid.ColumnSpan="2" Height="40" Width="200" FontSize="15" Margin="100,50,0,65" 
                 Click="BeginButton_ClickAsync" HorizontalAlignment="Left"/>
     </Grid>
 </Window>

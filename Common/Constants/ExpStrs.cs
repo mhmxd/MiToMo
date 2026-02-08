@@ -107,6 +107,7 @@ namespace Common.Constants
         public static readonly string TAP_YLEN = "tap_ylen";
         public static readonly string SWIPE_XLEN = "swipe_xlen";
         public static readonly string SWIPE_YLEN = "swipe_ylen";
+        public static readonly string MOVE = "move";
 
         // Task types
         public static readonly string SOSF = "sosf";
@@ -119,6 +120,9 @@ namespace Common.Constants
         public static readonly string PNS = "pns";
         public static readonly string PNV = "pnv";
 
+        public static readonly string ONE_OBJ_MULTI_FUNC = "One Obj - Multi Func";
+        public static readonly string MULTI_OBJ_ONE_FUNC = "Multi Obj - One Func";
+
         // Logs
         public static readonly string TRIALS_DETAIL_S = "trials-detail";
         public static readonly string TRIALS_DETAIL_C = "Trials-Detail";
@@ -129,7 +133,9 @@ namespace Common.Constants
         public static readonly string Logs = "Logs";
         public static readonly string CURSOR_S = "cursor";
         public static readonly string CURSOR_C = "Cursor";
-        public static readonly string DATE_TIME_FORMAT = "yyyyMMdd-HHmm";
+        public static readonly string Gesture = "gesture";
+        public static readonly string GestureCap = "Gesture";
+        public static readonly string DATE_TIME_FORMAT = "dd_MM_yyyy-HH_mm_ss";
 
         // Task type abbreviations
         public static Dictionary<TaskType, string> TASKTYPE_ABBR = new Dictionary<TaskType, string>

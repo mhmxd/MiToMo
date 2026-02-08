@@ -1,8 +1,10 @@
 ﻿using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using static SubTask.ObjectSelection.Utils;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
@@ -10,43 +12,6 @@ namespace SubTask.ObjectSelection
     public class TrialRecord
     {
         public int TrialId { get; set; }
-        public class TObject
-        {
-            public int Id { get; set; }
-            public Point Position { get; set; }
-            public Point Center { get; set; }
-            public ButtonState State { get; set; }
-
-            public TObject(int id, Point position, Point center)
-            {
-                Id = id;
-                Position = position;
-                Center = center;
-                State = ButtonState.DEFAULT;
-            }
-
-        }
-
-        public class TFunction
-        {
-            public int Id { get; set; }
-            public int WidthInUnits { get; set; }
-            public Point Center { get; set; }
-            public Point Position { get; set; } // Top-left corner of the button
-            public int DistanceToObjArea; // in pixels
-            public ButtonState State { get; set; }
-
-            public TFunction(int id, int widthInUnits, Point center, Point position)
-            {
-                Id = id;
-                Center = center;
-                Position = position;
-                WidthInUnits = widthInUnits;
-                State = ButtonState.DEFAULT;
-
-            }
-
-        }
 
         public List<TObject> Objects;
 
@@ -60,7 +25,7 @@ namespace SubTask.ObjectSelection
         public TrialRecord(int trialId)
         {
             Objects = new List<TObject>();
-            int objAreaW = MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            int objAreaW = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
             ObjectAreaRect = new Rect(0, 0, objAreaW, objAreaW);
             //EventCounts = new Dictionary<string, int>();
             Events = new List<TrialEvent>();
@@ -116,7 +81,7 @@ namespace SubTask.ObjectSelection
 
         public void MakeAllObjectsAvailable(ButtonState newState)
         {
-            this.TrialInfo($"Change all objects to {newState}");
+            this.LogsInfo($"Change all objects to {newState}");
             foreach (TObject obj in Objects)
             {
                 obj.State = newState;
@@ -125,11 +90,11 @@ namespace SubTask.ObjectSelection
 
         public void ChangeObjectState(int objId, ButtonState newState)
         {
-            this.TrialInfo($"Change Obj#{objId} to {newState}");
+            this.LogsInfo($"Change Obj#{objId} to {newState}");
             TObject markedObj = Objects.FirstOrDefault(o => o.Id == objId);
             if (markedObj != null)
             {
-                this.TrialInfo($"Changed Obj#{objId} to {newState}");
+                this.LogsInfo($"Changed Obj#{objId} to {newState}");
                 markedObj.State = newState;
             }
         }
@@ -143,12 +108,12 @@ namespace SubTask.ObjectSelection
         {
             TrialEvent trialEvent = new TrialEvent(type, id);
             Events.Add(trialEvent);
-            this.TrialInfo($"[+] {trialEvent.ToString()}");
+            this.LogsInfo($"[+] {trialEvent.ToString()}");
 
             if (type == ExpStrs.TAP_UP)
             {
                 long endTime = GetLastFingerActionTime(type);
-                this.TrialInfo($"End Time: {endTime}");
+                this.LogsInfo($"End Time: {endTime}");
                 var gestureStartTimestamp = Events.LastOrDefault(ts => ts.Type == ExpStrs.DOWN && ts.Time < endTime);
                 if (gestureStartTimestamp != null)
                 {
@@ -199,17 +164,17 @@ namespace SubTask.ObjectSelection
 
             // Find the first occurrence of startLabel
             int startIndex = Events.FindIndex(t => t.Type == endLabel);
-            this.TrialInfo($"Index of {startLabel}: {startIndex}");
+            this.LogsInfo($"Index of {startLabel}: {startIndex}");
             if (startIndex < 0)
                 return -1;
 
             // Find the last occurence of endLabel
             int endIndex = Events.FindLastIndex(t => t.Type == endLabel);
-            this.TrialInfo($"Index of {endLabel}: {endIndex}");
+            this.LogsInfo($"Index of {endLabel}: {endIndex}");
             if (endIndex < 0)
                 return -1;
 
-            return Utils.GetDuration(Events[startIndex].Time, Events[endIndex].Time);
+            return MTools.GetDuration(Events[startIndex].Time, Events[endIndex].Time);
         }
 
         public long GetFirstAfterLast(string beforeType, string type)
@@ -281,19 +246,19 @@ namespace SubTask.ObjectSelection
         public int GetDuration(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"Start time ({startLabel}): {startTime}");
+            this.LogsInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time ({endLabel}): {endTime}");
-            return Utils.GetDuration(startTime, endTime);
+            this.LogsInfo($"End time ({endLabel}): {endTime}");
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurtionToFirstAfter(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"Start time ({startLabel}): {startTime}");
+            this.LogsInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetFirstAfterLast(startLabel, endLabel);
-            this.TrialInfo($"End time ({endLabel}): {endTime}");
-            return Utils.GetDuration(startTime, endTime);
+            this.LogsInfo($"End time ({endLabel}): {endTime}");
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetFirstSeqDuration(string startType, string endType)
@@ -310,7 +275,7 @@ namespace SubTask.ObjectSelection
                     {
                         if (Events[j].Type == endType)
                         {
-                            return Utils.GetDuration(Events[i].Time, Events[j].Time);
+                            return MTools.GetDuration(Events[i].Time, Events[j].Time);
                         }
                     }
                 }
@@ -326,7 +291,7 @@ namespace SubTask.ObjectSelection
         /// <param name="startType">The type of the starting event (e.g., "Pressed").</param>
         /// <param name="endType">The type of the ending event (e.g., "Released").</param>
         /// <param name="n">The 1-based index (occurrence) to find (e.g., 3 for the third time).</param>
-        /// <returns>The duration in a suitable unit (depending on Utils.GetDuration), or -1 if the N-th sequence is not found.</returns>
+        /// <returns>The duration in a suitable unit (depending on Tools.GetDuration), or -1 if the N-th sequence is not found.</returns>
         public int GetNthSeqDuration(string startType, string endType, int n)
         {
             // 1. Handle edge cases for empty list or invalid index
@@ -342,12 +307,12 @@ namespace SubTask.ObjectSelection
                 if (Events[i].Type == startType)
                 {
                     occurrenceCount++;
-                    this.TrialInfo($"nOccurences of {startType}: {occurrenceCount}");
+                    this.LogsInfo($"nOccurences of {startType}: {occurrenceCount}");
                     // 2. Check if this is the N-th occurrence we are looking for
                     if (occurrenceCount == n)
                     {
                         var startTime = Events[i].Time; // Capture the start time
-                        this.TrialInfo($"Start time of {n}th {startType}: {startTime}");
+                        this.LogsInfo($"Start time of {n}th {startType}: {startTime}");
 
                         // 3. Found the N-th start. Now, look *forward* for the first end event
                         for (int j = i + 1; j < Events.Count; j++)
@@ -356,9 +321,9 @@ namespace SubTask.ObjectSelection
                             {
                                 // Found the corresponding end event
                                 var endTime = Events[j].Time;
-                                this.TrialInfo($"End time of {n}th {endType}: {endTime}");
+                                this.LogsInfo($"End time of {n}th {endType}: {endTime}");
                                 // 4. Return the calculated duration
-                                return Utils.GetDuration(startTime, endTime);
+                                return MTools.GetDuration(startTime, endTime);
                             }
                             // Optimization: If the sequence is [Press, Press, Release], 
                             // we are only looking for the *first* Release after the N-th Press.
@@ -377,13 +342,13 @@ namespace SubTask.ObjectSelection
 
         public int GetLastSeqDuration(string startLabel, string endLabel)
         {
-            this.TrialInfo($"From {startLabel} to {endLabel}");
+            this.LogsInfo($"From {startLabel} to {endLabel}");
             if (Events == null || Events.Count == 0)
                 return -1;
 
             // find the last occurrence of endType
             int afterIndex = Events.FindLastIndex(t => t.Type == endLabel);
-            this.TrialInfo($"Index of {endLabel}: {afterIndex}");
+            this.LogsInfo($"Index of {endLabel}: {afterIndex}");
             if (afterIndex < 0)
                 return -1;
 
@@ -392,9 +357,9 @@ namespace SubTask.ObjectSelection
             {
                 if (Events[i].Type == startLabel)
                 {
-                    this.TrialInfo($"Start time {startLabel}: {Events[i].Time}");
-                    this.TrialInfo($"End time {endLabel}: {Events[afterIndex].Time}");
-                    return Utils.GetDuration(
+                    this.LogsInfo($"Start time {startLabel}: {Events[i].Time}");
+                    this.LogsInfo($"End time {endLabel}: {Events[afterIndex].Time}");
+                    return MTools.GetDuration(
                         Events[i].Time,
                         Events[afterIndex].Time
                     );
@@ -407,37 +372,37 @@ namespace SubTask.ObjectSelection
         public int GetDurationToGestureStart(string startLabel, Technique technique)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"StartTime {startLabel}: {startTime}");
+            this.LogsInfo($"StartTime {startLabel}: {startTime}");
             long endTime = GetGestureStartTime(technique);
-            this.TrialInfo($"End time {technique}: {endTime}");
-            return Utils.GetDuration(startTime, endTime);
+            this.LogsInfo($"End time {technique}: {endTime}");
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromGestureEnd(Technique technique, string endLabel)
         {
             long startTime = GetGestureEndTimestamp(technique);
-            this.TrialInfo($"Start time {technique}: {startTime}");
+            this.LogsInfo($"Start time {technique}: {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time {endLabel}: {endTime}");
-            return Utils.GetDuration(startTime, endTime);
+            this.LogsInfo($"End time {endLabel}: {endTime}");
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationToFingerAction(string type, string action)
         {
             long startTime = GetLastTime(type);
-            this.TrialInfo($"Start time {type}: {startTime}");
+            this.LogsInfo($"Start time {type}: {startTime}");
             long endTime = GetFirstAfterLast(type, action);
-            this.TrialInfo($"End time {action}: {endTime}");
-            return Utils.GetDuration(startTime, endTime);
+            this.LogsInfo($"End time {action}: {endTime}");
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetDurationFromFingerAction(string action, string endLabel)
         {
             long startTime = GetLastFingerActionTime(action);
-            this.TrialInfo($"Start time {action}: {startTime}");
+            this.LogsInfo($"Start time {action}: {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time {endLabel}: {endTime}");
-            return Utils.GetDuration(startTime, endTime);
+            this.LogsInfo($"End time {endLabel}: {endTime}");
+            return MTools.GetDuration(startTime, endTime);
         }
 
         public int GetGestureDuration(Technique gesture)
@@ -447,13 +412,13 @@ namespace SubTask.ObjectSelection
                 case Technique.TOMO_TAP:
                     //long tapEndTime = GetLastFingerActionTime(ExpStrs.TAP_UP);
                     //long tapStartTime = GetFingerTimeBefore(ExpStrs.DOWN, tapEndTime);
-                    //return Utils.GetDuration(tapStartTime, tapEndTime);
+                    //return Tools.GetDuration(tapStartTime, tapEndTime);
                     return GetLastSeqDuration(ExpStrs.TAP_DOWN, ExpStrs.TAP_UP);
 
                 case Technique.TOMO_SWIPE:
                     //long swipeEndTime = GetLastFingerActionTime(ExpStrs.SWIPE_END);
                     //long swipeStartTime = GetFingerTimeBefore(ExpStrs.SWIPE_START, swipeEndTime);
-                    //return Utils.GetDuration(swipeStartTime, swipeEndTime);
+                    //return Tools.GetDuration(swipeStartTime, swipeEndTime);
                     return GetLastSeqDuration(ExpStrs.SWIPE_START, ExpStrs.SWIPE_END);
             }
 

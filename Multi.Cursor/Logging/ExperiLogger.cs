@@ -2,6 +2,7 @@
 using Common.Helpers;
 using Common.Logs;
 using Common.Settings;
+using CommonUI;
 using Multi.Cursor.Logging;
 using Serilog;
 using Serilog.Core;
@@ -22,21 +23,12 @@ namespace Multi.Cursor
 
         private static readonly string Namespace = typeof(ExperiLogger).Namespace;
         private static readonly string LogsFolderName = ExpStrs.JoinDot(Namespace, ExpStrs.Logs);
-        private static readonly string MyDocumentsPath =
-            Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        private static readonly string MyDocumentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         // Set for each log (in constructor)
-        private static readonly string _detailTrialLogPath = Path.Combine(
-            MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.TRIALS_DETAIL_C);
-
-        private static readonly string _totalTrialLogPath = Path.Combine(
-            MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.TRIALS_TOTAL_C);
-
-        private static readonly string _blockLogPath = Path.Combine(
-            MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.BLOCKS_C);
+        private static string _detailTrialLogPath;
+        private static string _totalTrialLogPath;
+        private static string _blockLogPath;
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
 
@@ -49,7 +41,7 @@ namespace Multi.Cursor
         private static StreamWriter _blockLogWriter;
 
         private static Dictionary<string, int> _trialLogs = new Dictionary<string, int>();
-        
+
 
         private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
 
@@ -60,60 +52,47 @@ namespace Multi.Cursor
         {
             _technique = tech;
 
-            //string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
+            _detailTrialLogPath = Path.Combine(MyDocumentsPath, LogsFolderName,
+            $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.TRIALS_DETAIL_C);
+
+            _totalTrialLogPath = Path.Combine(MyDocumentsPath, LogsFolderName,
+            $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.TRIALS_TOTAL_C);
+
+            _blockLogPath = Path.Combine(MyDocumentsPath, LogsFolderName,
+            $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.BLOCKS_C);
 
             // Default (will set based on the task type)
+            //Output.Conlog<ExperiLogger>(taskType.ToString());
             switch (taskType)
             {
                 case TaskType.ONE_OBJ_ONE_FUNC:
                     {
-                        _detailTrialLogWriter = ExpIO.PrepareFile<SOSFTrialLog>(_detailTrialLogPath, ExpStrs.SOSF);
+                        _detailTrialLogWriter = MIO.PrepareFile<SOSFTrialLog>(_detailTrialLogPath, ExpStrs.SOSF);
                     }
                     break;
                 case TaskType.ONE_OBJ_MULTI_FUNC:
                     {
-                        _detailTrialLogWriter = ExpIO.PrepareFile<SOMFTrialLog>(_detailTrialLogPath, ExpStrs.SOMF);
+                        _detailTrialLogWriter = MIO.PrepareFile<SOMFTrialLog>(_detailTrialLogPath, ExpStrs.SOMF);
                     }
                     break;
                 case TaskType.MULTI_OBJ_ONE_FUNC:
                     {
-                        _detailTrialLogWriter = ExpIO.PrepareFile<MOSFTrialLog>(_detailTrialLogPath, ExpStrs.MOSF);
+                        _detailTrialLogWriter = MIO.PrepareFile<MOSFTrialLog>(_detailTrialLogPath, ExpStrs.MOSF);
                     }
                     break;
                 case TaskType.MULTI_OBJ_MULTI_FUNC:
                     {
-                        _detailTrialLogWriter = ExpIO.PrepareFile<MOMFTrialLong>(_detailTrialLogPath, ExpStrs.MOMF);
+                        _detailTrialLogWriter = MIO.PrepareFile<MOMFTrialLong>(_detailTrialLogPath, ExpStrs.MOMF);
                     }
                     break;
             }
 
             // Create total log if not exists
-            _totalTrialLogWriter = ExpIO.PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
+            _totalTrialLogWriter = MIO.PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
 
             // Create block log if not exists
-            _blockLogWriter = ExpIO.PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
+            _blockLogWriter = MIO.PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
 
-        }
-
-        private static void PrepareFileWithHeader<T>(ref string filePath, StreamWriter writer, string header)
-        {
-            string timestamp = DateTime.Now.ToString("dd-MM-yyyy_HH-mm");
-            filePath = $"{filePath}_{timestamp}.csv";
-
-            string directoryPath = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            bool timedFileExists = File.Exists(filePath);
-            bool timedFileIsEmpty = !timedFileExists || new FileInfo(filePath).Length == 0;
-            writer = new StreamWriter(filePath, append: true, Encoding.UTF8);
-            writer.AutoFlush = true;
-            if (timedFileIsEmpty)
-            {
-                writer.WriteLine(header);
-            }
         }
 
         public static void StartTrialCursorLog(int trialId, int trialNum)
@@ -123,38 +102,32 @@ namespace Multi.Cursor
 
             _cursorLogFilePath = Path.Combine(
                 MyDocumentsPath, LogsFolderName,
-                $"P{ExpPtc.PTC_NUM}-{_technique}", ExpStrs.CURSOR_C, $"trial-id{trialId}-n{trialNum}-{ExpStrs.CURSOR_S}"
+                $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.CURSOR_C, $"trial-n{trialNum}-id{trialId}-{ExpStrs.CURSOR_S}"
             );
 
-            PrepareFileWithHeader<PositionRecord>(ref _cursorLogFilePath, _cursorLogWriter, PositionRecord.GetHeader());
-        }
-
-        public static void StartTrialLog(Trial trial)
-        {
-            //_blockFileLog.Information($"{trial.ToString()}");
-            //_blockFileLog.Information($"----------------------------------------------------------------------------------");
+            _cursorLogWriter = MIO.PrepareFileWithHeader<PositionRecord>(_cursorLogFilePath, PositionRecord.GetHeader());
         }
 
         public static void StartTrialLogs(int trialNum, int trialId, double targetWidthMM, double distanceMM, Point startPos, Point targetPos)
         {
             String gestureFileName = $"trial-{trialNum}-#{trialId}-gestures-.txt";
-            
+
 
             string gesturesFilePath = System.IO.Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "Multi.Cursor.Logs", $"P{ExpPtc.PTC_NUM}-{_technique}", gestureFileName
+                "Multi.Cursor.Logs", $"P{ExpEnvironment.PTC_NUM}-{_technique}", gestureFileName
             );
 
-            
+
             _gestureFileLog = new LoggerConfiguration()
                     .WriteTo.Async(a => a.File(gesturesFilePath, rollingInterval: RollingInterval.Day,
                     outputTemplate: "{Timestamp:HH:mm:ss.fff} {Message:lj}{NewLine}"))
                     .CreateLogger();
 
-            
+
 
             // Enter log info
-            _gestureFileLog.Information($"TgtW: {targetWidthMM}, Dist: {distanceMM}, StPos: {startPos.ToStr()}, TgPos: {targetPos.ToStr()}");
+            _gestureFileLog.Information($"TgtW: {targetWidthMM}, Dist: {distanceMM}, StPos: {startPos.Str()}, TgPos: {targetPos.Str()}");
         }
 
         public static void LogGestureEvent(string message)
@@ -167,59 +140,6 @@ namespace Multi.Cursor
             _blockFileLog.Information(message);
         }
 
-        public static void LogSingleObjTrialTimes(TrialRecord trialRecord)
-        {
-            int nFunctions = trialRecord.Functions.Count;
-
-            if (nFunctions == 1)
-            {
-                switch (_technique)
-                {
-                    case Technique.MOUSE:
-                        _blockFileLog.Information($"Start Release   -> Obj Enter:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.OBJ_ENTER)}");
-                        _blockFileLog.Information($"Obj Enter       -> Obj Press:   {trialRecord.GetDuration(ExpStrs.OBJ_ENTER, ExpStrs.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Func Press:  {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.FUN_PRESS)}");
-                        _blockFileLog.Information($"Func Press      -> Func Release:{trialRecord.GetDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE)}");
-                        _blockFileLog.Information($"Func Release    -> Area Press:  {trialRecord.GetDuration(ExpStrs.FUN_RELEASE, ExpStrs.ARA_PRESS)}");
-                        _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
-                        _blockFileLog.Information($"==============================================================================================================");
-                        break;
-
-                    case Technique.TOMO_TAP:
-                        _blockFileLog.Information($"Start Release   -> Tap Down:    {trialRecord.GetDurationToFingerAction(ExpStrs.STR_RELEASE, ExpStrs.TAP_DOWN)}");
-                        _blockFileLog.Information($"Tap Down        -> Tap Up:      {trialRecord.GetGestureDuration(Technique.TOMO_TAP)}");
-                        _blockFileLog.Information($"Tap Up          -> Obj Press:   {trialRecord.GetDurationFromFingerAction(ExpStrs.TAP_UP, ExpStrs.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_EXIT)}");
-                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(ExpStrs.OBJ_EXIT, ExpStrs.ARA_PRESS)}");
-                        _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
-                        _blockFileLog.Information($"==============================================================================================================");
-                        break;
-
-                    case Technique.TOMO_SWIPE:
-                        _blockFileLog.Information($"Start Release   -> Swipe Start: {trialRecord.GetDurationToFingerAction(ExpStrs.STR_RELEASE, ExpStrs.SWIPE_START)}");
-                        _blockFileLog.Information($"Swipe Start     -> Swipe End:   {trialRecord.GetGestureDuration(Technique.TOMO_SWIPE)}");
-                        _blockFileLog.Information($"Swipe End       -> Obj Press:   {trialRecord.GetDurationFromFingerAction(ExpStrs.SWIPE_END, ExpStrs.OBJ_PRESS)}");
-                        _blockFileLog.Information($"Obj Press       -> Obj Release: {trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE)}");
-                        _blockFileLog.Information($"Obj Release     -> Obj Exit:    {trialRecord.GetDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_EXIT)}");
-                        _blockFileLog.Information($"Obj Exit        -> Area Press:  {trialRecord.GetDuration(ExpStrs.OBJ_EXIT, ExpStrs.ARA_PRESS)}");
-                        _blockFileLog.Information($"--------------------------------");
-                        _blockFileLog.Information($"Total Time (Start Release -> Area Press) = {Utils.MStoSec(trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS))}");
-                        _blockFileLog.Information($"==============================================================================================================");
-                        break;
-                }
-            }
-            else
-            {
-                // For now. Later we put detailed log
-                _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS)}");
-            }
-            
-        }
-
         public static void LogMultipleObjTrialTimes(TrialRecord trialRecord)
         {
             // For now. Later we put detailed log
@@ -228,7 +148,6 @@ namespace Multi.Cursor
 
         public static void LogSOSFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            Output.Conlog<ExperiLogger>("Logging Trial");
             SOSFTrialLog log = new SOSFTrialLog();
 
             // Information
@@ -251,8 +170,8 @@ namespace Multi.Cursor
                     log.funnt_funpr = trialRecord.GetLastSeqDuration(ExpStrs.FUN_ENTER, ExpStrs.FUN_PRESS);
                     log.funpr_funrl = trialRecord.GetLastSeqDuration(ExpStrs.FUN_PRESS, ExpStrs.FUN_RELEASE);
                     log.funrl_arant = trialRecord.GetLastSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.ARA_ENTER);
-                    
-                break;
+
+                    break;
 
                 case Technique.TOMO:
                     log.strrl_gstst = trialRecord.GetDurationToGestureStart(ExpStrs.STR_RELEASE, trial.Technique);
@@ -260,7 +179,7 @@ namespace Multi.Cursor
                     log.gstnd_fstfl = trialRecord.GetDurationFromGestureEnd(trial.Technique, ExpStrs.FLICK);
                     log.fstfl_funmk = trialRecord.GetDuration(ExpStrs.FLICK, ExpStrs.FUN_MARKED);
                     log.funmk_objnt = trialRecord.GetDuration(ExpStrs.ARA_ENTER, ExpStrs.OBJ_ENTER);
-                break;
+                    break;
             }
 
             log.objnt_objpr = trialRecord.GetLastSeqDuration(ExpStrs.OBJ_ENTER, ExpStrs.OBJ_PRESS);
@@ -268,11 +187,7 @@ namespace Multi.Cursor
 
             log.arant_arapr = trialRecord.GetLastSeqDuration(ExpStrs.ARA_ENTER, ExpStrs.ARA_PRESS);
 
-            // Testing
-            Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
-
-            WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            MIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
             //_trialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
@@ -280,7 +195,6 @@ namespace Multi.Cursor
 
         public static void LogMOSFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            Output.Conlog<ExperiLogger>("Logging Trial");
             MOSFTrialLog log = new MOSFTrialLog();
 
             // Information
@@ -298,7 +212,7 @@ namespace Multi.Cursor
                 case Technique.MOUSE:
                     log.strrl_obj1pr = trialRecord.GetFirstSeqDuration(ExpStrs.STR_RELEASE, ExpStrs.OBJ_PRESS);
 
-                    for (int  i = 1; i <= trial.NObjects; i++)
+                    for (int i = 1; i <= trial.NObjects; i++)
                     {
                         DynamiclySetFieldValue(
                             log, $"obj{i}pr_obj{i}rl",
@@ -323,9 +237,9 @@ namespace Multi.Cursor
                             log, $"funrl{i}_obj{i + 1}pr",
                             trialRecord.GetNthSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.OBJ_PRESS, i));
                         }
-                        
+
                     }
-                    
+
 
                     break;
 
@@ -339,7 +253,7 @@ namespace Multi.Cursor
                     for (int i = 1; i < trial.NObjects; i++)
                     {
                         DynamiclySetFieldValue(
-                            log, $"obj{i}rl_obj{i+1}pr",
+                            log, $"obj{i}rl_obj{i + 1}pr",
                             trialRecord.GetNthSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.OBJ_PRESS, i));
 
                         // Transition to the Next Object (i + 1)
@@ -353,11 +267,8 @@ namespace Multi.Cursor
                     break;
             }
 
-            // Testing
-            Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
 
-            WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            MIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
             //_trialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
@@ -365,7 +276,6 @@ namespace Multi.Cursor
 
         public static void LogSOMFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            Output.Conlog<ExperiLogger>("Logging SOMF Trial");
             SOMFTrialLog log = new SOMFTrialLog();
 
             // Information
@@ -386,7 +296,7 @@ namespace Multi.Cursor
                     log.objpr_objrl = trialRecord.GetDuration(ExpStrs.OBJ_PRESS, ExpStrs.OBJ_RELEASE);
                     log.objrl_pnlnt = trialRecord.GetFirstSeqDuration(ExpStrs.OBJ_RELEASE, ExpStrs.PNL_ENTER);
 
-                    log.pnlnt_fun1nt= trialRecord.GetNthSeqDuration(ExpStrs.PNL_ENTER, ExpStrs.FUN_ENTER, 1);
+                    log.pnlnt_fun1nt = trialRecord.GetNthSeqDuration(ExpStrs.PNL_ENTER, ExpStrs.FUN_ENTER, 1);
 
                     int i;
                     for (i = 1; i <= trial.GetNumFunctions(); i++)
@@ -405,7 +315,7 @@ namespace Multi.Cursor
                             log, $"fun{i}rl_fun{i + 1}nt",
                             trialRecord.GetNthSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.FUN_ENTER, i));
                         }
-                        
+
                     }
 
                     log.funNrl_arapr = trialRecord.GetLastSeqDuration(ExpStrs.FUN_RELEASE, ExpStrs.ARA_PRESS);
@@ -443,11 +353,7 @@ namespace Multi.Cursor
                     break;
             }
 
-            // Testing
-            Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
-
-            WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            MIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
         }
@@ -535,11 +441,8 @@ namespace Multi.Cursor
                     break;
             }
 
-            // Testing
-            Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            Output.Conlog<ExperiLogger>(log.ToString());
+            MIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
 
-            WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
             //_trialLogWriter?.Dispose();
 
             LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
@@ -562,17 +465,8 @@ namespace Multi.Cursor
             log.panel_sel_time = trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.PNL_SELECT);
             log.panel_nav_time = trialRecord.GetDuration(ExpStrs.PNL_SELECT, ExpStrs.OBJ_PRESS);
 
-            WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
+            MIO.WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
 
-            // Write cursor records
-            //using (StreamWriter writer = new StreamWriter(_cursorLogFilePath, append: false, Encoding.UTF8))
-            //{
-            //    writer.WriteLine("time_tick;x_px;y_px");
-            //    foreach (var record in _trialCursorRecords[_activeTrialId])
-            //    {
-            //        writer.WriteLine($"{record.TimeMS};{record.Position.X};{record.Position.Y}");
-            //    }
-            //}
             StreamWriter writer = new StreamWriter(_cursorLogFilePath, append: true, Encoding.UTF8);
             writer.AutoFlush = true;
             foreach (var record in _trialCursorRecords[_activeTrialId])
@@ -580,8 +474,6 @@ namespace Multi.Cursor
                 writer.WriteLine($"{record.timestamp};{record.x};{record.y}");
             }
             writer.Dispose();
-            // Clear records after writing
-            //_trialCursorRecords[trialId].Clear();
         }
 
         private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -617,108 +509,17 @@ namespace Multi.Cursor
             log.n_fun = block.NFunctions;
             log.n_obj = block.NObjects;
 
-            double avgTime = _trialTimes.Values.Average()/1000;
-            log.block_time = $"{avgTime:F2}";
+            double avgTime = _trialTimes.Values.Average() / 1000;
+            log.avg_time = $"{avgTime:F2}";
 
-            WriteTrialLog(log, _blockLogPath, _blockLogWriter);
+            MIO.WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 
         }
 
-        private static void WriteHeader<T>(StreamWriter streamWriter)
-        {
-            //var fields = typeof(T).GetFields();
-            //var headers = fields.Select(f => f.Name);
-            //_trialLogWriter.WriteLine(string.Join(";", headers));
-
-            // Writing first the parent class fields, then the child class fields
-            var type = typeof(T);
-            var baseType = type.BaseType;
-
-            // 1. Get fields from the base class (parent)
-            // BindingFlags.DeclaredOnly ensures we only get fields directly defined in the base class,
-            // not its own base classes, or the derived class's fields.
-            var parentFields = baseType != null && baseType != typeof(object)
-                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                : Enumerable.Empty<FieldInfo>();
-
-            // 2. Get fields from the derived class (child)
-            // BindingFlags.DeclaredOnly ensures we only get fields directly defined in the derived class.
-            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-            // 3. Combine them: Parent fields first, then Child fields.
-            var allFields = parentFields.Concat(childFields);
-
-            // 4. Extract names and write to the file.
-            var headers = allFields.Select(f => f.Name);
-            streamWriter.WriteLine(string.Join(";", headers));
-        }
-
-        private static void WriteTrialLog<T>(T log, string filePath, StreamWriter writer)
-        {
-            //var fields = typeof(T).GetFields();
-            //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
-            //_trialLogWriter.WriteLine(string.Join(";", values));
-            //_trialLogWriter.Flush();
-
-            var type = typeof(T);
-            var baseType = type.BaseType;
-
-            // 1. Get fields from the base class (parent)
-            // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
-            var parentFields = baseType != null && baseType != typeof(object)
-                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                : Enumerable.Empty<FieldInfo>();
-
-            // 2. Get fields from the derived class (child)
-            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-            // 3. Combine them: Parent fields first, then Child fields.
-            var orderedFields = parentFields.Concat(childFields);
-
-            // 4. Get values in the same order.
-            var values = orderedFields
-                .Select(f => f.GetValue(log)?.ToString() ?? "");
-
-            // 5. Write the values.
-            writer.WriteLine(string.Join(";", values));
-            //streamWriter.Flush();
-        }
-
-        public static void LogCursorPosition(Point cursorPos)
+        public static void RecordCursorPosition(Point cursorPos)
         {
             _trialCursorRecords[_activeTrialId].Add(new PositionRecord(cursorPos.X, cursorPos.Y));
         }
-
-        //private static void WriteTotalTrialLog<T>(T totalTrialLog)
-        //{
-        //    //var fields = typeof(T).GetFields();
-        //    //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
-        //    //_trialLogWriter.WriteLine(string.Join(";", values));
-        //    //_trialLogWriter.Flush();
-
-        //    var type = typeof(T);
-        //    var baseType = type.BaseType;
-
-        //    // 1. Get fields from the base class (parent)
-        //    // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
-        //    var parentFields = baseType != null && baseType != typeof(object)
-        //        ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-        //        : Enumerable.Empty<FieldInfo>();
-
-        //    // 2. Get fields from the derived class (child)
-        //    var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-        //    // 3. Combine them: Parent fields first, then Child fields.
-        //    var orderedFields = parentFields.Concat(childFields);
-
-        //    // 4. Get values in the same order.
-        //    var values = orderedFields
-        //        .Select(f => f.GetValue(totalTrialLog)?.ToString() ?? "");
-
-        //    // 5. Write the values.
-        //    _totalTrialLogWriter.WriteLine(string.Join(";", values));
-        //    _totalTrialLogWriter.Flush();
-        //}
 
         private static void Dispose()
         {
@@ -737,11 +538,10 @@ namespace Multi.Cursor
                 // 3. Set the Value
                 // Pass the object instance (dataInstance) and the new value
                 field.SetValue(instance, newValue);
-                Console.WriteLine($"Successfully set field '{fieldName}' to {newValue}.");
             }
             else
             {
-                Console.WriteLine($"Error: Field '{fieldName}' not found.");
+                //Output.Conlog<ExperiLogger>($"Error: Field '{fieldName}' not found.");
             }
         }
 

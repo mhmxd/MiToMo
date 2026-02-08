@@ -1,15 +1,13 @@
 ﻿using Common.Constants;
-using MathNet.Numerics;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using static Common.Helpers.ExpUtils;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
@@ -55,7 +53,6 @@ namespace SubTask.ObjectSelection
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
-            _mainWindow.ResetAllAuxWindows();
 
             // Show the first trial
             ShowActiveTrial();
@@ -69,7 +66,7 @@ namespace SubTask.ObjectSelection
             LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
 
             // Start logging cursor positions
-            ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
+            ExperiLogger.StartTrialCursorLog(_activeTrial.Id, _activeTrialNum);
 
             // Set object area position
             _activeTrialRecord.ObjectAreaRect.Location = _mainWindow.FindRandomPositionForObjectArea(_activeTrialRecord.ObjectAreaRect.Size);
@@ -82,25 +79,25 @@ namespace SubTask.ObjectSelection
             _activeTrialRecord.Objects = PlaceObjectsInArea(
                 objAreaCenter,
                 _activeTrial.NObjects);
-            
+
             // Show the area
             MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseEnter, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
-                _activeTrialRecord.ObjectAreaRect, Config.OBJ_AREA_BG_COLOR,
+                _activeTrialRecord.ObjectAreaRect, UIColors.COLOR_OBJ_AREA_BG,
                 objAreaEvents);
 
             // Show the objects
             MouseEvents objectEvents = new MouseEvents(
                 OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
-            _mainWindow.ShowObjects(_activeTrialRecord.Objects, Config.OBJ_DEFAULT_COLOR, objectEvents);
+            _mainWindow.ShowObjects(_activeTrialRecord.Objects, UIColors.COLOR_OBJ_DEFAULT, objectEvents);
 
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseEnter, OnStartButtonMouseExit);
             _mainWindow.ShowStartTrialButton(
                 _activeTrialRecord.ObjectAreaRect,
-                MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM),
-                MM2PX(ExpSizes.START_BUTTON_SMALL_H_MM),
-                Experiment.START_INIT_COLOR,
+                UITools.MM2PX(ExpLayouts.START_BUTTON_SMALL_DIM_MM.W),
+                UITools.MM2PX(ExpLayouts.START_BUTTON_SMALL_DIM_MM.H),
+                UIColors.COLOR_START_INIT,
                 startButtonEvents);
 
             // Update info label
@@ -117,13 +114,13 @@ namespace SubTask.ObjectSelection
             switch (result)
             {
                 case Result.HIT:
-                    Sounder.PlayHit();
+                    MSounder.PlayHit();
                     double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
                     _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
 
                     break;
                 case Result.MISS:
-                    Sounder.PlayTargetMiss();
+                    MSounder.PlayTargetMiss();
 
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
                     //_trialRecords[_activeTrial.Id].ClearTimestamps();
@@ -133,12 +130,13 @@ namespace SubTask.ObjectSelection
 
             //-- Log
             ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogTotalTrialTime(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogCursorPositions();
 
             GoToNextTrial();
         }
         public void GoToNextTrial()
         {
-            _mainWindow.ResetTargetWindow(_activeTrial.FuncSide); // Reset the target window
             _mainWindow.ClearCanvas(); // Clear the main canvas
 
             _nSelectedObjects = 0; // Reset the number of applied objects
@@ -160,18 +158,16 @@ namespace SubTask.ObjectSelection
                 // Log block time
                 ExperiLogger.LogBlockTime(_activeBlock);
 
-                // Show end of block window
-                BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
-                blockEndWindow.Owner = _mainWindow;
-                blockEndWindow.ShowDialog();
+                _mainWindow.GoToNextBlock();
+
             }
         }
 
-        private List<TrialRecord.TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
+        private List<TObject> PlaceObjectsInArea(Point objAreaCenterPosition, int nObjects)
         {
-            List<TrialRecord.TObject> placedObjects = new List<TrialRecord.TObject>();
-            double objW = MM2PX(ExpSizes.OBJ_WIDTH_MM);
-            double areaW = MM2PX(ExpSizes.OBJ_AREA_WIDTH_MM);
+            List<TObject> placedObjects = new List<TObject>();
+            double objW = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM);
+            double areaW = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
 
             int maxAttemptsPerObject = 1000; // Limit attempts to prevent infinite loops
 
@@ -185,14 +181,14 @@ namespace SubTask.ObjectSelection
                 {
                     // 1. Generate a random potential center for the new square
                     Point potentialCenter = GenerateRandomPointInSquare(objAreaCenterPosition, areaW, objW);
-                    this.TrialInfo($"Object {i + 1}, Attempt {attempt + 1}: Potential center at {potentialCenter}");
+                    this.PositionInfo($"Object {i + 1}, Attempt {attempt + 1}: Potential center at {potentialCenter}");
                     // Calculate the top-left corner from the potential center
                     Point topLeft = new Point(potentialCenter.X - objW / 2, potentialCenter.Y - objW / 2);
 
                     // 2. Check for overlaps with already placed objects
                     if (!HasOverlap(topLeft, objW, placedObjects))
                     {
-                        TrialRecord.TObject trialObject = new TrialRecord.TObject(i + 1, topLeft, potentialCenter);
+                        TObject trialObject = new TObject(i + 1, topLeft, potentialCenter);
 
                         placedObjects.Add(trialObject);
                         placed = true;
@@ -202,7 +198,7 @@ namespace SubTask.ObjectSelection
 
                 if (!placed)
                 {
-                    this.TrialInfo($"Warning: Could not place object {i + 1} after {maxAttemptsPerObject} attempts.");
+                    this.PositionInfo($"Warning: Could not place object {i + 1} after {maxAttemptsPerObject} attempts.");
                 }
             }
 
@@ -220,7 +216,7 @@ namespace SubTask.ObjectSelection
             double maxX = areaCenter.X + areaHalf - margin;
             double minY = areaCenter.Y - areaHalf + margin;
             double maxY = areaCenter.Y + areaHalf - margin;
-            this.TrialInfo($"Valid range X: [{minX}, {maxX}], Y: [{minY}, {maxY}]");
+            this.PositionInfo($"Valid range X: [{minX}, {maxX}], Y: [{minY}, {maxY}]");
             // Generate a random point inside that range
             double x = minX + _random.NextDouble() * (maxX - minX);
             double y = minY + _random.NextDouble() * (maxY - minY);
@@ -228,12 +224,12 @@ namespace SubTask.ObjectSelection
             return new Point(x, y);
         }
 
-        private bool HasOverlap(Point newObjTopLeft, double newObjW, List<TrialRecord.TObject> existingObjs)
+        private bool HasOverlap(Point newObjTopLeft, double newObjW, List<TObject> existingObjs)
         {
             double newObjRight = newObjTopLeft.X + newObjW;
             double newObjBottom = newObjTopLeft.Y + newObjW;
 
-            foreach (TrialRecord.TObject existingObject in existingObjs)
+            foreach (TObject existingObject in existingObjs)
             {
                 double existingObjRight = existingObject.Position.X + newObjW; // Assuming all objects have the same width
                 double existingObjBottom = existingObject.Position.Y + newObjW;
@@ -258,7 +254,7 @@ namespace SubTask.ObjectSelection
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -272,14 +268,14 @@ namespace SubTask.ObjectSelection
             LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
-            ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
+            ExperiLogger.RecordCursorPosition(e.GetPosition(_mainWindow.Owner));
         }
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
             if (IsStartPressed() && !IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
@@ -296,7 +292,7 @@ namespace SubTask.ObjectSelection
 
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -354,7 +350,7 @@ namespace SubTask.ObjectSelection
             // Pressed on the Object without starting the trial
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
@@ -375,13 +371,13 @@ namespace SubTask.ObjectSelection
                 }
 
             }
-                //else
-                //{
-                //    _pressedObjectId = objId;
-                //}
+            //else
+            //{
+            //    _pressedObjectId = objId;
+            //}
 
 
-                e.Handled = true;
+            e.Handled = true;
         }
 
         public void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
@@ -392,7 +388,7 @@ namespace SubTask.ObjectSelection
             if (!IsStartClicked())
             {
                 this.TrialInfo($"Start wasn't clicked");
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
@@ -408,7 +404,7 @@ namespace SubTask.ObjectSelection
 
             //-- Object is pressed:
 
-            var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied(); 
+            var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
 
             if (allObjectsApplied) // Probably pressed on the area, then here to release
             {
@@ -439,7 +435,7 @@ namespace SubTask.ObjectSelection
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return;
             }
@@ -462,7 +458,7 @@ namespace SubTask.ObjectSelection
             if (!IsStartClicked())
             {
                 this.TrialInfo($"Start wasn't clicked");
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return; // Do nothing if start button was not clicked
             }
@@ -512,13 +508,13 @@ namespace SubTask.ObjectSelection
                 _mainWindow.RemoveStartTrialButton();
 
                 // Change the button to END and disable it (option2)
-                //_mainWindow.ChangeStartButtonColor(Config.START_UNAVAILABLE_COLOR);
+                //_mainWindow.ChangeStartButtonColor(UIColors.COLOR_START_UNAVAILABLE);
                 //_mainWindow.ChangeStartButtonText(ExpStrs.END);
 
                 // Make objects available
                 _activeTrialRecord.MakeAllObjectsAvailable(ButtonState.ENABLED);
                 UpdateScene();
-                
+
                 //UpdateScene(); // Temp (for measuring time)
             }
             else // Pressed outside the button => miss
@@ -534,25 +530,9 @@ namespace SubTask.ObjectSelection
             LogEvent(ExpStrs.STR_EXIT);
         }
 
-        public void SetFunctionAsEnabled(int funcId)
-        {
-            _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide,
-                funcId,
-                Config.FUNCTION_ENABLED_COLOR);
-        }
-
-        public void SetFunctionAsDisabled(int funcId)
-        {
-            _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide,
-                funcId,
-                Config.FUNCTION_DEFAULT_COLOR);
-        }
-
         protected void SetObjectAsDisabled(int objId)
         {
-            _mainWindow.FillObject(objId, Config.OBJ_DEFAULT_COLOR);
+            _mainWindow.FillObject(objId, UIColors.COLOR_OBJ_DEFAULT);
         }
 
         public void UpdateScene()
@@ -560,14 +540,14 @@ namespace SubTask.ObjectSelection
 
             foreach (var obj in _activeTrialRecord.Objects)
             {
-                Brush objColor = Config.OBJ_DEFAULT_COLOR;
+                Brush objColor = UIColors.COLOR_OBJ_DEFAULT;
                 switch (obj.State)
                 {
                     case ButtonState.ENABLED:
-                        objColor = Config.OBJ_ENABLED_COLOR;
+                        objColor = UIColors.COLOR_OBJ_MARKED;
                         break;
                     case ButtonState.SELECTED:
-                        objColor = Config.OBJ_APPLIED_COLOR;
+                        objColor = UIColors.COLOR_OBJ_APPLIED;
                         break;
                 }
 

@@ -28,7 +28,7 @@ namespace SubTask.PanelNavigation
             set => _funcSide = value;
         }
 
-        private List<int> _functionWidths = new List<int>(); // Function widths in px (for multi-function trials)
+        private readonly List<int> _functionWidths = new List<int>(); // Function widths in px (for multi-function trials)
 
         //=========================================================================
 
@@ -38,9 +38,9 @@ namespace SubTask.PanelNavigation
         }
 
         public static Trial CreateTrial(
-            int id, Technique tech, int ptc, 
+            int id, Technique tech, int ptc,
             Complexity complexity, ExperimentType expType,
-            Side side)
+            Side side, int funcWidth)
         {
             Trial trial = new Trial(id);
             trial.Technique = tech;
@@ -48,6 +48,7 @@ namespace SubTask.PanelNavigation
             trial.Complexity = complexity;
             trial.ExpType = expType;
             trial.FuncSide = side;
+            trial.AddFunctionWidth(funcWidth);
 
             trial.TaskType = TaskType.PANEL_NAVIGATE;
 
@@ -72,7 +73,12 @@ namespace SubTask.PanelNavigation
             return _functionWidths.Count;
         }
 
-        public string ToStr()
+        public int GetFunctionWidth(int functionIndex)
+        {
+            return _functionWidths[functionIndex];
+        }
+
+        public string Str()
         {
             return $"Trial#{Id} [Target = {FuncSide.ToString()}]";
         }

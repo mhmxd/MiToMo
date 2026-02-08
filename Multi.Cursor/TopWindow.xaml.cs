@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Common.Constants;
+using Common.Helpers;
+using Common.Settings;
+using CommonUI;
+using System;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -14,8 +18,6 @@ namespace Multi.Cursor
     /// </summary>
     public partial class TopWindow : AuxWindow
     {
-        private double HORIZONTAL_PADDING = Utils.MM2PX(Config.WINDOW_PADDING_MM);
-        private double InterGroupGutter = Utils.MM2PX(Config.GUTTER_05MM);
 
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -27,19 +29,6 @@ namespace Multi.Cursor
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        private Random _random = new Random(); 
-
-        //private GridNavigator _gridNavigator;
-        //private List<Grid> _gridColumns = new List<Grid>(); // List of grid columns
-        //private static Dictionary<int, List<SButton>> _widthButtons = new Dictionary<int, List<SButton>>(); // Dictionary to hold buttons by their width multiples
-        //private SButton _targetButton; // Currently selected button (if any)
-
-        // Boundary of the grid (encompassing all buttons)
-        //double _gridMinX = double.MaxValue;
-        //double _gridMinY = double.MaxValue;
-        //double _gridMaxX = double.MinValue;
-        //double _gridMaxY = double.MinValue;
-
         public TopWindow()
         {
             InitializeComponent();
@@ -49,7 +38,7 @@ namespace Multi.Cursor
             EnableMouseInPointer(true);
             SetForegroundWindow(new WindowInteropHelper(this).Handle); // Bring this window to the foreground
 
-            _gridNavigator = new GridNavigator(Config.FRAME_DUR_MS / 1000.0);
+            _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
 
             //foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
             //{
@@ -89,7 +78,7 @@ namespace Multi.Cursor
             {
                 try
                 {
-                    this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
+                    this.PositionInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
                     double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
                     Canvas.SetTop(_buttonsGrid, topPosition);
 
@@ -152,7 +141,7 @@ namespace Multi.Cursor
 
         //    RegisterAllButtons(_buttonsGrid); // Register buttons in all columns after they are created
         //    LinkButtonNeighbors();
-            
+
 
         //    //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
         //    //{
@@ -238,7 +227,7 @@ namespace Multi.Cursor
         //{
         //    //this.TrialInfo($"Registering buttons in column with {column.Children.Count} children...");
 
-            
+
 
         //    // Iterate through all direct children of the Grid column
         //    foreach (UIElement childOfColumn in column.Children)
@@ -255,7 +244,7 @@ namespace Multi.Cursor
         //                    _widthButtons[button.WidthMultiple].Add(button); // Add the button to the dictionary with its width as the key
         //                    _buttonInfos[button.Id] = new ButtonInfo(button);
         //                    //_allButtons.Add(button.Id, button); // Add to the list of all buttons
-                            
+
         //                    // Add button position to the dictionary
 
         //                    // Get the transform from the button to the Window (or the root visual)
@@ -276,10 +265,10 @@ namespace Multi.Cursor
         //                        .OffsetPosition(button.ActualWidth/2, button.ActualHeight/2)
         //                        .OffsetPosition(this.Left, this.Top);
 
-        //                    //double distToStartTL = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopLeft);
-        //                    //double distToStartTR = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopRight);
-        //                    //double distToStartLL = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomLeft);
-        //                    //double distToStartLR = Utils.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomRight);
+        //                    //double distToStartTL = UITools.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopLeft);
+        //                    //double distToStartTR = UITools.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.TopRight);
+        //                    //double distToStartLL = UITools.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomLeft);
+        //                    //double distToStartLR = UITools.Dist(buttonCenterAbsolute, _objectConstraintRectAbsolute.BottomRight);
 
         //                    //double[] dists = { distToStartTL, distToStartTR, distToStartLL, distToStartLR };
         //                    //_buttonInfos[button.Id].DistToStartRange = new Range(dists.Min(), dists.Max());
@@ -305,7 +294,7 @@ namespace Multi.Cursor
         //        }
         //    }
 
-            
+
 
         //}
 
@@ -333,7 +322,7 @@ namespace Multi.Cursor
         //        }
         //        else // if button doesn't containt the center point, calculate the distance
         //        {
-        //            double dist = Utils.Dist(gridCenterPoint, new Point(idRect.Value.x + idRect.Value.Width / 2, idRect.Value.y + idRect.Value.Height / 2));
+        //            double dist = UITools.Dist(gridCenterPoint, new Point(idRect.Value.x + idRect.Value.Width / 2, idRect.Value.y + idRect.Value.Height / 2));
         //            if (dist < centerDistance)
         //            {
         //                centerDistance = dist;
@@ -402,10 +391,10 @@ namespace Multi.Cursor
         //    _gridNavigator.Activate();
         //}
 
-        public void DeactivateGridNavigator()
-        {
-            _gridNavigator.Deactivate();
-        }
+        //public void DeactivateGridNavigator()
+        //{
+        //    _gridNavigator.Deactivate();
+        //}
 
         public override void ShowPoint(Point p)
         {
@@ -426,7 +415,7 @@ namespace Multi.Cursor
             }
             else
             {
-                this.TrialInfo("Canvas is not initialized, cannot show point.");
+                this.PositionInfo("Canvas is not initialized, cannot show point.");
             }
         }
 

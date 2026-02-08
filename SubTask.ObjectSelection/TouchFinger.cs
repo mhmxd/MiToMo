@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CommonUI;
+using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace SubTask.ObjectSelection
@@ -73,7 +70,7 @@ namespace SubTask.ObjectSelection
         public double GetTravelDist()
         {
             if (_lastPosition == null) return 0;
-            return Utils.Dist(_lastPosition, _downPosition);
+            return UITools.Dist(_lastPosition, _downPosition);
         }
 
         public double GetTravelDistX()

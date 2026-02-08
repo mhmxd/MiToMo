@@ -15,6 +15,7 @@ namespace Multi.Cursor
     {
         //public int ParticipantNumber { get; private set; }
         public string Technique { get; private set; }
+        public string SelectedTask { get; private set; }
         public string SelectedExperiment { get; private set; }
         public string SelectedComplexity { get; private set; }
 
@@ -26,9 +27,14 @@ namespace Multi.Cursor
         {
             InitializeComponent();
 
-            ParticipantNumberTextBlock.Text = ExpPtc.PTC_NUM.ToString();
+            ParticipantNumberTextBlock.Text = ExpEnvironment.PTC_NUM.ToString();
+            
             TechniqueComboBox.ItemsSource = new string[] { ExpStrs.TAP_C, ExpStrs.SWIPE_C, ExpStrs.MOUSE_C };
             TechniqueComboBox.SelectedValue = ExpStrs.MOUSE_C;
+
+            TaskComboBox.ItemsSource = new string[] { ExpStrs.ONE_OBJ_MULTI_FUNC, ExpStrs.MULTI_OBJ_ONE_FUNC};
+            TaskComboBox.SelectedValue = ExpStrs.ONE_OBJ_MULTI_FUNC;
+
             ExperimentComboBox.ItemsSource = new string[] { ExpStrs.PRACTICE, ExpStrs.TEST };
             ExperimentComboBox.SelectedValue = ExpStrs.PRACTICE;
         }
@@ -48,6 +54,8 @@ namespace Multi.Cursor
                 {
                     //ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
                     Technique = TechniqueComboBox.SelectedItem as string;
+                    SelectedTask = TaskComboBox.SelectedItem as string;
+                    TaskType taskType = SelectedTask == ExpStrs.ONE_OBJ_MULTI_FUNC ? TaskType.ONE_OBJ_MULTI_FUNC : TaskType.MULTI_OBJ_ONE_FUNC;
                     SelectedExperiment = ExperimentComboBox.SelectedItem as string;
                     ExperimentType expType = (ExperimentType)Enum.Parse(typeof(ExperimentType), SelectedExperiment, true);
                     SelectedComplexity = (ComplexityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
@@ -58,7 +66,7 @@ namespace Multi.Cursor
                     BigButton.Content = "Initializing...";
                     //BigButton.IsEnabled = false;
 
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(Technique, complexity, expType));
+                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(Technique, taskType, complexity, expType));
 
                     if (_experimentSet)
                     {

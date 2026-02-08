@@ -1,8 +1,8 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using Common.Logs;
 using Common.Settings;
-using Serilog;
-using Serilog.Core;
+using CommonUI;
 using SubTask.PanelNavigation.Logging;
 using System;
 using System.Collections.Generic;
@@ -27,84 +27,40 @@ namespace SubTask.PanelNavigation
         // Set for each log (in constructor)
         private static readonly string _detailTrialLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.TRIALS_DETAIL_C);
+            $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.TRIALS_DETAIL_C);
         private static readonly string _totalTrialLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.TRIALS_TOTAL_C);
+            $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.TRIALS_TOTAL_C);
         private static readonly string _blockLogPath = Path.Combine(
             MyDocumentsPath, LogsFolderName,
-            $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.BLOCKS_C);
+            $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.BLOCKS_C);
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
-
-        private static Logger _gestureFileLog;
-        private static Logger _blockFileLog;
+        private static string _gestureLogFilePath = ""; // Will be set when starting trial cursor log
 
         private static StreamWriter _detailTrialLogWriter;
         private static StreamWriter _totalTrialLogWriter;
         private static StreamWriter _cursorLogWriter;
+        private static StreamWriter _gestureLogWriter;
         private static StreamWriter _blockLogWriter;
 
         private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
 
-        private static Dictionary<int, List<PositionRecord>> _trialCursorRecords = new Dictionary<int, List<PositionRecord>>();
-        private static Dictionary<int, List<PositionRecord>> _trialMarkerRecords = new Dictionary<int, List<PositionRecord>>();
+        private static Dictionary<int, List<PositionRecord>> _trialCursorRecords = new();
+        private static Dictionary<int, List<PositionRecord>> _trialMarkerRecords = new();
+        private static List<GestureLog> _trialGestureRecords = new();
         private static int _activeTrialId = -1;
 
         public static void Init()
         {
             // Create detailed trial log if not exists
-            _detailTrialLogWriter = PrepareFile<DetailTrialLog>(_detailTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
+            _detailTrialLogWriter = MIO.PrepareFile<DetailTrialLog>(_detailTrialLogPath, ExpStrs.TRIALS_DETAIL_S);
 
             // Create total log if not exists
-            _totalTrialLogWriter = PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
+            _totalTrialLogWriter = MIO.PrepareFile<TotalTrialLog>(_totalTrialLogPath, ExpStrs.TRIALS_TOTAL_S);
 
             // Create block log if not exists
-            _blockLogWriter = PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
-        }
-
-        private static void PrepareFileWithHeader<T>(ref string filePath, StreamWriter writer, string header)
-        {
-            string timestamp = DateTime.Now.ToString(ExpStrs.DATE_TIME_FORMAT);
-            filePath = $"{filePath}-{timestamp}.csv";
-
-            string directoryPath = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(directoryPath))
-            {
-                Directory.CreateDirectory(directoryPath);
-            }
-
-            bool timedFileExists = File.Exists(filePath);
-            bool timedFileIsEmpty = !timedFileExists || new FileInfo(filePath).Length == 0;
-            writer = new StreamWriter(filePath, append: true, Encoding.UTF8);
-            writer.AutoFlush = true;
-            if (timedFileIsEmpty)
-            {
-                writer.WriteLine(header);
-            }
-        }
-
-        private static StreamWriter PrepareFile<T>(string filePath, string fileName)
-        {
-            //string directoryPath = Path.GetDirectoryName(timedFilePath);
-            if (!Directory.Exists(filePath))
-            {
-                Directory.CreateDirectory(filePath);
-            }
-
-            string timestamp = DateTime.Now.ToString(ExpStrs.DATE_TIME_FORMAT);
-            filePath = Path.Combine(filePath, $"{fileName}-{timestamp}.csv");
-
-            bool timedFileExists = File.Exists(filePath);
-            bool timedFileIsEmpty = !timedFileExists || new FileInfo(filePath).Length == 0;
-            StreamWriter writer = new StreamWriter(filePath, append: true, Encoding.UTF8);
-            writer.AutoFlush = true;
-            if (timedFileIsEmpty)
-            {
-                WriteHeader<T>(writer);
-            }
-
-            return writer;
+            _blockLogWriter = MIO.PrepareFile<BlockLog>(_blockLogPath, ExpStrs.BLOCKS_S);
         }
 
         public static void StartTrialCursorLog(int trialId, int trialNum)
@@ -113,21 +69,18 @@ namespace SubTask.PanelNavigation
             _trialCursorRecords[_activeTrialId] = new List<PositionRecord>();
 
             _cursorLogFilePath = Path.Combine(
-                MyDocumentsPath, LogsFolderName, 
-                $"P{ExpPtc.PTC_NUM}-{Technique}", ExpStrs.CURSOR_C, $"trial-id{trialId}-n{trialNum}-{ExpStrs.CURSOR_S}"
+                MyDocumentsPath, LogsFolderName,
+                $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.CURSOR_C, $"trial-n{trialNum}-id{trialId}-{ExpStrs.CURSOR_S}"
             );
 
-            PrepareFileWithHeader<PositionRecord>(ref _cursorLogFilePath, _cursorLogWriter, PositionRecord.GetHeader());
-        }
+            _cursorLogWriter = MIO.PrepareFileWithHeader<PositionRecord>(_cursorLogFilePath, PositionRecord.GetHeader());
 
-        public static void LogGestureEvent(string message)
-        {
-            //_gestureFileLog.Information(message);
-        }
+            _gestureLogFilePath = Path.Combine(
+                MyDocumentsPath, LogsFolderName,
+                $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.GestureCap, $"trial-n{trialNum}-id{trialId}-{ExpStrs.Gesture}"
+            );
 
-        public static void LogTrialMessage(string message)
-        {
-            _blockFileLog.Information(message);
+            _gestureLogWriter = MIO.PrepareFileWithHeader<GestureLog>(_gestureLogFilePath);
         }
 
         private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -151,8 +104,7 @@ namespace SubTask.PanelNavigation
 
         public static void LogDetailTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            
-            Output.Conlog<ExperiLogger>("Logging Trial");
+
             DetailTrialLog log = new DetailTrialLog();
 
             // Information
@@ -171,19 +123,13 @@ namespace SubTask.PanelNavigation
             log.mrksp_endpr = trialRecord.GetDuration(ExpStrs.BTN_MARKED, ExpStrs.END_PRESS);
             log.endpr_endrl = trialRecord.GetDuration(ExpStrs.END_PRESS, ExpStrs.END_RELEASE);
 
-            // Testing
-            //Output.Conlog<ExperiLogger>(trialRecord.TrialEventsToString());
-            //Output.Conlog<ExperiLogger>(log.ToString());
-
-            WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
+            MIO.WriteTrialLog(log, _detailTrialLogPath, _detailTrialLogWriter);
             //_detailTrialLogWriter?.Dispose();
-
-            LogTotalTrialTime(blockNum, trialNum, trial, trialRecord);
         }
 
-        private static void LogTotalTrialTime(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
+        public static void LogTotalTrialTime(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            TotalTrialLog log = new TotalTrialLog();
+            TotalTrialLog log = new();
 
             // Information
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
@@ -194,28 +140,26 @@ namespace SubTask.PanelNavigation
 
             _trialTimes[trial.Id] = log.trial_time;
 
-            WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
-
-            // Write cursor records
-            //using (StreamWriter writer = new StreamWriter(_cursorLogFilePath, append: false, Encoding.UTF8))
-            //{
-            //    writer.WriteLine("time_tick;x_px;y_px");
-            //    foreach (var record in _trialCursorRecords[_activeTrialId])
-            //    {
-            //        writer.WriteLine($"{record.TimeMS};{record.Position.X};{record.Position.Y}");
-            //    }
-            //}
-            StreamWriter writer = new StreamWriter(_cursorLogFilePath, append: true, Encoding.UTF8);
-            writer.AutoFlush = true;
-            foreach (var record in _trialCursorRecords[_activeTrialId])
-            {
-                writer.WriteLine($"{record.timestamp};{record.x};{record.y}");
-            }
-            writer.Dispose();
-            // Clear records after writing
-            //_trialCursorRecords[trialId].Clear();
+            MIO.WriteTrialLog(log, _totalTrialLogPath, _totalTrialLogWriter);
         }
 
+        public static void LogCursorPositions()
+        {
+            foreach (var record in _trialCursorRecords[_activeTrialId])
+            {
+                _cursorLogWriter.WriteLine($"{record.timestamp};{record.x};{record.y}");
+            }
+            _cursorLogWriter.Dispose();
+        }
+
+        public static void LogGestures()
+        {
+            foreach (var log in _trialGestureRecords)
+            {
+                _gestureLogWriter.WriteLine($"{log.timestamp};{log.finger};{log.action};{log.x};{log.y}");
+            }
+            _gestureLogWriter.Dispose();
+        }
 
         public static void LogBlockTime(Block block)
         {
@@ -229,100 +173,33 @@ namespace SubTask.PanelNavigation
             log.n_fun = 1;
             log.n_trials = block.GetNumTrials();
 
-            double avgTime = _trialTimes.Values.Average() / 1000;
-            log.block_time = $"{avgTime:F2}";
+            //double avgTime = _trialTimes.Values.Average() / 1000;
+            //log.block_time = $"{avgTime:F2}";
 
-            WriteTrialLog(log, _blockLogPath, _blockLogWriter);
+            MIO.WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 
         }
 
-        private static void WriteHeader<T>(StreamWriter streamWriter)
-        {
-            //var fields = typeof(T).GetFields();
-            //var headers = fields.Select(f => f.Name);
-            //_detailTrialLogWriter.WriteLine(string.Join(";", headers));
-
-            // Writing first the parent class fields, then the child class fields
-            var type = typeof(T);
-            var baseType = type.BaseType;
-
-            // 1. Get fields from the base class (parent)
-            // BindingFlags.DeclaredOnly ensures we only get fields directly defined in the base class,
-            // not its own base classes, or the derived class's fields.
-            var parentFields = baseType != null && baseType != typeof(object)
-                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                : Enumerable.Empty<FieldInfo>();
-
-            // 2. Get fields from the derived class (child)
-            // BindingFlags.DeclaredOnly ensures we only get fields directly defined in the derived class.
-            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-            // 3. Combine them: Parent fields first, then Child fields.
-            var allFields = parentFields.Concat(childFields);
-
-            // 4. Extract names and write to the file.
-            var headers = allFields.Select(f => f.Name);
-            streamWriter.WriteLine(string.Join(";", headers));
-        }
-
-        private static void WriteTrialLog<T>(T log, string filePath, StreamWriter writer)
-        {
-            //var fields = typeof(T).GetFields();
-            //var values = fields.Select(f => f.GetValue(trialLog)?.ToString() ?? "");
-            //_detailTrialLogWriter.WriteLine(string.Join(";", values));
-            //_detailTrialLogWriter.Flush();
-
-            var type = typeof(T);
-            var baseType = type.BaseType;
-
-            // 1. Get fields from the base class (parent)
-            // Use BindingFlags.Public and BindingFlags.Instance to match the default GetFields behavior.
-            var parentFields = baseType != null && baseType != typeof(object)
-                ? baseType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                : Enumerable.Empty<FieldInfo>();
-
-            // 2. Get fields from the derived class (child)
-            var childFields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-
-            // 3. Combine them: Parent fields first, then Child fields.
-            var orderedFields = parentFields.Concat(childFields);
-
-            // 4. Get values in the same order.
-            var values = orderedFields
-                .Select(f => f.GetValue(log)?.ToString() ?? "");
-
-            // 5. Write the values.
-            writer.WriteLine(string.Join(";", values));
-            //streamWriter.Flush();
-        }
-
-        public static void LogCursorPosition(Point cursorPos)
+        public static void RecordCursorPosition(Point cursorPos)
         {
             _trialCursorRecords[_activeTrialId].Add(new PositionRecord(cursorPos.X, cursorPos.Y));
         }
 
-        public static void LogMarkerPosition(int row, int column)
+        public static void RecordMarkerPosition(int row, int column)
         {
             _trialMarkerRecords[_activeTrialId].Add(new PositionRecord(row, column));
         }
 
-        public static void DynamiclySetFieldValue(TrialLog instance, string fieldName, int newValue)
+        public static void RecordGesture(long timestamp, Finger finger, string action, Point point)
         {
-            // 2. Get the FieldInfo
-            Type dataType = instance.GetType();
-            FieldInfo field = dataType.GetField(fieldName);
-
-            if (field != null)
+            _trialGestureRecords.Add(new GestureLog
             {
-                // 3. Set the Value
-                // Pass the object instance (dataInstance) and the new value
-                field.SetValue(instance, newValue);
-                Console.WriteLine($"Successfully set field '{fieldName}' to {newValue}.");
-            }
-            else
-            {
-                Console.WriteLine($"Error: Field '{fieldName}' not found.");
-            }
+                timestamp = timestamp,
+                finger = finger.ToString().ToLower(),
+                action = action,
+                x = point.X.ToString("F2"),
+                y = point.Y.ToString("F2")
+            });
         }
 
     }

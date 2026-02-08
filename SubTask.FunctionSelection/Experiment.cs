@@ -1,10 +1,10 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using Common.Settings;
+using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Media;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.ExpUtils;
 
 namespace SubTask.FunctionSelection
 {
@@ -14,11 +14,12 @@ namespace SubTask.FunctionSelection
         //--- Setting
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
+        public ExperimentType Active_Type = ExperimentType.Practice; // Set from the intro dialog
 
         //-- Distance Ranges
-        private Range _shortDistRangeMM; // Short distances range (mm)
-        private Range _midDistRangeMM; // Mid distances range (mm)
-        private Range _longDistRangeMM; // Long distances range (mm)
+        private MRange _shortDistRangeMM; // Short distances range (mm)
+        private MRange _midDistRangeMM; // Mid distances range (mm)
+        private MRange _longDistRangeMM; // Long distances range (mm)
 
         private double Dist_PADDING_MM = 2.5; // Padding to each side of the dist thresholds
 
@@ -26,21 +27,7 @@ namespace SubTask.FunctionSelection
         public double Longest_Dist_MM;
         public double Shortest_Dist_MM;
 
-        //-- Constants
-        //public static double OBJ_WIDTH_MM = 5; // Apple Display Excel Cell H // In click experiment was 6mm
-        //public static double OBJ_WIDTH_MM = Config.EXCEL_CELL_W;
-        //public static double OBJ_AREA_WIDTH_MM = Config.EXCEL_CELL_W * 5; // Width of the *square* object area (mm)
-        //public static double START_W_MM = Config.EXCEL_CELL_W;
-        //public static double START_H_MM = Config.EXCEL_CELL_H;
-
-        //-- Colors
-        public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
-            (Color)ColorConverter.ConvertFromString(ExpColors.PURPLE));
-
         //-- Information
-
-        //public int Participant_Number { get; set; } // Set in the info dialog
-
         private List<Block> _blocks = new List<Block>();
         public List<Block> Blocks { get { return _blocks; } }
 
@@ -57,9 +44,9 @@ namespace SubTask.FunctionSelection
             double twoThird = Shortest_Dist_MM + distDiff * 2 / 3;
 
             // Set the distRanges
-            _shortDistRangeMM = new Range(Shortest_Dist_MM, oneThird - Dist_PADDING_MM, ExpStrs.SHORT_DIST); // Short distances range
-            _midDistRangeMM = new Range(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM, ExpStrs.MID_DIST); // Middle distances range (will be set later)
-            _longDistRangeMM = new Range(twoThird + Dist_PADDING_MM, Longest_Dist_MM, ExpStrs.LONG_DIST); // Long distances range
+            _shortDistRangeMM = new MRange(Shortest_Dist_MM, oneThird - Dist_PADDING_MM, ExpStrs.SHORT_DIST); // Short distances range
+            _midDistRangeMM = new MRange(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM, ExpStrs.MID_DIST); // Middle distances range (will be set later)
+            _longDistRangeMM = new MRange(twoThird + Dist_PADDING_MM, Longest_Dist_MM, ExpStrs.LONG_DIST); // Long distances range
 
             this.TrialInfo($"Short dist range (mm): {_shortDistRangeMM.ToString()}");
             this.TrialInfo($"Mid dist range (mm): {_midDistRangeMM.ToString()}");
@@ -67,26 +54,31 @@ namespace SubTask.FunctionSelection
 
         }
 
-        public void Init(Complexity complexity, ExperimentType expType)
+        public void Init(ExperimentType expType)
         {
-            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}");
+            this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}");
 
-            Active_Complexity = complexity;
+            Active_Type = expType;
 
-            // Create factor levels
-            List<Range> distRanges = new List<Range>()
+            //-- For each complexity, create blocks and randomize them before adding to the list
+            List<Complexity> randomizedComplexities = ExpEnums.GetRandomComplexityList();
+            foreach (Complexity complexity in randomizedComplexities)
             {
-                _shortDistRangeMM, // Short distances
-                _midDistRangeMM,   // Mid distances
-                _longDistRangeMM    // Long distances
-            };
+                // Create blocks, then shuffle them before adding to the overall list
+                List<Block> blocks = new List<Block>();
+                for (int i = 0; i < ExpDesign.MultiFuncSelectNumBlocks; i++)
+                {
+                    int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
+                    blocks.Add(Block.CreateBlock(
+                        ExpEnvironment.PTC_NUM,
+                        blockId, complexity, expType,
+                        ExpDesign.MultiFuncSelectNumFunc));
 
-            // Create and add blocks
-            for (int i = 0; i < ExpDesign.MFS_N_BLOCKS; i++)
-            {
-                int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(ExpPtc.PTC_NUM, blockId, complexity, expType, ExpDesign.FPS_N_FUN);
-                _blocks.Add(block);
+                }
+
+                // Shuffle blocks inside the complexity
+                blocks.Shuffle();
+                _blocks.AddRange(blocks);
             }
         }
 
@@ -104,7 +96,7 @@ namespace SubTask.FunctionSelection
 
         public static int GetStartHalfWidth()
         {
-            return MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM / 2);
+            return UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM / 2);
         }
     }
 }

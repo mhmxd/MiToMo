@@ -1,11 +1,8 @@
-﻿using MathNet.Numerics;
+﻿using Common.Helpers;
+using CommonUI;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using static Common.Constants.ExpEnums;
 
 namespace Multi.Cursor
@@ -28,16 +25,11 @@ namespace Multi.Cursor
         public Complexity Complexity { get; set; }
         public ExperimentType ExpType { get; set; }
 
-        //private double _targetWidthMM;
-        //public double TargetWidthMM 
-        //{
-        //    get => _targetWidthMM;
-        //    set => _targetWidthMM = value;
-        //}
-        //public double TargetWidthPX => Utils.MM2PX(TargetWidthMM);
-
-        public Range DistRangeMM { get; set; }
-        public Range DistRangePX => DistRangeMM.GetPx(); // AvgDistanceMM range in px
+        public MRange DistRangeMM { get; set; }
+        public MRange DistRangePX => new MRange(
+            UITools.MM2PX(DistRangeMM.Min),
+            UITools.MM2PX(DistRangeMM.Max),
+            DistRangeMM.Label);
 
         //public Point StartPosition, TargetPosition; // Relative to the respective windows
 
@@ -105,12 +97,12 @@ namespace Multi.Cursor
         /// <param name="functionWidthsMX"></param>
         /// <returns></returns>
         public static Trial CreateTrial(
-            int id, Technique tech, int ptc, 
-            TaskType type, 
+            int id, Technique tech, int ptc,
+            TaskType type,
             Complexity complexity,
             ExperimentType expType,
-            Side side, Range distRangeMM, 
-            int nObj, 
+            Side side, MRange distRangeMM,
+            int nObj,
             List<int> functionWidthsMX)
         {
             Trial trial = new Trial(id);
@@ -166,7 +158,7 @@ namespace Multi.Cursor
         public string ToStr()
         {
             return $"Trial#{Id} [Target = {FuncSide.ToString()}, " +
-                $"FunctionWidths = {GetFunctionWidths().ToStr()}, Dist = {DistRangeMM.ToString()}]";
+                $"FunctionWidths = {GetFunctionWidths().Str()}, Dist = {DistRangeMM.ToString()}]";
         }
 
         public string GetCacheFileName(string cachedDirectory)

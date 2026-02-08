@@ -1,10 +1,10 @@
 ﻿using Common.Constants;
+using Common.Helpers;
 using Common.Settings;
+using CommonUI;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Media;
 using static Common.Constants.ExpEnums;
-using static Common.Helpers.ExpUtils;
 
 namespace SubTask.Panel.Selection
 {
@@ -12,15 +12,8 @@ namespace SubTask.Panel.Selection
     {
 
         //--- Setting
-        public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
-        public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
-
-        //-- Colors
-        public static readonly Brush START_INIT_COLOR = new SolidColorBrush(
-            (Color)ColorConverter.ConvertFromString(ExpColors.PURPLE));
-
-        //-- Information
-        //public int Participant_Number { get; set; } // Set in the info dialog
+        public Technique ActiveTechnique = Technique.TOMO_TAP; // Set in the info dialog
+        public Complexity ActiveComplexity = Complexity.Simple; // Set in the info dialog
 
         private readonly List<Block> _blocks = new();
         public List<Block> Blocks { get { return _blocks; } }
@@ -30,31 +23,38 @@ namespace SubTask.Panel.Selection
             //Participant_Number = DEFAULT_PTC; // Default
         }
 
-        public void Init(string tech, Complexity complexity, ExperimentType expType)
+        public void Init(string tech, ExperimentType expType)
         {
-            this.TrialInfo($"Participant: {ExpPtc.PTC_NUM}, Technique: {tech}");
-            //Participant_Number = ptc;
+            this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}, Technique: {tech}");
+
             if (tech == ExpStrs.TAP_C)
             {
-                Active_Technique = Technique.TOMO_TAP;
-                Config.SetMode(0);
+                ActiveTechnique = Technique.TOMO_TAP;
+
             }
             else if (tech == ExpStrs.SWIPE_C)
             {
-                Active_Technique = Technique.TOMO_SWIPE;
-                Config.SetMode(1);
+                ActiveTechnique = Technique.TOMO_SWIPE;
+
             }
 
-            Active_Complexity = complexity;
-
-            // Create and add blocks
-            for (int i = 0; i < ExpDesign.PN_N_BLOCKS; i++)
+            //-- For each complexity, create blocks and randomize them before adding to the list
+            foreach (Complexity complexity in ExpEnums.GetRandomComplexityList())
             {
-                int blockId = ExpPtc.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(
-                    Active_Technique, ExpPtc.PTC_NUM, blockId, 
-                    complexity, expType, ExpDesign.PS_N_REP);
-                _blocks.Add(block);
+                // Create blocks, then shuffle them before adding to the overall list
+                List<Block> blocks = new();
+                for (int i = 0; i < ExpDesign.PaneSelectNumBlocks; i++)
+                {
+                    int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
+                    blocks.Add(Block.CreateBlock(
+                        ActiveTechnique, ExpEnvironment.PTC_NUM,
+                        blockId, complexity, expType));
+
+                }
+
+                // Shuffle blocks inside the complexity
+                blocks.Shuffle();
+                _blocks.AddRange(blocks);
             }
         }
 
@@ -72,7 +72,7 @@ namespace SubTask.Panel.Selection
 
         public static int GetStartHalfWidth()
         {
-            return MM2PX(ExpSizes.START_BUTTON_LARGER_SIDE_MM / 2);
+            return UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM / 2);
         }
     }
 }

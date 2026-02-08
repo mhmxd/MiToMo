@@ -1,16 +1,16 @@
-﻿using Common.Constants;
+﻿using Common.Helpers;
+using Common.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Common.Constants.ExpEnums;
-using Seril = Serilog.Log;
 
 namespace SubTask.FunctionSelection
 {
     // A block of trials in the experiment
     public class Block
     {
-        private Random _random = new Random();
+        private static readonly Random _random = new();
 
         private List<Trial> _trials = new List<Trial>();
         public List<Trial> Trials
@@ -74,18 +74,16 @@ namespace SubTask.FunctionSelection
         {
 
             // Create block
-            Block block = new Block(ptc, nFun, complexity, expType, id);
+            Block block = new(ptc, nFun, complexity, expType, id);
 
             //-- Create and add trials to the block
             int trialNum = 1;
 
-            //- All top trials, then left
-            // Get the function widths based on side and complexity
-            // For now all function Ws are the same. We may later create trials with multiple function Ws
-            List<int> topButtonWs = ExpSizes.BUTTON_WIDTHS[complexity][Side.Top];
+            //-- Add top trials
+            List<int> topButtonWs = ExpLayouts.BUTTON_WIDTHS[complexity][Side.Top];
             foreach (int funcW in topButtonWs)
             {
-                List<int> functionWidths = new List<int>(nFun);
+                List<int> functionWidths = new(nFun);
                 for (int i = 0; i < nFun; i++)
                 {
                     functionWidths.Add(funcW);
@@ -103,8 +101,9 @@ namespace SubTask.FunctionSelection
                 trialNum++;
             }
 
-            List<int> leftButtonWs = ExpSizes.BUTTON_WIDTHS[complexity][Side.Left];
-            foreach (int funcW in leftButtonWs)
+            //-- Add random L or R
+            List<int> sideButtonWs = ExpLayouts.BUTTON_WIDTHS[complexity][Side.Left]; // Same for L or R
+            foreach (int funcW in sideButtonWs)
             {
                 List<int> functionWidths = new List<int>(nFun);
                 for (int i = 0; i < nFun; i++)
@@ -112,6 +111,8 @@ namespace SubTask.FunctionSelection
                     functionWidths.Add(funcW);
                 }
 
+                // Choose a ranodm side
+                Side side = (Side)(_random.Next(0, 2) * 2); // Randomly select Left or Right
                 Trial trial = Trial.CreateTrial(
                     id * 100 + trialNum,
                     ptc,
@@ -124,16 +125,8 @@ namespace SubTask.FunctionSelection
                 trialNum++;
             }
 
-
-            //for (int sInd = 0; sInd < 3; sInd++)
-            //{
-            //    Side functionSide = (Side)sInd;
-
-                
-            //}
-
-            // Shuffle the trials
-            //block.ShuffleTrials();
+            // Shuffle trials
+            block.ShuffleTrials();
 
             // Return the block
             return block;

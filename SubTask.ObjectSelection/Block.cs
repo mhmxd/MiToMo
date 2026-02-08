@@ -1,15 +1,18 @@
-﻿using System;
+﻿using Common.Helpers;
+using Common.Settings;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Seril = Serilog.Log;
 using static Common.Constants.ExpEnums;
-using Common.Settings;
+using Seril = Serilog.Log;
 
 namespace SubTask.ObjectSelection
 {
     // A block of trials in the experiment
     public class Block
     {
+        private Random _random = new Random();
+
         private List<Trial> _trials = new List<Trial>();
         public List<Trial> Trials
         {
@@ -23,9 +26,9 @@ namespace SubTask.ObjectSelection
             set => _id = value;
         }
 
-        public Technique _technique = Technique.MOUSE;
+        private static Technique _technique = Technique.MOUSE;
 
-        public Technique Technique
+        public static Technique Technique
         {
             get => _technique;
             set => _technique = value;
@@ -40,11 +43,10 @@ namespace SubTask.ObjectSelection
 
         public int PtcNum { get; set; }
 
-        public Block(int ptc, Technique technique, int id, ExperimentType expType)
+        public Block(int ptc, int id, ExperimentType expType)
         {
             this.Id = id;
             PtcNum = ptc;
-            _technique = technique;
             _expType = expType;
         }
 
@@ -62,7 +64,6 @@ namespace SubTask.ObjectSelection
         /// <param name="nObj"></param>
         /// <returns></returns>
         public static Block CreateBlock(
-            Technique technique,
             int ptc,
             int id,
             ExperimentType expType,
@@ -70,7 +71,7 @@ namespace SubTask.ObjectSelection
         {
 
             // Create block
-            Block block = new Block(ptc, technique, id, expType);
+            Block block = new Block(ptc, id, expType);
 
             // Create the same number of 3 and 5 object trials in each block
             int trialNum = 1;
@@ -78,20 +79,20 @@ namespace SubTask.ObjectSelection
             {
                 Trial trial3 = Trial.CreateTrial(
                             id * 100 + trialNum,
-                            technique,
+                            Technique,
                             expType,
-                            ExpPtc.PTC_NUM,
-                            ExpDesign.OS_N_OBJS[0]);
+                            ExpEnvironment.PTC_NUM,
+                            ExpDesign.ObjSelectNumObjects[0]);
 
                 block._trials.Add(trial3);
                 trialNum++;
 
                 Trial trial5 = Trial.CreateTrial(
                             id * 100 + trialNum,
-                            technique,
+                            Technique,
                             expType,
-                            ExpPtc.PTC_NUM,
-                            ExpDesign.OS_N_OBJS[1]);
+                            ExpEnvironment.PTC_NUM,
+                            ExpDesign.ObjSelectNumObjects[1]);
 
                 block._trials.Add(trial5);
                 trialNum++;
@@ -126,8 +127,7 @@ namespace SubTask.ObjectSelection
             if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
             {
                 Trial trialToCopy = _trials[trialNum - 1];
-                Random random = new Random();
-                int insertIndex = random.Next(trialNum + 1, _trials.Count);
+                int insertIndex = _random.Next(trialNum + 1, _trials.Count);
 
                 _trials.Insert(insertIndex, trialToCopy);
             }

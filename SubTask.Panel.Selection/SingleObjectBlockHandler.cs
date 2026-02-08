@@ -1,21 +1,4 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using static SubTask.Panel.Selection.Experiment;
-using static SubTask.Panel.Selection.Utils;
-
-namespace SubTask.Panel.Selection
+﻿namespace SubTask.Panel.Selection
 {
     public class SingleObjectBlockHandler
     {
@@ -61,9 +44,9 @@ namespace SubTask.Panel.Selection
 
         //public override bool FindPositionsForTrial(Trial trial)
         //{
-        //    int objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
+        //    int objW = UITools.MM2PX(Experiment.OBJ_WIDTH_MM);
         //    int objHalfW = objW / 2;
-        //    int objAreaW = Utils.MM2PX(OBJ_AREA_WIDTH_MM);
+        //    int objAreaW = UITools.MM2PX(OBJ_AREA_WIDTH_MM);
         //    int objAreaHalfW = objAreaW / 2;
 
         //    //this.TrialInfo(trial.ToStr());
@@ -134,7 +117,7 @@ namespace SubTask.Panel.Selection
 
         //    // Color the target button and set the handlers
         //    this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
-        //    Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
+        //    Brush funcDefaultColor = UIColors.COLOR_FUNCTION_DEFAULT;
         //    UpdateScene(); // (comment for measuring panel selection time)
         //    //_mainWindow.FillButtonInTargetWindow(
         //    //    _activeTrial.FuncSide, 
@@ -156,11 +139,11 @@ namespace SubTask.Panel.Selection
         //    MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
         //    _mainWindow.ShowObjectsArea(
         //        _activeTrialRecord.ObjectAreaRect,
-        //        Config.OBJ_AREA_BG_COLOR,
+        //        UIColors.COLOR_OBJ_AREA_BG,
         //        objAreaEvents);
 
         //    // Show objects
-        //    Brush objDefaultColor = Config.OBJ_DEFAULT_COLOR;
+        //    Brush objDefaultColor = UIColors.COLOR_OBJ_DEFAULT;
         //    MouseEvents objectEvents = new MouseEvents(
         //        OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
         //    _mainWindow.ShowObjects(

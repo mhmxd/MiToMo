@@ -3,7 +3,6 @@ using Common.Settings;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.FunctionPointSelect
@@ -16,7 +15,6 @@ namespace SubTask.FunctionPointSelect
         //public int ParticipantNumber { get; private set; }
         public string Technique { get; private set; }
         public string SelectedExperiment { get; private set; }
-        public string SelectedComplexity { get; private set; }
 
         private bool _isClosingFromButton = false; // Begin button was pressed to close, not x
 
@@ -26,54 +24,47 @@ namespace SubTask.FunctionPointSelect
         {
             InitializeComponent();
 
-            ParticipantNumberTextBlock.Text = ExpPtc.PTC_NUM.ToString();
+            ParticipantNumberTextBlock.Text = ExpEnvironment.PTC_NUM.ToString();
             ExperimentComboBox.ItemsSource = new string[] { ExpStrs.PRACTICE, ExpStrs.TEST };
             ExperimentComboBox.SelectedValue = ExpStrs.PRACTICE;
         }
 
         private async void BeginButton_ClickAsync(object sender, RoutedEventArgs e)
         {
-            if (_experimentSet)
+            if (Owner is MainWindow ownerWindow)
             {
-                _isClosingFromButton = true;
-                DialogResult = true;
+                SelectedExperiment = ExperimentComboBox.SelectedItem as string;
+                ExperimentType expType = (ExperimentType)Enum.Parse(typeof(ExperimentType), SelectedExperiment, true);
 
-                Close();
-            }
-            else
-            {
-                if (Owner is MainWindow ownerWindow)
+                BigButton.Content = "Initializing...";
+
+                _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(expType));
+
+                if (_experimentSet)
                 {
-                    SelectedExperiment = ExperimentComboBox.SelectedItem as string;
-                    ExperimentType expType = (ExperimentType)Enum.Parse(typeof(ExperimentType), SelectedExperiment, true);
-                    SelectedComplexity = (ComplexityComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-                    Complexity complexity = (Complexity)Enum.Parse(typeof(Complexity), SelectedComplexity, true);
-
-                    //_experimentSet = true;
-
-                    BigButton.Content = "Initializing...";
-                    //BigButton.IsEnabled = false;
-
-                    _experimentSet = await Task.Run(() => ownerWindow.SetExperiment(complexity, expType));
-
-                    if (_experimentSet)
-                    {
-                        BigButton.Content = "Begin";
-                        //BigButton.IsEnabled = true;
-                    }
-                    else
-                    {
-                        BigButton.Content = "Retry";
-                    }
-
-                    //Dispatcher.Invoke(() =>
-                    //{
-                    //    // Safe to update UI elements here, e.g.,
-                    //    BigButton.Content = "Begin";
-                    //    BigButton.IsEnabled = true;
-                    //});
+                    //BigButton.Content = "Begin";
+                    _isClosingFromButton = true;
+                    DialogResult = true;
+                    Close();
                 }
+                else
+                {
+                    BigButton.Content = "Retry";
+                }
+
             }
+
+            //if (_experimentSet)
+            //{
+            //    _isClosingFromButton = true;
+            //    DialogResult = true;
+
+            //    Close();
+            //}
+            //else
+            //{
+
+            //}
 
 
 

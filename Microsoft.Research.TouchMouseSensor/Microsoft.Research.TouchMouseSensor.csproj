@@ -42,6 +42,9 @@
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="TouchMouseSensor.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />

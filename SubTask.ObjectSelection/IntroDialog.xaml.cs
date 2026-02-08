@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Common.Constants;
+using Common.Settings;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using Common.Constants;
-using Common.Settings;
 using static Common.Constants.ExpEnums;
 
 namespace SubTask.ObjectSelection
@@ -26,7 +25,7 @@ namespace SubTask.ObjectSelection
         {
             InitializeComponent();
 
-            ParticipantNumberTextBlock.Text = ExpPtc.PTC_NUM.ToString();
+            ParticipantNumberTextBlock.Text = ExpEnvironment.PTC_NUM.ToString();
             ExperimentComboBox.ItemsSource = new string[] { ExpStrs.PRACTICE, ExpStrs.TEST };
             ExperimentComboBox.SelectedValue = ExpStrs.PRACTICE;
         }

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Common.Helpers;
 
 namespace Common.Constants
 {
-    public class ExpEnums
+    public static class ExpEnums
     {
         public enum ExperimentType
         {
@@ -34,6 +32,11 @@ namespace Common.Constants
             Simple = 0,
             Moderate = 1,
             Complex = 2,
+        }
+
+        public static List<Complexity> GetRandomComplexityList()
+        {
+            return new List<Complexity>((Enum.GetValues(typeof(Complexity)) as Complexity[])).Shuffle();
         }
 
         public enum TaskType
@@ -72,6 +75,40 @@ namespace Common.Constants
             Middle = 3,
             Ring = 4,
             Pinky = 5
+        }
+
+        public static Technique GetDevice(this Technique tech)
+        {
+            return tech == Technique.TOMO_SWIPE || tech == Technique.TOMO_TAP ? Technique.TOMO : Technique.MOUSE;
+        }
+
+        public static bool IsTomo(this Technique tech)
+        {
+            return tech == Technique.TOMO_SWIPE || tech == Technique.TOMO_TAP || tech == Technique.TOMO;
+        }
+
+        public static Side Opposite(this Side side)
+        {
+            return side switch
+            {
+                Side.Left => Side.Right,
+                Side.Right => Side.Left,
+                Side.Top => Side.Down,
+                Side.Down => Side.Top,
+                _ => throw new ArgumentOutOfRangeException(nameof(side), "Unknown Side value")
+            };
+        }
+
+        public static Side ToSide(this Direction dir)
+        {
+            return dir switch
+            {
+                Direction.Up => Side.Top,
+                Direction.Down => Side.Down,
+                Direction.Left => Side.Left,
+                Direction.Right => Side.Right,
+                _ => throw new ArgumentOutOfRangeException(nameof(dir), "Unknown Direction value")
+            };
         }
     }
 }

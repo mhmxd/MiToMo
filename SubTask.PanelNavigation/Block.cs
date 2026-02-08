@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Common.Helpers;
+using Common.Settings;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Common.Constants.ExpEnums;
@@ -8,7 +10,7 @@ namespace SubTask.PanelNavigation
     // A block of trials in the experiment
     public class Block
     {
-        private Random _random = new Random();
+        private static Random _random = new Random();
 
         private List<Trial> _trials = new List<Trial>();
         public List<Trial> Trials
@@ -74,81 +76,41 @@ namespace SubTask.PanelNavigation
             int ptc,
             int id,
             Complexity complexity,
-            ExperimentType expType,
-            int nRep)
+            ExperimentType expType)
         {
 
             // Create block
             Block block = new Block(ptc, technique, complexity, expType, id);
 
-            // Create and add trials to the block
+            //-- Create and add trials to the block
             int trialNum = 1;
-            //bool wasLeft = false;
-            //-- All the tops first, then left
-            for (int rep = 0; rep < nRep; rep++)
+
+            // Create Top trials for each button width
+            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][Side.Top])
             {
-                Trial trial = Trial.CreateTrial(
-                            id * 100 + trialNum,
-                            technique,
-                            ptc,
-                            complexity,
-                            expType,
-                            Side.Top);
-
-                block._trials.Add(trial);
-                trialNum++;
-
-                // One Left/Right in reach rep (equal number of left and right in all blocks together)
-                //if (wasLeft)
-                //{
-                //    trial = Trial.CreateTrial(
-                //            id * 100 + trialNum,
-                //            technique,
-                //            ptc,
-                //            complexity,
-                //            Side.Right);
-                //    wasLeft = false;
-                //}
-                //else
-                //{
-                //    trial = Trial.CreateTrial(
-                //            id * 100 + trialNum,
-                //            technique,
-                //            ptc,
-                //            complexity,
-                //            Side.Left);
-                //    wasLeft = true;
-                //}
-
-                //block._trials.Add(trial);
-                //trialNum++;
-
-            }
-
-            for (int rep = 0; rep < nRep; rep++)
-            {
-                Trial trial = Trial.CreateTrial(
-                            id * 100 + trialNum,
-                            technique,
-                            ptc,
-                            complexity,
-                            expType,
-                            Side.Left);
+                Trial trial = Trial.CreateTrial(id * 100 + trialNum,
+                            technique, ptc,
+                            complexity, expType,
+                            Side.Top, btnWidth);
 
                 block._trials.Add(trial);
                 trialNum++;
             }
 
-            for (int sInd = 0; sInd < 3; sInd++)
+            // Create side trials (random L/R)
+            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][Side.Left])
             {
-                Side functionSide = (Side)sInd;
-
-                // Get the function widths based on side and complexity
-                List<int> buttonWidths = Experiment.BUTTON_WIDTHS[complexity][functionSide];
+                Side side = (Side)(_random.Next(0, 2) * 2); // Randomly select Left or Right
+                Trial trial = Trial.CreateTrial(id * 100 + trialNum,
+                            technique, ptc,
+                            complexity, expType,
+                            side, btnWidth);
+                block._trials.Add(trial);
+                trialNum++;
             }
 
             // Shuffle the trials
-            //block.ShuffleTrials();
+            block.ShuffleTrials();
 
             // Return the block
             return block;
@@ -174,26 +136,6 @@ namespace SubTask.PanelNavigation
 
         public void ShuffleBackTrial(int trialNum)
         {
-            //if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
-            //{
-            //    Trial trialToCopy = _trials[trialNum - 1];
-            //    int insertIndex = _random.Next(trialNum + 1, _trials.Count);
-
-            //    _trials.Insert(insertIndex, trialToCopy);
-            //}
-            //else if (trialNum == _trials.Count && _trials.Count > 1)
-            //{
-            //    _trials.Insert(trialNum, _trials[trialNum - 1]);
-            //}
-            //else if (_trials.Count <= 1)
-            //{
-            //    Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
-            //}
-            //else
-            //{
-            //    Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
-            //}
-
             // Shuffle the trial based on its function side
             Trial trialToCopy = _trials[trialNum - 1];
             if (trialNum == _trials.Count && _trials.Count > 1)

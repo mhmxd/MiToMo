@@ -1,18 +1,13 @@
-﻿using System;
+﻿using Common.Constants;
+using Common.Helpers;
+using CommonUI;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using Tensorflow;
-using Common.Constants;
-using static SubTask.FunctionPointSelect.Experiment;
-using static SubTask.FunctionPointSelect.TrialRecord;
-using static Tensorflow.TensorShapeProto.Types;
 using static Common.Constants.ExpEnums;
+using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.FunctionPointSelect
 {
@@ -33,11 +28,10 @@ namespace SubTask.FunctionPointSelect
         protected TrialRecord _activeTrialRecord;
         protected int _nSelectedObjects = 0; // Number of clicked objects in the current trial
 
-        protected List<int> _functionsVisitMap = new List<int>();
-        protected List<int> _objectsVisitMap = new List<int>();
-        protected Dictionary<int, TrialRecord> _trialRecords = new Dictionary<int, TrialRecord>(); // Trial id -> Record
+        protected List<int> _functionsVisitMap = new();
+        protected Dictionary<int, TrialRecord> _trialRecords = new(); // Trial id -> Record
 
-        protected Random _random = new Random();
+        protected Random _random = new();
 
         public BlockHandler(MainWindow mainWindow, Block activeBlock, int activeBlockNum)
         {
@@ -48,119 +42,224 @@ namespace SubTask.FunctionPointSelect
 
         public bool FindPositionsForActiveBlock()
         {
+            int maxAttempts = 500;
+
+            // 1. Get the constraint RECT ONCE on the UI thread
+            Rect startBtnConstraintRect = _mainWindow.Dispatcher.Invoke(() => _mainWindow.GetStartBtnConstraintRect());
+
             foreach (Trial trial in _activeBlock.Trials)
             {
-                if (!FindPositionsForTrial(trial))
+                int attempt = 0;
+                bool positionsFound = false;
+
+                while (attempt < maxAttempts)
                 {
-                    this.TrialInfo($"Failed to find positions for Trial#{trial.Id}");
-                    return false; // If any trial fails, return false
+                    // 2. Pass the pre-calculated Rect into the method
+                    positionsFound = FindPositionsForTrial(trial, startBtnConstraintRect);
+                    if (positionsFound) break;
+                    attempt++;
+                }
+
+                if (!positionsFound)
+                {
+                    this.TrialInfo($"Failed to find position for Trial#{trial.Id} after {maxAttempts} attempts.");
+                    return false;
                 }
             }
 
-
-            // If consecutive trials have the same function Ids or first trial's functions are over the middle button,
-            // re-order them (so marker doesn't stay on the same function)
-            int maxAttempts = 100;
-            int attempt = 0;
-            while (attempt < maxAttempts && AreFunctionsRepeated() && DoesFirstTrialsFunInclMidBtn())
+            // 3. Optimized Shuffle Logic: Only shuffle if necessary
+            int shuffleAttempt = 0;
+            while (shuffleAttempt < maxAttempts && AreFunctionsRepeated())
             {
                 _activeBlock.Trials.Shuffle();
-                attempt++;
+                shuffleAttempt++;
             }
 
-            if (attempt == maxAttempts)
+            if (shuffleAttempt == maxAttempts)
             {
-                this.TrialInfo($"Warning: Could not eliminate repeated functions in consecutive trials after {maxAttempts} attempts.");
+                this.TrialInfo("Warning: Could not eliminate repeated functions.");
                 return false;
             }
 
             return true;
         }
 
-        public bool FindPositionsForTrial(Trial trial)
+        public bool FindPositionsForTrial(Trial trial, Rect constraintRect)
         {
-            int objW = Utils.MM2PX(Experiment.OBJ_WIDTH_MM);
-            int objHalfW = objW / 2;
-
-            //this.TrialInfo(trial.ToStr());
-
-            // Ensure TrialRecord exists for this trial
+            // Ensure TrialRecord exists
             if (!_trialRecords.ContainsKey(trial.Id))
-            {
                 _trialRecords[trial.Id] = new TrialRecord();
+
+            // 1. Find the target function first
+            TFunction randFunc = _mainWindow.FindRandomFunction(trial.FuncSide, trial.GetFunctionWidth(0), trial.DistRangePX);
+            if (randFunc == null) return false;
+
+            // 2. Optimized "Ring Sampling" for the Start Button
+            // We need to find a Start Point that is trial.DistRangePX away from randFunc.Center
+            Point targetCenter = randFunc.Center;
+            MRange range = trial.DistRangePX;
+
+            bool found = false;
+            Point startCenter = new(-1, -1);
+            double finalDist = -1;
+
+            // We try fewer times here because the math is much more targeted
+            for (int i = 0; i < 200; i++)
+            {
+                double angle = _random.NextDouble() * Math.PI * 2;
+                double dist = range.Min + _random.NextDouble() * (range.Max - range.Min);
+
+                double x = targetCenter.X + Math.Cos(angle) * dist;
+                double y = targetCenter.Y + Math.Sin(angle) * dist;
+                Point candidate = new Point(x, y);
+
+                if (constraintRect.Contains(candidate))
+                {
+                    startCenter = candidate;
+                    finalDist = UITools.PX2MM(dist);
+                    found = true;
+                    break;
+                }
             }
-            //this.TrialInfo($"Trial function widths: {trial.GetFunctionWidths()}");
-            _mainWindow.Dispatcher.Invoke(() =>
-            {
-                _trialRecords[trial.Id].Functions.AddRange(
-                    _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
-                );
-            });
 
-            //this.TrialInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().ToStr()}");
+            if (!found) return false;
 
-            // Find a position for the start button
-            Rect StartBtnConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
-            {
-                return _mainWindow.GetStartBtnConstraintRect();
-            });
+            // 3. Update Record
+            _trialRecords[trial.Id].Functions.Clear(); // Ensure clean state if retrying
+            _trialRecords[trial.Id].Functions.Add(randFunc);
 
-            (Point startCenter, double dist) = StartBtnConstraintRect.FindPointWithinDistRangeFromMultipleSources(
-                _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
+            int startBtnW = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Width);
+            int startBtnH = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Height);
 
+            _trialRecords[trial.Id].StartBtnRect = new Rect(
+                startCenter.X - (startBtnW / 2.0),
+                startCenter.Y - (startBtnH / 2.0),
+                startBtnW,
+                startBtnH);
 
-            if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position 
-            {
-                this.TrialInfo($"No valid position found for object in Trial#{trial.Id}!");
-                return false; // Return false to indicate failure
-            }
-            else
-            {
-                //this.TrialInfo($"Found object position: {startCenter.ToStr()}");
-
-                // Get the top-left corner of the start button rectangle
-                int startBtnW = Utils.MM2PX(_trialRecords[trial.Id].StartBtnRect.Width);
-                int startBtnH = Utils.MM2PX(_trialRecords[trial.Id].StartBtnRect.Height);
-                int startBtnHalfW = startBtnW / 2;
-                Point startBtnPosition = startCenter.OffsetPosition(-startBtnHalfW);
-
-                //this.TrialInfo($"Found object area position: {startBtnPosition.ToStr()}");
-
-                _trialRecords[trial.Id].StartBtnRect = new Rect(
-                        startBtnPosition.X,
-                        startBtnPosition.Y,
-                        startBtnW,
-                        startBtnH);
-
-                _trialRecords[trial.Id].DistanceMM = dist;
-
-                // Put the object at the center
-                //Point objPosition = startBtnPosition.OffsetPosition((startBtnW - objW) / 2);
-                //TrialRecord.TObject obj = new TrialRecord.TObject(1, objPosition, startCenter); // Object is always 1 in this case
-                //_trialRecords[trial.Id].Objects.Add(obj);
-
-                return true;
-            }
+            _trialRecords[trial.Id].DistanceMM = finalDist;
+            return true;
         }
+
+        //public bool FindPositionsForActiveBlock()
+        //{
+        //    int maxAttempts = 500;
+        //    int attempt = 0;
+        //    foreach (Trial trial in _activeBlock.Trials)
+        //    {
+        //        attempt = 0;
+        //        bool positionsFound = FindPositionsForTrial(trial);
+        //        while (attempt < maxAttempts && !positionsFound)
+        //        {
+        //            this.TrialInfo($"Attemp#{attempt} for Trial#{trial.Id} -- Failed to find position");
+        //            positionsFound = FindPositionsForTrial(trial);
+        //            attempt++;
+        //        }
+
+        //        if (attempt == maxAttempts)
+        //        {
+        //            this.TrialInfo($"Failed to find position for Trial#{trial.Id}");
+        //            return false;
+        //        }
+        //    }
+
+        //    // If consecutive trials have the same function Ids or first trial's functions are over the middle button,
+        //    // re-order them (so marker doesn't stay on the same function)
+        //    attempt = 0;
+        //    while (attempt < maxAttempts && AreFunctionsRepeated())
+        //    {
+        //        _activeBlock.Trials.Shuffle();
+        //        attempt++;
+        //    }
+
+        //    if (attempt == maxAttempts)
+        //    {
+        //        this.TrialInfo($"Warning: Could not eliminate repeated functions in consecutive trials after {maxAttempts} attempts.");
+        //        return false;
+        //    }
+
+        //    return true;
+        //}
+
+        //public bool FindPositionsForTrial(Trial trial, Rect startBtnConstraintRect)
+        //{
+
+        //    this.TrialInfo(trial.ToStr());
+
+        //    // Ensure TrialRecord exists for this trial
+        //    if (!_trialRecords.ContainsKey(trial.Id))
+        //    {
+        //        _trialRecords[trial.Id] = new TrialRecord();
+        //    }
+
+        //    TFunction randFunc = _mainWindow.FindRandomFunction(trial.FuncSide, trial.GetFunctionWidth(0), trial.DistRangePX);
+        //    this.TrialInfo($"Found functions: {randFunc}");
+        //    if (randFunc == null)
+        //    {
+        //        this.TrialInfo($"Failed to find functions for Trial#{trial.Id}");
+        //        return false; // Return false to indicate failure
+        //    }
+
+        //    //-- Valid function found
+        //    _trialRecords[trial.Id].Functions.Add(randFunc);
+
+        //    // Find a position for the start button
+        //    //Rect StartBtnConstraintRect = _mainWindow.GetStartBtnConstraintRect();
+        //    //Rect StartBtnConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+        //    //{
+        //    //    return _mainWindow.GetStartBtnConstraintRect();
+        //    //});
+
+        //    (Point startCenter, double dist) = startBtnConstraintRect.FindPointWithinDistRangeFromMultipleSources(
+        //        _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
+
+        //    if (startCenter.X == -1 && startCenter.Y == -1) // Failed to find a valid position 
+        //    {
+        //        this.PositionInfo($"No valid position found for object in Trial#{trial.Id}!");
+        //        return false; // Return false to indicate failure
+        //    }
+        //    else
+        //    {
+        //        //this.TrialInfo($"Found object position: {startCenter.ToStr()}");
+
+        //        // Get the top-left corner of the start button rectangle
+        //        int startBtnW = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Width);
+        //        int startBtnH = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Height);
+        //        int startBtnHalfW = startBtnW / 2;
+        //        Point startBtnPosition = startCenter.OffsetPosition(-startBtnHalfW);
+
+        //        //this.TrialInfo($"Found object area position: {startBtnPosition.ToStr()}");
+
+        //        _trialRecords[trial.Id].StartBtnRect = new Rect(
+        //                startBtnPosition.X,
+        //                startBtnPosition.Y,
+        //                startBtnW,
+        //                startBtnH);
+
+        //        _trialRecords[trial.Id].DistanceMM = dist;
+
+        //        return true;
+        //    }
+        //}
 
         public void BeginActiveBlock()
         {
-            this.TrialInfo("------------------- Beginning block ----------------------------");
+            this.TrialInfo(ExpStrs.MINOR_LINE);
+            this.TrialInfo("--- Beginning block");
             this.TrialInfo(ExpStrs.MINOR_LINE);
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-            _activeTrialRecord = _trialRecords[_activeTrial.Id];
-            this.TrialInfo($"Active block id: {_activeBlock.Id}");
-            // Start the log
-            //ExperiLogger.StartBlockLog(_activeBlock.Id, _activeBlock.GetBlockType(), _activeBlock.GetComplexity());
-
-            // Update the main window label
-            //this.TrialInfo($"nTrials = {_activeBlock.GetNumTrials()}");
-            //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
-
-            // Show the Start Trial button
-            //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
+            // Get the TrialRecord (if doesn't exist, create one)
+            if (_trialRecords.ContainsKey(_activeTrial.Id))
+            {
+                _activeTrialRecord = _trialRecords[_activeTrial.Id];
+            }
+            else
+            {
+                _activeTrialRecord = new TrialRecord();
+                _trialRecords[_activeTrial.Id] = _activeTrialRecord;
+            }
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
@@ -175,59 +274,33 @@ namespace SubTask.FunctionPointSelect
 
         public virtual void ShowActiveTrial()
         {
-            this.TrialInfo(ExpStrs.MINOR_LINE);
-            this.TrialInfo($"Showing " + _activeTrial.ToStr());
-
-            LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
-
-            // Start logging cursor positions
-            ExperiLogger.StartTrialCursorLog(_activeTrial.Id);
-
-            // Update the main window label
-            //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
+            this.TrialInfo($"{_activeTrial.ToStr()}");
 
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the target button and set the handlers
-            this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
-            Brush funcDefaultColor = Config.FUNCTION_DEFAULT_COLOR;
+            this.TrialInfo($"Functions: {_activeTrialRecord.GetFunctions().Str()}");
             UpdateScene(); // (comment for measuring panel selection time)
-            //_mainWindow.FillButtonInTargetWindow(
-            //    _activeTrial.FuncSide, 
-            //    _activeTrialRecord.FunctionId, 
-            //    funcDefaultColor);
 
             _mainWindow.SetAuxButtonsHandlers(
                 _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
                 OnFunctionMouseEnter, this.OnFunctionMouseDown, this.OnFunctionMouseUp,
                 OnFunctionMouseExit, this.OnNonTargetMouseDown);
 
-            // Clear the main window canvas (to add shapes)
-            _mainWindow.ClearCanvas();
-
-            // Show the area
-            //MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
-            //_mainWindow.ShowStartBtn(
-            //    _activeTrialRecord.StartBtnRect,
-            //    Config.START_AVAILABLE_COLOR,
-            //    objAreaEvents);
-
-            // Show objects
-            //Brush objDefaultColor = Config.OBJ_DEFAULT_COLOR;
-            //MouseEvents objectEvents = new MouseEvents(
-            //    OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
-            //_mainWindow.ShowObjects(
-            //    _activeTrialRecord.Objects, objDefaultColor, objectEvents);
-
-            // Show Start Trial button
-            MouseEvents startButtonEvents = new MouseEvents(
+            // Show Start
+            MouseEvents startButtonEvents = new(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
+            _mainWindow.ClearCanvas();
             _mainWindow.ShowStartBtn(
                 _activeTrialRecord.StartBtnRect,
-                Experiment.START_INIT_COLOR,
+                UIColors.COLOR_START_INIT,
                 startButtonEvents);
-            //_mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
+
+            LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
+
+            // Start logging cursor positions
+            ExperiLogger.StartTrialCursorLog(_activeTrial.Id, _activeTrialNum);
 
             // Update info label
             _mainWindow.UpdateInfoLabel();
@@ -239,19 +312,19 @@ namespace SubTask.FunctionPointSelect
             this.TrialInfo(ExpStrs.MAJOR_LINE);
             _activeTrialRecord.Result = result;
             LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
-            _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
+            //_mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
 
             switch (result)
             {
                 case Result.HIT:
-                    Sounder.PlayHit();
+                    MSounder.PlayHit();
 
                     double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
                     _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
 
                 case Result.MISS:
-                    Sounder.PlayTargetMiss();
+                    MSounder.PlayTargetMiss();
 
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
                     _trialRecords[_activeTrial.Id].ClearTimestamps();
@@ -261,21 +334,22 @@ namespace SubTask.FunctionPointSelect
 
             //-- Log
             ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogTotalTrialTime(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
+            ExperiLogger.LogCursorRecords();
 
             GoToNextTrial();
         }
+
         public void GoToNextTrial()
         {
+            // Clear the canvas and reset the target window for the next trial
+            _mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
+            _mainWindow.ClearCanvas();
+            _activeTrialRecord.ClearTimestamps();
+            _functionsVisitMap.Clear();
+
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
-                //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
-                _mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
-                _mainWindow.ClearCanvas();
-                _activeTrialRecord.ClearTimestamps();
-                _nSelectedObjects = 0; // Reset the number of selected objects
-                _functionsVisitMap.Clear();
-                _objectsVisitMap.Clear();
-
                 _activeTrialNum++;
                 _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
                 _activeTrialRecord = _trialRecords[_activeTrial.Id];
@@ -285,15 +359,13 @@ namespace SubTask.FunctionPointSelect
             else // Last trial of the block
             {
                 // Log the avg times
-                LogAverageTimeOnDistances();
+                //LogAverageTimeOnDistances();
 
                 // Log block time
                 ExperiLogger.LogBlockTime(_activeBlock);
 
-                // Show end of block window
-                BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
-                blockEndWindow.Owner = _mainWindow;
-                blockEndWindow.ShowDialog();
+                // Go to the next block (pauses and ends are managed in MainWindow)
+                _mainWindow.GoToNextBlock();
             }
         }
 
@@ -355,7 +427,7 @@ namespace SubTask.FunctionPointSelect
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -369,16 +441,16 @@ namespace SubTask.FunctionPointSelect
             LogEventOnce(ExpStrs.FIRST_MOVE);
 
             // Log cursor movement
-            ExperiLogger.LogCursorPosition(e.GetPosition(_mainWindow.Owner));
+            ExperiLogger.RecordCursorPosition(e.GetPosition(_mainWindow.Owner));
         }
 
         public virtual void OnMainWindowMouseUp(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(ExpStrs.MAIN_WIN_RELEASE);
-            
+
             if (IsStartPressed() && !IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
 
             if (IsFuncPressed())
@@ -400,7 +472,7 @@ namespace SubTask.FunctionPointSelect
 
             if (!IsStartClicked())
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
             }
             else
             {
@@ -431,162 +503,6 @@ namespace SubTask.FunctionPointSelect
             LogEvent(ExpStrs.PNL_EXIT, side.ToString().ToLower());
         }
 
-        public void OnObjectMouseEnter(Object sender, MouseEventArgs e)
-        {
-            // If the last timestamp was ARA_EXIT, remove that
-            if (_activeTrialRecord.GetLastTrialEventType() == ExpStrs.ARA_EXIT) _activeTrialRecord.RemoveLastTimestamp();
-            var objId = (int)((FrameworkElement)sender).Tag;
-
-            // Add the id to the list of visited if not already there (will use the index for the order of visit)
-            LogEvent(ExpStrs.OBJ_ENTER, objId);
-
-            // Log the event
-            LogEvent(ExpStrs.OBJ_ENTER, objId);
-        }
-
-        public void OnObjectMouseLeave(Object sender, MouseEventArgs e)
-        {
-            var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(ExpStrs.OBJ_EXIT, objId);
-        }
-
-        public void OnObjectMouseDown(Object sender, MouseButtonEventArgs e)
-        {
-            var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(ExpStrs.OBJ_PRESS, objId);
-
-            // Pressed on the Object without starting the trial
-            if (!IsStartClicked())
-            {
-                Sounder.PlayStartMiss();
-            }
-
-            //-- Trial started:
-
-            if (_activeTrial.IsTechniqueToMo())
-            {
-                int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
-
-                if (funcIdUnderMarker == -1) // Marker not over enabled function => miss
-                {
-                    this.TrialInfo($"Marker not over enabled function");
-                    EndActiveTrial(Result.MISS);
-                    e.Handled = true; // Mark the event as handled to prevent further processing
-                    return; // Do nothing if marker is not over enabled function
-                }
-            }
-
-            e.Handled = true; // Mark the event as handled to prevent further processing
-        }
-
-        public void OnObjectMouseUp(Object sender, MouseButtonEventArgs e)
-        {
-            var objId = (int)((FrameworkElement)sender).Tag;
-            LogEvent(ExpStrs.OBJ_RELEASE, objId);
-
-            if (!IsStartClicked())
-            {
-                Sounder.PlayStartMiss();
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                return; // Do nothing if start button was not clicked
-            }
-
-            //-- Trial started:
-
-            if (!WasObjectPressed(1)) // Technique doesn't matter here
-            {
-                this.TrialInfo($"Object wasn't pressed");
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                return; // Do nothing if object wasn't pressed
-            }
-
-            //-- Object is pressed:
-            this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
-            if (_activeTrial.IsTechniqueToMo())
-            {
-                int funcIdUnderMarker = _mainWindow.FunctionIdUnderMarker(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
-                var markerOverEnabledFunc = funcIdUnderMarker != -1;
-
-                if (markerOverEnabledFunc)
-                {
-                    _activeTrialRecord.ApplyFunction(funcIdUnderMarker, 1);
-                    UpdateScene();
-                }
-                else
-                {
-                    EndActiveTrial(Result.MISS);
-                }
-            }
-            else // MOUSE
-            {
-                this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
-                _activeTrialRecord.EnableAllFunctions();
-                _activeTrialRecord.MarkObject(1);
-                UpdateScene();
-            }
-
-            e.Handled = true;
-        }
-
-        //---- Object area
-        public virtual void OnObjectAreaMouseEnter(Object sender, MouseEventArgs e)
-        {
-            // Only log if entered from outside (NOT from the object)
-            if (_activeTrialRecord.GetLastTrialEventType() != ExpStrs.OBJ_EXIT) LogEvent(ExpStrs.ARA_ENTER);
-        }
-
-        public virtual void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
-        {
-
-            if (!IsStartClicked()) // Start button not clicked yet
-            {
-                Sounder.PlayStartMiss();
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                return;
-            }
-
-            if (!_activeTrialRecord.AreAllObjectsApplied())
-            {
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                EndActiveTrial(Result.MISS);
-            }
-
-            LogEvent(ExpStrs.ARA_PRESS);
-
-            e.Handled = true; // Mark the event as handled to prevent further processing
-        }
-
-        public virtual void OnObjectAreaMouseUp(Object sender, MouseButtonEventArgs e)
-        {
-            LogEvent(ExpStrs.ARA_RELEASE);
-
-            if (!IsStartClicked())
-            {
-                this.TrialInfo($"Start wasn't clicked");
-                Sounder.PlayStartMiss();
-                e.Handled = true; // Mark the event as handled to prevent further processing
-                return; // Do nothing if start button was not clicked
-            }
-
-            if (_activeTrialRecord.AreAllObjectsApplied())
-            {
-                EndActiveTrial(Result.HIT);
-            }
-            else
-            {
-                this.TrialInfo($"Not all objects applied");
-                EndActiveTrial(Result.MISS);
-            }
-
-            e.Handled = true; // Mark the event as handled to prevent further processing
-        }
-
-        public virtual void OnObjectAreaMouseExit(Object sender, MouseEventArgs e)
-        {
-            // Will be later removed if entered the object
-            LogEvent(ExpStrs.ARA_EXIT);
-        }
-
         //---- Function
         public virtual void OnFunctionMouseEnter(Object sender, MouseEventArgs e)
         {
@@ -601,7 +517,7 @@ namespace SubTask.FunctionPointSelect
 
             if (!IsStartClicked()) // Start button not clicked yet
             {
-                Sounder.PlayStartMiss();
+                MSounder.PlayStartMiss();
                 e.Handled = true; // Mark the event as handled to prevent further processing
                 return;
             }
@@ -732,10 +648,14 @@ namespace SubTask.FunctionPointSelect
             var startButtonPressed = GetEventCount(ExpStrs.STR_PRESS) > 0;
             if (startButtonPressed)
             {
-                // Change Start to End in the main window
-                //_mainWindow.SwitchStartToEnd(_activeTrial.FuncSide);
-                // Remove the Start
-                //_mainWindow.RemoveStartTrialButton();
+                // Change START to END and unavailable
+                _mainWindow.ChangeStartButtonText(ExpStrs.END_CAP);
+                _mainWindow.ChangeStartButtonColor(UIColors.DARK_ORANGE);
+
+                // Enable function
+                _activeTrialRecord.EnableFunction();
+
+                // Update scene
                 UpdateScene();
             }
             else // Press was outside the button => miss
@@ -743,20 +663,6 @@ namespace SubTask.FunctionPointSelect
                 EndActiveTrial(Result.MISS);
             }
 
-            //--- Correctly pressed
-            if (_activeTrialRecord.AreAllFunctionsApplied())
-            {
-                EndActiveTrial(Result.HIT);
-            }
-            else
-            {
-                // Make functions available
-                //_mainWindow.EnableFunctions(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds());
-
-                // Change START to END and unavailable (until all functions are applied)
-                _mainWindow.ChangeStartButtonText(ExpStrs.END_CAP);
-                _mainWindow.ChangeStartButtonColor(Config.DARK_ORANGE);
-            }
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
@@ -771,7 +677,6 @@ namespace SubTask.FunctionPointSelect
             _activeTrialRecord.MarkFunction(funId);
             LogEvent(ExpStrs.FUN_MARKED, funId.ToString());
 
-            _activeTrialRecord.MarkObject(1);
             UpdateScene();
         }
 
@@ -780,73 +685,37 @@ namespace SubTask.FunctionPointSelect
             _activeTrialRecord.UnmarkFunction(funId);
             LogEvent(ExpStrs.FUN_DEMARKED, funId.ToString());
 
-            _activeTrialRecord.UnmarkObject(1);
             UpdateScene();
         }
-
-        public void SetFunctionAsEnabled(int funcId)
-        {
-            this.TrialInfo($"Function Id to enable: {funcId}");
-            _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide,
-                funcId,
-                Config.FUNCTION_ENABLED_COLOR);
-        }
-
-        //public void SetFunctionAsDisabled(int funcId)
-        //{
-        //    _mainWindow.FillButtonInAuxWindow(
-        //        _activeTrial.FuncSide,
-        //        funcId,
-        //        Config.FUNCTION_DEFAULT_COLOR);
-        //}
 
         public void SetFunctionAsApplied(int funcId)
         {
             _activeTrialRecord.SetFunctionAsApplied(funcId);
         }
 
-        protected void SetObjectAsDisabled(int objId)
-        {
-            _mainWindow.FillObject(objId, Config.OBJ_DEFAULT_COLOR);
-        }
-
         public void UpdateScene()
         {
-            foreach (var func in _activeTrialRecord.Functions)
+            foreach (var func in _activeTrialRecord.GetFunctions())
             {
-                Brush funcColor = Config.FUNCTION_DEFAULT_COLOR;
                 //this.TrialInfo($"Function#{func.Id} state: {func.State}");
                 switch (func.State)
                 {
+                    case ButtonState.DEFAULT:
+                        _mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id,
+                            UIColors.COLOR_FUNCTION_DEFAULT);
+                        break;
                     case ButtonState.ENABLED:
-                        funcColor = Config.FUNCTION_ENABLED_COLOR;
-                        break;
                     case ButtonState.MARKED:
-                        funcColor = Config.FUNCTION_ENABLED_COLOR;
+                        _mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id,
+                            UIColors.COLOR_FUNCTION_ENABLED);
                         break;
                     case ButtonState.SELECTED:
-                        funcColor = Config.FUNCTION_APPLIED_COLOR;
+                        _mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id,
+                            UIColors.COLOR_FUNCTION_APPLIED);
                         break;
                 }
 
-                _mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id, funcColor);
-            }
 
-            foreach (var obj in _activeTrialRecord.Objects)
-            {
-                Brush objColor = Config.OBJ_DEFAULT_COLOR;
-                switch (obj.State)
-                {
-                    case ButtonState.MARKED:
-                        objColor = Config.OBJ_MARKED_COLOR;
-                        break;
-                    case ButtonState.SELECTED:
-                        objColor = Config.OBJ_APPLIED_COLOR;
-                        break;
-                }
-
-                _mainWindow.FillObject(obj.Id, objColor);
             }
         }
 
@@ -877,11 +746,6 @@ namespace SubTask.FunctionPointSelect
 
         public virtual void IndexTap()
         {
-            if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
-            {
-                EndActiveTrial(Result.MISS);
-                return;
-            }
 
             //-- TAP:
 
@@ -890,18 +754,8 @@ namespace SubTask.FunctionPointSelect
                 return; // Do nothing if Start was not clicked
             }
 
-            Side correspondingSide = Side.Top;
-            var funcOnCorrespondingSide = _activeTrial.FuncSide == correspondingSide;
+            // Show error?
 
-            if (funcOnCorrespondingSide)
-            {
-                LogEvent(ExpStrs.PNL_SELECT);
-                _mainWindow.ActivateAuxWindowMarker(correspondingSide);
-            }
-            else
-            {
-                EndActiveTrial(Result.MISS);
-            }
         }
 
         public void IndexMove(double dX, double dY)
@@ -911,17 +765,11 @@ namespace SubTask.FunctionPointSelect
 
         public void IndexMove(TouchPoint indPoint)
         {
-            if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
-            {
-                LogEventOnce(ExpStrs.FLICK); // First flick after activation
-                _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked);
-            }
 
         }
 
         public void IndexUp()
         {
-            _mainWindow.StopAuxNavigator();
             LogEvent(ExpStrs.JoinUs(ExpStrs.INDEX, ExpStrs.UP));
         }
 
@@ -940,41 +788,11 @@ namespace SubTask.FunctionPointSelect
                 return; // Do nothing if Start was not clicked
             }
 
-            var allObjSelected = _nSelectedObjects == _activeTrialRecord.Objects.Count;
-            var dirMatchesSide = dir switch
-            {
-                Direction.Left => _activeTrial.FuncSide == Side.Left,
-                Direction.Right => _activeTrial.FuncSide == Side.Right,
-                Direction.Up => _activeTrial.FuncSide == Side.Top,
-                _ => false
-            };
-
-            var dirOppositeSide = dir switch
-            {
-                Direction.Left => _activeTrial.FuncSide == Side.Right,
-                Direction.Right => _activeTrial.FuncSide == Side.Left,
-                Direction.Down => _activeTrial.FuncSide == Side.Top,
-                _ => false
-            };
-
-            if (dirMatchesSide)
-            {
-                LogEvent(ExpStrs.PNL_SELECT);
-                _mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide);
-            }
-            else
-            {
-                EndActiveTrial(Result.MISS);
-            }
+            // Show error?
         }
 
         public virtual void ThumbTap(long downInstant, long upInstant)
         {
-            if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
-            {
-                EndActiveTrial(Result.MISS);
-                return;
-            }
 
             //-- TAP:
 
@@ -983,18 +801,7 @@ namespace SubTask.FunctionPointSelect
                 return; // Do nothing if Start was not clicked
             }
 
-            Side correspondingSide = Side.Left;
-            var funcOnCorrespondingSide = _activeTrial.FuncSide == correspondingSide;
 
-            if (funcOnCorrespondingSide)
-            {
-                LogEvent(ExpStrs.PNL_SELECT);
-                _mainWindow.ActivateAuxWindowMarker(correspondingSide);
-            }
-            else
-            {
-                EndActiveTrial(Result.MISS);
-            }
         }
 
         public void ThumbMove(TouchPoint thumbPoint)
@@ -1009,30 +816,11 @@ namespace SubTask.FunctionPointSelect
 
         public virtual void MiddleTap()
         {
-            if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
-            {
-                EndActiveTrial(Result.MISS);
-                return;
-            }
 
             //-- TAP:
-
             if (!IsStartClicked())
             {
                 return; // Do nothing if Start was not clicked
-            }
-
-            Side correspondingSide = Side.Right;
-            var funcOnCorrespondingSide = _activeTrial.FuncSide == correspondingSide;
-
-            if (funcOnCorrespondingSide)
-            {
-                LogEvent(ExpStrs.PNL_SELECT);
-                _mainWindow.ActivateAuxWindowMarker(correspondingSide);
-            }
-            else
-            {
-                EndActiveTrial(Result.MISS);
             }
         }
 
@@ -1058,6 +846,12 @@ namespace SubTask.FunctionPointSelect
             //}
 
             //string timeKey = type + "_" + _trialRecords[_activeTrial.Id].EventCounts[type];
+            if (_activeTrialRecord == null)
+            {
+                this.LogsInfo($"Warning: Trial record is null when logging event '{type}' with id '{id}'. Event not logged.");
+                return;
+            }
+
             _activeTrialRecord.RecordEvent(type, id); // Let them have the same name. We know the count from EventCounts
 
         }
@@ -1071,66 +865,6 @@ namespace SubTask.FunctionPointSelect
         {
             LogEvent(type, "");
         }
-
-        //protected void LogEvent(string type, long eventTime)
-        //{
-        //    //if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(type))
-        //    //{
-        //    //    _trialRecords[_activeTrial.Id].EventCounts[type]++;
-        //    //}
-        //    //else
-        //    //{
-        //    //    _trialRecords[_activeTrial.Id].EventCounts[type] = 1;
-        //    //}
-
-        //    //string timeKey = type + "_" + _trialRecords[_activeTrial.Id].EventCounts[type];
-        //    _activeTrialRecord.RecordEvent(type);
-
-        //}
-
-        //protected void LogEventWithIndex(string type, int id)
-        //{
-        //    string what = type.Split('_')[0];
-        //    this.TrialInfo($"What: {what}");
-        //    if (what == ExpStrs.FUN)
-        //    {
-        //        // Check the Id in the visited list. If visited, log the event.
-        //        if (!_functionsVisitMap.Contains(id)) // Function NOT visited before
-        //        {
-        //            _functionsVisitMap.Add(id);
-        //        }
-
-        //        int visitIndex = _functionsVisitMap.IndexOf(id);
-        //        LogEvent(ExpStrs.GetIndexedStr(type, visitIndex + 1)); // Use 1-based indexing
-        //    }
-
-        //    if (what == ExpStrs.OBJ)
-        //    {
-        //        // Check the Id in the visited list. If visited, log the event.
-        //        if (!_objectsVisitMap.Contains(id)) // Function NOT visited before
-        //        {
-        //            _objectsVisitMap.Add(id);
-        //        }
-
-        //        int visitIndex = _objectsVisitMap.IndexOf(id);
-        //        LogEvent(ExpStrs.GetIndexedStr(type, visitIndex + 1)); // Use 1-based indexing
-        //    }
-        //}
-
-        //protected void LogEventWithCount(string type)
-        //{
-        //    if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(type))
-        //    {
-        //        _trialRecords[_activeTrial.Id].EventCounts[type]++;
-        //    }
-        //    else
-        //    {
-        //        _trialRecords[_activeTrial.Id].EventCounts[type] = 1;
-        //    }
-
-        //    string logStr = ExpStrs.GetCountedStr(type, _trialRecords[_activeTrial.Id].EventCounts[type]);
-        //    _activeTrialRecord.RecordEvent(logStr); // Let them have the same name. We know the count from EventCounts
-        //}
 
         protected void LogEventOnce(string type)
         {
@@ -1148,6 +882,12 @@ namespace SubTask.FunctionPointSelect
             //}
             //return 0; // TrialEvent has not occurred
 
+            if (_activeTrialRecord == null)
+            {
+                this.LogsInfo($"Warning: Trial record is null when getting event count for type '{type}'. Returning 0.");
+                return 0;
+            }
+
             return _activeTrialRecord.CountEvent(type);
 
         }
@@ -1160,29 +900,6 @@ namespace SubTask.FunctionPointSelect
             }
 
             return 0;
-        }
-
-        public int GetMappedObjId(int funcId)
-        {
-            return _activeTrialRecord.FindMappedObjectId(funcId);
-        }
-
-        public void MarkAllObjects()
-        {
-            _activeTrialRecord.MarkAllObjects();
-        }
-
-        public void MarkMappedObject(int funcId)
-        {
-            //switch (_activeBlock.GetFunctionType())
-            //{
-            //    case TaskType.ONE_FUNCTION: // One function => mark all objects
-            //        MarkAllObjects();
-            //        break;
-            //    case TaskType.MULTI_FUNCTION: // Multi function => mark the mapped object 
-            //        _activeTrialRecord.MarkMappedObject(funcId);
-            //        break;
-            //}
         }
 
         public int GetActiveTrialNum()
@@ -1251,10 +968,9 @@ namespace SubTask.FunctionPointSelect
             return GetEventCount(ExpStrs.FUN_PRESS) > 0;
         }
 
-        protected bool WasObjectPressed(int objId)
+        public Complexity GetComplexity()
         {
-            this.TrialInfo($"Last event: {_activeTrialRecord.GetBeforeLastTrialEvent().ToString()}");
-            return _activeTrialRecord.GetEventIndex(ExpStrs.OBJ_PRESS) != -1;
+            return _activeBlock.GetComplexity();
         }
     }
 

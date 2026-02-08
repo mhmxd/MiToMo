@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Common.Helpers;
 
 namespace SubTask.Panel.Selection
 {
@@ -16,7 +12,7 @@ namespace SubTask.Panel.Selection
         {
             this.Type = type;
             this.Id = id;
-            this.Time = Timer.GetCurrentMillis();
+            this.Time = MTimer.GetCurrentMillis();
         }
 
         public TrialEvent(string type, string id, long time)
