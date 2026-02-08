@@ -11,6 +11,8 @@ namespace SubTask.PanelNavigation
     public class Experiment
     {
 
+        public static readonly int START_FONT_SIZE = 16;
+
         //--- Setting
         public Technique Active_Technique = Technique.TOMO; // Set in the intro dialog
         //public Complexity Active_Complexity = Complexity.Simple; // Set in the intro dialog
@@ -67,6 +69,11 @@ namespace SubTask.PanelNavigation
         public static int GetStartSize()
         {
             return UITools.MM2PX(ExpLayouts.START_BUTTON_IN_SIDE_MM.W);
+        }
+
+        public static int GetLargerStartSize()
+        {
+            return UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM);
         }
 
         public static int GetStartHalfWidth()

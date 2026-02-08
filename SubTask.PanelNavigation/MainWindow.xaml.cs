@@ -235,9 +235,9 @@ namespace SubTask.PanelNavigation
 
         private void CreateExperiment()
         {
-            double padding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
-            double smallButtonHalfWidthMM = ExpLayouts.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
-            double smallButtonHalfWidth = UITools.MM2PX(smallButtonHalfWidthMM);
+            //double padding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
+            //double smallButtonHalfWidthMM = ExpLayouts.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
+            //double smallButtonHalfWidth = UITools.MM2PX(smallButtonHalfWidthMM);
 
             _experiment = new Experiment();
         }

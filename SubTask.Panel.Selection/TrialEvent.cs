@@ -44,16 +44,14 @@ namespace SubTask.Panel.Selection
             }
         }
 
-        public string GetTypeId()
+        public string ToLogString()
         {
-            if (Id == "")
-            {
-                return $"{Type}";
-            }
-            else
-            {
-                return $"{Type}-{Id}";
-            }
+            return $"{Time};{Type};{Id}";
+        }
+
+        public static string GetHeader()
+        {
+            return "timestamp;type;id";
         }
     }
 }

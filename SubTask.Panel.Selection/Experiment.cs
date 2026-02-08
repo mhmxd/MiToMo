@@ -11,6 +11,8 @@ namespace SubTask.Panel.Selection
     public class Experiment
     {
 
+        public static readonly int START_FONT_SIZE = 16;
+
         //--- Setting
         public Technique ActiveTechnique = Technique.TOMO_TAP; // Set in the info dialog
         public Complexity ActiveComplexity = Complexity.Simple; // Set in the info dialog
@@ -68,6 +70,11 @@ namespace SubTask.Panel.Selection
             int index = blockNum - 1;
             if (index < _blocks.Count()) return _blocks[index];
             else return null;
+        }
+
+        public static int GetStartSize()
+        {
+            return UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM);
         }
 
         public static int GetStartHalfWidth()

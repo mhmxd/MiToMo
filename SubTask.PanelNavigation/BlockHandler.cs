@@ -92,7 +92,7 @@ namespace SubTask.PanelNavigation
             MouseEvents startButtonEvents = new MouseEvents(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             int newStartDist = _mainWindow.ShowStartBtn(
-                UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM),
+                Experiment.GetLargerStartSize(),
                 UIColors.COLOR_START_INIT,
                 _prevTrialStartDist,
                 startButtonEvents);
@@ -136,6 +136,7 @@ namespace SubTask.PanelNavigation
             ExperiLogger.LogTotalTrialTime(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
             ExperiLogger.LogCursorPositions();
             ExperiLogger.LogGestures();
+            ExperiLogger.LogTrialEvents(_activeTrialRecord.GetTrialEvents());
 
             // Next trial
             GoToNextTrial();

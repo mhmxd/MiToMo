@@ -528,6 +528,11 @@ namespace SubTask.PanelNavigation
             return -1;
         }
 
+        public List<TrialEvent> GetTrialEvents()
+        {
+            return Events;
+        }
+
         public bool HasTime(string label)
         {
             return Times.Any(t => t.Key == label);

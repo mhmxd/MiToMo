@@ -39,16 +39,14 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public string GetTypeVal()
+        public string ToLogString()
         {
-            if (Value == "")
-            {
-                return $"{Type}";
-            }
-            else
-            {
-                return $"{Type}-{Value}";
-            }
+            return $"{Time};{Type};{Value}";
+        }
+
+        public static string GetHeader()
+        {
+            return "timestamp;type;id";
         }
     }
 }
