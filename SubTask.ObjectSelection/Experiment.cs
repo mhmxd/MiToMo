@@ -8,6 +8,8 @@ namespace SubTask.ObjectSelection
     public class Experiment
     {
 
+        public static readonly int START_FONT_SIZE = 16; // For instructions and feedback
+
         //--- Setting
         public Technique Active_Technique = Technique.MOUSE; // Set in the info dialog
 

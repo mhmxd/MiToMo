@@ -988,7 +988,7 @@ namespace SubTask.ObjectSelection
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                FontSize = ExpLayouts.START_BUTTON_FONT_SIZE,
+                FontSize = Experiment.START_FONT_SIZE,
                 Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
             };
 
