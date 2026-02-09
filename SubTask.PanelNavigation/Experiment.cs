@@ -68,17 +68,12 @@ namespace SubTask.PanelNavigation
 
         public static int GetStartSize()
         {
-            return UITools.MM2PX(ExpLayouts.START_BUTTON_IN_SIDE_MM.W);
-        }
-
-        public static int GetLargerStartSize()
-        {
             return UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM);
         }
 
         public static int GetStartHalfWidth()
         {
-            return UITools.MM2PX(ExpLayouts.START_BUTTON_IN_SIDE_MM.W / 2);
+            return UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM / 2);
         }
     }
 }

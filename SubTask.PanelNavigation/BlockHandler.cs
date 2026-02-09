@@ -92,7 +92,7 @@ namespace SubTask.PanelNavigation
             MouseEvents startButtonEvents = new MouseEvents(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             int newStartDist = _mainWindow.ShowStartBtn(
-                Experiment.GetLargerStartSize(),
+                Experiment.GetStartSize(),
                 UIColors.COLOR_START_INIT,
                 _prevTrialStartDist,
                 startButtonEvents);

@@ -11,7 +11,7 @@ namespace SubTask.Panel.Selection
     public class Experiment
     {
 
-        public static readonly int START_FONT_SIZE = 16;
+        public static readonly int START_FONT_SIZE = 18;
 
         //--- Setting
         public Technique ActiveTechnique = Technique.TOMO_TAP; // Set in the info dialog
@@ -74,12 +74,8 @@ namespace SubTask.Panel.Selection
 
         public static int GetStartSize()
         {
-            return UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM);
+            return UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
         }
 
-        public static int GetStartHalfWidth()
-        {
-            return UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM / 2);
-        }
     }
 }
