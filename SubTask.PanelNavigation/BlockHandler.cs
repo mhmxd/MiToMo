@@ -322,7 +322,7 @@ namespace SubTask.PanelNavigation
                 if (_activeTrialRecord.HasFunctionState(ButtonState.MARKED))
                 {
                     _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, UIColors.COLOR_START_UNAVAILABLE);
-                    SetFunctionAsApplied(_activeTrialRecord.GetFunctionId());
+                    SetFunctionAsSelected(_activeTrialRecord.GetFunctionId());
                 }
                 else
                 {
@@ -406,9 +406,9 @@ namespace SubTask.PanelNavigation
             _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, UIColors.COLOR_START_UNAVAILABLE);
         }
 
-        public void SetFunctionAsApplied(int funcId)
+        public void SetFunctionAsSelected(int funcId)
         {
-            _activeTrialRecord.SetFunctionAsApplied(funcId);
+            _activeTrialRecord.SetFunctionAsSelected(funcId);
         }
 
         protected void SetObjectAsDisabled(int objId)

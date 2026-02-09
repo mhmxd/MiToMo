@@ -47,8 +47,11 @@ namespace SubTask.ObjectSelection
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
-            _trialRecords.Add(new TrialRecord(_activeTrial.Id));
+
+            TrialRecord trialRecord = new(_activeTrial.Id);
+            _trialRecords.Add(trialRecord);
             _activeTrialRecord = _trialRecords.Last();
+
             this.TrialInfo($"Active block id: {_activeBlock.Id}");
 
             // Clear the main window canvas (to add shapes)
@@ -68,7 +71,11 @@ namespace SubTask.ObjectSelection
             // Start logging cursor positions
             ExperiLogger.StartTrialCursorLog(_activeTrial.Id, _activeTrialNum);
 
-            // Set object area position
+            //-- Set object area size and position
+            _activeTrialRecord.ObjectAreaRect = new(
+                0, 0, // Location will be set later
+                UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM), UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM));
+
             _activeTrialRecord.ObjectAreaRect.Location = _mainWindow.FindRandomPositionForObjectArea(_activeTrialRecord.ObjectAreaRect.Size);
 
             // Place objects in the area
@@ -81,9 +88,10 @@ namespace SubTask.ObjectSelection
                 _activeTrial.NObjects);
 
             // Show the area
-            MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseEnter, OnObjectAreaMouseExit);
+            MouseEvents objAreaEvents = new(OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseEnter, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
-                _activeTrialRecord.ObjectAreaRect, UIColors.COLOR_OBJ_AREA_BG,
+                _activeTrialRecord.ObjectAreaRect,
+                UIColors.COLOR_OBJ_AREA_BG,
                 objAreaEvents);
 
             // Show the objects
@@ -115,16 +123,11 @@ namespace SubTask.ObjectSelection
             {
                 case Result.HIT:
                     MSounder.PlayHit();
-                    double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
-                    _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
-
                     break;
                 case Result.MISS:
                     MSounder.PlayTargetMiss();
 
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
-                    //_trialRecords[_activeTrial.Id].ClearTimestamps();
-                    //_trialRecords[_activeTrial.Id].ResetStates();
                     break;
             }
 
@@ -417,11 +420,6 @@ namespace SubTask.ObjectSelection
             //-- Not all objects applied:
             _activeTrialRecord.SelectObject(objId);
             UpdateScene();
-
-            //if (_activeTrialRecord.AreAllObjectsApplied()) // NOW all objects are applied => HIT
-            //{
-            //    EndActiveTrial(Result.HIT);
-            //}
         }
 
         //---- Object area
@@ -600,21 +598,6 @@ namespace SubTask.ObjectSelection
 
             return _activeTrialRecord.CountEvent(type);
 
-        }
-
-        protected double GetDuration(string begin, string end)
-        {
-            if (_activeTrialRecord.HasTimestamp(begin) && _activeTrialRecord.HasTimestamp(end))
-            {
-                return (_activeTrialRecord.GetFirstTime(end) - _activeTrialRecord.GetFirstTime(begin)) / 1000.0; // Convert to seconds
-            }
-
-            return 0;
-        }
-
-        public void MarkAllObjects()
-        {
-            _activeTrialRecord.MarkAllObjects();
         }
 
         public int GetActiveTrialNum()

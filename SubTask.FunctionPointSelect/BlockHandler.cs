@@ -87,8 +87,7 @@ namespace SubTask.FunctionPointSelect
         public bool FindPositionsForTrial(Trial trial, Rect constraintRect)
         {
             // Ensure TrialRecord exists
-            if (!_trialRecords.ContainsKey(trial.Id))
-                _trialRecords[trial.Id] = new TrialRecord();
+            if (!_trialRecords.ContainsKey(trial.Id)) _trialRecords[trial.Id] = new();
 
             // 1. Find the target function first
             TFunction randFunc = _mainWindow.FindRandomFunction(trial.FuncSide, trial.GetFunctionWidth(0), trial.DistRangePX);
@@ -128,10 +127,10 @@ namespace SubTask.FunctionPointSelect
             _trialRecords[trial.Id].Functions.Clear(); // Ensure clean state if retrying
             _trialRecords[trial.Id].Functions.Add(randFunc);
 
-            int startBtnW = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Width);
-            int startBtnH = UITools.MM2PX(_trialRecords[trial.Id].StartBtnRect.Height);
+            int startBtnW = Experiment.GetStartWidth();
+            int startBtnH = Experiment.GetStartWidth();
 
-            _trialRecords[trial.Id].StartBtnRect = new Rect(
+            _trialRecords[trial.Id].StartBtnRect = new(
                 startCenter.X - (startBtnW / 2.0),
                 startCenter.Y - (startBtnH / 2.0),
                 startBtnW,
@@ -318,9 +317,6 @@ namespace SubTask.FunctionPointSelect
             {
                 case Result.HIT:
                     MSounder.PlayHit();
-
-                    double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
-                    _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
 
                 case Result.MISS:
@@ -533,7 +529,7 @@ namespace SubTask.FunctionPointSelect
             LogEvent(ExpStrs.FUN_PRESS, funId);
 
             // Change state to APPLIED
-            _activeTrialRecord.SetFunctionAsApplied(funId);
+            _activeTrialRecord.SetFunctionAsSelected(funId);
             UpdateScene();
 
             Mouse.Capture(null);  // Release any active capture (so other windows/elements can get the MouseUp)
@@ -687,11 +683,6 @@ namespace SubTask.FunctionPointSelect
             LogEvent(ExpStrs.FUN_DEMARKED, funId.ToString());
 
             UpdateScene();
-        }
-
-        public void SetFunctionAsApplied(int funcId)
-        {
-            _activeTrialRecord.SetFunctionAsApplied(funcId);
         }
 
         public void UpdateScene()

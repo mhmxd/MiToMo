@@ -99,9 +99,6 @@ namespace SubTask.Panel.Selection
             {
                 case Result.HIT:
                     MSounder.PlayHit();
-                    double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
-                    _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
-
                     break;
                 case Result.MISS:
                     MSounder.PlayTargetMiss();
@@ -356,9 +353,9 @@ namespace SubTask.Panel.Selection
                 UIColors.COLOR_FUNCTION_DEFAULT);
         }
 
-        public void SetFunctionAsApplied(int funcId)
+        public void SetFunctionAsSelected(int funcId)
         {
-            _activeTrialRecord.SetFunctionAsApplied(funcId);
+            _activeTrialRecord.SetFunctionAsSelected(funcId);
         }
 
         public void UpdateScene()

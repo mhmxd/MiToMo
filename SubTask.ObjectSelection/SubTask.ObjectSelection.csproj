@@ -285,7 +285,6 @@
     <Compile Include="Experiment.cs" />
     <Compile Include="FullFinger.cs" />
     <Compile Include="FingerTracker.cs" />
-    <Compile Include="TrialEvent.cs" />
     <Compile Include="Logging\ExperiLogger.cs" />
     <Compile Include="TopWindow.xaml.cs">
       <DependentUpon>TopWindow.xaml</DependentUpon>
@@ -308,7 +307,6 @@
     <Compile Include="TouchSurface.cs" />
     <Compile Include="Trial.cs" />
     <Compile Include="BlockHandler.cs" />
-    <Compile Include="TrialRecord.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\Settings.Designer.cs">

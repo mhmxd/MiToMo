@@ -14,23 +14,35 @@ namespace CommonUI
         public List<TObject> Objects;
         public Dictionary<int, int> ObjFuncMap;
         public int Distance; // in pixels
+        public double DistanceMM; // in mm
 
-        public Rect StartBtnRect;
+        public Rect StartBtnRect; // Needed for a priori positioning
+        public Rect ObjectAreaRect;
+
         private List<TrialEvent> Events;
         private Dictionary<string, long> Times;
         private Dictionary<string, double> Lengths; // e.g., swipe length (all in mm)
 
         public Result Result;
 
+        public TrialRecord()
+        {
+            Functions = new List<TFunction>();
+            Objects = new List<TObject>();
+            ObjFuncMap = new Dictionary<int, int>();
+            Events = new List<TrialEvent>();
+            Times = new Dictionary<string, long>();
+            Lengths = new Dictionary<string, double>();
+        }
+
         public TrialRecord(int trialId)
         {
+            TrialId = trialId;
+
             Functions = new List<TFunction>();
             Events = new List<TrialEvent>();
             Times = new Dictionary<string, long>();
             Lengths = new Dictionary<string, double>();
-
-            TrialId = trialId;
-            StartBtnRect = new Rect(0, 0, ExpLayouts.START_BUTTON_SMALL_DIM_MM.W, ExpLayouts.START_BUTTON_SMALL_DIM_MM.H);
         }
 
         public TFunction? GetFunctionById(int id)
@@ -41,6 +53,11 @@ namespace CommonUI
             }
 
             return null;
+        }
+
+        public List<TFunction> GetFunctions()
+        {
+            return Functions;
         }
 
         public void UnmarkObject(int id)
@@ -82,7 +99,7 @@ namespace CommonUI
             return Functions[0]?.State == state;
         }
 
-        public void SetFunctionAsApplied(int funcId)
+        public void SetFunctionAsSelected(int funcId)
         {
             ChangeFunctionState(funcId, ButtonState.SELECTED);
         }
@@ -101,7 +118,11 @@ namespace CommonUI
         public void ChangeFunctionState(int funcId, ButtonState newState)
         {
             Functions.FirstOrDefault(f => f.Id == funcId).State = newState;
+        }
 
+        public void EnableFunction()
+        {
+            ChangeFunctionState(Functions[0].Id, ButtonState.ENABLED);
         }
 
         /// <summary>
@@ -359,6 +380,26 @@ namespace CommonUI
             return -1; // not found
         }
 
+        public int GetDurationFromFirstToLast(string startLabel, string endLabel)
+        {
+            if (Events == null || Events.Count == 0)
+                return -1;
+
+            // Find the first occurrence of startLabel
+            int startIndex = Events.FindIndex(t => t.Type == endLabel);
+            this.LogsInfo($"Index of {startLabel}: {startIndex}");
+            if (startIndex < 0)
+                return -1;
+
+            // Find the last occurence of endLabel
+            int endIndex = Events.FindLastIndex(t => t.Type == endLabel);
+            this.LogsInfo($"Index of {endLabel}: {endIndex}");
+            if (endIndex < 0)
+                return -1;
+
+            return MTools.GetDuration(Events[startIndex].Time, Events[endIndex].Time);
+        }
+
         public int GetDurationToGestureStart(string startLabel, Technique technique)
         {
             long startTime = GetLastTime(startLabel);
@@ -524,7 +565,7 @@ namespace CommonUI
             Times[label] = time;
         }
 
-        internal void RemoveLastTimestamp()
+        public void RemoveLastTimestamp()
         {
             Events.RemoveAt(Events.Count - 1);
         }
@@ -541,6 +582,53 @@ namespace CommonUI
                 return Lengths[label];
             }
             return -1;
+        }
+
+        public bool AreAllObjectsApplied()
+        {
+            return Objects.All(o => o.State == ButtonState.SELECTED);
+        }
+
+        public bool AreAllFunctionsSelected()
+        {
+            foreach (TFunction func in Functions)
+            {
+                this.TrialInfo($"Function#{func.Id} state: {func.State}");
+                if (func.State != ButtonState.SELECTED)
+                {
+                    return false; // If any function is not selected, return false
+                }
+            }
+
+            return true; // All functions are selected
+        }
+
+        public void AddAllFunctions(List<TFunction> functions)
+        {
+            Functions.AddRange(functions);
+        }
+
+        public bool IsObjectClicked(int objId)
+        {
+            return Events.Any(ts => ts.Type == ExpStrs.OBJ_RELEASE && ts.Id == objId.ToString());
+        }
+
+        public void MakeAllObjectsAvailable(ButtonState newState)
+        {
+            this.LogsInfo($"Change all objects to {newState}");
+            foreach (TObject obj in Objects)
+            {
+                obj.State = newState;
+            }
+        }
+
+        public void SelectObject(int id)
+        {
+            TObject obj = Objects.FirstOrDefault(o => o.Id == id);
+            if (obj != null)
+            {
+                obj.State = ButtonState.SELECTED;
+            }
         }
 
         public void Reset()

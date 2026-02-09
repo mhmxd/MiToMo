@@ -771,7 +771,7 @@ namespace SubTask.Panel.Selection
 
         public void SetFunctionAsApplied(int funcId)
         {
-            _activeBlockHandler.SetFunctionAsApplied(funcId);
+            _activeBlockHandler.SetFunctionAsSelected(funcId);
             _activeBlockHandler.UpdateScene();
         }
 

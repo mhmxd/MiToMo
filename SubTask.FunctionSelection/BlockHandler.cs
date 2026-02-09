@@ -107,12 +107,10 @@ namespace SubTask.FunctionSelection
             {
                 case Result.HIT:
                     MSounder.PlayHit();
-                    _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
                 case Result.MISS:
                     MSounder.PlayTargetMiss();
                     _activeBlock.ShuffleBackTrial(_activeTrialNum);
-                    _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
                     break;
             }
 

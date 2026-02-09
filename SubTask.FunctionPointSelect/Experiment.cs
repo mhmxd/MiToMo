@@ -104,6 +104,11 @@ namespace SubTask.FunctionPointSelect
             return ExpLayouts.OBJ_WIDTH_MM;
         }
 
+        public static int GetStartWidth()
+        {
+            return UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM);
+        }
+
         public static int GetStartHalfWidth()
         {
             return UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM / 2);
