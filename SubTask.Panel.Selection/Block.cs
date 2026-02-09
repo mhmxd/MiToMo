@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Common.Constants.ExpEnums;
-using Seril = Serilog.Log;
 
 namespace SubTask.Panel.Selection
 {
@@ -202,11 +201,11 @@ namespace SubTask.Panel.Selection
             }
             else if (_trials.Count <= 1)
             {
-                Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
+                //Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
             }
             else
             {
-                Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
+                //Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
             }
         }
 

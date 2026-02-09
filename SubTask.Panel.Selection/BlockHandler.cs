@@ -450,6 +450,7 @@ namespace SubTask.Panel.Selection
 
             if (dirMatchesSide)
             {
+                LogEvent(ExpStrs.SWIPE_END);
                 LogEvent(ExpStrs.PNL_SELECT);
                 //_mainWindow.ActivateAuxWindowMarker(_activeTrial.FuncSide);
 

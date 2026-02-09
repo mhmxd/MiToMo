@@ -131,11 +131,13 @@ namespace SubTask.Panel.Selection
 
             // Log start events
             log.trlsh_curmv = trialRecord.GetDuration(ExpStrs.TRIAL_SHOW, ExpStrs.FIRST_MOVE);
-            log.curmv_strnt = trialRecord.GetLastSeqDuration(ExpStrs.FIRST_MOVE, ExpStrs.STR_ENTER);
-            log.strnt_strpr = trialRecord.GetLastSeqDuration(ExpStrs.STR_ENTER, ExpStrs.STR_PRESS);
-            log.strpr_strrl = trialRecord.GetLastSeqDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
+            log.curmv_strnt = trialRecord.GetDuration(ExpStrs.FIRST_MOVE, ExpStrs.STR_ENTER);
+            log.strnt_strpr = trialRecord.GetDuration(ExpStrs.STR_ENTER, ExpStrs.STR_PRESS);
+            log.strpr_strrl = trialRecord.GetDuration(ExpStrs.STR_PRESS, ExpStrs.STR_RELEASE);
 
             // Log the rest of the times
+            log.strrl_gstst = trialRecord.GetDurationToGestureStart(ExpStrs.STR_RELEASE, trial.Technique);
+            log.gstst_gstnd = trialRecord.GetGestureDuration(trial.Technique);
 
             MIO.WriteTrialLog(log, _detiledTrialLogPath, _detailTrialLogWriter);
             //_detailTrialLogWriter?.Dispose();            

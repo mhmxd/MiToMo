@@ -804,8 +804,8 @@ namespace SubTask.Panel.Selection
                             if (Abs(dY) < ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
                             {
                                 // Swipe along x
-                                _gestureHandler?.ThumbSwipe(dX > 0 ? Direction.Right : Direction.Left);
                                 _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_END, center);
+                                _gestureHandler?.ThumbSwipe(dX > 0 ? Direction.Right : Direction.Left);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
                                 //GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
@@ -818,8 +818,8 @@ namespace SubTask.Panel.Selection
                             if (Abs(dX) < ExpEnvironment.SWIPE_MOVE_THRESHOLD) // Swipe should be only long one direction
                             {
                                 // Swipe along y
-                                _gestureHandler?.ThumbSwipe(dY > 0 ? Direction.Down : Direction.Up);
                                 _gestureHandler?.RecordToMoAction(Finger.Thumb, ExpStrs.SWIPE_END, center);
+                                _gestureHandler?.ThumbSwipe(dY > 0 ? Direction.Down : Direction.Up);
                                 //_thumbGestureFrames.Clear(); // Reset after gesture is dected
                                 _thumbGestureStart = currentFrame; // Reset after gesture is detected
                                 //GestInfo<TouchSurface>($"{finger.ToString()} Swiped!");
