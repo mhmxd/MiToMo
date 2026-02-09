@@ -68,9 +68,6 @@ namespace SubTask.FunctionSelection
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
-            // Clear the main window canvas (to add shapes)
-            //_mainWindow.ClearCanvas();
-
             // Show Start Trial button
             MouseEvents startButtonEvents = new(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
@@ -80,10 +77,11 @@ namespace SubTask.FunctionSelection
                 UIColors.COLOR_START_INIT,
                 startButtonEvents);
 
-            // Color the target button and set the handlers
-            _activeTrialRecord.AddAllFunctions(_mainWindow.FindRandomFunctions(_activeTrial.FuncSide, _activeTrial.GetFunctionWidths()));
-            this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().ToStr()}");
-            _mainWindow.FillButtonsInAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), UIColors.COLOR_FUNCTION_DEFAULT);
+            // Color the target buttons and set the handlers
+            List<TFunction> foundFunctions = _mainWindow.FindRandomFunctions(_activeTrial.FuncSide, _activeTrial.GetFunctionWidths());
+            _activeTrialRecord.AddAllFunctions(foundFunctions);
+            this.TrialInfo($"Function Id(s): {foundFunctions}");
+
             UpdateScene();
 
             _mainWindow.SetAuxButtonsHandlers(
@@ -149,11 +147,6 @@ namespace SubTask.FunctionSelection
 
                 // Go to next block
                 _mainWindow.GoToNextBlock();
-
-                // Show end of block window
-                //BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
-                //blockEndWindow.Owner = _mainWindow;
-                //blockEndWindow.ShowDialog();
             }
         }
 

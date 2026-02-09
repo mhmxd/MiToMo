@@ -1,4 +1,5 @@
-﻿using Common.Helpers;
+﻿using Common.Constants;
+using Common.Helpers;
 using Common.Settings;
 using System;
 using System.Collections.Generic;
@@ -84,9 +85,10 @@ namespace SubTask.PanelNavigation
 
             //-- Create and add trials to the block
             int trialNum = 1;
+            Side trialSide = Side.Top;
 
             // Create Top trials for each button width
-            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][Side.Top])
+            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][trialSide])
             {
                 Trial trial = Trial.CreateTrial(id * 100 + trialNum,
                             technique, ptc,
@@ -98,13 +100,14 @@ namespace SubTask.PanelNavigation
             }
 
             // Create side trials (random L/R)
+            trialSide = ExpEnums.GetRandomLR();
             foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][Side.Left])
             {
-                Side side = (Side)(_random.Next(0, 2) * 2); // Randomly select Left or Right
                 Trial trial = Trial.CreateTrial(id * 100 + trialNum,
                             technique, ptc,
                             complexity, expType,
-                            side, btnWidth);
+                            trialSide, btnWidth);
+
                 block._trials.Add(trial);
                 trialNum++;
             }

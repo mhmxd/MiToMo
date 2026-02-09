@@ -276,7 +276,7 @@ namespace SubTask.FunctionSelection
         public int SelectRandButton(int widthMult)
         {
 
-            if (_widthButtons[widthMult].Count > 0)
+            if (_widthButtons.ContainsKey(widthMult) && _widthButtons[widthMult].Count > 0)
             {
                 return _widthButtons[widthMult].GetRandomElement();
             }
@@ -287,121 +287,6 @@ namespace SubTask.FunctionSelection
             }
 
         }
-
-        //public int SelectRandButton(int widthMult)
-        //{
-        //    return _widthButtons[widthMult].GetRandomElement().Id;
-        //}
-
-        //public int SelectRandButtonByConstraints(int widthMult, Rect objConstraintRect, int dist)
-        //{
-        //    //this.TrialInfo($"Selecting button by multiple: {widthMult}");
-        //    //this.TrialInfo($"All buttons: ");
-        //    //foreach (int bid in _allButtons.Keys)
-        //    //{
-        //    //    this.TrialInfo($"Button#{bid} -> {_allButtons[bid].Id}");
-        //    //}
-
-        //    //this.TrialInfo($"Available buttons:");
-        //    foreach (int wm in _widthButtons.Keys)
-        //    {
-        //        string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-        //        //this.TrialInfo($"WM {wm} -> {ids}");
-        //    }
-
-        //    if (_widthButtons[widthMult].Count > 0)
-        //    {
-
-        //        // Find the buttons with dist laying inside their dist to start range
-        //        List<int> possibleButtons = new List<int>();
-        //        foreach (int buttonId in _buttonInfos.Keys)
-        //        {
-        //            Point buttonCenter = new Point(
-        //                _buttonInfos[buttonId].Rect.X + _buttonInfos[buttonId].Rect.Width / 2,
-        //                _buttonInfos[buttonId].Rect.Y + _buttonInfos[buttonId].Rect.Height / 2);
-        //            Point buttonCenterAbsolute = buttonCenter.OffsetPosition(this.Left, this.Top); // Offset to the top-left position
-        //            //this.TrialInfo($"ButtonCenter: {buttonCenterAbsolute}; Rect: {objConstraintRect.ToString()}; " +
-        //            //    $"Dist: {dist}; MaxDist: {objConstraintRect.MaxDistanceFromPoint(buttonCenterAbsolute)}");
-        //            if (objConstraintRect.MaxDistanceFromPoint(buttonCenterAbsolute) > dist)
-        //            {
-        //                possibleButtons.Add(buttonId);
-        //            }
-        //            //this.TrialInfo($"Dist = {dist} | DistToStart: {_buttonInfos[buttonId].DistToStartRange.ToString()}");
-        //            //if (_buttonInfos[buttonId].DistToStartRange.ContainsExc(dist))
-        //            //{
-        //            //    possibleButtons.Add(buttonId);
-        //            //}
-        //        }
-
-        //        // If we have options, return a random from them
-        //        if (possibleButtons.Count > 0)
-        //        {
-        //            return possibleButtons.GetRandomElement();
-        //        }
-
-
-        //        //if (button != null)
-        //        //{
-        //        //    //this.TrialInfo($"Selected button id: {button.Id}");
-        //        //    return button.Id;
-        //        //}
-        //        //else
-        //        //{
-        //        //    this.TrialInfo($"No buttons found for width multiple {widthMult}.");
-        //        //    return -1; // Return an invalid point if no buttons are found
-        //        //}
-        //    }
-        //    else
-        //    {
-        //        this.TrialInfo($"No buttons available for width multiple {widthMult}!");
-        //        return -1; // Return an invalid point if no buttons are found
-        //    }
-
-        //    this.TrialInfo($"No buttons with width multiple {widthMult} matched the distance!");
-        //    return -1; // Return an invalid point if no buttons are found
-
-        //}
-
-        //public int SelectRandButtonByConstraints(int widthMult, MRange distRange)
-        //{
-        //    //this.TrialInfo($"Available buttons: ");
-        //    //foreach (int wm in _widthButtons.Keys)
-        //    //{
-        //    //    string ids = string.Join(", ", _widthButtons[wm].Select(b => b.Id.ToString()));
-        //    //    this.TrialInfo($"WM {wm} -> {ids}");
-        //    //}
-
-        //    //this.TrialInfo($"Look for {widthMult}");
-        //    if (_widthButtons[widthMult].Count > 0)
-        //    {
-
-        //        // Find the buttons with dist laying inside their dist to start range
-        //        List<int> possibleButtons = new List<int>();
-        //        foreach (SButton button in _widthButtons[widthMult])
-        //        {
-        //            //this.TrialInfo($"Dist range = {distRange.ToString()} | DistToStart: {_buttonInfos[button.Id].DistToStartRange.ToString()}");
-        //            if (_buttonInfos[button.Id].DistToStartRange.ContainsExc(distRange))
-        //            {
-        //                possibleButtons.Add(button.Id);
-        //            }
-        //        }
-
-        //        // If we have options, return a random from them
-        //        if (possibleButtons.Count > 0)
-        //        {
-        //            return possibleButtons.GetRandomElement();
-        //        }
-        //    }
-        //    else
-        //    {
-        //        this.TrialInfo($"No buttons available for width multiple {widthMult}!");
-        //        return -1; // Return an invalid point if no buttons are found
-        //    }
-
-        //    this.TrialInfo($"No buttons with width multiple {widthMult} matched the distance!");
-        //    return -1; // Return an invalid point if no buttons are found
-
-        //}
 
         public void FillGridButtons(List<int> buttonIds, Brush color)
         {

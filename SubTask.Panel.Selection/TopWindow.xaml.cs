@@ -16,15 +16,10 @@ namespace SubTask.Panel.Selection
         public string WindowTitle { get; set; }
 
         [DllImport("User32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool SetCursorPos(int X, int Y);
-
-        [DllImport("User32.dll")]
         private static extern void EnableMouseInPointer(bool fEnable);
 
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
-
 
         public TopWindow()
         {
@@ -63,7 +58,7 @@ namespace SubTask.Panel.Selection
             {
                 try
                 {
-                    this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
+                    this.PositionInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
                     double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
                     Canvas.SetTop(_buttonsGrid, topPosition);
 

@@ -81,6 +81,7 @@ namespace SubTask.Panel.Selection
             Block block = new(ptc, technique, complexity, expType, id);
 
             int trialNum = 1;
+
             // Create Top trials for each button width
             Side side = Side.Top;
             foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][side])
@@ -118,50 +119,8 @@ namespace SubTask.Panel.Selection
                 trialNum++;
             }
 
+            // Randomize the order
             block.ShuffleTrials();
-
-            //bool wasLeft = false;
-            // One Top in reach rep
-            //Trial trial = Trial.CreateTrial(
-            //            id * 100 + trialNum,
-            //            technique,
-            //            ptc,
-            //            complexity,
-            //            expType,
-            //            Side.Top);
-
-            //block._trials.Add(trial);
-            //trialNum++;
-
-            //// One Left/Right in reach rep (equal number of left and right in all blocks together)
-            //if (wasLeft)
-            //{
-            //    trial = Trial.CreateTrial(
-            //            id * 100 + trialNum,
-            //            technique,
-            //            ptc,
-            //            complexity,
-            //            expType,
-            //            Side.Right);
-            //    wasLeft = false;
-            //}
-            //else
-            //{
-            //    trial = Trial.CreateTrial(
-            //            id * 100 + trialNum,
-            //            technique,
-            //            ptc,
-            //            complexity,
-            //            expType,
-            //            Side.Left);
-            //    wasLeft = true;
-            //}
-
-            //block._trials.Add(trial);
-            //trialNum++;
-
-            //// Shuffle the trials
-            //block.ShuffleTrials();
 
             // Return the block
             return block;
