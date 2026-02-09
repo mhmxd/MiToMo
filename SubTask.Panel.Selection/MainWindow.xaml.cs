@@ -65,23 +65,6 @@ namespace SubTask.Panel.Selection
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ClipCursor(IntPtr lpRect); // Overload for releasing
 
-        // Constants
-        private int INIT_X = 10, INIT_Y = 10;
-
-        private int TOMOPAD_COLS = 15; // Total num of cols on the surface
-        private int TOMOPAD_LAST_COL = 14;
-        private int TOMOPAD_ROWS = 13; // Totla num of rows on the surface
-        private int TOMOPAD_LAST_ROW = 12;
-
-        private double BASE_SPEED = 10; // 
-        private double ACCEL_FACTOR = 1.6; // Acceleration factor
-
-        private (double, double) FINGER_ACCEL_RANGE = (0.5, 20); // To avoid jumps
-        private double MIN_FING_ACCEL = 0.5; // To avoid jittering
-
-        private double NOISE_MIN_THRESH = 0.1; // Maximum of finger movement in dT
-        private double NOISE_MAX_THRESH = 0.7; // Maximum of finger movement in dT
-
         private double INFO_LABEL_BOTTOM_RATIO = 0.02; // of the height from the bottom
 
         private int VERTICAL_PADDING = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM); // Padding for the windows
@@ -89,14 +72,6 @@ namespace SubTask.Panel.Selection
 
         private int TopWindowHeight = UITools.MM2PX(ExpLayouts.TOP_WINDOW_HEIGTH_MM);
         private int SideWindowWidth = UITools.MM2PX(ExpLayouts.SIDE_WINDOW_WIDTH_MM);
-
-
-        // Dead zone
-        private double DEAD_ZONE_DX = 0.3;
-        private double DEAD_ZONE_DY = 1.8;
-
-        // Tip/Whole finger
-        private double TIP_MAX_MASS = 1000; // < 1000 is the finger tip
 
         //------------------------------------------------------------------------------
 
@@ -120,18 +95,6 @@ namespace SubTask.Panel.Selection
         private Stopwatch _stopWatch = new Stopwatch();
 
         private Stopwatch framesWatch;
-
-        private int leftSkipTPs = 0;
-
-        private Point prevPoint = new Point(-1, -1);
-
-        private bool headerWritten;
-
-        private Point mainCursorPrevPosition = new Point(-1, -1);
-        private double cursorTravelDist;
-        private DispatcherTimer cursorMoveTimer;
-        private bool mainCursorActive;
-        //private bool leftPointerActive, rightPointerActive, topPointerActive;
 
         // For all randoms (it's best if we use one instance)
         private Random _random;
@@ -226,7 +189,7 @@ namespace SubTask.Panel.Selection
         {
             // Set the layout (incl. placing the grid and finding positions)
             bool result = await SetupLayout();
-            this.TrialInfo($"Setup Layout: {result}");
+            this.PositionInfo($"Setup Layout: {result}");
             // Begin the blocks
             await BeginBlocksAsync();
         }
@@ -592,13 +555,13 @@ namespace SubTask.Panel.Selection
             // Set the TouchSurface and GenstureHandler
             _touchSurface ??= new TouchSurface(_activeBlockHandler.GetTechnique());
             _touchSurface.SetGestureHandler(_activeBlockHandler);
-            this.TrialInfo($"TouchSurface Initiated.");
+            //this.TrialInfo($"TouchSurface Initiated.");
 
             _stopWatch.Start();
 
             // Show layout before starting the block
             await SetGrids(_activeBlockHandler.GetComplexity());
-            this.TrialInfo($"Grid set for {_activeBlockHandler.GetComplexity()}");
+            //this.TrialInfo($"Grid set for {_activeBlockHandler.GetComplexity()}");
         }
 
         private async Task BeginBlocksAsync()
@@ -697,7 +660,7 @@ namespace SubTask.Panel.Selection
             for (int bn = 1; bn <= _experiment.Blocks.Count; bn++)
             {
                 Block bl = _experiment.Blocks[bn - 1];
-                this.TrialInfo($"Setting up handler for block#{bl.Id}");
+                this.PositionInfo($"Setting up handler for block#{bl.Id}");
 
                 // Use a local variable to store the handler
                 BlockHandler blockHandler = new(this, bl, bn);
@@ -728,12 +691,6 @@ namespace SubTask.Panel.Selection
                 default:
                     throw new ArgumentException($"Invalid target side: {_trial.FuncSide}");
             }
-
-            // All aux windows are treated the same (for now)
-            //_targetWindow.MouseEnter += windowMouseEnterHandler;
-            //_targetWindow.MouseLeave += windowMouseExitHandler;
-            //_targetWindow.MouseDown += windowMouseDownHandler;
-            //_targetWindow.MouseUp += windowMouseUpHandler;
 
             _activeAuxWindow.MouseDown += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseDown(side, sender, e); };
             _activeAuxWindow.MouseUp += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseUp(side, sender, e); };

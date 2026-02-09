@@ -66,81 +66,6 @@ namespace SubTask.Panel.Selection
             return -1;
         }
 
-        public int FindMappedObjectId(int functionId)
-        {
-            if (ObjFuncMap.ContainsKey(functionId))
-            {
-                return ObjFuncMap[functionId];
-            }
-            return -1; // Return -1 if no mapping found
-
-            // Find the first object that is mapped to the given function funcId
-            //var pair = ObjFuncMap.FirstOrDefault(p => p.Second == functionId);
-            //return pair != null ? pair.First : -1; // Return -1 if no mapping found
-        }
-
-        public bool IsEnabledFunction(int id)
-        {
-            // Check if it's the funcId of a function and its newState is enabled
-            TFunction func = GetFunctionById(id);
-            return (func != null) && (func.State == ButtonState.MARKED);
-        }
-
-        public bool AreAllFunctionsApplied()
-        {
-            foreach (TFunction func in Functions)
-            {
-                if (func.State != ButtonState.SELECTED)
-                {
-                    return false; // If any function is not selected, return false
-                }
-            }
-
-            return true; // All functions are selected
-        }
-
-        public bool AreAllObjectsApplied()
-        {
-            foreach (TObject obj in Objects)
-            {
-                if (obj.State != ButtonState.SELECTED)
-                {
-                    return false; // If any object is not applied, return false
-                }
-            }
-            return true; // All objects are applied
-        }
-
-        public bool IsAnyFunctionEnabled()
-        {
-            foreach (TFunction func in Functions)
-            {
-                if (func.State == ButtonState.MARKED)
-                {
-                    return true; // If any function is enabled, return true
-                }
-            }
-            return false; // No functions are enabled
-        }
-
-        public void MarkObject(int id)
-        {
-            TObject obj = Objects.FirstOrDefault(o => o.Id == id);
-            if (obj != null)
-            {
-                obj.State = ButtonState.MARKED;
-            }
-        }
-
-        public void UnmarkObject(int id)
-        {
-            TObject obj = Objects.FirstOrDefault(o => o.Id == id);
-            if (obj != null)
-            {
-                obj.State = ButtonState.DEFAULT;
-            }
-        }
-
         public void MarkFunction(int id)
         {
             ChangeFunctionState(id, ButtonState.MARKED);
@@ -151,15 +76,6 @@ namespace SubTask.Panel.Selection
         {
             ChangeFunctionState(id, ButtonState.DEFAULT);
             //this.TrialInfo($"Function#{id} demarked.");
-        }
-
-
-        public void EnableAllFunctions()
-        {
-            foreach (TFunction func in Functions)
-            {
-                func.State = ButtonState.MARKED;
-            }
         }
 
         public void SetFunctionAsApplied(int funcId)
@@ -183,9 +99,9 @@ namespace SubTask.Panel.Selection
         /// <param name="label"></param>
         public void RecordEvent(string type, string id)
         {
-            TrialEvent trialEvent = new TrialEvent(type, id);
+            TrialEvent trialEvent = new(type, id);
             Events.Add(trialEvent);
-            this.TrialInfo($"[+] {trialEvent.ToString()}");
+            //this.TrialInfo($"[+] {trialEvent}");
 
             if (type == ExpStrs.TAP_UP)
             {
