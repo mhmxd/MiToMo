@@ -18,5 +18,10 @@ namespace CommonUI
             State = ButtonState.DEFAULT;
         }
 
+        public string GetPositionStr()
+        {
+            return $"({Position.X:F2},{Position.Y:F2})";
+        }
+
     }
 }

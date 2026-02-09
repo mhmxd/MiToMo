@@ -502,6 +502,11 @@ namespace CommonUI
             return Events;
         }
 
+        public TObject? GetObjectById(int id)
+        {
+            return Objects.FirstOrDefault(o => o.Id == id);
+        }
+
         public bool HasTime(string label)
         {
             return Times.Any(t => t.Key == label);

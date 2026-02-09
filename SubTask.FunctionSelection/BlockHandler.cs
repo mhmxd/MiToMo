@@ -328,13 +328,6 @@ namespace SubTask.FunctionSelection
             int funId = (int)((FrameworkElement)sender).Tag;
             LogEvent(ExpStrs.FUN_RELEASE, funId);
 
-            // If the trial has already ended, ignore further events
-            //if (_activeTrialRecord.GetLastTrialEventType() == ExpStrs.TRIAL_END)
-            //{
-            //    e.Handled = true;
-            //    return;
-            //}
-
             if (!IsStartClicked())
             {
                 MSounder.PlayStartMiss();
@@ -344,6 +337,7 @@ namespace SubTask.FunctionSelection
 
             // Apply the function
             SetFunctionAsApplied(funId);
+            LogEvent(ExpStrs.FUN_SELECT, _activeTrialRecord.GetFunctionById(funId).GetPositionStr());
 
             // If all functions are applied => end trial with HIT
             if (_activeTrialRecord.AreAllFunctionsSelected())

@@ -26,5 +26,10 @@ namespace CommonUI
             return $"TFunction(Id: {Id}, WidthInUnits: {WidthInUnits}, Center: {Center}, Position: {Position}, State: {State})";
         }
 
+        public string GetPositionStr()
+        {
+            return $"({Position.X:F2},{Position.Y:F2})";
+        }
+
     }
 }

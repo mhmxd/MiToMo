@@ -856,7 +856,7 @@ namespace SubTask.FunctionPointSelect
             _startButton.MouseDown += mouseEvents.MouseDown;
             _startButton.MouseUp += mouseEvents.MouseUp;
             _startButton.MouseLeave += mouseEvents.MouseLeave;
-            this.TrialInfo($"Start button shown at absolute position ({btnRect.Left}, {btnRect.Top}) with size ({btnRect.Width}x{btnRect.Height})");
+            this.PositionInfo($"Start button shown at absolute position ({btnRect.Left}, {btnRect.Top}) with size ({btnRect.Width}x{btnRect.Height})");
             // Add the rectangle to the Canvas
             canvas.Children.Add(_startButton);
         }

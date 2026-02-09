@@ -22,12 +22,14 @@ namespace Common.Constants
         public static readonly string OBJ_PRESS = "obj_press";
         public static readonly string OBJ_RELEASE = "obj_release";
         public static readonly string OBJ_EXIT = "obj_exit";
+        public static readonly string OBJ_SELECT = "obj_select";
 
         public static readonly string FUN_ENTER = "fun_enter";
         public static readonly string FUN_PRESS = "fun_press";
         public static readonly string FUN_RELEASE = "fun_release";
         public static readonly string FUN_EXIT = "fun_exit";
         public static readonly string FUN_DEMARKED = "fun_demarked";
+        public static readonly string FUN_SELECT = "fun_select";
 
         public static readonly string STR_ENTER = "start_enter";
         public static readonly string STR_EXIT = "str_exit";

@@ -398,7 +398,6 @@ namespace SubTask.ObjectSelection
             }
 
             //-- Trial started:
-
             if (!WasObjectPressed(objId)) // Technique doesn't matter here
             {
                 this.TrialInfo($"Object wasn't pressed");
@@ -406,8 +405,7 @@ namespace SubTask.ObjectSelection
                 return; // Do nothing if object wasn't pressed
             }
 
-            //-- Object is pressed:
-
+            //-- Object was pressed:
             var allObjectsApplied = _activeTrialRecord.AreAllObjectsApplied();
 
             if (allObjectsApplied) // Probably pressed on the area, then here to release
@@ -419,6 +417,7 @@ namespace SubTask.ObjectSelection
 
             //-- Not all objects applied:
             _activeTrialRecord.SelectObject(objId);
+            LogEvent(ExpStrs.OBJ_SELECT, _activeTrialRecord.GetObjectById(objId).GetPositionStr());
             UpdateScene();
         }
 
