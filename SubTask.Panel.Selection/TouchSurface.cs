@@ -177,7 +177,7 @@ namespace SubTask.Panel.Selection
 
         public void SetGestureHandler(IGestureHandler gestureHandler)
         {
-            //this.TrialInfo("Gesturehandler set!");
+            this.TrialInfo("Gesturehandler set!");
             _gestureHandler = gestureHandler;
         }
 

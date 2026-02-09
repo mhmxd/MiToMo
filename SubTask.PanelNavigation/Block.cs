@@ -1,5 +1,4 @@
-﻿using Common.Constants;
-using Common.Helpers;
+﻿using Common.Helpers;
 using Common.Settings;
 using System;
 using System.Collections.Generic;
@@ -11,7 +10,7 @@ namespace SubTask.PanelNavigation
     // A block of trials in the experiment
     public class Block
     {
-        private static Random _random = new Random();
+        private static readonly Random _random = new Random();
 
         private List<Trial> _trials = new List<Trial>();
         public List<Trial> Trials
@@ -81,14 +80,13 @@ namespace SubTask.PanelNavigation
         {
 
             // Create block
-            Block block = new Block(ptc, technique, complexity, expType, id);
+            Block block = new(ptc, technique, complexity, expType, id);
 
             //-- Create and add trials to the block
             int trialNum = 1;
-            Side trialSide = Side.Top;
 
             // Create Top trials for each button width
-            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][trialSide])
+            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][Side.Top])
             {
                 Trial trial = Trial.CreateTrial(id * 100 + trialNum,
                             technique, ptc,
@@ -100,14 +98,13 @@ namespace SubTask.PanelNavigation
             }
 
             // Create side trials (random L/R)
-            trialSide = ExpEnums.GetRandomLR();
             foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][Side.Left])
             {
+                Side side = (Side)(_random.Next(0, 2) * 2); // Randomly select Left or Right
                 Trial trial = Trial.CreateTrial(id * 100 + trialNum,
                             technique, ptc,
                             complexity, expType,
-                            trialSide, btnWidth);
-
+                            side, btnWidth);
                 block._trials.Add(trial);
                 trialNum++;
             }
@@ -139,26 +136,63 @@ namespace SubTask.PanelNavigation
 
         public void ShuffleBackTrial(int trialNum)
         {
-            // Shuffle the trial based on its function side
-            Trial trialToCopy = _trials[trialNum - 1];
-            if (trialNum == _trials.Count && _trials.Count > 1)
+            // Validate trialNum (assuming 1-based index)
+            if (trialNum < 1 || trialNum > _trials.Count)
             {
-                _trials.Insert(trialNum, trialToCopy);
+                return;
             }
-            else if (_trials[trialNum].FuncSide == Side.Top)
+
+            // 1. Get the target trial (using your existing method)
+            Trial originalTrial = GetTrial(trialNum);
+            if (originalTrial == null) return;
+
+            // 2. Create a deep copy so data doesn't overlap
+            // Note: Replace .Clone() with your actual cloning logic if different
+            Trial trialCopy = originalTrial.Clone();
+
+            // 3. Determine the range for the new insertion
+            // The "remaining trials" are those from the current index + 1 to the end
+            int currentIndex = trialNum - 1;
+            int nextIndex = currentIndex + 1;
+
+            if (nextIndex >= _trials.Count)
             {
-                // Shuffle among the remaining top trials
-                int insertIndex = _random.Next(trialNum + 1, _trials.Count(t => t.FuncSide == Side.Top) + 1);
-                _trials.Insert(insertIndex, trialToCopy);
+                // If it's the last trial, just append it
+                _trials.Add(trialCopy);
             }
             else
             {
-                // Shuffle among the remaining left trials
-                int insertIndex = _random.Next(trialNum + 1, _trials.Count());
-                _trials.Insert(insertIndex, trialToCopy);
+                // Pick a random index between nextIndex and the very end of the list (inclusive)
+                int randomInsertIndex = _random.Next(nextIndex, _trials.Count + 1);
+                _trials.Insert(randomInsertIndex, trialCopy);
             }
-
         }
+
+        //public void ShuffleBackTrial(int trialNum)
+        //{
+        //    // Shuffle the trial back into the block (after a failed attempt)
+
+
+        //    // Shuffle the trial based on its function side
+        //    //Trial trialToCopy = _trials[trialNum - 1];
+        //    //if (trialNum == _trials.Count && _trials.Count > 1)
+        //    //{
+        //    //    _trials.Insert(trialNum, trialToCopy);
+        //    //}
+        //    //else if (_trials[trialNum].FuncSide == Side.Top)
+        //    //{
+        //    //    // Shuffle among the remaining top trials
+        //    //    int insertIndex = _random.Next(trialNum + 1, _trials.Count(t => t.FuncSide == Side.Top) + 1);
+        //    //    _trials.Insert(insertIndex, trialToCopy);
+        //    //}
+        //    //else
+        //    //{
+        //    //    // Shuffle among the remaining left trials
+        //    //    int insertIndex = _random.Next(trialNum + 1, _trials.Count());
+        //    //    _trials.Insert(insertIndex, trialToCopy);
+        //    //}
+
+        //}
 
         public Complexity GetComplexity()
         {

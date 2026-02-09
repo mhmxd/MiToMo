@@ -110,10 +110,5 @@ namespace Common.Constants
                 _ => throw new ArgumentOutOfRangeException(nameof(dir), "Unknown Direction value")
             };
         }
-
-        public static Side GetRandomLR()
-        {
-            return new List<Side> { Side.Left, Side.Right }.Shuffle().First();
-        }
     }
 }

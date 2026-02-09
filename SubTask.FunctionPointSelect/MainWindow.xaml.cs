@@ -485,6 +485,58 @@ namespace SubTask.FunctionPointSelect
             //}
         }
 
+        /// <summary>
+        /// Handle callback from mouse.  
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The event arguments.</param>
+        //private void TouchMouseSensorHandler(object sender, TouchMouseSensorEventArgs e)
+        //{
+        //    if (_isTouchMouseActive)
+        //    { // Only track the touch if the main cursor isn't moving
+        //        //if (_gestureDetector == null) _gestureDetector = new GestureDetector();
+        //        //if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);
+
+        //        Dispatcher.Invoke((Action<TouchMouseSensorEventArgs>)TrackTouch, e);
+        //    }
+        //}
+
+        /// <summary>
+        /// Track touch
+        /// </summary>
+        /// <param name="e"></param>
+        //private void TrackTouch(TouchMouseSensorEventArgs e)
+        //{
+        //    // Start frameWatch the first Time
+        //    if (framesWatch == null)
+        //    {
+        //        seqFrames = new Dictionary<long, List<(double x, double y)>>();
+        //        //leftPrevTP = (-1, -1);
+        //        framesWatch = new Stopwatch();
+        //        framesWatch.Start();
+        //    }
+
+        //    //long timeStamp = stopwatch.ElapsedMilliseconds;
+        //    //gestureVector.Add((e.Image.Select(b => b / 255.0f).ToArray(), timeStamp));
+        //    gestureShot = new byte[13, 15];
+        //    var shotSpan = new Span2D<Byte>(gestureShot);
+
+        //    // Populate the 2D array
+        //    for (int i = 0; i < 13; i++)
+        //    {
+        //        for (int j = 0; j < 15; j++)
+        //        {
+        //            //gestureShot[i, j] = e.Image[i * 15 + j];
+        //            shotSpan[i, j] = e.Image[i * 15 + j];
+        //            //if (gestureShot[i, j] > 200) Console.WriteLine("Touchpoint {0}, {1}", i, j);
+        //        }
+        //    }
+
+        //    //PrintSpan(shotSpan);
+        //    _touchSurface.Track(shotSpan);
+
+        //}
+
         public bool SetExperiment(ExperimentType expType)
         {
             // Make the experiment (incl. creating blocks)
@@ -643,6 +695,67 @@ namespace SubTask.FunctionPointSelect
             // Clear the canvas
             canvas.Children.Clear();
         }
+
+        //public async Task<bool> SetupLayout(Complexity complexity)
+        //{
+        //    // Create a list to hold the tasks for placing the grids
+        //    var placementTasks = new List<Task>();
+
+        //    // Flag to track overall success. Assume success (true) by default.
+        //    bool overallSuccess = true;
+
+        //    switch (complexity)
+        //    {
+        //        // ... (your switch statement logic remains the same)
+        //        case Complexity.Simple:
+        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
+        //            placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
+        //            placementTasks.Add(_rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
+        //            break;
+        //        case Complexity.Moderate:
+        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING));
+        //            placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
+        //            placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
+        //            break;
+        //        case Complexity.Complex:
+        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING));
+        //            placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
+        //            placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
+        //            break;
+        //    }
+
+        //    // Await all tasks concurrently.
+        //    await Task.WhenAll(placementTasks);
+
+        //    // Find positions for all blocks
+        //    for (int b = 1; b <= _experiment.Blocks.Count; b++)
+        //    {
+        //        Block bl = _experiment.Blocks[b - 1];
+        //        this.TrialInfo($"Setting up handler for block#{bl.Id}");
+
+        //        // Use a local variable to store the handler
+        //        BlockHandler blockHandler = new BlockHandler(this, bl, b);
+
+        //        bool positionsFound = blockHandler.FindPositionsForActiveBlock();
+
+        //        if (positionsFound)
+        //        {
+        //            _blockHandlers.Add(blockHandler);
+        //        }
+        //        else
+        //        {
+        //            this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
+        //            // Set the flag to false, but DO NOT set the Task's result yet.
+        //            overallSuccess = false;
+
+        //            // OPTIONAL: If a single failure should stop processing immediately, use:
+        //            // return false; 
+        //        }
+        //    }
+
+        //    // The method now automatically returns a Task<bool> with the final value of overallSuccess.
+        //    return overallSuccess;
+        //}
 
         private async Task SetGrids(Complexity complexity)
         {

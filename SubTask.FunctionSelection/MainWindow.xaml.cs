@@ -872,70 +872,29 @@ namespace SubTask.FunctionSelection
         public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits)
         {
             this.PositionInfo($"Function widths: {widthUnits.ToStr()}");
-
             List<TFunction> functions = new();
-            HashSet<int> usedIds = new();
-            int maxTriesPerUnit = 20; // Targeted retries are more efficient than global retries
-
-            foreach (int widthUnit in widthUnits)
+            List<int> foundIds = new();
+            // Find a UNIQUE function for each width
+            int maxTries = 100;
+            int tries = 1;
+            do
             {
-                TFunction foundFunction = null;
-
-                for (int i = 0; i < maxTriesPerUnit; i++)
+                tries++;
+                functions.Clear();
+                foundIds.Clear();
+                this.PositionInfo($"Num. of Tries: {tries}");
+                foreach (int widthUnit in widthUnits)
                 {
-                    var candidate = FindRandomFunction(side, widthUnit);
-
-                    if (candidate != null && !usedIds.Contains(candidate.Id))
-                    {
-                        foundFunction = candidate;
-                        break;
-                    }
+                    TFunction function = FindRandomFunction(side, widthUnit);
+                    this.PositionInfo($"Function found: ID {function.Id}, Width {widthUnit}");
+                    functions.Add(function);
+                    foundIds.Add(function.Id);
                 }
 
-                if (foundFunction != null)
-                {
-                    functions.Add(foundFunction);
-                    usedIds.Add(foundFunction.Id);
-                    this.PositionInfo($"Function found: ID {foundFunction.Id}, Width {widthUnit}");
-                }
-                else
-                {
-                    this.TrialInfo($"Could not find a unique function for width {widthUnit} after {maxTriesPerUnit} attempts.");
-                }
-            }
+            } while (foundIds.HasDuplicates() && tries < maxTries);
 
             return functions;
         }
-
-        //public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits)
-        //{
-        //    this.PositionInfo($"Function widths: {widthUnits.ToStr()}");
-        //    List<TFunction> functions = new();
-        //    List<int> foundIds = new();
-        //    // Find a UNIQUE function for each width
-        //    int maxTries = 100;
-        //    int tries = 1;
-        //    do
-        //    {
-        //        tries++;
-        //        functions.Clear();
-        //        foundIds.Clear();
-        //        this.PositionInfo($"Num. of Tries: {tries}");
-        //        foreach (int widthUnit in widthUnits)
-        //        {
-        //            TFunction function = FindRandomFunction(side, widthUnit);
-        //            this.PositionInfo($"Function found: ID {function.Id}, Width {widthUnit}");
-        //            if (function != null)
-        //            {
-        //                functions.Add(function);
-        //                foundIds.Add(function.Id);
-        //            }
-        //        }
-
-        //    } while ((foundIds.HasDuplicates() || foundIds.Count != widthUnits.Count)) && tries < maxTries);
-
-        //    return functions;
-        //}
 
         public Point GetCenterAbsolutePosition(Side side, int buttonId)
         {

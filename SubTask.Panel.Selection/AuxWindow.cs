@@ -146,7 +146,7 @@ namespace SubTask.Panel.Selection
         public TFunction FindRandomFunctionByWidth(int btnWidth)
         {
             // Select a random button with the specified width
-            //this.TrialInfo($"WidthButtons: {_widthButtons.Str()}");
+            this.TrialInfo($"WidthButtons: {_widthButtons.Str()}");
             //List<SButton> possibleButtons = _widthButtons.ContainsKey(btnWidth) ?
             //    _widthButtons[btnWidth] : new List<SButton>();
             List<int> possibleButtons = _widthButtons.ContainsKey(btnWidth) ?
@@ -168,7 +168,7 @@ namespace SubTask.Panel.Selection
                     position: GetGridButtonPosition(selectedButtonId)
                 );
 
-            //this.TrialInfo($"TFunction: {resultFunction?.ToString()}");
+            this.TrialInfo($"TFunction: {resultFunction?.ToString()}");
 
             return resultFunction;
         }

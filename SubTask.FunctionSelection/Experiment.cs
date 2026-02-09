@@ -63,15 +63,21 @@ namespace SubTask.FunctionSelection
             List<Complexity> randomizedComplexities = ExpEnums.GetRandomComplexityList();
             foreach (Complexity complexity in randomizedComplexities)
             {
+                // Create blocks, then shuffle them before adding to the overall list
+                List<Block> blocks = new List<Block>();
                 for (int i = 0; i < ExpDesign.MultiFuncSelectNumBlocks; i++)
                 {
                     int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-                    _blocks.Add(Block.CreateBlock(
+                    blocks.Add(Block.CreateBlock(
                         ExpEnvironment.PTC_NUM,
                         blockId, complexity, expType,
                         ExpDesign.MultiFuncSelectNumFunc));
 
                 }
+
+                // No need to shuffle the blocks, as they are already randomized by complexity, and there is only one block per complexity
+                //blocks.Shuffle();
+                _blocks.AddRange(blocks);
             }
         }
 

@@ -65,20 +65,25 @@ namespace SubTask.FunctionPointSelect
                 _longDistRangeMM    // Long distances
             };
 
-            //-- For each complexity, create blocks and add them
-            // No need to shuffle blocks because they are already randomized by complexity and trials inside each block are shuffled
+            //-- For each complexity, create blocks and randomize them before adding to the list
             List<Complexity> randomizedComplexities = ExpEnums.GetRandomComplexityList();
             foreach (Complexity complexity in randomizedComplexities)
             {
+                // Create blocks, then shuffle them before adding to the overall list
+                List<Block> blocks = new();
                 for (int i = 0; i < ExpDesign.FuncPointSelectNumBlocks; i++)
                 {
                     int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-                    Block block = Block.CreateBlock(
+                    blocks.Add(Block.CreateBlock(
                         ExpEnvironment.PTC_NUM,
                         blockId, complexity, expType,
-                        distRanges);
-                    _blocks.Add(block);
+                        distRanges));
+
                 }
+
+                // No need to shuffle blocks because they are already randomized by complexity and trials inside each block are shuffled
+                //blocks.Shuffle(); 
+                _blocks.AddRange(blocks);
             }
         }
 

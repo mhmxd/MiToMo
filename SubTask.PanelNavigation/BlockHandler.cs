@@ -50,22 +50,10 @@ namespace SubTask.PanelNavigation
             _trialRecords.Add(trialRecord);
             _activeTrialRecord = _trialRecords.Last();
             this.TrialInfo($"Active block id: {_activeBlock.Id}");
-            // Start the log
-            //ExperiLogger.StartBlockLog(_activeBlock.Id, _activeBlock.GetBlockType(), _activeBlock.GetComplexity());
-
-            // Update the main window label
-            //this.TrialInfo($"nTrials = {_activeBlock.GetNumTrials()}");
-            //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
-
-            // Show the Start Trial button
-            //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
             _mainWindow.ResetAllAuxWindows();
-
-
-            //_mainWindow.SetupLayout(_activeBlock.GetComplexity());
 
             // Show the first trial
             ShowActiveTrial();
@@ -174,11 +162,6 @@ namespace SubTask.PanelNavigation
 
                 // Go to next block
                 _mainWindow.GoToNextBlock();
-
-                // Show end of block window
-                //BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
-                //blockEndWindow.Owner = _mainWindow;
-                //blockEndWindow.ShowDialog();
             }
         }
 
@@ -328,7 +311,7 @@ namespace SubTask.PanelNavigation
         public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
         {
 
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
+            this.EventsInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             //-- Second press (on END)
             if (IsStartClicked())
@@ -362,7 +345,7 @@ namespace SubTask.PanelNavigation
             {
                 LogEvent(ExpStrs.END_RELEASE);
 
-                this.TrialInfo($"Function Marked? {_activeTrialRecord.HasFunctionState(ButtonState.SELECTED)}");
+                //this.TrialInfo($"Function Marked? {_activeTrialRecord.HasFunctionState(ButtonState.SELECTED)}");
 
                 if (_activeTrialRecord.HasFunctionState(ButtonState.SELECTED))
                 {

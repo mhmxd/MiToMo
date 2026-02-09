@@ -1,26 +1,21 @@
 ﻿using Common.Constants;
 using Common.Helpers;
 using Common.Settings;
-using CommonUI;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using static Common.Constants.ExpEnums;
 
-namespace SubTask.PanelNavigation
+namespace CommonUI
 {
     public class TrialRecord
     {
         public int TrialId { get; set; }
 
-        //public int FunctionId;
         public List<TFunction> Functions;
         public List<TObject> Objects;
         public Dictionary<int, int> ObjFuncMap;
         public int Distance; // in pixels
 
         public Rect StartBtnRect;
-        //public Dictionary<string, int> EventCounts;
         private List<TrialEvent> Events;
         private Dictionary<string, long> Times;
         private Dictionary<string, double> Lengths; // e.g., swipe length (all in mm)
@@ -30,7 +25,6 @@ namespace SubTask.PanelNavigation
         public TrialRecord(int trialId)
         {
             Functions = new List<TFunction>();
-            //EventCounts = new Dictionary<string, int>();
             Events = new List<TrialEvent>();
             Times = new Dictionary<string, long>();
             Lengths = new Dictionary<string, double>();
@@ -39,7 +33,7 @@ namespace SubTask.PanelNavigation
             StartBtnRect = new Rect(0, 0, ExpLayouts.START_BUTTON_SMALL_DIM_MM.W, ExpLayouts.START_BUTTON_SMALL_DIM_MM.H);
         }
 
-        public TFunction GetFunctionById(int id)
+        public TFunction? GetFunctionById(int id)
         {
             foreach (TFunction func in Functions)
             {
@@ -47,39 +41,6 @@ namespace SubTask.PanelNavigation
             }
 
             return null;
-        }
-
-        public bool AreAllObjectsApplied()
-        {
-            foreach (TObject obj in Objects)
-            {
-                if (obj.State != ButtonState.SELECTED)
-                {
-                    return false; // If any object is not applied, return false
-                }
-            }
-            return true; // All objects are applied
-        }
-
-        public bool IsAnyFunctionEnabled()
-        {
-            foreach (TFunction func in Functions)
-            {
-                if (func.State == ButtonState.MARKED)
-                {
-                    return true; // If any function is enabled, return true
-                }
-            }
-            return false; // No functions are enabled
-        }
-
-        public void MarkObject(int id)
-        {
-            TObject obj = Objects.FirstOrDefault(o => o.Id == id);
-            if (obj != null)
-            {
-                obj.State = ButtonState.MARKED;
-            }
         }
 
         public void UnmarkObject(int id)
@@ -93,7 +54,7 @@ namespace SubTask.PanelNavigation
 
         public void ApplyFunction(int funcId, int objId)
         {
-            this.TrialInfo($"FuncId: {funcId}");
+            this.EventsInfo($"FuncId: {funcId}");
             TFunction func = GetFunctionById(funcId);
             if (func != null)
             {
@@ -108,44 +69,17 @@ namespace SubTask.PanelNavigation
         public void MarkFunction(int id)
         {
             ChangeFunctionState(id, ButtonState.MARKED);
-            this.TrialInfo($"Function#{id} marked.");
         }
 
         public void UnmarkFunction(int id)
         {
             ChangeFunctionState(id, ButtonState.DEFAULT);
-            this.TrialInfo($"Function#{id} demarked.");
         }
 
         public bool HasFunctionState(ButtonState state)
         {
-            this.TrialInfo($"Function Id = {Functions[0].State}");
+            //this.TrialInfo($"Function Id = {Functions[0].State}");
             return Functions[0]?.State == state;
-        }
-
-
-        public void EnableAllFunctions()
-        {
-            foreach (TFunction func in Functions)
-            {
-                func.State = ButtonState.MARKED;
-            }
-        }
-
-        public void MarkAllObjects()
-        {
-            foreach (TObject obj in Objects)
-            {
-                obj.State = ButtonState.MARKED;
-            }
-        }
-
-        public void UnmarkAllObjects()
-        {
-            foreach (TObject obj in Objects)
-            {
-                obj.State = ButtonState.DEFAULT;
-            }
         }
 
         public void SetFunctionAsApplied(int funcId)
@@ -155,11 +89,11 @@ namespace SubTask.PanelNavigation
 
         public void ChangeObjectState(int objId, ButtonState newState)
         {
-            this.TrialInfo($"Change Obj#{objId} to {newState}");
+            this.EventsInfo($"Change Obj#{objId} to {newState}");
             TObject markedObj = Objects.FirstOrDefault(o => o.Id == objId);
             if (markedObj != null)
             {
-                this.TrialInfo($"Changed Obj#{objId} to {newState}");
+                this.EventsInfo($"Changed Obj#{objId} to {newState}");
                 markedObj.State = newState;
             }
         }
@@ -208,12 +142,12 @@ namespace SubTask.PanelNavigation
             return Events.Count > 0 ? Events.Last().Type : "No timestamps recorded";
         }
 
-        public TrialEvent GetLastTrialEvent()
+        public TrialEvent? GetLastTrialEvent()
         {
             return Events.Count > 0 ? Events.Last() : null;
         }
 
-        public TrialEvent GetBeforeLastTrialEvent()
+        public TrialEvent? GetBeforeLastTrialEvent()
         {
             return Events.Count > 1 ? Events[Events.Count - 2] : null;
         }
@@ -302,9 +236,9 @@ namespace SubTask.PanelNavigation
         public int GetDuration(string startLabel, string endLabel)
         {
             long startTime = GetLastTime(startLabel);
-            this.TrialInfo($"Start time ({startLabel}): {startTime}");
+            this.EventsInfo($"Start time ({startLabel}): {startTime}");
             long endTime = GetLastTime(endLabel);
-            this.TrialInfo($"End time ({endLabel}): {endTime}");
+            this.EventsInfo($"End time ({endLabel}): {endTime}");
             return MTools.GetDuration(startTime, endTime);
         }
 
@@ -413,8 +347,8 @@ namespace SubTask.PanelNavigation
             {
                 if (Events[i].Type == startLabel)
                 {
-                    this.TrialInfo($"Start time {startLabel}: {Events[i].Time}");
-                    this.TrialInfo($"End time {endLabel}: {Events[afterIndex].Time}");
+                    this.EventsInfo($"Start time {startLabel}: {Events[i].Time}");
+                    this.EventsInfo($"End time {endLabel}: {Events[afterIndex].Time}");
                     return MTools.GetDuration(
                         Events[i].Time,
                         Events[afterIndex].Time
@@ -466,15 +400,9 @@ namespace SubTask.PanelNavigation
             switch (gesture)
             {
                 case Technique.TOMO_TAP:
-                    //long tapEndTime = GetLastFingerActionTime(ExpStrs.TAP_UP);
-                    //long tapStartTime = GetFingerTimeBefore(ExpStrs.DOWN, tapEndTime);
-                    //return Tools.GetDuration(tapStartTime, tapEndTime);
                     return GetLastSeqDuration(ExpStrs.TAP_DOWN, ExpStrs.TAP_UP);
 
                 case Technique.TOMO_SWIPE:
-                    //long swipeEndTime = GetLastFingerActionTime(ExpStrs.SWIPE_END);
-                    //long swipeStartTime = GetFingerTimeBefore(ExpStrs.SWIPE_START, swipeEndTime);
-                    //return Tools.GetDuration(swipeStartTime, swipeEndTime);
                     return GetLastSeqDuration(ExpStrs.SWIPE_START, ExpStrs.SWIPE_END);
             }
 
@@ -512,9 +440,9 @@ namespace SubTask.PanelNavigation
         public int GetSequenceDuration(string label)
         {
             long startTime = GetFirstTime(label);
-            this.TrialInfo($"Start time {label}: {startTime}");
+            this.EventsInfo($"Start time {label}: {startTime}");
             long endTime = GetLastTime(label);
-            this.TrialInfo($"End time {label}: {startTime}");
+            this.EventsInfo($"End time {label}: {startTime}");
             return MTools.GetDuration(startTime, endTime);
         }
 

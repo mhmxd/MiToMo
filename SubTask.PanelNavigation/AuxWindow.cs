@@ -262,7 +262,7 @@ namespace SubTask.PanelNavigation
         public TFunction FindRandomFunctionByWidth(int btnWidth)
         {
             // Select a random button with the specified width
-            this.TrialInfo($"WidthButtons: {_widthButtons.Str()}");
+            this.PositionInfo($"WidthButtons: {_widthButtons.Str()}");
             //List<SButton> possibleButtons = _widthButtons.ContainsKey(btnWidth) ?
             //    _widthButtons[btnWidth] : new List<SButton>();
             List<int> possibleButtons = _widthButtons.ContainsKey(btnWidth) ?
@@ -284,7 +284,7 @@ namespace SubTask.PanelNavigation
                     position: GetGridButtonPosition(selectedButtonId)
                 );
 
-            this.TrialInfo($"TFunction: {resultFunction?.ToString()}");
+            this.PositionInfo($"TFunction: {resultFunction?.ToString()}");
 
             return resultFunction;
         }
@@ -295,7 +295,7 @@ namespace SubTask.PanelNavigation
             if (_buttonWraps.ContainsKey(buttonId))
             {
                 _buttonWraps[buttonId].Button.Background = color; // Change the background color of the button
-                this.TrialInfo($"Button {buttonId} filled with color {color}.");
+                //this.TrialInfo($"Button {buttonId} filled with color {color}.");
             }
             else
             {
@@ -616,9 +616,9 @@ namespace SubTask.PanelNavigation
             var btn = _buttonWraps[buttonId].Button;
 
             // DEBUG LOGS
-            this.TrialInfo($"DEBUG: Target Button ID: {btn.Id}");
-            this.TrialInfo($"DEBUG: Current BG: {btn.Background}");
-            this.TrialInfo($"DEBUG: Is Button in Visual Tree: {PresentationSource.FromVisual(btn) != null}");
+            //this.TrialInfo($"DEBUG: Target Button ID: {btn.Id}");
+            //this.TrialInfo($"DEBUG: Current BG: {btn.Background}");
+            //this.TrialInfo($"DEBUG: Is Button in Visual Tree: {PresentationSource.FromVisual(btn) != null}");
 
             var buttonBgDefault =
                 btn.Background.Equals(UIColors.COLOR_BUTTON_DEFAULT_FILL);
@@ -636,12 +636,12 @@ namespace SubTask.PanelNavigation
 
                 if (buttonBgDefault) // Normal button
                 {
-                    this.TrialInfo($"Set {buttonId} to Hover Fill");
+                    //this.TrialInfo($"Set {buttonId} to Hover Fill");
                     _buttonWraps[buttonId].Button.Background = UIColors.COLOR_BUTTON_HOVER_FILL;
                 }
                 else if (buttonBgFunctionDefault) // Function (default)
                 {
-                    this.TrialInfo($"Set {_buttonWraps[buttonId].Button.Id} to Enabled");
+                    //this.TrialInfo($"Set {_buttonWraps[buttonId].Button.Id} to Enabled");
                     _buttonWraps[buttonId].Button.Background = UIColors.COLOR_FUNCTION_ENABLED;
                     // Call the event
                     OnFunctionMarked(_buttonWraps[buttonId].Button.Id, _buttonWraps[buttonId].Button.RowCol);

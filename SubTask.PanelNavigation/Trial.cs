@@ -28,7 +28,7 @@ namespace SubTask.PanelNavigation
             set => _funcSide = value;
         }
 
-        private readonly List<int> _functionWidths = new List<int>(); // Function widths in px (for multi-function trials)
+        private List<int> _functionWidths = new(); // Function widths in px (for multi-function trials)
 
         //=========================================================================
 
@@ -68,10 +68,6 @@ namespace SubTask.PanelNavigation
             }
         }
 
-        public int GetNumFunctions()
-        {
-            return _functionWidths.Count;
-        }
 
         public int GetFunctionWidth(int functionIndex)
         {
@@ -83,9 +79,16 @@ namespace SubTask.PanelNavigation
             return $"Trial#{Id} [Target = {FuncSide.ToString()}]";
         }
 
-        public bool IsTechniqueToMo()
+        public Trial Clone()
         {
-            return Technique == Technique.TOMO || Technique == Technique.TOMO_SWIPE || Technique == Technique.TOMO_TAP;
+            // 1. Create a shallow copy for the basic value types (Id, Side, Enums, etc.)
+            Trial clone = (Trial)this.MemberwiseClone();
+
+            // 2. Explicitly "Deep Copy" the private list 
+            // This creates a NEW list so they don't share data
+            clone._functionWidths = new List<int>(this._functionWidths);
+
+            return clone;
         }
 
 

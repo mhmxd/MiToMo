@@ -69,6 +69,13 @@ namespace Common.Helpers
             //CONSOUT_NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
         }
 
+        public static void EventsInfo(this object source, string mssg, [CallerMemberName] string memberName = "")
+        {
+            // GetType() is called on the 'source' object at RUNTIME.
+            var className = source.GetType().Name;
+            //CONSOUT_NOTIME.ForContext("ClassName", className).ForContext("MethodName", memberName).Information(mssg);
+        }
+
         public static void LogsInfo<T>(string mssg, [CallerMemberName] string memberName = "")
         {
             //var className = typeof(T).Name;

@@ -1,47 +1,57 @@
 ﻿using Common.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace SubTask.PanelNavigation
+namespace CommonUI
 {
     public class TrialEvent
     {
         public string Type; // e.g., "obj_enter", "fun_press", etc.
-        public string Value; // e.g., object or function ID
+        public string Id; // e.g., object or function ID
         public long Time; // timestamp in milliseconds
 
-        public TrialEvent(string type, string val)
+        public TrialEvent(string type, string id)
         {
             this.Type = type;
-            this.Value = val;
+            this.Id = id;
             this.Time = MTimer.GetCurrentMillis();
         }
 
-        public TrialEvent(string type, string val, long time)
+        public TrialEvent(string type, string id, long time)
         {
             this.Type = type;
-            this.Value = val;
+            this.Id = id;
             this.Time = time;
         }
 
-        public bool HasTypeVal(string type, string val)
+        public bool HasTypeId(string type, string id)
         {
-            return this.Type == type && this.Value == val;
+            return this.Type == type && this.Id == id;
+        }
+
+        public bool HasTypeAndId(string type, int id)
+        {
+            return this.Type == type && this.Id == id.ToString();
         }
 
         public override string ToString()
         {
-            if (Value == "")
+            if (Id == "")
             {
                 return $"{Type}: {Time}";
             }
             else
             {
-                return $"{Type}-{Value}: {Time}";
+                return $"{Type}-{Id}: {Time}";
             }
         }
 
         public string ToLogString()
         {
-            return $"{Time};{Type};{Value}";
+            return $"{Time};{Type};{Id}";
         }
 
         public static string GetHeader()
