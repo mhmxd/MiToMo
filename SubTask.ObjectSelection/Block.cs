@@ -124,25 +124,62 @@ namespace SubTask.ObjectSelection
 
         public void ShuffleBackTrial(int trialNum)
         {
-            if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
-            {
-                Trial trialToCopy = _trials[trialNum - 1];
-                int insertIndex = _random.Next(trialNum + 1, _trials.Count);
+            // 1. Validate (1-based index)
+            if (trialNum < 1 || trialNum > _trials.Count) return;
 
-                _trials.Insert(insertIndex, trialToCopy);
-            }
-            else if (trialNum == _trials.Count && _trials.Count > 1)
+            // 2. Clone the current trial
+            Trial trialToCopy = _trials[trialNum - 1].Clone();
+
+            // 3. Handle Insertion Logic
+            if (trialNum >= _trials.Count)
             {
-                _trials.Insert(trialNum, _trials[trialNum - 1]);
-            }
-            else if (_trials.Count <= 1)
-            {
-                Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
+                // If it's the last trial, just add it to the end
+                _trials.Add(trialToCopy);
             }
             else
             {
-                Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
+                // Ensure at least one trial exists between the current one and the copy.
+                // Current index is trialNum - 1. 
+                // Next trial is at index trialNum.
+                // We start our random range at trialNum + 1.
+                int minInsertIndex = trialNum + 1;
+
+                if (minInsertIndex >= _trials.Count)
+                {
+                    // If we are at the second-to-last trial, just add to the end.
+                    _trials.Add(trialToCopy);
+                }
+                else
+                {
+                    // Pick a random spot between 'one trial away' and the very end.
+                    // _random.Next max is exclusive, so +1 to include the last slot.
+                    int insertIndex = _random.Next(minInsertIndex, _trials.Count + 1);
+                    _trials.Insert(insertIndex, trialToCopy);
+                }
             }
         }
+
+        //public void ShuffleBackTrial(int trialNum)
+        //{
+        //    if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
+        //    {
+        //        Trial trialToCopy = _trials[trialNum - 1];
+        //        int insertIndex = _random.Next(trialNum + 1, _trials.Count);
+
+        //        _trials.Insert(insertIndex, trialToCopy);
+        //    }
+        //    else if (trialNum == _trials.Count && _trials.Count > 1)
+        //    {
+        //        _trials.Insert(trialNum, _trials[trialNum - 1]);
+        //    }
+        //    else if (_trials.Count <= 1)
+        //    {
+        //        Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
+        //    }
+        //    else
+        //    {
+        //        Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
+        //    }
+        //}
     }
 }

@@ -10,7 +10,10 @@ namespace SubTask.Panel.Selection
     // A block of trials in the experiment
     public class Block
     {
-        private List<Trial> _trials = new List<Trial>();
+
+        private static readonly Random _random = new Random();
+
+        private List<Trial> _trials = new();
         public List<Trial> Trials
         {
             get => _trials;
@@ -118,50 +121,8 @@ namespace SubTask.Panel.Selection
                 trialNum++;
             }
 
+            // Randomize trial order within the block
             block.ShuffleTrials();
-
-            //bool wasLeft = false;
-            // One Top in reach rep
-            //Trial trial = Trial.CreateTrial(
-            //            id * 100 + trialNum,
-            //            technique,
-            //            ptc,
-            //            complexity,
-            //            expType,
-            //            Side.Top);
-
-            //block._trials.Add(trial);
-            //trialNum++;
-
-            //// One Left/Right in reach rep (equal number of left and right in all blocks together)
-            //if (wasLeft)
-            //{
-            //    trial = Trial.CreateTrial(
-            //            id * 100 + trialNum,
-            //            technique,
-            //            ptc,
-            //            complexity,
-            //            expType,
-            //            Side.Right);
-            //    wasLeft = false;
-            //}
-            //else
-            //{
-            //    trial = Trial.CreateTrial(
-            //            id * 100 + trialNum,
-            //            technique,
-            //            ptc,
-            //            complexity,
-            //            expType,
-            //            Side.Left);
-            //    wasLeft = true;
-            //}
-
-            //block._trials.Add(trial);
-            //trialNum++;
-
-            //// Shuffle the trials
-            //block.ShuffleTrials();
 
             // Return the block
             return block;
@@ -187,27 +148,67 @@ namespace SubTask.Panel.Selection
 
         public void ShuffleBackTrial(int trialNum)
         {
-            if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
+            // 1. Guard against invalid inputs (1-based index)
+            if (trialNum < 1 || trialNum > _trials.Count)
             {
-                Trial trialToCopy = _trials[trialNum - 1];
-                Random random = new Random();
-                int insertIndex = random.Next(trialNum + 1, _trials.Count);
+                return;
+            }
 
-                _trials.Insert(insertIndex, trialToCopy);
-            }
-            else if (trialNum == _trials.Count && _trials.Count > 1)
+            // 2. Clone the trial using our Deep Copy method
+            Trial trialToCopy = _trials[trialNum - 1].Clone();
+
+            // 3. Handle Insertion
+            if (trialNum >= _trials.Count)
             {
-                _trials.Insert(trialNum, _trials[trialNum - 1]);
-            }
-            else if (_trials.Count <= 1)
-            {
-                //Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
+                // If this was the last trial, just add it back to the end
+                _trials.Add(trialToCopy);
             }
             else
             {
-                //Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
+                // Logic for "at least one trial in between":
+                // Current index is (trialNum - 1). 
+                // Next trial is at (trialNum).
+                // We want to insert starting from (trialNum + 1).
+                int minInsertIndex = trialNum + 1;
+
+                if (minInsertIndex >= _trials.Count)
+                {
+                    // If we are at the second-to-last trial, just append to the end
+                    _trials.Add(trialToCopy);
+                }
+                else
+                {
+                    // Pick a random spot between 'one away' and the very end.
+                    // random.Next(min, max) -> max is exclusive, so +1 to allow end of list.
+                    int insertIndex = _random.Next(minInsertIndex, _trials.Count + 1);
+                    _trials.Insert(insertIndex, trialToCopy);
+                }
             }
         }
+
+        //public void ShuffleBackTrial(int trialNum)
+        //{
+        //    if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
+        //    {
+        //        Trial trialToCopy = _trials[trialNum - 1];
+        //        Random random = new Random();
+        //        int insertIndex = random.Next(trialNum + 1, _trials.Count);
+
+        //        _trials.Insert(insertIndex, trialToCopy);
+        //    }
+        //    else if (trialNum == _trials.Count && _trials.Count > 1)
+        //    {
+        //        _trials.Insert(trialNum, _trials[trialNum - 1]);
+        //    }
+        //    else if (_trials.Count <= 1)
+        //    {
+        //        //Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
+        //    }
+        //    else
+        //    {
+        //        //Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
+        //    }
+        //}
 
         public Complexity GetComplexity()
         {

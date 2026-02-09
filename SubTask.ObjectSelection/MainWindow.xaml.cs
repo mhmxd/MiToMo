@@ -810,68 +810,6 @@ namespace SubTask.ObjectSelection
             canvas.Children.Add(objRectangle);
         }
 
-
-        public void SetTargetWindow(Side side,
-            Action<Side, Object, SysIput.MouseEventArgs> windowMouseEnterHandler,
-            Action<Side, Object, SysIput.MouseEventArgs> windowMouseExitHandler,
-            Action<Side, Object, SysIput.MouseButtonEventArgs> windowMouseDownHandler,
-            Action<Side, Object, SysIput.MouseButtonEventArgs> windowMouseUpHandler)
-        {
-            switch (side)
-            {
-                case Side.Left:
-                    _targetWindow = _leftWindow;
-                    break;
-                case Side.Right:
-                    _targetWindow = _rightWindow;
-                    break;
-                case Side.Top:
-                    _targetWindow = _topWindow;
-                    break;
-                default:
-                    throw new ArgumentException($"Invalid target side: {_trial.FuncSide}");
-            }
-
-            // All aux windows are treated the same (for now)
-            //_targetWindow.MouseEnter += windowMouseEnterHandler;
-            //_targetWindow.MouseLeave += windowMouseExitHandler;
-            //_targetWindow.MouseDown += windowMouseDownHandler;
-            //_targetWindow.MouseUp += windowMouseUpHandler;
-
-            _targetWindow.MouseDown += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseDown(side, sender, e); };
-            _targetWindow.MouseUp += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseUp(side, sender, e); };
-            _targetWindow.MouseEnter += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseEnter(side, sender, e); };
-            _targetWindow.MouseLeave += (sender, e) => { _activeBlockHandler.OnAuxWindowMouseExit(side, sender, e); };
-
-        }
-
-        public AuxWindow GetAuxWindow(Side side)
-        {
-            switch (side)
-            {
-                case Side.Left:
-                    return _leftWindow;
-                case Side.Right:
-                    return _rightWindow;
-                case Side.Top:
-                    return _topWindow;
-                default:
-                    throw new ArgumentException($"Invalid target side: {_trial.FuncSide}");
-            }
-        }
-
-        public void FillStart(Brush color)
-        {
-            if (_startRectangle != null)
-            {
-                _startRectangle.Fill = color;
-            }
-            else
-            {
-                this.TrialInfo("Start rectangle is null, cannot fill it.");
-            }
-        }
-
         public void FillObject(int objId, Brush color)
         {
             // Find the object by its ID in the canvas children
@@ -882,50 +820,6 @@ namespace SubTask.ObjectSelection
                     rectangle.Fill = color;
                     return; // Exit after filling the first matching object
                 }
-            }
-        }
-
-        public void UpdateScene()
-        {
-            _activeBlockHandler.UpdateScene();
-        }
-
-        public void ResetAllAuxWindows()
-        {
-
-        }
-
-        //public Rect GetObjAreaCenterConstraintRect()
-        //{
-        //    // Square
-        //    double padding = UITools.MM2PX(VERTICAL_PADDING);
-        //    double objAreaHalfWidth = UITools.MM2PX(OBJ_AREA_WIDTH_MM / 2);
-        //    return new Rect(
-        //        this.Left + padding + objAreaHalfWidth,
-        //        this.Top + padding + objAreaHalfWidth,
-        //        this.Width - 2 * (padding + objAreaHalfWidth),
-        //        this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
-        //    );
-        //}
-
-        public bool IsTechniqueToMo()
-        {
-            return _experiment.Active_Technique == Technique.TOMO_SWIPE
-                || _experiment.Active_Technique == Technique.TOMO_TAP;
-        }
-
-        public bool IsAuxWindowActivated(Side side)
-        {
-            switch (side)
-            {
-                case Side.Left:
-                    return _activeAuxWindow == _leftWindow;
-                case Side.Top:
-                    return _activeAuxWindow == _topWindow;
-                case Side.Right:
-                    return _activeAuxWindow == _rightWindow;
-                default:
-                    return false; // Invalid side
             }
         }
 

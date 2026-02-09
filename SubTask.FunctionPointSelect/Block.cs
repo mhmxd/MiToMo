@@ -4,13 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using static Common.Constants.ExpEnums;
-using Seril = Serilog.Log;
 
 namespace SubTask.FunctionPointSelect
 {
     // A block of trials in the experiment
     public class Block
     {
+
+        private static readonly Random _random = new Random();
+
         private List<Trial> _trials = new List<Trial>();
         public List<Trial> Trials
         {
@@ -252,27 +254,70 @@ namespace SubTask.FunctionPointSelect
             return _trials.Count();
         }
 
+        //public void ShuffleBackTrial(int trialNum)
+        //{
+        //    if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
+        //    {
+        //        Trial trialToCopy = _trials[trialNum - 1];
+        //        Random random = new Random();
+        //        int insertIndex = random.Next(trialNum + 1, _trials.Count);
+
+        //        _trials.Insert(insertIndex, trialToCopy);
+        //    }
+        //    else if (trialNum == _trials.Count && _trials.Count > 1)
+        //    {
+        //        _trials.Insert(trialNum, _trials[trialNum - 1]);
+        //    }
+        //    else if (_trials.Count <= 1)
+        //    {
+        //        Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
+        //    }
+        //    else
+        //    {
+        //        Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
+        //    }
+        //}
+
         public void ShuffleBackTrial(int trialNum)
         {
-            if (trialNum >= 1 && trialNum < _trials.Count && _trials.Count > 1)
-            {
-                Trial trialToCopy = _trials[trialNum - 1];
-                Random random = new Random();
-                int insertIndex = random.Next(trialNum + 1, _trials.Count);
+            int totalCount = _trials.Count;
 
-                _trials.Insert(insertIndex, trialToCopy);
-            }
-            else if (trialNum == _trials.Count && _trials.Count > 1)
+            // 1. Basic Validation
+            if (trialNum < 1 || trialNum > totalCount)
             {
-                _trials.Insert(trialNum, _trials[trialNum - 1]);
+                // Use Serilog (fixing the typo 'Seril' to 'Log' or 'Serilog' as per your project)
+                Serilog.Log.Error($"Invalid trial number: {trialNum}. Must be between 1 and {totalCount}.");
+                return;
             }
-            else if (_trials.Count <= 1)
+
+            // 2. Logic for insufficient trials
+            if (totalCount <= 1)
             {
-                Seril.Information("Not enough trials to shuffle back with at least one trial in between.");
+                Serilog.Log.Information("Not enough trials to shuffle back with at least one trial in between.");
+                return;
+            }
+
+            // 3. Perform the Clone
+            Trial trialToCopy = _trials[trialNum - 1].Clone();
+
+            // 4. Calculate insertion range
+            // We want at least one trial between the current one and the copy.
+            // Current trial is at trialNum - 1.
+            // Next trial is at trialNum.
+            // Minimum insert index is trialNum + 1.
+            int minInsertIndex = trialNum + 1;
+
+            if (minInsertIndex >= totalCount)
+            {
+                // If it's the last or second-to-last trial, the copy simply becomes the new last trial.
+                _trials.Add(trialToCopy);
             }
             else
             {
-                Seril.Error($"Invalid trial number: {trialNum}. Trial number must be between 1 and {_trials.Count}.");
+                // Random.Next(min, max) -> max is exclusive. 
+                // We use totalCount + 1 to allow it to be placed at the very end.
+                int insertIndex = _random.Next(minInsertIndex, totalCount + 1);
+                _trials.Insert(insertIndex, trialToCopy);
             }
         }
 

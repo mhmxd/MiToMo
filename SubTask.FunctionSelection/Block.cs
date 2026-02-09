@@ -144,26 +144,67 @@ namespace SubTask.FunctionSelection
             return _trials.Count();
         }
 
+        //public void ShuffleBackTrial(int trialNum)
+        //{
+
+        //    // Shuffle the trial based on its function side
+        //    Trial trialToCopy = _trials[trialNum - 1];
+        //    if (trialNum == _trials.Count && _trials.Count > 1)
+        //    {
+        //        _trials.Insert(trialNum, trialToCopy);
+        //    }
+        //    else if (_trials[trialNum].FuncSide == Side.Top)
+        //    {
+        //        // Shuffle among the remaining top trials
+        //        int insertIndex = _random.Next(trialNum + 1, _trials.Count(t => t.FuncSide == Side.Top) + 1);
+        //        _trials.Insert(insertIndex, trialToCopy);
+        //    }
+        //    else
+        //    {
+        //        // Shuffle among the remaining left trials
+        //        int insertIndex = _random.Next(trialNum + 1, _trials.Count());
+        //        _trials.Insert(insertIndex, trialToCopy);
+        //    }
+        //}
+
         public void ShuffleBackTrial(int trialNum)
         {
-
-            // Shuffle the trial based on its function side
-            Trial trialToCopy = _trials[trialNum - 1];
-            if (trialNum == _trials.Count && _trials.Count > 1)
+            // 1. Basic Validation (trialNum is 1-based)
+            if (trialNum < 1 || trialNum > _trials.Count)
             {
-                _trials.Insert(trialNum, trialToCopy);
+                return;
             }
-            else if (_trials[trialNum].FuncSide == Side.Top)
+
+            // 2. Deep Clone the trial so data stays independent
+            Trial trialToCopy = _trials[trialNum - 1].Clone();
+
+            // 3. Handle Insertion
+            if (trialNum >= _trials.Count)
             {
-                // Shuffle among the remaining top trials
-                int insertIndex = _random.Next(trialNum + 1, _trials.Count(t => t.FuncSide == Side.Top) + 1);
-                _trials.Insert(insertIndex, trialToCopy);
+                // If it's the last trial, the only place to go is the end.
+                _trials.Add(trialToCopy);
             }
             else
             {
-                // Shuffle among the remaining left trials
-                int insertIndex = _random.Next(trialNum + 1, _trials.Count());
-                _trials.Insert(insertIndex, trialToCopy);
+                // To ensure at least one trial exists between the current one and the copy:
+                // Current index is trialNum - 1. 
+                // Next trial is at index trialNum.
+                // We start our random range at trialNum + 1.
+                int minInsertIndex = trialNum + 1;
+
+                // If we are at the second to last trial, minInsertIndex might exceed Count.
+                // We cap it or use Add().
+                if (minInsertIndex >= _trials.Count)
+                {
+                    _trials.Add(trialToCopy);
+                }
+                else
+                {
+                    // random.Next(min, max) -> max is exclusive.
+                    // _trials.Count + 1 allows the trial to potentially land at the very end.
+                    int insertIndex = _random.Next(minInsertIndex, _trials.Count + 1);
+                    _trials.Insert(insertIndex, trialToCopy);
+                }
             }
         }
 

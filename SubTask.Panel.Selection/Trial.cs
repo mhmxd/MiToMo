@@ -29,7 +29,7 @@ namespace SubTask.Panel.Selection
             set => _funcSide = value;
         }
 
-        private List<int> _functionWidths = new List<int>(); // Function widths in px (for multi-function trials)
+        private List<int> _functionWidths = new(); // Function widths in px (for multi-function trials)
 
         //=========================================================================
 
@@ -84,11 +84,16 @@ namespace SubTask.Panel.Selection
             return $"Trial#{Id} [Side = {FuncSide}; Complexity = {Complexity}; Widths = {_functionWidths.Str()}; Technique = {Technique}]";
         }
 
-        public bool IsTechniqueToMo()
+        public Trial Clone()
         {
-            return Technique == Technique.TOMO || Technique == Technique.TOMO_SWIPE || Technique == Technique.TOMO_TAP;
-        }
+            // Shallow copy copies the value types (Id, Technique, PtcNum, Side, etc.)
+            Trial clone = (Trial)this.MemberwiseClone();
 
+            // Deep copy the list so the clone has its own independent data
+            clone._functionWidths = new List<int>(this._functionWidths);
+
+            return clone;
+        }
 
     }
 }

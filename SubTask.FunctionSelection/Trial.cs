@@ -9,7 +9,6 @@ namespace SubTask.FunctionSelection
     // A trial in the experiment
     public class Trial
     {
-        // Trial Id
         private int _id { get; set; }
         public int Id
         {
@@ -34,16 +33,7 @@ namespace SubTask.FunctionSelection
             set => _funcSide = value;
         }
 
-        private List<int> _functionWidths = new List<int>(); // Function widths in px (for multi-function trials)
-
-        private int _nObjects;
-        public int NObjects
-        {
-            get => _nObjects;
-            set => _nObjects = value;
-        }
-
-        public int NFunctions => _functionWidths.Count;
+        private List<int> _functionWidths = new(); // Function widths in px (for multi-function trials)
 
         //=========================================================================
 
@@ -114,15 +104,27 @@ namespace SubTask.FunctionSelection
                 $"FunctionWidths = {GetFunctionWidths().ToStr()}]";
         }
 
-        public string GetCacheFileName(string cachedDirectory)
+        public Trial Clone()
         {
-            // Create a unique file name based on trial parameters
-            return Path.Combine(cachedDirectory, $"Cache_{FuncSide}_{_functionWidths.ToString()}_{DistRangeMM.Label}.json");
-        }
+            // 1. Shallow copy handles all value types/enums (Id, PtcNum, Technique, etc.)
+            Trial clone = (Trial)this.MemberwiseClone();
 
-        public bool IsTechniqueToMo()
-        {
-            return Technique == Technique.TOMO || Technique == Technique.TOMO_SWIPE || Technique == Technique.TOMO_TAP;
+            // 2. Deep copy the List of widths
+            // This ensures the clone has its own list instance in memory.
+            clone._functionWidths = new List<int>(this._functionWidths);
+
+            // 3. Deep copy the MRange object
+            // Check for null to avoid errors if this task type doesn't use a distance range.
+            if (this.DistRangeMM != null)
+            {
+                clone.DistRangeMM = new MRange(
+                    this.DistRangeMM.Min,
+                    this.DistRangeMM.Max,
+                    this.DistRangeMM.Label
+                );
+            }
+
+            return clone;
         }
 
 

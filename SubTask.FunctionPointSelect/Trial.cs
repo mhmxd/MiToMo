@@ -34,8 +34,7 @@ namespace SubTask.FunctionPointSelect
         public double TargetWidthPX => UITools.MM2PX(TargetWidthMM);
 
         public MRange DistRangeMM { get; set; }
-        public MRange DistRangePX => new MRange(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label);
-
+        public MRange DistRangePX => new(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label);
 
         private Side _funcSide; // Side window to show target in
         public Side FuncSide
@@ -44,7 +43,7 @@ namespace SubTask.FunctionPointSelect
             set => _funcSide = value;
         }
 
-        private List<int> _functionWidths = new List<int>(); // Function widths in px (for multi-function trials)
+        private List<int> _functionWidths = new(); // Function widths in px (for multi-function trials)
 
         private int _nObjects;
         public int NObjects
@@ -52,8 +51,6 @@ namespace SubTask.FunctionPointSelect
             get => _nObjects;
             set => _nObjects = value;
         }
-
-        public int NFunctions => _functionWidths.Count;
 
         //=========================================================================
 
@@ -137,15 +134,26 @@ namespace SubTask.FunctionPointSelect
                 $"FunctionWidths = {GetFunctionWidths().ToStr()}, Dist = {DistRangeMM.ToString()}]";
         }
 
-        public string GetCacheFileName(string cachedDirectory)
+        public Trial Clone()
         {
-            // Create a unique file name based on trial parameters
-            return Path.Combine(cachedDirectory, $"Cache_{FuncSide}_{_functionWidths.ToString()}_{DistRangeMM.Label}.json");
-        }
+            // 1. Shallow copy handles all value types (Id, NObjects, Enums, double)
+            Trial clone = (Trial)this.MemberwiseClone();
 
-        public bool IsTechniqueToMo()
-        {
-            return Technique == Technique.TOMO || Technique == Technique.TOMO_SWIPE || Technique == Technique.TOMO_TAP;
+            // 2. Deep copy the List (essential so they don't share function widths)
+            clone._functionWidths = new List<int>(this._functionWidths);
+
+            // 3. Deep copy the MRange (essential so they don't share the range object)
+            if (this.DistRangeMM != null)
+            {
+                // Assuming MRange is a simple class, we create a new instance with the same values
+                clone.DistRangeMM = new MRange(
+                    this.DistRangeMM.Min,
+                    this.DistRangeMM.Max,
+                    this.DistRangeMM.Label
+                );
+            }
+
+            return clone;
         }
 
 

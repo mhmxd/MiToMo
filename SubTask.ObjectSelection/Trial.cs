@@ -24,47 +24,12 @@ namespace SubTask.ObjectSelection
         public Complexity Complexity { get; set; }
         public ExperimentType ExpType { get; set; }
 
-        // Target circle diameter
-        private double _targetWidthMM;
-        public double TargetWidthMM
-        {
-            get => _targetWidthMM;
-            set => _targetWidthMM = value;
-        }
-        public double TargetWidthPX => UITools.MM2PX(TargetWidthMM);
-
-        public MRange DistRangeMM { get; set; }
-        public MRange DistRangePX => new MRange(UITools.MM2PX(DistRangeMM.Min), UITools.MM2PX(DistRangeMM.Max), DistRangeMM.Label); // Distance range in px
-
-        //public Point StartPosition, TargetPosition; // Relative to the respective windows
-
-        // Trial number (not needed for now)
-        //private int _number { get; set; }
-
-        private Side _funcSide; // Side window to show target in
-        public Side FuncSide
-        {
-            get => _funcSide;
-            set => _funcSide = value;
-        }
-
-        private List<int> _functionWidths = new List<int>(); // Function widths in px (for multi-function trials)
-
         private int _nObjects;
         public int NObjects
         {
             get => _nObjects;
             set => _nObjects = value;
         }
-
-        public int NFunctions => _functionWidths.Count;
-
-        //private int _targetMultiple; // Multiples of the target width (ref. the Experiment.TARGET_WIDTHS_MM list)
-        //public int TargetMultiple
-        //{
-        //    get => _targetMultiple;
-        //    set => _targetMultiple = value;
-        //}
 
         //=========================================================================
 
@@ -109,15 +74,11 @@ namespace SubTask.ObjectSelection
             return $"Trial#{Id} [nObj = {NObjects}]";
         }
 
-        public string GetCacheFileName(string cachedDirectory)
+        public Trial Clone()
         {
-            // Create a unique file name based on trial parameters
-            return Path.Combine(cachedDirectory, $"Cache_{FuncSide}_{_functionWidths.ToString()}_{DistRangeMM.Label}.json");
-        }
-
-        public bool IsTechniqueToMo()
-        {
-            return Technique == Technique.TOMO || Technique == Technique.TOMO_SWIPE || Technique == Technique.TOMO_TAP;
+            // Since all current fields (Id, Technique, PtcNum, TaskType, Complexity, ExpType, NObjects) 
+            // are value types or enums, MemberwiseClone() creates a perfect independent copy.
+            return (Trial)this.MemberwiseClone();
         }
 
 
