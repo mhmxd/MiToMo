@@ -2,7 +2,7 @@
 {
     public class ExpEnvironment
     {
-        public static readonly int PTC_NUM = 65;
+        public static readonly int PTC_NUM = 1;
 
         public static readonly double PPI = 109; // BenQ = 93.54; Apple = 109
 
