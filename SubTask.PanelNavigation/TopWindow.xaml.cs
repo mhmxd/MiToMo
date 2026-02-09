@@ -148,23 +148,25 @@ namespace SubTask.PanelNavigation
 
         }
 
-        public override int PositionStartButton(int largerSide, int prevDis)
+        public override int PositionStartButton(int btnSize, int prevDis)
         {
             // Set the Start button H
-            _startButton.Width = largerSide;
-            _startButton.Height = this.ActualHeight * 0.8;
+            _startButton.Width = btnSize;
+            _startButton.Height = this.ActualHeight - UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM) * 2;
+            //_startButton.Height = this.ActualHeight * 0.8;
+            //_startButton.Height = btnSize;
 
             // Show the start button at a different position than the previous trial
             if (_buttonsGrid != null)
             {
                 int minDist = UITools.MM2PX(ExpLayouts.START_BUTTON_DIST_MM);
-                int maxDist = (int)(this.ActualWidth - _buttonsGrid.ActualWidth - largerSide - UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM));
+                int maxDist = (int)(this.ActualWidth - _buttonsGrid.ActualWidth - btnSize - UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM));
                 // Contineously generate a random distance until this Start button has no overlap with previous one
                 int randDis;
                 do
                 {
                     randDis = _random.Next(minDist, maxDist);
-                } while (Math.Abs(randDis - prevDis) < largerSide);
+                } while (Math.Abs(randDis - prevDis) < btnSize);
 
                 double gridRight = Canvas.GetLeft(_buttonsGrid) + _buttonsGrid.ActualWidth;
                 double startBtnLeft = gridRight + randDis;

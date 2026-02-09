@@ -33,10 +33,12 @@ namespace SubTask.ObjectSelection
             $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.BLOCKS_C);
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
+        private static string _eventsLogFilePath = ""; // Will be set when starting trial events log
 
         private static StreamWriter _detailTrialLogWriter;
         private static StreamWriter _totalTrialLogWriter;
         private static StreamWriter _cursorLogWriter;
+        private static StreamWriter _eventsLogWriter;
         private static StreamWriter _blockLogWriter;
 
         private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
@@ -67,6 +69,13 @@ namespace SubTask.ObjectSelection
                 $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.CURSOR_C, $"trial-n{trialNum}-id{trialId}-{ExpStrs.CURSOR_S}"
             );
             _cursorLogWriter = MIO.PrepareFileWithHeader<PositionRecord>(_cursorLogFilePath, PositionRecord.GetHeader());
+
+            _eventsLogFilePath = Path.Combine(
+                MyDocumentsPath, LogsFolderName,
+                $"P{ExpEnvironment.PTC_NUM}-{Technique}", ExpStrs.EventsCap, $"trial-n{trialNum}-id{trialId}-{ExpStrs.Events}"
+            );
+
+            _eventsLogWriter = MIO.PrepareFileWithHeader<TrialEvent>(_eventsLogFilePath, TrialEvent.GetHeader());
         }
 
         private static void LogTrialInfo(TrialLog log, int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
@@ -154,7 +163,15 @@ namespace SubTask.ObjectSelection
             _cursorLogWriter.Dispose();
         }
 
+        public static void LogTrialEvents(List<TrialEvent> events)
+        {
+            foreach (var e in events)
+            {
+                _eventsLogWriter.WriteLine(e.ToLogString());
+            }
 
+            _eventsLogWriter?.Dispose();
+        }
         public static void LogBlockTime(Block block)
         {
             BlockLog log = new BlockLog();

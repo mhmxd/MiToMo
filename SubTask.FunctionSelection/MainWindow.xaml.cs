@@ -153,7 +153,6 @@ namespace SubTask.FunctionSelection
         private Dictionary<int, Point> _trialStartPosition = new Dictionary<int, Point>(); // Trial id to start center mapping
         private Dictionary<int, Dictionary<int, Point>> _repTrialStartPositions = new Dictionary<int, Dictionary<int, Point>>(); // Trial id: (dist: Start position)
         private Dictionary<int, int> _trialTargetIds = new Dictionary<int, int>(); // Trial id to target id (in target window)
-        //private Ellipse _startCircle;
         private Rectangle _startRectangle;
         private AuxWindow _targetWindow;
         private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)
@@ -676,7 +675,7 @@ namespace SubTask.FunctionSelection
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                FontSize = ExpLayouts.START_BUTTON_FONT_SIZE,
+                FontSize = Experiment.START_FONT_SIZE,
                 Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
             };
             _startButton.Child = label;
@@ -856,7 +855,7 @@ namespace SubTask.FunctionSelection
 
             if (id != -1)
             {
-                this.TrialInfo($"Random function#{id} found for {widthUnits}");
+                this.PositionInfo($"Random function#{id} found for {widthUnits}");
                 Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
                 Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
                 Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
@@ -865,14 +864,14 @@ namespace SubTask.FunctionSelection
             }
             else
             {
-                this.TrialInfo($"Could not find random function in {side} window!");
+                this.PositionInfo($"Could not find random function in {side} window!");
                 return null;
             }
         }
 
         public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits)
         {
-            this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
+            this.PositionInfo($"Function widths: {widthUnits.ToStr()}");
             List<TFunction> functions = new();
             List<int> foundIds = new();
             // Find a UNIQUE function for each width
@@ -883,11 +882,11 @@ namespace SubTask.FunctionSelection
                 tries++;
                 functions.Clear();
                 foundIds.Clear();
-                this.TrialInfo($"Num. of Tries: {tries}");
+                this.PositionInfo($"Num. of Tries: {tries}");
                 foreach (int widthUnit in widthUnits)
                 {
                     TFunction function = FindRandomFunction(side, widthUnit);
-                    this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
+                    this.PositionInfo($"Function found: ID {function.Id}, Width {widthUnit}");
                     functions.Add(function);
                     foundIds.Add(function.Id);
                 }

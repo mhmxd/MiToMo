@@ -8,8 +8,8 @@
         public static readonly int LT_N_BLOCKS = 8;
 
         // Subtask: Function Point-and-Select
-        public static readonly int FuncPointSelectNumBlocks = 8;
-        public static readonly int FuncPointSelectBreakAfterBlocks = 4;
+        public static readonly int FuncPointSelectNumBlocks = 2;
+        public static readonly int FuncPointSelectBreakAfterBlocks = (FuncPointSelectNumBlocks * 3) / 2; // Halfway (3 for complexities)
 
         // Subtask: Multi Function Selection
         public static readonly int MultiFuncSelectNumFunc = 3;

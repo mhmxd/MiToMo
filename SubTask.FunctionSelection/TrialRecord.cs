@@ -551,6 +551,11 @@ namespace SubTask.FunctionSelection
             return Functions.Select(f => f.Center).ToList();
         }
 
+        public List<TrialEvent> GetTrialEvents()
+        {
+            return Events;
+        }
+
         public void AddTime(string label, double time)
         {
             Times[label] = time;

@@ -69,6 +69,7 @@ namespace SubTask.FunctionSelection
         {
             Trial trial = new Trial(id);
             trial.PtcNum = ptc;
+            trial.Technique = Technique.MOUSE;
             trial.Complexity = complexity;
             trial.ExpType = expType;
             trial.FuncSide = side;

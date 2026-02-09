@@ -101,36 +101,44 @@ namespace SubTask.FunctionPointSelect
             // Create block
             Block block = new(ptc, complexity, expType, id);
 
-            // Create and add trials to the block
             int trialNum = 1;
-            for (int sInd = 0; sInd < 3; sInd++)
+            Side trialSide;
+
+            //-- Create Top trials
+            trialSide = Side.Top;
+            // Get the function widths based on side and complexity
+            List<int> topButtonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][trialSide];
+            foreach (int buttonWidth in topButtonWidths)
             {
-                Side functionSide = (Side)sInd;
-
-                // Get the function widths based on side and complexity
-                List<int> buttonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][functionSide];
-
                 foreach (MRange range in distRanges)
                 {
-                    // For now all function Ws are the same. We may later create trials with multiple function Ws
-                    foreach (int funcW in buttonWidths)
-                    {
-                        List<int> functionWidths = new List<int>();
-                        functionWidths.Add(funcW);
+                    Trial trial = Trial.CreateTrial(
+                        id * 100 + trialNum, ptc,
+                        complexity, expType,
+                        trialSide, range,
+                        buttonWidth);
 
-                        Trial trial = Trial.CreateTrial(
-                            id * 100 + trialNum,
-                            ptc,
-                            complexity,
-                            expType,
-                            functionSide,
-                            range,
-                            functionWidths);
+                    block._trials.Add(trial);
+                    trialNum++;
+                }
+            }
 
-                        block._trials.Add(trial);
-                        trialNum++;
-                    }
+            //-- Create side trials
+            trialSide = (Side)(new Random().Next(0, 2)); // Randomly select Left (0) or Right (1)
+            // Get the function widths based on side and complexity
+            List<int> sideButtonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][trialSide];
+            foreach (int buttonWidth in sideButtonWidths)
+            {
+                foreach (MRange range in distRanges)
+                {
+                    Trial trial = Trial.CreateTrial(
+                        id * 100 + trialNum, ptc,
+                        complexity, expType,
+                        trialSide, range,
+                        buttonWidth);
 
+                    block._trials.Add(trial);
+                    trialNum++;
                 }
             }
 

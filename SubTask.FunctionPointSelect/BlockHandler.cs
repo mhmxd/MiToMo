@@ -336,6 +336,7 @@ namespace SubTask.FunctionPointSelect
             ExperiLogger.LogDetailTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
             ExperiLogger.LogTotalTrialTime(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
             ExperiLogger.LogCursorRecords();
+            ExperiLogger.LogTrialEvents(_activeTrialRecord.GetTrialEvents());
 
             GoToNextTrial();
         }
@@ -836,14 +837,6 @@ namespace SubTask.FunctionPointSelect
 
         protected void LogEvent(string type, string id)
         {
-            //if (_trialRecords[_activeTrial.Id].EventCounts.ContainsKey(type))
-            //{
-            //    _trialRecords[_activeTrial.Id].EventCounts[type]++;
-            //}
-            //else
-            //{
-            //    _trialRecords[_activeTrial.Id].EventCounts[type] = 1;
-            //}
 
             //string timeKey = type + "_" + _trialRecords[_activeTrial.Id].EventCounts[type];
             if (_activeTrialRecord == null)

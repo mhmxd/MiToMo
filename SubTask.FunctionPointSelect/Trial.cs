@@ -74,7 +74,7 @@ namespace SubTask.FunctionPointSelect
         /// <returns></returns>
         public static Trial CreateTrial(
             int id, int ptc, Complexity complexity, ExperimentType expType,
-            Side side, MRange distRangeMM, List<int> functionWidthsMX)
+            Side side, MRange distRangeMM, int funcWidth)
         {
             Trial trial = new Trial(id);
             trial.PtcNum = ptc;
@@ -83,7 +83,7 @@ namespace SubTask.FunctionPointSelect
             trial.ExpType = expType;
             trial.FuncSide = side;
             trial.DistRangeMM = distRangeMM;
-            trial.AddFunctionWidths(functionWidthsMX);
+            trial.AddFunctionWidth(funcWidth);
 
             trial.TaskType = TaskType.FUNCTION_POINT_SELECT;
 

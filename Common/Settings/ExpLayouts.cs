@@ -66,8 +66,10 @@ namespace Common.Settings
         public static double TOP_WINDOW_HEIGTH_MM = 3 * GRID_ROW_HEIGHT_MM + 2 * ExpSizes.GUTTER_05MM + 2 * WINDOW_PADDING_MM;
 
         //-- Start Button ------------------------------------------------
-        public static readonly double START_BUTTON_LARGE_SIDE_MM = 40;
-        public static readonly (int W, int H) START_BUTTON_SMALL_DIM_MM = (20, 10);
+        public static readonly double START_BUTTON_LARGE_SIDE_MM = 45; // 3 x obj-h
+        //public static readonly double START_BUTTON_LARGE_SIDE_MM = TOP_WINDOW_HEIGTH_MM - 2 * WINDOW_PADDING_MM;
+        //public static readonly (int W, int H) START_BUTTON_SMALL_DIM_MM = (20, 10);
+        public static readonly (int W, int H) START_BUTTON_SMALL_DIM_MM = (30, 15); // 1 (obj-h) x 2 
         public static readonly (double W, double H) START_BUTTON_IN_SIDE_MM = (ExpSizes.EXCEL_CELL_W, ExpSizes.EXCEL_CELL_W);
         public static readonly double START_BUTTON_DIST_MM = 10;
         //public static readonly int START_BUTTON_FONT_SIZE = 16;

@@ -6,7 +6,6 @@
 
         public static readonly double PPI = 93.54; // BenQ = 93.54; Apple = 109
 
-
         //-- Mouse settings --------------------------------------------
         public static int TIME_CURSOR_MOVE_RESET = 2; // Cursor timer is reset after 2 seconds 
         public static double MIN_CURSOR_MOVE_MM = 5; // Minimum cursor movement to be considered as mouse moved 

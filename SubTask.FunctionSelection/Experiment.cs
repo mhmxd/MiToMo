@@ -10,9 +10,10 @@ namespace SubTask.FunctionSelection
 {
     public class Experiment
     {
+        public static readonly int START_FONT_SIZE = 18; // Font size for the start button (px)
 
         //--- Setting
-        public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
+        public Technique Active_Technique = Technique.MOUSE; // Set in the info dialog
         public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
         public ExperimentType Active_Type = ExperimentType.Practice; // Set from the intro dialog
 
@@ -56,8 +57,6 @@ namespace SubTask.FunctionSelection
 
         public void Init(ExperimentType expType)
         {
-            this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}");
-
             Active_Type = expType;
 
             //-- For each complexity, create blocks and randomize them before adding to the list
@@ -76,8 +75,8 @@ namespace SubTask.FunctionSelection
 
                 }
 
-                // Shuffle blocks inside the complexity
-                blocks.Shuffle();
+                // No need to shuffle the blocks, as they are already randomized by complexity, and there is only one block per complexity
+                //blocks.Shuffle();
                 _blocks.AddRange(blocks);
             }
         }
@@ -94,9 +93,14 @@ namespace SubTask.FunctionSelection
             else return null;
         }
 
+        public static int GetStartButtonWidth()
+        {
+            return UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
+        }
+
         public static int GetStartHalfWidth()
         {
-            return UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM / 2);
+            return UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM / 2);
         }
     }
 }
