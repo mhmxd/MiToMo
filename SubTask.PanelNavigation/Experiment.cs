@@ -33,24 +33,18 @@ namespace SubTask.PanelNavigation
             //Active_Complexity = complexity;
             Active_Type = expType;
 
-            //-- For each complexity, create blocks and randomize them before adding to the list
+            //-- For each complexity, create blocks and add them
             List<Complexity> randomizedComplexities = ExpEnums.GetRandomComplexityList();
             foreach (Complexity complexity in randomizedComplexities)
             {
-                // Create blocks, then shuffle them before adding to the overall list
-                List<Block> blocks = new List<Block>();
                 for (int i = 0; i < ExpDesign.PaneNavNumBlocks; i++)
                 {
                     int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-                    blocks.Add(Block.CreateBlock(
+                    _blocks.Add(Block.CreateBlock(
                         Active_Technique, ExpEnvironment.PTC_NUM,
                         blockId, complexity, expType));
 
                 }
-
-                // Shuffle blocks inside the complexity
-                blocks.Shuffle();
-                _blocks.AddRange(blocks);
             }
         }
 
