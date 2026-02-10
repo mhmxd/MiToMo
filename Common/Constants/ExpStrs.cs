@@ -102,6 +102,7 @@ namespace Common.Constants
         public static readonly string TAP_UP = "tap_up";
         public static readonly string DOWN = "down";
         public static readonly string UP = "up";
+        public static readonly string SWIPE = "swipe";
         public static readonly string SWIPE_START = "swipe_start";
         public static readonly string SWIPE_END = "swipe_end";
         public static readonly string FLICK = "flick";

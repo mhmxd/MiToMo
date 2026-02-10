@@ -585,7 +585,7 @@ namespace SubTask.Panel.Selection
 
         public override void RecordToMoAction(Finger finger, string action, Point point)
         {
-            LogEvent(action, finger.ToString().ToLower());
+            //LogEvent(action, finger.ToString().ToLower());
 
             // Record gesture (in a separate file)
             ExperiLogger.RecordGesture(MTimer.GetCurrentMillis(), finger, action, point);
