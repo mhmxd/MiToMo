@@ -24,8 +24,6 @@ using SysIput = System.Windows.Input;
 using SysWin = System.Windows;
 using TouchPoint = CommonUI.TouchPoint;
 
-//using WinForms = System.Windows.Forms; // Alias for Forms namespace
-
 namespace SubTask.PanelNavigation
 {
     /// <summary>
@@ -954,12 +952,6 @@ namespace SubTask.PanelNavigation
         public void StopAuxNavigator()
         {
             _activeAuxWindow?.StopGridNavigator();
-        }
-
-        public void ShowStartBtn(Side side, int btnW, int btnH, Brush btnColor, MouseEvents mouseEvents)
-        {
-            _activeAuxWindow = GetAuxWindow(side);
-            _activeAuxWindow.ShowStartBtn(btnW, btnH, btnColor, mouseEvents);
         }
 
         public int ShowStartBtn(int largerSide, Brush btnColor, int prevDis, MouseEvents mouseEvents)

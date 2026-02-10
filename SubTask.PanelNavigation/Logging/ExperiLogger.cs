@@ -188,11 +188,11 @@ namespace SubTask.PanelNavigation
             log.tech = block.Technique.ToString().ToLower();
             log.cmplx = block.Complexity.ToString().ToLower();
             log.exptype = block.ExpType.ToString().ToLower();
+            log.tsk_type = ExpStrs.TASKTYPE_ABBR[TaskType.PANEL_NAVIGATE];
             log.n_fun = 1;
             log.n_trials = block.GetNumTrials();
-
-            //double avgTime = _trialTimes.Values.Average() / 1000;
-            //log.block_time = $"{avgTime:F2}";
+            log.blck_time = $"{_trialTimes.Values.Sum() / 1000:F2}";
+            log.avg_time = $"{_trialTimes.Values.Average() / 1000:F2}";
 
             MIO.WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 

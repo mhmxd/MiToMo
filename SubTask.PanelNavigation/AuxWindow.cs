@@ -955,7 +955,5 @@ namespace SubTask.PanelNavigation
 
             return new MRange(minDist, maxDist);
         }
-
-        public abstract void ShowPoint(Point p);
     }
 }

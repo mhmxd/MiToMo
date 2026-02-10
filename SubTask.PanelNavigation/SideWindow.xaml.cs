@@ -26,12 +26,6 @@ namespace SubTask.PanelNavigation
 
         private Random _random = new Random();
 
-        private double HorizontalPadding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
-        private double VerticalPadding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM); // Padding for the top and bottom of the grid
-
-        private double InterGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM);
-        private double WithinGroupGutter = UITools.MM2PX(ExpSizes.GUTTER_05MM);
-
         [DllImport("User32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool SetCursorPos(int X, int Y);
@@ -50,11 +44,7 @@ namespace SubTask.PanelNavigation
         }
 
         private GridNavigator _gridNavigator;
-        private (int colInd, int rowInd) _selectedElement = (0, 0);
 
-        private TranslateTransform _cursorTransform;
-
-        private Dictionary<string, Element> _gridElements = new Dictionary<string, Element>(); // Key: "C{col}-R{row}", Value: Rectangle element
 
         public SideWindow(Side side, Point relPos)
         {
@@ -68,15 +58,8 @@ namespace SubTask.PanelNavigation
 
             _relPos = relPos;
 
-
             _gridNavigator = new GridNavigator(ExpEnvironment.FRAME_DUR_MS / 1000.0);
 
-            //foreach (int wm in Experiment.BUTTON_MULTIPLES.Values)
-            //{
-            //    _widthButtons.TryAdd(wm, new List<SButton>());
-            //}
-
-            //_cursorTransform = (TranslateTransform)FindResource("CursorTransform");
 
             this.Loaded += SideWindow_Loaded; // Add this line
         }
@@ -99,109 +82,11 @@ namespace SubTask.PanelNavigation
 
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
-            var cursorPoint = e.GetPosition(this);
 
-            _cursorTransform.X = cursorPoint.X;
-            _cursorTransform.Y = cursorPoint.Y;
         }
 
         private void Window_MouseUp(object sender, MouseEventArgs e)
         {
-
-        }
-
-        public void SelectElement()
-        {
-            // De-select all elements first
-            foreach (var element in _gridElements.Values)
-            {
-                element.ElementStroke = UIColors.COLOR_BUTTON_DEFAULT_BORDER;
-                element.ElementStrokeThickness = ExpLayouts.ELEMENT_BORDER_THICKNESS;
-            }
-
-            string elementKey = $"C{_selectedElement.colInd}-R{_selectedElement.rowInd}";
-            if (_gridElements.ContainsKey(elementKey))
-            {
-                Element element = _gridElements[elementKey];
-                element.ElementStroke = UIColors.COLOR_ELEMENT_HIGHLIGHT;
-                element.ElementStrokeThickness = ExpLayouts.ELEMENT_BORDER_THICKNESS;
-            }
-            else
-            {
-                Console.WriteLine($"Element {elementKey} not found.");
-            }
-        }
-
-        public void SelectElement(int rowId, int colId)
-        {
-            _selectedElement.rowInd = rowId;
-            _selectedElement.colInd = colId;
-            SelectElement();
-        }
-
-        public void MoveSelection(int dCol, int dRow)
-        {
-            _selectedElement.rowInd += dRow;
-            _selectedElement.colInd += dCol;
-            if (_selectedElement.rowInd < 0) _selectedElement.rowInd = 0;
-            if (_selectedElement.colInd < 0) _selectedElement.colInd = 0;
-            SelectElement();
-        }
-
-        public void ColorElement(string elementId, Brush color)
-        {
-            this.TrialInfo($"Element Key: {elementId}");
-            if (_gridElements.ContainsKey(elementId))
-            {
-                Element element = _gridElements[elementId];
-                element.ElementFill = color;
-            }
-            else
-            {
-                Console.WriteLine($"Element {elementId} not found.");
-            }
-        }
-
-        public void ResetElements()
-        {
-            foreach (Element element in _gridElements.Values)
-            {
-                element.ElementFill = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Reset to default color
-            }
-        }
-
-        public Point GetElementCenter(string key)
-        {
-            Element element = _gridElements[key];
-
-            return new Point
-            {
-                X = Canvas.GetLeft(element) + element.ElementWidth / 2,
-                Y = Canvas.GetTop(element) + element.ElementWidth / 2
-            };
-        }
-
-        public override void ShowPoint(Point p)
-        {
-            // Create a small circle to represent the point
-            Ellipse pointCircle = new Ellipse
-            {
-                Width = 5, // Diameter of the circle
-                Height = 5,
-                Fill = Brushes.Red // Color of the circle
-            };
-            // Position the circle on the canvas
-            Canvas.SetLeft(pointCircle, p.X - pointCircle.Width / 2);
-            Canvas.SetTop(pointCircle, p.Y - pointCircle.Height / 2);
-            // Add the circle to the canvas
-            if (this.canvas != null)
-            {
-                this.canvas.Children.Add(pointCircle);
-            }
-            else
-            {
-                this.TrialInfo("Canvas is not initialized, cannot show point.");
-            }
 
         }
 
@@ -318,14 +203,15 @@ namespace SubTask.PanelNavigation
             // Set the Start button H
             _startButton.Height = btnSize;
             _startButton.Width = this.ActualWidth - 2 * UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
-            //_startButton.Width = btnSize;
-            //_startButton.Width = this.ActualWidth * 0.8;
 
             // Position the start button at 10 mm below the bottom button of the grid
             if (_buttonsGrid != null)
             {
+                double gridBottom = Canvas.GetTop(_buttonsGrid) + _buttonsGrid.ActualHeight;
+
                 int minDist = UITools.MM2PX(ExpLayouts.START_BUTTON_DIST_MM);
-                int maxDist = (int)(this.ActualHeight - _buttonsGrid.ActualHeight - btnSize - UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM));
+                int maxDist = (int)(this.ActualHeight - gridBottom - btnSize - UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM));
+
                 // Contineously generate a random distance until this Start button has no overlap with previous one
                 int randDist;
                 do
@@ -333,7 +219,7 @@ namespace SubTask.PanelNavigation
                     randDist = _random.Next(minDist, maxDist);
                 } while (Math.Abs(randDist - prevDist) < btnSize);
 
-                double gridBottom = Canvas.GetTop(_buttonsGrid) + _buttonsGrid.ActualHeight;
+                // Set the top position
                 double startBtnTop = gridBottom + randDist; // Dist below the grid
 
                 // Position the button
