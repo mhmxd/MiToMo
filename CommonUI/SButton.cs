@@ -66,17 +66,38 @@ namespace CommonUI
 
             template.VisualTree = borderFactory;
 
-            // Trigger for background hover (only when not disabled)
+            // Trigger for background hover
             var backgroundHoverTrigger = new MultiTrigger();
+
+            // Condition 1: Mouse must be over
             backgroundHoverTrigger.Conditions.Add(new Condition(IsMouseOverProperty, true));
+
+            // Condition 2: Explicit disable flag must be false
             backgroundHoverTrigger.Conditions.Add(new Condition(DisableBackgroundHoverProperty, false));
+
+            // Condition 3: ONLY hover if the background is currently the default color
+            // This prevents colored buttons from being overwritten by the gray hover
+            backgroundHoverTrigger.Conditions.Add(new Condition(BackgroundProperty, UIColors.COLOR_BUTTON_DEFAULT_FILL));
+
             backgroundHoverTrigger.Setters.Add(new Setter(Border.BackgroundProperty, UIColors.COLOR_BUTTON_HOVER_FILL, "MainBorder"));
             template.Triggers.Add(backgroundHoverTrigger);
 
-            // Trigger for border hover (always active)
+            // Trigger for border hover (keep this as is)
             var borderHoverTrigger = new Trigger { Property = IsMouseOverProperty, Value = true };
             borderHoverTrigger.Setters.Add(new Setter(Border.BorderBrushProperty, UIColors.COLOR_BUTTON_HOVER_BORDER, "MainBorder"));
             template.Triggers.Add(borderHoverTrigger);
+
+            //// Trigger for background hover (only when not disabled)
+            //var backgroundHoverTrigger = new MultiTrigger();
+            //backgroundHoverTrigger.Conditions.Add(new Condition(IsMouseOverProperty, true));
+            //backgroundHoverTrigger.Conditions.Add(new Condition(DisableBackgroundHoverProperty, false));
+            //backgroundHoverTrigger.Setters.Add(new Setter(Border.BackgroundProperty, UIColors.COLOR_BUTTON_HOVER_FILL, "MainBorder"));
+            //template.Triggers.Add(backgroundHoverTrigger);
+
+            //// Trigger for border hover (always active)
+            //var borderHoverTrigger = new Trigger { Property = IsMouseOverProperty, Value = true };
+            //borderHoverTrigger.Setters.Add(new Setter(Border.BorderBrushProperty, UIColors.COLOR_BUTTON_HOVER_BORDER, "MainBorder"));
+            //template.Triggers.Add(borderHoverTrigger);
 
             this.Template = template;
 
