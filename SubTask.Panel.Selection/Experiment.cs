@@ -40,23 +40,18 @@ namespace SubTask.Panel.Selection
 
             }
 
-            //-- For each complexity, create blocks and randomize them before adding to the list
-            foreach (Complexity complexity in ExpEnums.GetRandomComplexityList())
+            //-- For each complexity, create blocks and add them
+            List<Complexity> randomComplexities = ExpEnums.GetRandomComplexityList();
+            foreach (Complexity complexity in randomComplexities)
             {
-                // Create blocks, then shuffle them before adding to the overall list
-                List<Block> blocks = new();
                 for (int i = 0; i < ExpDesign.PaneSelectNumBlocks; i++)
                 {
                     int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-                    blocks.Add(Block.CreateBlock(
+                    _blocks.Add(Block.CreateBlock(
                         ActiveTechnique, ExpEnvironment.PTC_NUM,
                         blockId, complexity, expType));
 
                 }
-
-                // Shuffle blocks inside the complexity
-                blocks.Shuffle();
-                _blocks.AddRange(blocks);
             }
         }
 

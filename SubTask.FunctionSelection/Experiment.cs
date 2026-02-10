@@ -14,7 +14,6 @@ namespace SubTask.FunctionSelection
 
         //--- Setting
         public Technique Active_Technique = Technique.MOUSE; // Set in the info dialog
-        public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
         public ExperimentType Active_Type = ExperimentType.Practice; // Set from the intro dialog
 
         //-- Distance Ranges
@@ -58,26 +57,22 @@ namespace SubTask.FunctionSelection
         public void Init(ExperimentType expType)
         {
             Active_Type = expType;
+            int nFunc = ExpDesign.MultiFuncSelectNumFunc;
 
             //-- For each complexity, create blocks and randomize them before adding to the list
             List<Complexity> randomizedComplexities = ExpEnums.GetRandomComplexityList();
             foreach (Complexity complexity in randomizedComplexities)
             {
-                // Create blocks, then shuffle them before adding to the overall list
-                List<Block> blocks = new List<Block>();
+                // Create blocks and add them (no need to shuffle)
                 for (int i = 0; i < ExpDesign.MultiFuncSelectNumBlocks; i++)
                 {
                     int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-                    blocks.Add(Block.CreateBlock(
+                    _blocks.Add(Block.CreateBlock(
                         ExpEnvironment.PTC_NUM,
                         blockId, complexity, expType,
-                        ExpDesign.MultiFuncSelectNumFunc));
+                        nFunc));
 
                 }
-
-                // No need to shuffle the blocks, as they are already randomized by complexity, and there is only one block per complexity
-                //blocks.Shuffle();
-                _blocks.AddRange(blocks);
             }
         }
 

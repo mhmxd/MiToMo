@@ -12,7 +12,7 @@
                        FontSize="32"
                        FontWeight="Bold"
                        TextAlignment="Center"
-                       Text="Techniuqe is finished."
+                       Text="Task done."
                        Foreground="#353535"
                        Margin="0,0,0,20"/>
             <TextBlock x:Name="MainText"
@@ -20,7 +20,7 @@
                        FontWeight="ExtraBold"
                        Foreground="#353535"
                        TextAlignment="Center">
-                You did a great job!
+                Thank You!
             </TextBlock>
         </StackPanel>
     </Grid>

@@ -84,39 +84,40 @@ namespace SubTask.Panel.Selection
             Block block = new(ptc, technique, complexity, expType, id);
 
             int trialNum = 1;
+            Side trialSide = Side.Top;
+
             // Create Top trials for each button width
-            Side side = Side.Top;
-            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][side])
+            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][trialSide])
             {
                 Trial trial = Trial.CreateTrial(id * 100 + trialNum,
                             technique, ptc,
                             complexity, expType,
-                            side, btnWidth);
+                            trialSide, btnWidth);
 
                 block._trials.Add(trial);
                 trialNum++;
             }
 
             // Create Left trials
-            side = Side.Left;
-            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][side])
+            trialSide = Side.Left;
+            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][trialSide])
             {
                 Trial trial = Trial.CreateTrial(id * 100 + trialNum,
                             technique, ptc,
                             complexity, expType,
-                            side, btnWidth);
+                            trialSide, btnWidth);
                 block._trials.Add(trial);
                 trialNum++;
             }
 
             // Create Right trials
-            side = Side.Right;
-            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][side])
+            trialSide = Side.Right;
+            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][trialSide])
             {
                 Trial trial = Trial.CreateTrial(id * 100 + trialNum,
                             technique, ptc,
                             complexity, expType,
-                            side, btnWidth);
+                            trialSide, btnWidth);
                 block._trials.Add(trial);
                 trialNum++;
             }

@@ -4,7 +4,7 @@
     {
         public static readonly int PTC_NUM = 76;
 
-        public static readonly double PPI = 93.54; // BenQ = 93.54; Apple = 109
+        public static readonly double PPI = 109; // BenQ = 93.54; Apple = 109
 
         //-- Mouse settings --------------------------------------------
         public static int TIME_CURSOR_MOVE_RESET = 2; // Cursor timer is reset after 2 seconds 

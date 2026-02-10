@@ -10,7 +10,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using static Common.Constants.ExpEnums;
-using static SubTask.Panel.Selection.MainWindow;
 using TouchPoint = CommonUI.TouchPoint;
 
 namespace SubTask.Panel.Selection
@@ -289,7 +288,7 @@ namespace SubTask.Panel.Selection
         public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(ExpStrs.STR_PRESS);
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
+            this.EventsInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
@@ -297,7 +296,7 @@ namespace SubTask.Panel.Selection
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(ExpStrs.STR_RELEASE);
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
+            this.EventsInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             var startButtonPressed = GetEventCount(ExpStrs.STR_PRESS) > 0;
 

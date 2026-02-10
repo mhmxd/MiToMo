@@ -1,5 +1,6 @@
 ﻿using Common.Helpers;
 using Common.Settings;
+using Common.Constants;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -78,9 +79,10 @@ namespace SubTask.FunctionSelection
 
             //-- Create and add trials to the block
             int trialNum = 1;
+            Side trialSide = Side.Top;
 
             //-- Add top trials
-            List<int> topButtonWs = ExpLayouts.BUTTON_WIDTHS[complexity][Side.Top];
+            List<int> topButtonWs = ExpLayouts.BUTTON_WIDTHS[complexity][trialSide];
             foreach (int funcW in topButtonWs)
             {
                 List<int> functionWidths = new(nFun);
@@ -92,14 +94,15 @@ namespace SubTask.FunctionSelection
                 Trial trial = Trial.CreateTrial(
                     id * 100 + trialNum, ptc,
                     complexity, expType,
-                    Side.Top, functionWidths);
+                    trialSide, functionWidths);
 
                 block._trials.Add(trial);
                 trialNum++;
             }
 
             //-- Add random L or R
-            List<int> sideButtonWs = ExpLayouts.BUTTON_WIDTHS[complexity][Side.Left]; // Same for L or R
+            trialSide = ExpEnums.GetRandomLR();
+            List<int> sideButtonWs = ExpLayouts.BUTTON_WIDTHS[complexity][trialSide]; // Same for L or R
             foreach (int funcW in sideButtonWs)
             {
                 List<int> functionWidths = new List<int>(nFun);
@@ -109,11 +112,10 @@ namespace SubTask.FunctionSelection
                 }
 
                 // Choose a ranodm side
-                Side side = (Side)(_random.Next(0, 2) * 2); // Randomly select Left or Right
                 Trial trial = Trial.CreateTrial(
                     id * 100 + trialNum, ptc,
                     complexity, expType,
-                    side, functionWidths);
+                    trialSide, functionWidths);
 
                 block._trials.Add(trial);
                 trialNum++;

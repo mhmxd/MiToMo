@@ -281,7 +281,15 @@ namespace SubTask.FunctionSelection
         private async void BeginExperiment()
         {
             // Set the layout (incl. placing the grid and finding positions)
-            await SetupLayout(_experiment.Active_Complexity);
+            //await SetupLayout(_experiment.Active_Complexity);
+
+            // Set up block handlers for all blocks
+            for (int b = 1; b <= _experiment.Blocks.Count; b++)
+            {
+                BlockHandler blockHandler = new(this, _experiment.Blocks[b - 1], b);
+                _blockHandlers.Add(blockHandler);
+                //this.TrialInfo($"Setting up handler for block#{bl.Id}");
+            }
 
             // Begin the _technique
             BeginBlocksAsync();
@@ -517,35 +525,78 @@ namespace SubTask.FunctionSelection
 
             if (_blockHandlers.Count > 0)
             {
-                _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
-
                 ExperiLogger.Init();
 
-                _stopWatch.Start();
+                _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
-                // Show layout before starting the block
-                await SetGrids(_activeBlockHandler.GetComplexity());
+                bool blockSet = await SetupActiveBlockAsync();
 
-                // Begin the block
-                _activeBlockHandler.BeginActiveBlock();
+                if (blockSet) _activeBlockHandler.BeginActiveBlock();
+                else
+                {
+                    this.TrialInfo($"Couldn't set up the first block. Cannot begin blocks.");
+                }
             }
             else
             {
                 // Show message box with an error
-                MessageBox.Show("No block handlers found. Cannot begin experiment.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                SysWin.MessageBox.Show("No block handlers found. Cannot begin experiment.", "Error",
+                    (MessageBoxButton)MessageBoxButtons.OK, (MessageBoxImage)MessageBoxIcon.Error);
             }
+
+            //_activeBlockNum = 1;
+
+            //if (_blockHandlers.Count > 0)
+            //{
+            //    _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
+
+            //    ExperiLogger.Init();
+
+            //    _stopWatch.Start();
+
+            //    // Show layout before starting the block
+            //    await SetGrids(_activeBlockHandler.GetComplexity());
+
+            //    // Begin the block
+            //    _activeBlockHandler.BeginActiveBlock();
+            //}
+            //else
+            //{
+            //    // Show message box with an error
+            //    MessageBox.Show("No block handlers found. Cannot begin experiment.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
+        }
+
+        private async Task<bool> SetupActiveBlockAsync()
+        {
+            _stopWatch.Start();
+
+            // Show layout before starting the block
+            await SetGrids(_activeBlockHandler.GetComplexity());
+            this.TrialInfo($"Grid set for {_activeBlockHandler.GetComplexity()}");
+
+            return true;
         }
 
         public void GoToNextBlock()
         {
             if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
             {
-                void continueAction()
+                async void continueAction()
                 {
                     _activeBlockNum++;
                     _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
-                    _activeBlockHandler.BeginActiveBlock();
+                    bool blockSet = await SetupActiveBlockAsync();
+
+                    if (blockSet)
+                    {
+                        _activeBlockHandler.BeginActiveBlock();
+                    }
+                    else
+                    {
+                        this.TrialInfo($"Couldn't set up block#{_activeBlockNum}.");
+                    }
                 }
 
                 this.TrialInfo($"Block finished. More to show...");
@@ -578,24 +629,6 @@ namespace SubTask.FunctionSelection
                     Owner = this
                 };
                 endWindow.Show();
-                //MessageBoxResult dialogResult = SysWin.MessageBox.Show(
-                //    "Task finished!",
-                //    "End",
-                //    MessageBoxButton.OK,
-                //    MessageBoxImage.Information
-                //);
-
-                //if (dialogResult == MessageBoxResult.OK)
-                //{
-                //    if (Debugger.IsAttached)
-                //    {
-                //        Environment.Exit(0); // Prevents hanging during debugging
-                //    }
-                //    else
-                //    {
-                //        SysWin.Application.Current.Shutdown();
-                //    }
-                //}
             }
 
         }
