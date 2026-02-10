@@ -641,24 +641,12 @@ namespace SubTask.PanelNavigation
             }
             else // All blocks finished
             {
-                MessageBoxResult dialogResult = SysWin.MessageBox.Show(
-                    "Technique finished!",
-                    "End",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
-
-                if (dialogResult == MessageBoxResult.OK)
+                // Show the full screen message...
+                EndWindow endWindow = new()
                 {
-                    if (Debugger.IsAttached)
-                    {
-                        Environment.Exit(0); // Prevents hanging during debugging
-                    }
-                    else
-                    {
-                        SysWin.Application.Current.Shutdown();
-                    }
-                }
+                    Owner = this
+                };
+                endWindow.Show();
             }
 
         }
