@@ -386,7 +386,7 @@ namespace SubTask.PanelNavigation
         public virtual void OnFunctionMarked(int funId, GridPos funcRowCol)
         {
             _activeTrialRecord.MarkFunction(funId);
-            LogEvent(ExpStrs.FUN_MARKED, JsonSerializer.Serialize(funcRowCol));
+            LogEvent(ExpStrs.FUN_MARKED, $"({funcRowCol.Row}, {funcRowCol.Col})");
 
             // Change the END button color to enabled
             _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, UIColors.COLOR_START_AVAILABLE);
@@ -394,13 +394,13 @@ namespace SubTask.PanelNavigation
 
         public void OnPaneButtonMarked(GridPos btnPos)
         {
-            LogEvent(ExpStrs.BTN_MARKED, JsonSerializer.Serialize(btnPos));
+            LogEvent(ExpStrs.BTN_MARKED, $"({btnPos.Row}, {btnPos.Col})");
         }
 
         public virtual void OnFunctionUnmarked(int funId, GridPos funcRowCol)
         {
             _activeTrialRecord.UnmarkFunction(funId);
-            LogEvent(ExpStrs.FUN_DEMARKED, JsonSerializer.Serialize(funcRowCol));
+            LogEvent(ExpStrs.FUN_DEMARKED, $"({funcRowCol.Row}, {funcRowCol.Col})");
 
             // Change the END button color to disabled
             _mainWindow.ChangeStartBtnColor(_activeTrial.FuncSide, UIColors.COLOR_START_UNAVAILABLE);
@@ -446,7 +446,7 @@ namespace SubTask.PanelNavigation
         public override void IndexUp()
         {
             _mainWindow.StopAuxNavigator();
-            LogEvent(ExpStrs.JoinUs(ExpStrs.INDEX, ExpStrs.UP));
+            //LogEvent(ExpStrs.JoinUs(ExpStrs.INDEX, ExpStrs.UP)); // Gestures are recorded in a separate log
         }
 
         public override void ThumbSwipe(Direction dir)
@@ -611,7 +611,7 @@ namespace SubTask.PanelNavigation
         public override void RecordToMoAction(Finger finger, string action, Point point)
         {
             // Normal event
-            LogEvent(action, finger.ToString().ToLower());
+            //LogEvent(action, finger.ToString().ToLower());
 
             // Record gesture (in a separate file)
             ExperiLogger.RecordGesture(MTimer.GetCurrentMillis(), finger, action, point);

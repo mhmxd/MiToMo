@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -130,22 +131,51 @@ namespace SubTask.PanelNavigation
             // Set the Start button H
             _startButton.Width = btnSize;
             _startButton.Height = this.ActualHeight - UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM) * 2;
-            //_startButton.Height = this.ActualHeight * 0.8;
-            //_startButton.Height = btnSize;
 
             // Show the start button at a different position than the previous trial
             if (_buttonsGrid != null)
             {
+                double gridRight = Canvas.GetLeft(_buttonsGrid) + _buttonsGrid.ActualWidth;
+
+                // 1. Get current mouse position relative to the canvas
+                Point mousePos = Mouse.GetPosition(canvas);
+
                 int minDist = UITools.MM2PX(ExpLayouts.START_BUTTON_DIST_MM);
-                int maxDist = (int)(this.ActualWidth - _buttonsGrid.ActualWidth - btnSize - UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM));
+                int maxDist = (int)(this.ActualWidth - gridRight - btnSize - UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM));
+
                 // Contineously generate a random distance until this Start button has no overlap with previous one
+                //int randDis;
+                //do
+                //{
+                //    randDis = _random.Next(minDist, maxDist);
+                //} while (Math.Abs(randDis - prevDis) < btnSize);
+
+                // Safety check for random range
+                if (maxDist <= minDist) maxDist = minDist + 1;
+
                 int randDis;
+                int attempts = 0;
                 do
                 {
                     randDis = _random.Next(minDist, maxDist);
-                } while (Math.Abs(randDis - prevDis) < btnSize);
 
-                double gridRight = Canvas.GetLeft(_buttonsGrid) + _buttonsGrid.ActualWidth;
+                    double potentialLeft = gridRight + randDis;
+                    double potentialRight = potentialLeft + _startButton.Width;
+
+                    // Check A: Distance from previous trial's position
+                    bool tooCloseToPrev = Math.Abs(randDis - prevDis) < _startButton.Width;
+
+                    // Check B: Is the mouse currently inside the X-range of the new position?
+                    // Adding a 5px buffer for safety
+                    bool underMouse = mousePos.X >= (potentialLeft - 5) && mousePos.X <= (potentialRight + 5);
+
+                    if (!tooCloseToPrev && !underMouse)
+                        break;
+
+                    attempts++;
+                } while (attempts < 100);
+
+                // Set the left position
                 double startBtnLeft = gridRight + randDis;
 
                 // Position the button

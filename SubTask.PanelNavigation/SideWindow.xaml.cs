@@ -213,11 +213,35 @@ namespace SubTask.PanelNavigation
                 int maxDist = (int)(this.ActualHeight - gridBottom - btnSize - UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM));
 
                 // Contineously generate a random distance until this Start button has no overlap with previous one
+                //int randDist;
+                //do
+                //{
+                //    randDist = _random.Next(minDist, maxDist);
+                //} while (Math.Abs(randDist - prevDist) < btnSize);
+
+                // 1. Get the current mouse position relative to the canvas
+                Point mousePos = Mouse.GetPosition(canvas);
+
                 int randDist;
+                int attempts = 0; // Safety break to avoid infinite loops
                 do
                 {
                     randDist = _random.Next(minDist, maxDist);
-                } while (Math.Abs(randDist - prevDist) < btnSize);
+                    double potentialTop = gridBottom + randDist;
+                    double potentialBottom = potentialTop + btnSize;
+
+                    // Check 1: Is it too close to the previous distance?
+                    bool tooCloseToPrev = Math.Abs(randDist - prevDist) < btnSize;
+
+                    // Check 2: Is the mouse currently inside the Y-range of the new position?
+                    // We add a small buffer (e.g., 5px) to be safe
+                    bool underMouse = mousePos.Y >= (potentialTop - 5) && mousePos.Y <= (potentialBottom + 5);
+
+                    if (!tooCloseToPrev && !underMouse)
+                        break;
+
+                    attempts++;
+                } while (attempts < 100);
 
                 // Set the top position
                 double startBtnTop = gridBottom + randDist; // Dist below the grid
