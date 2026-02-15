@@ -10,6 +10,7 @@ using Common.Settings;
 using CommonUI;
 using CommunityToolkit.HighPerformance;
 using Microsoft.Research.TouchMouseSensor;
+using SubTask.Multi.Cursor;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -193,7 +194,7 @@ namespace Multi.Cursor
         private int _auxursorSpeed = 0; // 0: normal, 1: fast (for Swipe)
         private BlockHandler _activeBlockHandler;
         private Rect _objectConstraintRectAbsolue;
-        private List<BlockHandler> _blockHandlers = new List<BlockHandler>();
+        private List<BlockHandler> _blockHandlers = new();
         private Border _startButton;
         private Rectangle _objectArea;
 
@@ -222,34 +223,6 @@ namespace Multi.Cursor
             _leftWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
             _rightWindow.SetObjectConstraintRect(_objectConstraintRectAbsolue);
 
-            // Create grid
-            //_topWindow.KnollHorizontal(6, 12, Target_MouseEnter, Target_MouseLeave, Target_MouseDown, Target_MouseUp);
-            //Func<Grid>[] colCreators = new Func<Grid>[]
-            //{
-            //    () => ColumnFactory.CreateGroupType1(combination: 1),
-            //    () => ColumnFactory.CreateGroupType2(combination: 2),
-            //    () => ColumnFactory.CreateGroupType3(),
-            //    () => ColumnFactory.CreateGroupType1(combination: 3),
-            //    () => ColumnFactory.CreateGroupType2(combination: 1),
-            //    () => ColumnFactory.CreateGroupType1(combination: 6),
-            //    () => ColumnFactory.CreateGroupType3(),
-            //    () => ColumnFactory.CreateGroupType2(combination: 1),
-            //    () => ColumnFactory.CreateGroupType1(combination: 5),
-            //    () => ColumnFactory.CreateGroupType2(combination: 3),
-            //    () => ColumnFactory.CreateGroupType1(combination: 2),
-            //    () => ColumnFactory.CreateGroupType1(combination: 4),
-            //};
-
-            // Starts placed at the two bottom corners (to set max distance from grid buttons)
-            //_topWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
-
-            //_leftWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
-            //_rightWindow.GenerateGrid(_objectConstraintRectAbsolue, colCreators);
-
-            //_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleTopGrid);
-
-            // Create Top-Simple
-            //_topWindow.PlaceGrid(RowFactory.CreateSimpleTopGrid);
 
             UpdateLabelPosition();
 
@@ -355,13 +328,105 @@ namespace Multi.Cursor
             _experiment = new Experiment(shortestDistMM, longestDistMM);
         }
 
+        private async Task<bool> SetupActiveBlockAsync()
+        {
+            _stopWatch.Start();
+
+            // Show layout before starting the block
+            await SetGrids(_activeBlockHandler.GetBlockComplexity());
+            //this.TrialInfo($"Grid set for {_activeBlockHandler.GetComplexity()}");
+
+            // Set positions
+            return SetupPositions(_activeBlockHandler);
+        }
+
         private async void BeginExperiment()
         {
-            // Set the layout (incl. placing the grid and finding positions)
-            await SetupLayout(_experiment.Active_Complexity);
+
+            // Set up block handlers for all blocks
+            for (int blkNum = 1; blkNum <= _experiment.Blocks.Count; blkNum++)
+            {
+                Block block = _experiment.GetBlockByNum(blkNum);
+                if (block.TaskType == TaskType.MULTI_OBJ_ONE_FUNC)
+                {
+                    MultiObjectBlockHandler blockHandler = new(this, block, blkNum);
+                    _blockHandlers.Add(blockHandler);
+                }
+                else
+                {
+                    SingleObjectBlockHandler blockHandler = new(this, block, blkNum);
+                    _blockHandlers.Add(blockHandler);
+                }
+
+            }
 
             // Begin the _technique
-            BeginBlocks();
+            BeginBlocksAsync();
+
+            //// Set the layout (incl. placing the grid and finding positions)
+            //await SetupLayout(_experiment.Active_Complexity);
+
+            //// Begin the _technique
+            //BeginBlocks();
+        }
+
+        private async Task BeginBlocksAsync()
+        {
+            _activeBlockNum = 1;
+
+            if (_blockHandlers.Count > 0)
+            {
+                _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
+                Technique blockTech = _activeBlockHandler.GetBlockTechnique();
+                TaskType blockTaskType = _activeBlockHandler.GetBlockTaskType();
+
+                ExperiLogger.Init(blockTech, blockTaskType);
+
+                bool blockSet = await SetupActiveBlockAsync();
+
+                if (blockSet)
+                {
+                    _activeBlockHandler.BeginActiveBlock();
+                }
+                else
+                {
+                    this.TrialInfo($"Couldn't set up the first block. Cannot begin blocks.");
+                }
+            }
+            else
+            {
+                // Show message box with an error
+                SysWin.MessageBox.Show("No block handlers found. Cannot begin experiment.", "Error",
+                    (MessageBoxButton)MessageBoxButtons.OK, (MessageBoxImage)MessageBoxIcon.Error);
+            }
+        }
+
+        private bool SetupPositions(BlockHandler blockHandler)
+        {
+            // Find positions for the block
+            bool positionsFound = blockHandler.FindPositionsForActiveBlock();
+
+            if (positionsFound)
+            {
+                //_blockHandlers.Add(blockHandler);
+                return true;
+            }
+            else
+            {
+                // Show a message box with an error and a retry option
+                SysWin.MessageBoxResult result = SysWin.MessageBox.Show(
+                    $"Couldn't find valid positions for the block. Retry?",
+                    "Error",
+                    (MessageBoxButton)MessageBoxButtons.YesNo,
+                    (MessageBoxImage)MessageBoxIcon.Error);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    return SetupPositions(blockHandler); // Retry
+                }
+
+                return false;
+            }
         }
 
         private void UpdateLabelPosition()
@@ -704,10 +769,10 @@ namespace Multi.Cursor
 
         }
 
-        public bool SetExperiment(string tech, TaskType taskType, Complexity complexity, ExperimentType expType)
+        public bool SetExperiment(string tech, TaskType taskType, ExperimentType expType)
         {
             // Make the experiment (incl. creating blocks)
-            _experiment.Init(tech, taskType, complexity, expType);
+            _experiment.Init(tech, taskType, expType);
 
             //// Find positions for all blocks
             //foreach (Block bl in _experiment.Blocks)
@@ -743,13 +808,51 @@ namespace Multi.Cursor
             return true;
         }
 
+        private async Task SetGrids(Complexity complexity)
+        {
+            // 1. Wipe the global map before starting any new registrations
+            ButtonRegistry.Clear();
+
+            // 2. Declare the tasks so they are accessible outside the switch
+            Task topTask = Task.CompletedTask;
+            Task leftTask = Task.CompletedTask;
+            Task rightTask = Task.CompletedTask;
+
+            // 3. Kick off all grid placements simultaneously (Parallel execution)
+            switch (complexity)
+            {
+                case Complexity.Simple:
+                    topTask = _topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING);
+                    leftTask = _leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
+                    rightTask = _rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1);
+                    break;
+
+                case Complexity.Moderate:
+                    topTask = _topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING);
+                    leftTask = _leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
+                    rightTask = _rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1);
+                    break;
+
+                case Complexity.Complex:
+                    topTask = _topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING);
+                    leftTask = _leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
+                    rightTask = _rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1);
+                    break;
+            }
+
+            // 4. Wait until ALL windows have fired their 'Loaded' event and called 'RegisterAllButtons'
+            await Task.WhenAll(topTask, leftTask, rightTask);
+
+            this.TrialInfo($"All grids synchronized and registered for {complexity}. ready for trials.");
+        }
+
         private void BeginBlocks()
         {
             _activeBlockNum = 1;
             //Block block = _experiment.GetBlock(_activeBlockNum);
             _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
-            ExperiLogger.Init(_experiment.Active_Technique, _activeBlockHandler.GetBlockType());
+            ExperiLogger.Init(_experiment.Active_Technique, _activeBlockHandler.GetBlockTaskType());
 
             if (_experiment.Active_Technique.IsTomo())
             {
@@ -880,7 +983,7 @@ namespace Multi.Cursor
             if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
             {
                 _activeBlockNum++;
-                Block block = _experiment.GetBlock(_activeBlockNum);
+                Block block = _experiment.GetBlockByNum(_activeBlockNum);
 
                 _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
                 if (_experiment.Active_Technique.IsTomo()) _touchSurface.SetGestureHandler(_activeBlockHandler);
@@ -1044,75 +1147,75 @@ namespace Multi.Cursor
 
         //}
 
-        public async Task<bool> SetupLayout(Complexity complexity)
-        {
-            // Create a list to hold the tasks for placing the grids
-            var placementTasks = new List<Task>();
+        //public async Task<bool> SetupLayout(Complexity complexity)
+        //{
+        //    // Create a list to hold the tasks for placing the grids
+        //    var placementTasks = new List<Task>();
 
-            // Flag to track overall success. Assume success (true) by default.
-            bool overallSuccess = true;
+        //    // Flag to track overall success. Assume success (true) by default.
+        //    bool overallSuccess = true;
 
-            switch (complexity)
-            {
-                // ... (your switch statement logic remains the same)
-                case Complexity.Simple:
-                    placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
-                    placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
-                    placementTasks.Add(_rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
-                    break;
-                case Complexity.Moderate:
-                    placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING));
-                    placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
-                    placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
-                    break;
-                case Complexity.Complex:
-                    placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING));
-                    placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
-                    placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
-                    break;
-            }
+        //    switch (complexity)
+        //    {
+        //        // ... (your switch statement logic remains the same)
+        //        case Complexity.Simple:
+        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateSimpleTopGrid, 0, 2 * HORIZONTAL_PADDING));
+        //            placementTasks.Add(_leftWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
+        //            placementTasks.Add(_rightWindow.PlaceGrid(ColumnFactory.CreateSimpleGrid, 2 * VERTICAL_PADDING, -1));
+        //            break;
+        //        case Complexity.Moderate:
+        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateModerateTopGrid, -1, HORIZONTAL_PADDING));
+        //            placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
+        //            placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateModerateSideGrid, VERTICAL_PADDING, -1));
+        //            break;
+        //        case Complexity.Complex:
+        //            placementTasks.Add(_topWindow.PlaceGrid(GridFactory.CreateComplexTopGrid, -1, HORIZONTAL_PADDING));
+        //            placementTasks.Add(_leftWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
+        //            placementTasks.Add(_rightWindow.PlaceGrid(GridFactory.CreateComplexSideGrid, VERTICAL_PADDING, -1));
+        //            break;
+        //    }
 
-            // Await all tasks concurrently.
-            await Task.WhenAll(placementTasks);
+        //    // Await all tasks concurrently.
+        //    await Task.WhenAll(placementTasks);
 
-            // Find positions for all blocks
-            for (int b = 1; b <= _experiment.Blocks.Count; b++)
-            {
-                Block bl = _experiment.Blocks[b - 1];
-                //this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
+        //    // Find positions for all blocks
+        //    for (int b = 1; b <= _experiment.Blocks.Count; b++)
+        //    {
+        //        Block bl = _experiment.Blocks[b - 1];
+        //        //this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
 
-                // Use a local variable to store the handler
-                BlockHandler blockHandler = null;
+        //        // Use a local variable to store the handler
+        //        BlockHandler blockHandler = null;
 
-                if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
-                {
-                    blockHandler = new MultiObjectBlockHandler(this, bl);
-                }
-                else // Single-object block
-                {
-                    blockHandler = new SingleObjectBlockHandler(this, bl, b);
-                }
+        //        if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
+        //        {
+        //            blockHandler = new MultiObjectBlockHandler(this, bl);
+        //        }
+        //        else // Single-object block
+        //        {
+        //            blockHandler = new SingleObjectBlockHandler(this, bl, b);
+        //        }
 
-                bool positionsFound = blockHandler.FindPositionsForActiveBlock();
+        //        bool positionsFound = blockHandler.FindPositionsForActiveBlock();
 
-                if (positionsFound)
-                {
-                    _blockHandlers.Add(blockHandler);
-                }
-                else
-                {
-                    this.PositionInfo($"Couldn't find positions for block#{bl.Id}");
-                    // Set the flag to false, but DO NOT set the Task's result yet.
-                    overallSuccess = false;
+        //        if (positionsFound)
+        //        {
+        //            _blockHandlers.Add(blockHandler);
+        //        }
+        //        else
+        //        {
+        //            this.PositionInfo($"Couldn't find positions for block#{bl.Id}");
+        //            // Set the flag to false, but DO NOT set the Task's result yet.
+        //            overallSuccess = false;
 
-                    // OPTIONAL: If a single failure should stop processing immediately, use:
-                    // return false; 
-                }
-            }
+        //            // OPTIONAL: If a single failure should stop processing immediately, use:
+        //            // return false; 
+        //        }
+        //    }
 
-            // The method now automatically returns a Task<bool> with the final value of overallSuccess.
-            return overallSuccess;
-        }
+        //    // The method now automatically returns a Task<bool> with the final value of overallSuccess.
+        //    return overallSuccess;
+        //}
 
         public void ShowObjectsArea(Rect areaRect, Brush areaColor, MouseEvents mouseEvents)
         {
@@ -1414,9 +1517,9 @@ namespace Multi.Cursor
 
         public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, MRange distRange)
         {
-            //this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
-            List<TFunction> functions = new List<TFunction>();
-            List<int> foundIds = new List<int>();
+            this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
+            List<TFunction> functions = new();
+            List<int> foundIds = new();
             // Find a UNIQUE function for each width
             int maxTries = 100;
             int tries = 1;
@@ -1537,7 +1640,7 @@ namespace Multi.Cursor
                 HorizontalAlignment = SysWin.HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 TextAlignment = TextAlignment.Center,
-                FontSize = ExpLayouts.START_BUTTON_FONT_SIZE,
+                FontSize = Experiment.START_FONT_SIZE,
                 Margin = new Thickness(10, 8, 10, 8) // Optional: to center the text nicely
             };
 

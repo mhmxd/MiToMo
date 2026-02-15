@@ -15,6 +15,7 @@ namespace CommonUI
         public Dictionary<int, int> ObjFuncMap;
         public int Distance; // in pixels
         public double DistanceMM; // in mm
+        public double AvgDistanceMM; // Average distance from different sources
 
         public Rect StartBtnRect; // Needed for a priori positioning
         public Rect ObjectAreaRect;
@@ -58,6 +59,38 @@ namespace CommonUI
         public List<TFunction> GetFunctions()
         {
             return Functions;
+        }
+
+        public int FindMappedFunctionId(int objectId)
+        {
+            if (ObjFuncMap.ContainsKey(objectId))
+            {
+                return ObjFuncMap[objectId];
+            }
+            return -1;
+            // Find the first function that is mapped to the given object funcId
+            //var pair = ObjFuncMap.FirstOrDefault(p => p.First == objectId);
+            //return pair != null ? pair.Second : -1; // Return -1 if no mapping found
+        }
+
+        public int FindMappedObjectId(int functionId)
+        {
+            foreach (var kvp in ObjFuncMap)
+            {
+                if (kvp.Value == functionId)
+                {
+                    return kvp.Key;
+                }
+            }
+            return -1;
+            // Find the first object that is mapped to the given function funcId
+            //var pair = ObjFuncMap.FirstOrDefault(p => p.Second == functionId);
+            //return pair != null ? pair.First : -1; // Return -1 if no mapping found
+        }
+
+        public void MapObjectToFunction(int objectId, int functionId)
+        {
+            ObjFuncMap[objectId] = functionId;
         }
 
         public void UnmarkObject(int id)
@@ -123,6 +156,14 @@ namespace CommonUI
         public void EnableFunction()
         {
             ChangeFunctionState(Functions[0].Id, ButtonState.ENABLED);
+        }
+
+        public void MarkAllFunctions()
+        {
+            foreach (TFunction func in Functions)
+            {
+                func.State = ButtonState.MARKED;
+            }
         }
 
         /// <summary>
@@ -618,12 +659,53 @@ namespace CommonUI
             return Events.Any(ts => ts.Type == ExpStrs.OBJ_RELEASE && ts.Id == objId.ToString());
         }
 
+        public void MarkObject(int id)
+        {
+            TObject obj = Objects.FirstOrDefault(o => o.Id == id);
+            if (obj != null)
+            {
+                obj.State = ButtonState.MARKED;
+            }
+        }
+
+
+        public bool IsFunctionSelected(int funcId)
+        {
+            TFunction func = GetFunctionById(funcId);
+            return func != null && func.State == ButtonState.SELECTED;
+        }
+
         public void MakeAllObjectsAvailable(ButtonState newState)
         {
             this.LogsInfo($"Change all objects to {newState}");
             foreach (TObject obj in Objects)
             {
                 obj.State = newState;
+            }
+        }
+
+        public void MarkMappedObject(int funcId)
+        {
+            int objId = FindMappedObjectId(funcId);
+            if (objId != -1)
+            {
+                ChangeObjectState(objId, ButtonState.MARKED);
+            }
+        }
+
+        public void MarkAllObjects()
+        {
+            foreach (TObject obj in Objects)
+            {
+                obj.State = ButtonState.MARKED;
+            }
+        }
+
+        public void UnmarkAllObjects()
+        {
+            foreach (TObject obj in Objects)
+            {
+                obj.State = ButtonState.DEFAULT;
             }
         }
 

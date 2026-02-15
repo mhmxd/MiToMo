@@ -11,14 +11,11 @@ namespace Multi.Cursor
     public class Experiment
     {
 
+        public static readonly int START_FONT_SIZE = 16; // For instructions and feedback
+
         //--- Setting
         public Technique Active_Technique = Technique.TOMO_TAP; // Set in the info dialog
-        public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
-
-        //--- Variables
-        //private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 12, 20 }; // BenQ
-        ////private static List<double> TARGET_WIDTHS_MM = new List<double>() { 4, 9, 18 }; // Apple Display
-        //private static List<double> GRID_TARGET_WIDTHS_MM = new List<double>() { 3, 12, 30}; // BenQ
+        //public Complexity Active_Complexity = Complexity.Simple; // Set in the info dialog
 
         //private static List<double> _distances = new List<double>(); // Generated in constructor
         private MRange _shortDistRangeMM; // Short distances range (mm)
@@ -62,10 +59,10 @@ namespace Multi.Cursor
 
         }
 
-        public void Init(string tech, TaskType taskType, Complexity complexity, ExperimentType expType)
+        public void Init(string tech, TaskType taskType, ExperimentType expType)
         {
-            this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}, Technique: {tech}");
-            //Participant_Number = ptc;
+            //this.TrialInfo($"Participant: {ExpEnvironment.PTC_NUM}, Technique: {tech}");
+
             if (tech == ExpStrs.TAP_C)
             {
                 Active_Technique = Technique.TOMO_TAP;
@@ -80,10 +77,10 @@ namespace Multi.Cursor
             }
 
             // Set number of objects and functions based on task type
-            int nObj = taskType == TaskType.MULTI_OBJ_ONE_FUNC ? ExpDesign.LT_N_MULTI_OBJ : 1;
-            int nFun = taskType == TaskType.ONE_OBJ_MULTI_FUNC ? ExpDesign.LT_N_MULTI_FUN : 1;
+            int nObj = taskType == TaskType.MULTI_OBJ_ONE_FUNC ? ExpDesign.MainTaskNumObj : 1;
+            int nFun = taskType == TaskType.ONE_OBJ_MULTI_FUNC ? ExpDesign.MainTaskNumFunc : 1;
 
-            Active_Complexity = complexity;
+            //Active_Complexity = complexity;
 
             // Create factor levels
             List<MRange> distRanges = new List<MRange>()
@@ -93,23 +90,22 @@ namespace Multi.Cursor
                 _longDistRangeMM    // Long distances
             };
 
-            //List<int> targetMultiples = BUTTON_MULTIPLES.Values.ToList();
-            // Create and add blocks
-            for (int i = 0; i < ExpDesign.LT_N_BLOCKS; i++)
+            //-- For each complexity, create blocks and add to the list
+            List<Complexity> randomizedComplexities = ExpEnums.GetRandomComplexityList();
+            foreach (Complexity complexity in randomizedComplexities)
             {
-                int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-                Block block = Block.CreateBlock(
-                    Active_Technique, ExpEnvironment.PTC_NUM,
-                    blockId,
-                    complexity,
-                    expType,
-                    distRanges,
-                    nFun, nObj);
-                _blocks.Add(block);
-            }
+                for (int i = 0; i < ExpDesign.MainTaskNumBlocks; i++)
+                {
+                    int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
+                    Block block = Block.CreateBlock(
+                        Active_Technique, ExpEnvironment.PTC_NUM,
+                        blockId, complexity,
+                        expType, distRanges,
+                        nFun, nObj);
 
-            //CreateAltBlocks(1, targetMultiples, distRanges);
-            //CreateRepBlocks(1, targetMultiples, distRanges);
+                    _blocks.Add(block);
+                }
+            }
         }
 
         public int GetNumBlocks()
@@ -117,7 +113,7 @@ namespace Multi.Cursor
             return _blocks.Count;
         }
 
-        public Block GetBlock(int blockNum)
+        public Block GetBlockByNum(int blockNum)
         {
             int index = blockNum - 1;
             if (index < _blocks.Count()) return _blocks[index];
@@ -128,5 +124,26 @@ namespace Multi.Cursor
         {
             return UITools.MM2PX(ExpLayouts.START_BUTTON_LARGE_SIDE_MM / 2);
         }
+
+        public static int GetObjWidth()
+        {
+            return UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM);
+        }
+
+        public static int GetObjHalfWidth()
+        {
+            return UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM / 2);
+        }
+
+        public static int GetObjAreaWidth()
+        {
+            return UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
+        }
+
+        public static int GetObjAreaHalfWidth()
+        {
+            return UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM / 2);
+        }
+
     }
 }

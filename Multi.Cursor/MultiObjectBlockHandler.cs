@@ -22,10 +22,11 @@ namespace Multi.Cursor
         private const string CacheDirectory = "TrialPositionCache";
         private const int MaxCachedPositions = 100;
 
-        public MultiObjectBlockHandler(MainWindow mainWindow, Block activeBlock)
+        public MultiObjectBlockHandler(MainWindow mainWindow, Block activeBlock, int blockNum)
         {
             _mainWindow = mainWindow;
             _activeBlock = activeBlock;
+            _activeBlockNum = blockNum;
 
             // Create records for all trials in the block
             foreach (Trial trial in _activeBlock.Trials)
@@ -43,14 +44,48 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForActiveBlock()
         {
+            // 1. GET THE RECT ONCE (The part I missed!)
+            // We do this on the UI thread before the loop starts.
+            Rect objAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+            {
+                return _mainWindow.GetObjAreaCenterConstraintRect();
+            });
+
+            // 2. Pass it into each trial
             foreach (Trial trial in _activeBlock.Trials)
             {
-                if (!FindPositionsForTrial(trial))
+                // We pass 'startRect' here so the trial method doesn't have to ask the UI for it
+                if (!FindPositionsForTrial(trial, objAreaConstraintRect))
                 {
-                    this.TrialInfo($"Failed to find positions for Trial#{trial.Id}");
-                    return false; // If any trial fails, return false
+                    this.PositionInfo($"Failed to find positions for Trial#{trial.Id}");
+                    return false;
                 }
             }
+
+            // 3. Shuffle logic (with the fixed OR condition)
+            int maxAttempts = 500;
+            int attempt = 0;
+            while (attempt < maxAttempts && (AreFunctionsRepeated() || DoesFirstTrialsFunInclMidBtn()))
+            {
+                _activeBlock.Trials.Shuffle();
+                attempt++;
+            }
+
+            return attempt < maxAttempts;
+
+            //Rect objAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+            //{
+            //    return _mainWindow.GetObjAreaCenterConstraintRect();
+            //});
+
+            //foreach (Trial trial in _activeBlock.Trials)
+            //{
+            //    if (!FindPositionsForTrial(trial, objAreaConstraintRect))
+            //    {
+            //        this.TrialInfo($"Failed to find positions for Trial#{trial.Id}");
+            //        return false; // If any trial fails, return false
+            //    }
+            //}
 
             // If consecutive trials have the same function Ids, re-order them (so marker doesn't stay on the same function)
             //int maxAttempts = 100;
@@ -70,12 +105,11 @@ namespace Multi.Cursor
             return true;
         }
 
-        public override bool FindPositionsForTrial(Trial trial)
+        public override bool FindPositionsForTrial(Trial trial, Rect objectAreaConstraintRect)
         {
-            int objW = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM);
-            int objHalfW = objW / 2;
-            int objAreaW = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
-            int objAreaHalfW = objAreaW / 2;
+            int objW = Experiment.GetObjWidth();
+            int objAreaW = Experiment.GetObjAreaWidth();
+            int objAreaHalfW = Experiment.GetObjAreaHalfWidth();
             this.PositionInfo($"{trial.ToStr()}");
 
             // Ensure TrialRecord exists for this trial
@@ -95,10 +129,10 @@ namespace Multi.Cursor
             this.PositionInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().Str()}");
 
             // Find a position for the object area
-            Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
-            {
-                return _mainWindow.GetObjAreaCenterConstraintRect();
-            });
+            //Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+            //{
+            //    return _mainWindow.GetObjAreaCenterConstraintRect();
+            //});
 
             (Point objAreaCenter, double avgDist) = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
                 _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);

@@ -31,6 +31,8 @@ namespace Multi.Cursor
         private static string _blockLogPath;
 
         private static string _cursorLogFilePath = ""; // Will be set when starting trial cursor log
+        private static string _gestureLogFilePath = ""; // Will be set when starting trial cursor log
+        private static string _eventsLogFilePath = ""; // Will be set when starting trial events log
 
         private static Logger _gestureFileLog;
         private static Logger _blockFileLog;
@@ -38,14 +40,17 @@ namespace Multi.Cursor
         private static StreamWriter _detailTrialLogWriter;
         private static StreamWriter _totalTrialLogWriter;
         private static StreamWriter _cursorLogWriter;
+        private static StreamWriter _gestureLogWriter;
+        private static StreamWriter _eventsLogWriter;
         private static StreamWriter _blockLogWriter;
 
         private static Dictionary<string, int> _trialLogs = new Dictionary<string, int>();
 
-
         private static Dictionary<int, int> _trialTimes = new Dictionary<int, int>();
 
-        private static Dictionary<int, List<PositionRecord>> _trialCursorRecords = new Dictionary<int, List<PositionRecord>>();
+        private static Dictionary<int, List<PositionRecord>> _trialCursorRecords = new();
+        private static List<GestureLog> _trialGestureRecords = new();
+
         private static int _activeTrialId = -1;
 
         public static void Init(Technique tech, TaskType taskType)
@@ -95,10 +100,10 @@ namespace Multi.Cursor
 
         }
 
-        public static void StartTrialCursorLog(int trialId, int trialNum)
+        public static void StartTrialLogs(int trialId, int trialNum)
         {
             _activeTrialId = trialId;
-            _trialCursorRecords[_activeTrialId] = new List<PositionRecord>();
+            _trialCursorRecords[_activeTrialId] = new();
 
             _cursorLogFilePath = Path.Combine(
                 MyDocumentsPath, LogsFolderName,
@@ -106,6 +111,20 @@ namespace Multi.Cursor
             );
 
             _cursorLogWriter = MIO.PrepareFileWithHeader<PositionRecord>(_cursorLogFilePath, PositionRecord.GetHeader());
+
+            _gestureLogFilePath = Path.Combine(
+                MyDocumentsPath, LogsFolderName,
+                $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.GestureCap, $"trial-n{trialNum}-id{trialId}-{ExpStrs.Gesture}"
+            );
+
+            _gestureLogWriter = MIO.PrepareFileWithHeader<GestureLog>(_gestureLogFilePath);
+
+            _eventsLogFilePath = Path.Combine(
+                MyDocumentsPath, LogsFolderName,
+                $"P{ExpEnvironment.PTC_NUM}-{_technique}", ExpStrs.EventsCap, $"trial-n{trialNum}-id{trialId}-{ExpStrs.Events}"
+            );
+
+            _eventsLogWriter = MIO.PrepareFileWithHeader<TrialEvent>(_eventsLogFilePath, TrialEvent.GetHeader());
         }
 
         public static void StartTrialLogs(int trialNum, int trialId, double targetWidthMM, double distanceMM, Point startPos, Point targetPos)
@@ -130,25 +149,9 @@ namespace Multi.Cursor
             _gestureFileLog.Information($"TgtW: {targetWidthMM}, Dist: {distanceMM}, StPos: {startPos.Str()}, TgPos: {targetPos.Str()}");
         }
 
-        public static void LogGestureEvent(string message)
-        {
-            //_gestureFileLog.Information(message);
-        }
-
-        public static void LogTrialMessage(string message)
-        {
-            _blockFileLog.Information(message);
-        }
-
-        public static void LogMultipleObjTrialTimes(TrialRecord trialRecord)
-        {
-            // For now. Later we put detailed log
-            _blockFileLog.Information($"Start Release   -> Area Press:   {trialRecord.GetDuration(ExpStrs.STR_RELEASE, ExpStrs.ARA_PRESS)}");
-        }
-
         public static void LogSOSFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            SOSFTrialLog log = new SOSFTrialLog();
+            SOSFTrialLog log = new();
 
             // Information
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
@@ -195,7 +198,7 @@ namespace Multi.Cursor
 
         public static void LogMOSFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            MOSFTrialLog log = new MOSFTrialLog();
+            MOSFTrialLog log = new();
 
             // Information
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
@@ -276,7 +279,7 @@ namespace Multi.Cursor
 
         public static void LogSOMFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            SOMFTrialLog log = new SOMFTrialLog();
+            SOMFTrialLog log = new();
 
             // Information
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
@@ -362,7 +365,7 @@ namespace Multi.Cursor
         {
             int nFun = trial.NObjects; // NFunc = NObjects
 
-            MOMFTrialLong log = new MOMFTrialLong();
+            MOMFTrialLong log = new();
 
             // Information
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
@@ -497,28 +500,73 @@ namespace Multi.Cursor
 
         public static void LogBlockTime(Block block)
         {
-            BlockLog log = new BlockLog();
-
-            log.ptc = block.PtcNum;
-            log.id = block.Id;
-            log.tech = block.Technique.ToString().ToLower();
-            log.cmplx = block.Complexity.ToString().ToLower();
-            log.exptype = block.ExpType.ToString().ToLower();
-            log.n_trials = block.GetNumTrials();
-            log.tsk_type = ExpStrs.TASKTYPE_ABBR[block.TaskType];
-            log.n_fun = block.NFunctions;
-            log.n_obj = block.NObjects;
-
-            double avgTime = _trialTimes.Values.Average() / 1000;
-            log.avg_time = $"{avgTime:F2}";
+            BlockLog log = new()
+            {
+                ptc = block.PtcNum,
+                id = block.Id,
+                tech = block.Technique.ToString().ToLower(),
+                cmplx = block.Complexity.ToString().ToLower(),
+                exptype = block.ExpType.ToString().ToLower(),
+                n_trials = block.GetNumTrials(),
+                tsk_type = ExpStrs.TASKTYPE_ABBR[block.TaskType],
+                n_fun = block.NFunctions,
+                n_obj = block.NObjects,
+                blck_time = $"{_trialTimes.Values.Sum() / 1000:F2}",
+                avg_time = $"{_trialTimes.Values.Average() / 1000:F2}"
+            };
 
             MIO.WriteTrialLog(log, _blockLogPath, _blockLogWriter);
 
         }
 
+        public static void LogTrialEvents(List<TrialEvent> events)
+        {
+
+            foreach (var e in events)
+            {
+                _eventsLogWriter.WriteLine(e.ToLogString());
+            }
+
+            _eventsLogWriter?.Dispose();
+        }
+
+        public static void LogCursorRecords()
+        {
+            foreach (var record in _trialCursorRecords[_activeTrialId])
+            {
+                _cursorLogWriter.WriteLine($"{record.x};{record.y}");
+            }
+
+            _cursorLogWriter?.Dispose();
+        }
+
+        public static void LogGestureRecords()
+        {
+            foreach (var record in _trialGestureRecords)
+            {
+                _gestureLogWriter.WriteLine($"{record.timestamp};{record.finger};{record.action};{record.x};{record.y}");
+            }
+            _gestureLogWriter?.Dispose();
+        }
+
         public static void RecordCursorPosition(Point cursorPos)
         {
-            _trialCursorRecords[_activeTrialId].Add(new PositionRecord(cursorPos.X, cursorPos.Y));
+            if (_trialCursorRecords.ContainsKey(_activeTrialId))
+            {
+                _trialCursorRecords[_activeTrialId].Add(new(cursorPos.X, cursorPos.Y));
+            }
+        }
+
+        public static void RecordGesture(long timestamp, Finger finger, string action, Point point)
+        {
+            _trialGestureRecords.Add(new GestureLog
+            {
+                timestamp = timestamp,
+                finger = finger.ToString().ToLower(),
+                action = action,
+                x = point.X.ToString("F2"),
+                y = point.Y.ToString("F2")
+            });
         }
 
         private static void Dispose()

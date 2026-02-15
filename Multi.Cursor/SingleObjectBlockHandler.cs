@@ -24,98 +24,171 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForActiveBlock()
         {
+            // 1. GET THE RECT ONCE (The part I missed!)
+            // We do this on the UI thread before the loop starts.
+            Rect objAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+            {
+                return _mainWindow.GetObjAreaCenterConstraintRect();
+            });
+
+            // 2. Pass it into each trial
             foreach (Trial trial in _activeBlock.Trials)
             {
-                if (!FindPositionsForTrial(trial))
+                // We pass 'startRect' here so the trial method doesn't have to ask the UI for it
+                if (!FindPositionsForTrial(trial, objAreaConstraintRect))
                 {
                     this.PositionInfo($"Failed to find positions for Trial#{trial.Id}");
-                    return false; // If any trial fails, return false
+                    return false;
                 }
             }
 
-
-            // If consecutive trials have the same function Ids or first trial's functions are over the middle button,
-            // re-order them (so marker doesn't stay on the same function)
-            int maxAttempts = 100;
+            // 3. Shuffle logic (with the fixed OR condition)
+            int maxAttempts = 500;
             int attempt = 0;
-            while (attempt < maxAttempts && AreFunctionsRepeated() && DoesFirstTrialsFunInclMidBtn())
+            while (attempt < maxAttempts && (AreFunctionsRepeated() || DoesFirstTrialsFunInclMidBtn()))
             {
                 _activeBlock.Trials.Shuffle();
                 attempt++;
             }
 
-            if (attempt == maxAttempts)
-            {
-                this.TrialInfo($"Warning: Could not eliminate repeated functions in consecutive trials after {maxAttempts} attempts.");
-                return false;
-            }
+            return attempt < maxAttempts;
+            //foreach (Trial trial in _activeBlock.Trials)
+            //{
+            //    if (!FindPositionsForTrial(trial))
+            //    {
+            //        this.PositionInfo($"Failed to find positions for Trial#{trial.Id}");
+            //        return false; // If any trial fails, return false
+            //    }
+            //}
 
-            return true;
+
+            //// If consecutive trials have the same function Ids or first trial's functions are over the middle button,
+            //// re-order them (so marker doesn't stay on the same function)
+            //int maxAttempts = 500;
+            //int attempt = 0;
+            //while (attempt < maxAttempts && (AreFunctionsRepeated() || DoesFirstTrialsFunInclMidBtn()))
+            //{
+            //    _activeBlock.Trials.Shuffle();
+            //    attempt++;
+            //}
+
+            //if (attempt == maxAttempts)
+            //{
+            //    this.TrialInfo($"Warning: Could not eliminate repeated functions in consecutive trials after {maxAttempts} attempts.");
+            //    return false;
+            //}
+
+            //return true;
         }
 
-        public override bool FindPositionsForTrial(Trial trial)
+        public override bool FindPositionsForTrial(Trial trial, Rect objectAreaConstraintRect)
         {
-            int objW = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM);
-            int objHalfW = objW / 2;
-            int objAreaW = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM);
-            int objAreaHalfW = objAreaW / 2;
+            // 1. Setup local variables (no logic change here)
+            int objW = Experiment.GetObjWidth();
+            int objAreaW = Experiment.GetObjAreaWidth();
+            int objAreaHalfW = Experiment.GetObjAreaHalfWidth();
+
+            _trialRecords[trial.Id] = new();
+
+            // 2. RETRY LOOP: This is the critical fix for "Failed to find positions"
+            // Instead of giving up if one button set is impossible, try a few others.
+            int maxTargetAttempts = 10;
+            for (int t = 0; t < maxTargetAttempts; t++)
+            {
+                _trialRecords[trial.Id].Functions.Clear();
+
+                // We still need Dispatcher here because FindRandomFunctions likely 
+                // touches UI elements to check widths/positions.
+                _mainWindow.Dispatcher.Invoke(() =>
+                {
+                    _trialRecords[trial.Id].Functions.AddRange(
+                        _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
+                    );
+                });
+
+                // 3. Use the PASSED-IN Rect (no more Dispatcher.Invoke here!)
+                (Point objCenter, double avgDist) = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
+                    _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
+
+                // 4. Check if we found a valid start position for these specific buttons
+                if (objCenter.X != -1 && objCenter.Y != -1)
+                {
+                    // SUCCESS: Set the values and return
+                    Point objAreaPosition = objCenter.OffsetPosition(-objAreaHalfW);
+
+                    _trialRecords[trial.Id].ObjectAreaRect = new Rect(
+                            objAreaPosition.X,
+                            objAreaPosition.Y,
+                            objAreaW,
+                            objAreaW);
+
+                    _trialRecords[trial.Id].AvgDistanceMM = avgDist;
+
+                    Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
+                    TObject obj = new(1, objPosition, objCenter);
+                    _trialRecords[trial.Id].Objects.Add(obj);
+
+                    return true;
+                }
+
+                // If we reach here, this set of buttons was impossible to pair with a start point.
+                // The loop will try a different set of random buttons.
+            }
+
+            // Only if 10 different sets of buttons fail do we give up.
+            return false;
 
             //this.TrialInfo(trial.ToStr());
 
-            // Ensure TrialRecord exists for this trial
-            if (!_trialRecords.ContainsKey(trial.Id))
-            {
-                _trialRecords[trial.Id] = new TrialRecord();
-            }
             //this.TrialInfo($"Trial function widths: {trial.GetFunctionWidths()}");
-            _mainWindow.Dispatcher.Invoke(() =>
-            {
-                _trialRecords[trial.Id].Functions.AddRange(
-                    _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
-                    );
-            });
+            //_mainWindow.Dispatcher.Invoke(() =>
+            //{
+            //    _trialRecords[trial.Id].Functions.AddRange(
+            //        _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
+            //        );
+            //});
 
             //this.TrialInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().ToStr()}");
 
-            // Find a position for the object area
-            Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
-            {
-                return _mainWindow.GetObjAreaCenterConstraintRect();
-            });
+            //// Find a position for the object area
+            //Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+            //{
+            //    return _mainWindow.GetObjAreaCenterConstraintRect();
+            //});
 
-            (Point objCenter, double avgDist) = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
-                _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
+            //(Point objCenter, double avgDist) = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
+            //    _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
 
 
-            if (objCenter.X == -1 && objCenter.Y == -1) // Failed to find a valid position 
-            {
-                this.PositionInfo($"No valid position found for object in Trial#{trial.Id}!");
-                return false; // Return false to indicate failure
-            }
-            else
-            {
-                //this.PositionInfo($"Found object position: {objCenter.ToStr()}");
+            //if (objCenter.X == -1 && objCenter.Y == -1) // Failed to find a valid position 
+            //{
+            //    this.PositionInfo($"No valid position found for object in Trial#{trial.Id}!");
+            //    return false; // Return false to indicate failure
+            //}
+            //else
+            //{
+            //    //this.PositionInfo($"Found object position: {objCenter.ToStr()}");
 
-                // Get the top-left corner of the object area rectangle
-                Point objAreaPosition = objCenter.OffsetPosition(-objAreaHalfW);
+            //    // Get the top-left corner of the object area rectangle
+            //    Point objAreaPosition = objCenter.OffsetPosition(-objAreaHalfW);
 
-                //this.TrialInfo($"Found object area position: {objAreaPosition.ToStr()}");
+            //    //this.TrialInfo($"Found object area position: {objAreaPosition.ToStr()}");
 
-                _trialRecords[trial.Id].ObjectAreaRect = new Rect(
-                        objAreaPosition.X,
-                        objAreaPosition.Y,
-                        objAreaW,
-                        objAreaW);
+            //    _trialRecords[trial.Id].ObjectAreaRect = new Rect(
+            //            objAreaPosition.X,
+            //            objAreaPosition.Y,
+            //            objAreaW,
+            //            objAreaW);
 
-                _trialRecords[trial.Id].AvgDistanceMM = avgDist;
+            //    _trialRecords[trial.Id].AvgDistanceMM = avgDist;
 
-                // Put the object at the center
-                Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
-                TObject obj = new TObject(1, objPosition, objCenter); // Object is always 1 in this case
-                _trialRecords[trial.Id].Objects.Add(obj);
+            //    // Put the object at the center
+            //    Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
+            //    TObject obj = new(1, objPosition, objCenter); // Object is always 1 in this case
+            //    _trialRecords[trial.Id].Objects.Add(obj);
 
-                return true;
-            }
+            //    return true;
+            //}
         }
 
         public override void ShowActiveTrial()
@@ -256,7 +329,7 @@ namespace Multi.Cursor
             }
 
             //-- Trial started:
-            if (!_activeTrialRecord.AreAllFunctionsApplied())
+            if (!_activeTrialRecord.AreAllFunctionsSelected())
             {
                 EndActiveTrial(Result.MISS);
             }
@@ -296,9 +369,17 @@ namespace Multi.Cursor
                 }
 
                 // Marker over already-applied function => MISS
-                else if (_activeTrialRecord.IsFunctionApplied(funcIdUnderMarker))
+                else if (_activeTrialRecord.IsFunctionSelected(funcIdUnderMarker))
                 {
                     this.TrialInfo($"Function under marker already applied");
+                    EndActiveTrial(Result.MISS);
+                }
+            }
+            else // Mouse
+            {
+                if (_activeTrialRecord.IsObjectClicked(1)) // Object already clicked => MISS
+                {
+                    this.TrialInfo($"Object already clicked");
                     EndActiveTrial(Result.MISS);
                 }
             }
@@ -318,7 +399,6 @@ namespace Multi.Cursor
             }
 
             //-- Trial started:
-
             if (!WasObjectPressed(1)) // Technique doesn't matter here
             {
                 this.TrialInfo($"Object wasn't pressed");
@@ -346,7 +426,7 @@ namespace Multi.Cursor
             else // MOUSE
             {
                 //this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
-                _activeTrialRecord.EnableAllFunctions();
+                _activeTrialRecord.MarkAllFunctions();
                 _activeTrialRecord.MarkObject(1);
                 UpdateScene();
             }
@@ -407,7 +487,7 @@ namespace Multi.Cursor
             {
                 _activeTrialRecord.ApplyFunction(functionId, 1);
                 // Change obj's color only if all functions are selected
-                if (_activeTrialRecord.AreAllFunctionsApplied())
+                if (_activeTrialRecord.AreAllFunctionsSelected())
                 {
                     _activeTrialRecord.ChangeObjectState(1, ButtonState.SELECTED);
                 }
