@@ -51,7 +51,6 @@ namespace Multi.Cursor
             {
                 if (Owner is MainWindow ownerWindow)
                 {
-                    //ParticipantNumber = int.Parse(ParticipantNumberTextBox.Text);
                     Technique = TechniqueComboBox.SelectedItem as string;
                     SelectedTask = TaskComboBox.SelectedItem as string;
                     TaskType taskType = SelectedTask == ExpStrs.ONE_OBJ_MULTI_FUNC ? TaskType.ONE_OBJ_MULTI_FUNC : TaskType.MULTI_OBJ_ONE_FUNC;

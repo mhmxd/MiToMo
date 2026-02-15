@@ -1,10 +1,4 @@
-﻿/********************************************************
-*                                                       *
-*   Copyright (C) Microsoft. All rights reserved.       *
-*                                                       *
-********************************************************/
-
-using Common.Constants;
+﻿using Common.Constants;
 using Common.Helpers;
 using Common.Settings;
 using CommonUI;
@@ -334,7 +328,7 @@ namespace Multi.Cursor
 
             // Show layout before starting the block
             await SetGrids(_activeBlockHandler.GetBlockComplexity());
-            //this.TrialInfo($"Grid set for {_activeBlockHandler.GetComplexity()}");
+            this.TrialInfo($"Grid set for {_activeBlockHandler.GetBlockComplexity()}");
 
             // Set positions
             return SetupPositions(_activeBlockHandler);
@@ -384,14 +378,22 @@ namespace Multi.Cursor
 
                 bool blockSet = await SetupActiveBlockAsync();
 
+                // Activate TouhMouse if the block's technique is ToMo
                 if (blockSet)
                 {
+                    this.TrialInfo($"Beginning block {_activeBlockNum} with technique {blockTech} and task type {blockTaskType}");
+                    if (blockTech.IsTomo())
+                    {
+                        ActivateTouchMouse(_activeBlockHandler);
+                    }
+
                     _activeBlockHandler.BeginActiveBlock();
                 }
                 else
                 {
                     this.TrialInfo($"Couldn't set up the first block. Cannot begin blocks.");
                 }
+
             }
             else
             {
@@ -399,6 +401,21 @@ namespace Multi.Cursor
                 SysWin.MessageBox.Show("No block handlers found. Cannot begin experiment.", "Error",
                     (MessageBoxButton)MessageBoxButtons.OK, (MessageBoxImage)MessageBoxIcon.Error);
             }
+        }
+
+        private void ActivateTouchMouse(BlockHandler activeBlockHandler)
+        {
+            _isTouchMouseActive = true;
+            _touchSurface ??= new TouchSurface(_experiment.Active_Technique);
+            _touchSurface.SetGestureHandler(activeBlockHandler);
+            this.TrialInfo($"TouchMouse activated for technique {_experiment.Active_Technique}");
+        }
+
+        private void DeactivateTouchMouse()
+        {
+            _isTouchMouseActive = false;
+            _touchSurface = null; // Dispose the touch surface
+            this.TrialInfo($"TouchMouse deactivated");
         }
 
         private bool SetupPositions(BlockHandler blockHandler)
@@ -774,37 +791,6 @@ namespace Multi.Cursor
             // Make the experiment (incl. creating blocks)
             _experiment.Init(tech, taskType, expType);
 
-            //// Find positions for all blocks
-            //foreach (Block bl in _experiment.Blocks)
-            //{
-            //    this.TrialInfo($"Setting up handler for block#{bl.Id} with type {bl.GetObjectType()}");
-            //    if (bl.GetObjectType() == TaskType.MULTI_OBJECT) // Multi-object block
-            //    {
-            //        this.TrialInfo($"Setting up MultiObjectBlockHandler for block#{bl.Id}");
-            //        BlockHandler blockHandler = new MultiObjectBlockHandler(this, bl);
-            //        bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-            //        if (positionsFound) _blockHandlers.Add(blockHandler);
-            //        else
-            //        {
-            //            this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-            //            return false;
-            //        }
-            //    }
-            //    else // Single-object block
-            //    {
-            //        this.TrialInfo($"Setting up SingleObjectBlockHandler for block#{bl.Id}");
-            //        BlockHandler blockHandler = new SingleObjectBlockHandler(this, bl);
-            //        bool positionsFound = blockHandler.FindPositionsForActiveBlock();
-            //        if (positionsFound) _blockHandlers.Add(blockHandler);
-            //        else
-            //        {
-            //            this.TrialInfo($"Couldn't find positions for block#{bl.Id}");
-            //            return false;
-            //        }
-            //    }
-            //}
-
-            //bool positionsFound = FindPositionsForAllBlocks();
             return true;
         }
 
@@ -980,43 +966,94 @@ namespace Multi.Cursor
 
         public void GoToNextBlock()
         {
+
             if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
             {
-                _activeBlockNum++;
-                Block block = _experiment.GetBlockByNum(_activeBlockNum);
-
-                _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
-                if (_experiment.Active_Technique.IsTomo()) _touchSurface.SetGestureHandler(_activeBlockHandler);
-
-                _activeBlockHandler.BeginActiveBlock();
-
-                //if (TaskType == TaskType.REPEATING) _activeBlockHandler = new MultiObjectBlockHandler(this, block);
-                //else if (TaskType == TaskType.ALTERNATING) _activeBlockHandler = new SingleObjectBlockHandler(this, block);
-
-                //bool positionsFound = _activeBlockHandler.FindPositionsForActiveBlock();
-                //if (positionsFound) _activeBlockHandler.BeginActiveBlock();
-            }
-            else // All blocks finished
-            {
-                MessageBoxResult dialogResult = SysWin.MessageBox.Show(
-                    "Technique finished!",
-                    "End",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
-
-                if (dialogResult == MessageBoxResult.OK)
+                async void continueAction()
                 {
-                    if (Debugger.IsAttached)
+                    _activeBlockNum++;
+                    _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
+
+                    bool blockSet = await SetupActiveBlockAsync();
+
+                    if (blockSet)
                     {
-                        Environment.Exit(0); // Prevents hanging during debugging
+                        if (_activeBlockHandler.GetBlockTechnique().IsTomo())
+                        {
+                            ActivateTouchMouse(_activeBlockHandler);
+                        }
+
+                        _activeBlockHandler.BeginActiveBlock();
                     }
                     else
                     {
-                        SysWin.Application.Current.Shutdown();
+                        this.TrialInfo($"Couldn't set up block#{_activeBlockNum}.");
                     }
                 }
+
+                this.TrialInfo($"Block finished. More to show...");
+                // If need to show a break
+                if (_activeBlockNum == ExpDesign.MutliFuncSelectBreakAfterBlocks)
+                {
+                    this.TrialInfo($"Showing break");
+                    ResetAllAuxWindows();
+                    ClearCanvas();
+
+                    PausePopUp pausePopUp = new(continueAction)
+                    {
+                        Owner = this
+                    };
+
+                    pausePopUp.Show();
+                }
+                else
+                {
+                    continueAction();
+                }
+
             }
+            else // All blocks finished
+            {
+
+                // Show the full screen message...
+                EndWindow endWindow = new()
+                {
+                    Owner = this
+                };
+                endWindow.Show();
+            }
+
+            //if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
+            //{
+            //    _activeBlockNum++;
+            //    Block block = _experiment.GetBlockByNum(_activeBlockNum);
+
+            //    _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
+            //    if (_experiment.Active_Technique.IsTomo()) _touchSurface.SetGestureHandler(_activeBlockHandler);
+
+            //    _activeBlockHandler.BeginActiveBlock();
+            //}
+            //else // All blocks finished
+            //{
+            //    MessageBoxResult dialogResult = SysWin.MessageBox.Show(
+            //        "Technique finished!",
+            //        "End",
+            //        MessageBoxButton.OK,
+            //        MessageBoxImage.Information
+            //    );
+
+            //    if (dialogResult == MessageBoxResult.OK)
+            //    {
+            //        if (Debugger.IsAttached)
+            //        {
+            //            Environment.Exit(0); // Prevents hanging during debugging
+            //        }
+            //        else
+            //        {
+            //            SysWin.Application.Current.Shutdown();
+            //        }
+            //    }
+            //}
 
         }
 
@@ -1517,7 +1554,7 @@ namespace Multi.Cursor
 
         public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, MRange distRange)
         {
-            this.TrialInfo($"Function widths: {widthUnits.ToStr()}");
+            this.PositionInfo($"Function widths: {widthUnits.ToStr()}");
             List<TFunction> functions = new();
             List<int> foundIds = new();
             // Find a UNIQUE function for each width

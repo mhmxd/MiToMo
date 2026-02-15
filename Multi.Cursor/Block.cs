@@ -146,7 +146,7 @@ namespace Multi.Cursor
             }
 
             // Create block
-            Block block = new Block(ptc, technique, type, nFun, nObj, complexity, expType, id);
+            Block block = new(ptc, technique, type, nFun, nObj, complexity, expType, id);
 
             // Create and add trials to the block
             int trialNum = 1;

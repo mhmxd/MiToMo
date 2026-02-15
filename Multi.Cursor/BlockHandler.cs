@@ -46,22 +46,10 @@ namespace Multi.Cursor
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
             _activeTrialRecord = _trialRecords[_activeTrial.Id];
             this.TrialInfo($"Active block id: {_activeBlock.Id}");
-            // Start the log
-            //ExperiLogger.StartBlockLog(_activeBlock.Id, _activeBlock.GetBlockType(), _activeBlock.GetComplexity());
-
-            // Update the main window label
-            //this.TrialInfo($"nTrials = {_activeBlock.GetNumTrials()}");
-            //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
-
-            // Show the Start Trial button
-            //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
             _mainWindow.ResetAllAuxWindows();
-
-            // Show layout
-            //_mainWindow.SetupLayout(_activeBlock.GetComplexity());
 
             // Show the first trial
             ShowActiveTrial();
@@ -480,32 +468,32 @@ namespace Multi.Cursor
             }
         }
 
-        public void LeftPress()
+        public override void LeftPress()
         {
 
         }
 
-        public void RightPress()
+        public override void RightPress()
         {
 
         }
 
-        public void TopPress()
+        public override void TopPress()
         {
 
         }
 
-        public void LeftMove(double dX, double dY)
+        public override void LeftMove(double dX, double dY)
         {
 
         }
 
-        public void IndexDown(TouchPoint indPoint)
+        public override void IndexDown(TouchPoint indPoint)
         {
 
         }
 
-        public virtual void IndexTap()
+        public override void IndexTap()
         {
             if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
             {
@@ -534,12 +522,12 @@ namespace Multi.Cursor
             }
         }
 
-        public void IndexMove(double dX, double dY)
+        public override void IndexMove(double dX, double dY)
         {
 
         }
 
-        public void IndexMove(TouchPoint indPoint)
+        public override void IndexMove(TouchPoint indPoint)
         {
             if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
             {
@@ -549,14 +537,15 @@ namespace Multi.Cursor
 
         }
 
-        public void IndexUp()
+        public override void IndexUp()
         {
             _mainWindow.StopAuxNavigator();
             LogEvent(ExpStrs.JoinUs(ExpStrs.INDEX, ExpStrs.UP));
         }
 
-        public virtual void ThumbSwipe(Direction dir)
+        public override void ThumbSwipe(Direction dir)
         {
+            this.TrialInfo($"Swipe direction: {dir}");
             if (_activeTrial.Technique != Technique.TOMO_SWIPE) // Wrong technique for swipe
             {
                 EndActiveTrial(Result.MISS);
@@ -598,7 +587,7 @@ namespace Multi.Cursor
             }
         }
 
-        public virtual void ThumbTap(long downInstant, long upInstant)
+        public override void ThumbTap(long downInstant, long upInstant)
         {
             if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
             {
@@ -627,17 +616,17 @@ namespace Multi.Cursor
             }
         }
 
-        public void ThumbMove(TouchPoint thumbPoint)
+        public override void ThumbMove(TouchPoint thumbPoint)
         {
             // Nothing for now
         }
 
-        public void ThumbUp()
+        public override void ThumbUp()
         {
             // Nothing for now
         }
 
-        public virtual void MiddleTap()
+        public override void MiddleTap()
         {
             if (_activeTrial.Technique == Technique.TOMO_SWIPE) // Wrong technique for thumb tap
             {
