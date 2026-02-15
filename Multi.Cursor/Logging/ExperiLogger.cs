@@ -104,6 +104,7 @@ namespace Multi.Cursor
         {
             _activeTrialId = trialId;
             _trialCursorRecords[_activeTrialId] = new();
+            _trialGestureRecords = new();
 
             _cursorLogFilePath = Path.Combine(
                 MyDocumentsPath, LogsFolderName,
@@ -125,28 +126,6 @@ namespace Multi.Cursor
             );
 
             _eventsLogWriter = MIO.PrepareFileWithHeader<TrialEvent>(_eventsLogFilePath, TrialEvent.GetHeader());
-        }
-
-        public static void StartTrialLogs(int trialNum, int trialId, double targetWidthMM, double distanceMM, Point startPos, Point targetPos)
-        {
-            String gestureFileName = $"trial-{trialNum}-#{trialId}-gestures-.txt";
-
-
-            string gesturesFilePath = System.IO.Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                "Multi.Cursor.Logs", $"P{ExpEnvironment.PTC_NUM}-{_technique}", gestureFileName
-            );
-
-
-            _gestureFileLog = new LoggerConfiguration()
-                    .WriteTo.Async(a => a.File(gesturesFilePath, rollingInterval: RollingInterval.Day,
-                    outputTemplate: "{Timestamp:HH:mm:ss.fff} {Message:lj}{NewLine}"))
-                    .CreateLogger();
-
-
-
-            // Enter log info
-            _gestureFileLog.Information($"TgtW: {targetWidthMM}, Dist: {distanceMM}, StPos: {startPos.Str()}, TgPos: {targetPos.Str()}");
         }
 
         public static void LogSOSFTrial(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)

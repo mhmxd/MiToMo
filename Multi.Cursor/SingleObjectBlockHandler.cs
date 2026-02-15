@@ -137,58 +137,6 @@ namespace Multi.Cursor
 
             // Only if 10 different sets of buttons fail do we give up.
             return false;
-
-            //this.TrialInfo(trial.ToStr());
-
-            //this.TrialInfo($"Trial function widths: {trial.GetFunctionWidths()}");
-            //_mainWindow.Dispatcher.Invoke(() =>
-            //{
-            //    _trialRecords[trial.Id].Functions.AddRange(
-            //        _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
-            //        );
-            //});
-
-            //this.TrialInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().ToStr()}");
-
-            //// Find a position for the object area
-            //Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
-            //{
-            //    return _mainWindow.GetObjAreaCenterConstraintRect();
-            //});
-
-            //(Point objCenter, double avgDist) = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
-            //    _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
-
-
-            //if (objCenter.X == -1 && objCenter.Y == -1) // Failed to find a valid position 
-            //{
-            //    this.PositionInfo($"No valid position found for object in Trial#{trial.Id}!");
-            //    return false; // Return false to indicate failure
-            //}
-            //else
-            //{
-            //    //this.PositionInfo($"Found object position: {objCenter.ToStr()}");
-
-            //    // Get the top-left corner of the object area rectangle
-            //    Point objAreaPosition = objCenter.OffsetPosition(-objAreaHalfW);
-
-            //    //this.TrialInfo($"Found object area position: {objAreaPosition.ToStr()}");
-
-            //    _trialRecords[trial.Id].ObjectAreaRect = new Rect(
-            //            objAreaPosition.X,
-            //            objAreaPosition.Y,
-            //            objAreaW,
-            //            objAreaW);
-
-            //    _trialRecords[trial.Id].AvgDistanceMM = avgDist;
-
-            //    // Put the object at the center
-            //    Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
-            //    TObject obj = new(1, objPosition, objCenter); // Object is always 1 in this case
-            //    _trialRecords[trial.Id].Objects.Add(obj);
-
-            //    return true;
-            //}
         }
 
         public override void ShowActiveTrial()
@@ -244,45 +192,6 @@ namespace Multi.Cursor
             _mainWindow.UpdateInfoLabel();
 
         }
-
-        //public override void EndActiveTrial(Result result)
-        //{
-
-        //    switch (result)
-        //    {
-        //        case Result.HIT:
-        //            MSounder.PlayHit();
-        //            //double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
-        //            double trialTime = GetDuration(ExpStrs.OBJ_RELEASE + "_1", ExpStrs.TRIAL_END);
-        //            _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
-
-        //            //this.TrialInfo($"Trial Time = {trialTime:F2}s");
-        //            //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial Time = {trialTime:F2}s");
-        //            this.TrialInfo(ExpStrs.MAJOR_LINE);
-        //            GoToNextTrial();
-        //            break;
-        //        case Result.MISS:
-        //            MSounder.PlayTargetMiss();
-
-        //            _activeBlock.ShuffleBackTrial(_activeTrialNum);
-        //            _trialRecords[_activeTrial.Id].ClearTimestamps();
-        //            _trialRecords[_activeTrial.Id].ResetStates();
-        //            this.TrialInfo(ExpStrs.MAJOR_LINE);
-        //            GoToNextTrial();
-        //            break;
-        //    }
-
-        //    // Log the records
-        //    if (_activeTrial.GetNumFunctions() == 1)
-        //    {
-        //        ExperiLogger.LogSOSFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
-        //    }
-        //    else
-        //    {
-        //        ExperiLogger.LogSOMFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
-        //    }
-
-        //}
 
         public override void GoToNextTrial()
         {
@@ -518,32 +427,5 @@ namespace Multi.Cursor
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
-
-        //public override void OnObjectAreaMouseDown(Object sender, MouseButtonEventArgs e)
-        //{
-        //    // Pressed on the Object without starting the trial
-        //    if (!IsStartClicked())
-        //    {
-        //        MSounder.PlayStartMiss();
-        //    }
-
-
-
-        //    var allFunctionsApplied = _activeTrialRecord.AreAllFunctionsApplied();
-
-        //    switch (allFunctionsApplied)
-        //    {
-        //        case true:
-        //            // All objects are selected, so we can end the trial
-        //            EndActiveTrial(Result.HIT);
-        //            break;
-        //        case false:
-        //            // Not all objects are selected, so we treat it as a miss
-        //            EndActiveTrial(Result.MISS);
-        //            break;
-        //    }
-
-        //    e.Handled = true; // Mark the event as handled to prevent further processing
-        //}
     }
 }

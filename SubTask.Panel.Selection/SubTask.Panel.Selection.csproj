@@ -250,7 +250,6 @@
     <Compile Include="PausePopUp.xaml.cs">
       <DependentUpon>PausePopUp.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SingleObjectBlockHandler.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>

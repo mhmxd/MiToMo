@@ -545,7 +545,7 @@ namespace Multi.Cursor
 
         public override void ThumbSwipe(Direction dir)
         {
-            this.TrialInfo($"Swipe direction: {dir}");
+
             if (_activeTrial.Technique != Technique.TOMO_SWIPE) // Wrong technique for swipe
             {
                 EndActiveTrial(Result.MISS);
@@ -553,7 +553,6 @@ namespace Multi.Cursor
             }
 
             //-- SWIPE:
-
             if (!IsStartClicked())
             {
                 return; // Do nothing if Start was not clicked
@@ -777,9 +776,11 @@ namespace Multi.Cursor
             //    $"Long({longDistTimes.Count}): {lonDistAvg:F2}");
         }
 
-        public void RecordToMoAction(Finger finger, string action)
+        public override void RecordToMoAction(Finger finger, string action, Point point)
         {
+            this.TrialInfo($"Recording gesture: {finger} {action} at point ({point.X}, {point.Y})");
             LogEvent(action, finger.ToString().ToLower());
+            ExperiLogger.RecordGesture(MTimer.GetCurrentMillis(), finger, action, point);
         }
 
         protected bool IsStartPressed()
