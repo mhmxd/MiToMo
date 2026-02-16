@@ -1267,17 +1267,40 @@ namespace Multi.Cursor
             _topWindow.ResetButtons();
         }
 
-        public void FillButtonsInAuxWindow(Side side, List<int> buttonIds, Brush color)
+        public void SetButtonsAsFunc(Side side, List<int> buttonIds)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.FillGridButtons(buttonIds, color);
+            auxWindow.SetAsFunctions(buttonIds);
         }
 
-        public void FillButtonInAuxWindow(Side side, int buttonId, Brush color)
+        public void ChangeAuxButtonsState(Side side, List<int> buttonIds, ExpEnums.ButtonState newState)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
-            auxWindow.FillGridButton(buttonId, color);
+            foreach (int btnId in buttonIds)
+            {
+                auxWindow.ChangeButtonState(btnId, newState);
+            }
+
         }
+
+        public void ChangeAuxButtonState(Side side, int buttonId, ExpEnums.ButtonState newState)
+        {
+            AuxWindow auxWindow = GetAuxWindow(side);
+            auxWindow.ChangeButtonState(buttonId, newState);
+
+        }
+
+        //public void FillButtonsInAuxWindow(Side side, List<int> buttonIds, Brush color)
+        //{
+        //    AuxWindow auxWindow = GetAuxWindow(side);
+        //    auxWindow.FillGridButtons(buttonIds, color);
+        //}
+
+        //public void FillButtonInAuxWindow(Side side, int buttonId, Brush color)
+        //{
+        //    AuxWindow auxWindow = GetAuxWindow(side);
+        //    auxWindow.FillGridButton(buttonId, color);
+        //}
 
         public void SetAuxButtonsHandlers(Side side, List<int> funcIds,
             SysIput.MouseEventHandler mouseEnterHandler,

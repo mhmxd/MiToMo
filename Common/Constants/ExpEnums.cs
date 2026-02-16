@@ -65,7 +65,7 @@ namespace Common.Constants
 
         public enum ButtonState
         {
-            DEFAULT = 0, MARKED = 1, ENABLED = 2, SELECTED = 3
+            DEFAULT = 0, MARKED = 1, ENABLED = 2, SELECTED = 3, NON_FUNC = 4
         }
 
         public enum Finger

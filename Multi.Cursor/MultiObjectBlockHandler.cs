@@ -781,7 +781,13 @@ namespace Multi.Cursor
             else // MOUSE
             {
                 _activeTrialRecord.MarkObject(objId);
-                _activeTrialRecord.MarkFunction(_activeTrialRecord.FindMappedFunctionId(objId));
+                int funcId = _activeTrialRecord.FindMappedFunctionId(objId);
+                _activeTrialRecord.MarkFunction(funcId);
+                // Enable function
+                _mainWindow.ChangeAuxButtonState(
+                    _activeTrial.FuncSide,
+                    funcId,
+                    ButtonState.ENABLED);
                 UpdateScene();
             }
 

@@ -17,41 +17,6 @@ namespace Multi.Cursor
 {
     public abstract class AuxWindow : Window
     {
-        // Class to store all the info regarding each button (positions, etc.)
-        protected class ButtonInfo
-        {
-            public SButton Button { get; set; }
-            public Point Position { get; set; }
-            public Rect Rect { get; set; }
-            public MRange DistToStartRange { get; set; } // In pixels
-            public Brush ButtonFill { get; set; } // Default background color for the button
-
-            public ButtonInfo(SButton button)
-            {
-                Button = button;
-                Position = new Point(0, 0);
-                Rect = new Rect();
-                DistToStartRange = new MRange(0, 0);
-                ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL;
-            }
-
-            public void ChangeBackFill()
-            {
-                Button.Background = ButtonFill; // Reset the button background to the default color
-            }
-
-            public void ResetButtonFill()
-            {
-                ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Reset the button fill color to the default
-                Button.Background = ButtonFill; // Change the button background to the default color
-            }
-
-            public void ResetButonBorder()
-            {
-                Button.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER; // Reset the button border to the default color
-            }
-
-        }
 
         public Side Side { get; set; } // Side of the window (left, right, top)
                                        // 
@@ -412,39 +377,63 @@ namespace Multi.Cursor
 
         }
 
-        public void FillGridButtons(List<int> buttonIds, Brush color)
+        public void SetAsFunctions(List<int> buttonIds)
         {
             foreach (int buttonId in buttonIds)
             {
-                FillGridButton(buttonId, color);
+                if (_buttonWraps.ContainsKey(buttonId))
+                {
+                    //this.TrialInfo($"Button#{buttonId} set as function");
+                    _buttonWraps[buttonId].State = ButtonState.DEFAULT;
+                }
             }
+
+            UpdateButtons();
         }
 
-        public virtual void FillGridButton(int buttonId, Brush color)
+        public void ChangeButtonState(int buttonId, ButtonState newState)
         {
-            //if (_buttonWraps.TryGetValue(buttonId, out var wrap))
-            //{
-            //    // If the button isn't loaded, it's a ghost from a previous grid
-            //    if (!wrap.Button.IsLoaded)
-            //    {
-            //        this.TrialInfo($"Button {buttonId} is a GHOST. Ignoring fill request.");
-            //        return;
-            //    }
-
-            //    wrap.Button.Background = color;
-            //}
-
-            // Find the button with the specified ID
             if (_buttonWraps.ContainsKey(buttonId))
             {
-                _buttonWraps[buttonId].Button.Background = color; // Change the background color of the button
-                this.TrialInfo($"Button {buttonId} filled with color {color}.");
+                _buttonWraps[buttonId].State = newState;
             }
-            else
-            {
-                this.TrialInfo($"Button with ID {buttonId} not found.");
-            }
+
+            UpdateButtons();
         }
+
+        //public void FillGridButtons(List<int> buttonIds, Brush color)
+        //{
+        //    foreach (int buttonId in buttonIds)
+        //    {
+        //        FillGridButton(buttonId, color);
+        //    }
+        //}
+
+        //public virtual void FillGridButton(int buttonId, Brush color)
+        //{
+        //    //if (_buttonWraps.TryGetValue(buttonId, out var wrap))
+        //    //{
+        //    //    // If the button isn't loaded, it's a ghost from a previous grid
+        //    //    if (!wrap.Button.IsLoaded)
+        //    //    {
+        //    //        this.TrialInfo($"Button {buttonId} is a GHOST. Ignoring fill request.");
+        //    //        return;
+        //    //    }
+
+        //    //    wrap.Button.Background = color;
+        //    //}
+
+        //    // Find the button with the specified ID
+        //    if (_buttonWraps.ContainsKey(buttonId))
+        //    {
+        //        _buttonWraps[buttonId].Button.Background = color; // Change the background color of the button
+        //        this.TrialInfo($"Button {buttonId} filled with color {color}.");
+        //    }
+        //    else
+        //    {
+        //        this.TrialInfo($"Button with ID {buttonId} not found.");
+        //    }
+        //}
 
         //public virtual void FillGridButton(int buttonId, Brush color)
         //{
@@ -691,12 +680,40 @@ namespace Multi.Cursor
         //    }
         //}
 
+        private void UpdateButtons()
+        {
+            foreach (int buttonId in _buttonWraps.Keys)
+            {
+                //this.TrialInfo($"Button#{buttonId} state: {_buttonWraps[buttonId].State}");
+                // If a function, set the color according to the state
+                switch (_buttonWraps[buttonId].State)
+                {
+                    case ButtonState.NON_FUNC:
+                        _buttonWraps[buttonId].Button.Background = UIColors.COLOR_BUTTON_DEFAULT_FILL;
+                        break;
+                    case ButtonState.DEFAULT:
+                        _buttonWraps[buttonId].Button.Background = UIColors.COLOR_FUNCTION_DEFAULT;
+                        break;
+                    case ButtonState.ENABLED:
+                        _buttonWraps[buttonId].Button.Background = UIColors.COLOR_FUNCTION_ENABLED;
+                        break;
+                    case ButtonState.SELECTED:
+                        _buttonWraps[buttonId].Button.Background = UIColors.COLOR_FUNCTION_APPLIED;
+                        break;
+                }
+                
+            }
+        }
+
         public virtual void ResetButtons()
         {
             foreach (int buttonId in _buttonWraps.Keys)
             {
-                _buttonWraps[buttonId].ResetButtonFill();
+                //_buttonWraps[buttonId].ResetButtonFill();
+                _buttonWraps[buttonId].State = ButtonState.NON_FUNC;
             }
+
+            UpdateButtons();
 
             //foreach (int buttonId in _buttonInfos.Keys)
             //{
@@ -798,42 +815,56 @@ namespace Multi.Cursor
         {
             if (!_buttonWraps.ContainsKey(buttonId)) return;
 
-            var btn = _buttonWraps[buttonId].Button;
-
-            // This will prove if we are looking at the same instance
-            this.TrialInfo($"Marking button {buttonId}. Hash: {btn.GetHashCode()}. BG: {btn.Background}");
-
-            // DEBUG LOGS
-            //this.TrialInfo($"DEBUG: Target Button ID: {btn.Id}");
-            //this.TrialInfo($"DEBUG: Current BG: {btn.Background}");
-            //this.TrialInfo($"DEBUG: Is Button in Visual Tree: {PresentationSource.FromVisual(btn) != null}");
-
-            var buttonBgDefault =
-                btn.Background.Equals(UIColors.COLOR_BUTTON_DEFAULT_FILL);
-            var buttonBgHover =
-                btn.Background.Equals(UIColors.COLOR_BUTTON_HOVER_FILL);
-            var buttonBgFunctionDefault =
-                btn.Background.Equals(UIColors.COLOR_FUNCTION_DEFAULT);
-            var buttonBgEnabled =
-                btn.Background.Equals(UIColors.COLOR_FUNCTION_ENABLED);
-            var buttonBgApplied =
-                btn.Background.Equals(UIColors.COLOR_FUNCTION_APPLIED);
-
+            
             // Change the border color to highlight
             _buttonWraps[buttonId].Button.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT;
-            this.TrialInfo($"Marking button {buttonId}. BG: {btn.Background}");
-            if (buttonBgFunctionDefault) // Function (default)
+
+            switch (_buttonWraps[buttonId].State)
             {
-                this.TrialInfo($"Set {_buttonWraps[buttonId].Button.Id} to Enabled");
-                _buttonWraps[buttonId].Button.Background = UIColors.COLOR_FUNCTION_ENABLED;
-                // Call the event
-                OnFunctionMarked(_buttonWraps[buttonId].Button.Id, _buttonWraps[buttonId].Button.RowCol);
+                case ButtonState.NON_FUNC:
+                    _buttonWraps[buttonId].Button.Background = UIColors.COLOR_BUTTON_HOVER_FILL;
+                    break;
+                case ButtonState.DEFAULT:
+                    OnFunctionMarked(_buttonWraps[buttonId].Button.Id, _buttonWraps[buttonId].Button.RowCol);
+                    _buttonWraps[buttonId].Button.Background = UIColors.COLOR_FUNCTION_ENABLED;
+                    break;
             }
-            else if (buttonBgDefault) // Normal button
-            {
-                this.TrialInfo($"Set {buttonId} to Hover Fill");
-                _buttonWraps[buttonId].Button.Background = UIColors.COLOR_BUTTON_HOVER_FILL;
-            }
+
+            //var btn = _buttonWraps[buttonId].Button;
+
+            //// This will prove if we are looking at the same instance
+            //this.TrialInfo($"Marking button {buttonId}. Hash: {btn.GetHashCode()}. BG: {btn.Background}");
+
+            //// DEBUG LOGS
+            ////this.TrialInfo($"DEBUG: Target Button ID: {btn.Id}");
+            ////this.TrialInfo($"DEBUG: Current BG: {btn.Background}");
+            ////this.TrialInfo($"DEBUG: Is Button in Visual Tree: {PresentationSource.FromVisual(btn) != null}");
+
+            //var buttonBgDefault =
+            //    btn.Background.Equals(UIColors.COLOR_BUTTON_DEFAULT_FILL);
+            //var buttonBgHover =
+            //    btn.Background.Equals(UIColors.COLOR_BUTTON_HOVER_FILL);
+            //var buttonBgFunctionDefault =
+            //    btn.Background.Equals(UIColors.COLOR_FUNCTION_DEFAULT);
+            //var buttonBgEnabled =
+            //    btn.Background.Equals(UIColors.COLOR_FUNCTION_ENABLED);
+            //var buttonBgApplied =
+            //    btn.Background.Equals(UIColors.COLOR_FUNCTION_APPLIED);
+
+            
+            //this.TrialInfo($"Marking button {buttonId}. BG: {btn.Background}");
+            //if (buttonBgFunctionDefault) // Function (default)
+            //{
+            //    this.TrialInfo($"Set {_buttonWraps[buttonId].Button.Id} to Enabled");
+            //    _buttonWraps[buttonId].Button.Background = UIColors.COLOR_FUNCTION_ENABLED;
+            //    // Call the event
+            //    OnFunctionMarked(_buttonWraps[buttonId].Button.Id, _buttonWraps[buttonId].Button.RowCol);
+            //}
+            //else if (buttonBgDefault) // Normal button
+            //{
+            //    this.TrialInfo($"Set {buttonId} to Hover Fill");
+            //    _buttonWraps[buttonId].Button.Background = UIColors.COLOR_BUTTON_HOVER_FILL;
+            //}
 
             _lastMarkedButtonId = buttonId; // Store the ID of the highlighted button
         }
@@ -1112,13 +1143,14 @@ namespace Multi.Cursor
                 {
                     //this.TrialInfo($"Changing the background from last id {_lastMarkedButtonId}");
 
-                    var oldButton = _buttonWraps[_lastMarkedButtonId].Button;
+                    var oldButtonWrap = _buttonWraps[_lastMarkedButtonId];
+                    var oldButton = oldButtonWrap.Button;
                     oldButton.BorderBrush = UIColors.COLOR_BUTTON_DEFAULT_BORDER;
                     markedButton.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT;
 
                     OnButtonMarked(markedButton.RowCol); // Call the event
 
-                    // Change the old button background based on the previous state
+                    // Change the old button state based on the previous state
                     if (oldButton.Background.Equals(UIColors.COLOR_BUTTON_HOVER_FILL)) // Gray => White
                     {
                         //this.TrialInfo($"Set {_lastMarkedButtonId} to Default Fill");

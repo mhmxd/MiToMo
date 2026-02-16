@@ -422,18 +422,15 @@ namespace Multi.Cursor
 
         public void SetFunctionAsEnabled(int funcId)
         {
-            _mainWindow.FillButtonInAuxWindow(
+            _mainWindow.ChangeAuxButtonState(
                 _activeTrial.FuncSide,
                 funcId,
-                UIColors.COLOR_FUNCTION_ENABLED);
-        }
+                ButtonState.ENABLED);
 
-        public void SetFunctionAsDisabled(int funcId)
-        {
-            _mainWindow.FillButtonInAuxWindow(
-                _activeTrial.FuncSide,
-                funcId,
-                UIColors.COLOR_FUNCTION_DEFAULT);
+            //_mainWindow.FillButtonInAuxWindow(
+            //    _activeTrial.FuncSide,
+            //    funcId,
+            //    UIColors.COLOR_FUNCTION_ENABLED);
         }
 
         public void SetFunctionAsApplied(int funcId)
@@ -450,19 +447,21 @@ namespace Multi.Cursor
         {
             foreach (var func in _activeTrialRecord.Functions)
             {
-                Brush funcColor = UIColors.COLOR_FUNCTION_DEFAULT;
-                //this.TrialInfo($"Function#{func.Id} state: {func.State}");
-                switch (func.State)
-                {
-                    case ButtonState.MARKED:
-                        funcColor = UIColors.COLOR_FUNCTION_ENABLED;
-                        break;
-                    case ButtonState.SELECTED:
-                        funcColor = UIColors.COLOR_FUNCTION_APPLIED;
-                        break;
-                }
+                _mainWindow.ChangeAuxButtonState(_activeTrial.FuncSide, func.Id, func.State);
 
-                _mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id, funcColor);
+                //Brush funcColor = UIColors.COLOR_FUNCTION_DEFAULT;
+                ////this.TrialInfo($"Function#{func.Id} state: {func.State}");
+                //switch (func.State)
+                //{
+                //    case ButtonState.MARKED:
+                //        funcColor = UIColors.COLOR_FUNCTION_ENABLED;
+                //        break;
+                //    case ButtonState.SELECTED:
+                //        funcColor = UIColors.COLOR_FUNCTION_APPLIED;
+                //        break;
+                //}
+
+                //_mainWindow.FillButtonInAuxWindow(_activeTrial.FuncSide, func.Id, funcColor);
             }
 
             foreach (var obj in _activeTrialRecord.Objects)

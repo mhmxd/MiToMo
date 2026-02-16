@@ -150,7 +150,14 @@ namespace CommonUI
 
         public void ChangeFunctionState(int funcId, ButtonState newState)
         {
-            Functions.FirstOrDefault(f => f.Id == funcId).State = newState;
+            foreach (TFunction func in Functions)
+            {
+                if (func.Id == funcId)
+                {
+                    func.State = newState;
+                }
+            }
+            //Functions.FirstOrDefault(f => f.Id == funcId)?.State = newState;
         }
 
         public void EnableFunction()

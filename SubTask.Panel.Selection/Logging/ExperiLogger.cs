@@ -80,6 +80,7 @@ namespace SubTask.Panel.Selection
         {
             _activeTrialId = trialId;
             _trialCursorRecords[_activeTrialId] = new List<PositionRecord>();
+            _trialGestureRecords = new();
 
             _cursorLogFilePath = Path.Combine(
                 MyDocumentsPath, LogsFolderName,

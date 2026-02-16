@@ -1,5 +1,6 @@
 ﻿using Common.Helpers;
 using System.Windows;
+using static Common.Constants.ExpEnums;
 
 namespace CommonUI
 {
@@ -9,6 +10,7 @@ namespace CommonUI
         public Point Position { get; set; }
         public Rect Rect { get; set; }
         public MRange DistToStartRange { get; set; } // In pixels
+        public ButtonState State { get; set; }
 
         public ButtonWrap(SButton button)
         {
@@ -16,6 +18,7 @@ namespace CommonUI
             Position = new Point(0, 0);
             Rect = new Rect();
             DistToStartRange = new MRange(0, 0);
+            State = ButtonState.NON_FUNC;
             //ButtonFill = UIColors.COLOR_BUTTON_DEFAULT_FILL;
         }
 

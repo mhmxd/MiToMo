@@ -178,10 +178,14 @@ namespace Multi.Cursor
             _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
 
             // Fill the function buttons and set their handlers
-            _mainWindow.FillButtonsInAuxWindow(
+            //_mainWindow.FillButtonsInAuxWindow(
+            //    _activeTrial.FuncSide,
+            //    _activeTrialRecord.GetFunctionIds(),
+            //    UIColors.COLOR_FUNCTION_DEFAULT);
+            _mainWindow.SetButtonsAsFunc(
                 _activeTrial.FuncSide,
-                _activeTrialRecord.GetFunctionIds(),
-                UIColors.COLOR_FUNCTION_DEFAULT);
+                _activeTrialRecord.GetFunctionIds()
+             );
             _mainWindow.SetAuxButtonsHandlers(
                 _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
                 OnFunctionMouseEnter, this.OnFunctionMouseDown, this.OnFunctionMouseUp,
@@ -201,7 +205,7 @@ namespace Multi.Cursor
             if (_activeTrialNum < _activeBlock.Trials.Count)
             {
                 //_mainWindow.ShowStartTrialButton(OnStartButtonMouseUp);
-                _mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
+                //_mainWindow.ResetTargetWindow(_activeTrial.FuncSide);
                 _mainWindow.ClearCanvas();
                 _activeTrialRecord.ClearTimestamps();
                 _nSelectedObjects = 0; // Reset the number of selected objects
@@ -342,6 +346,12 @@ namespace Multi.Cursor
             {
                 //this.TrialInfo($"Events: {_activeTrialRecord.TrialEventsToString()}");
                 _activeTrialRecord.MarkAllFunctions();
+                // Enable all functions in aux
+                _mainWindow.ChangeAuxButtonsState(
+                    _activeTrial.FuncSide,
+                    _activeTrialRecord.GetFunctionIds(),
+                    ButtonState.ENABLED);
+                // Enable object
                 _activeTrialRecord.MarkObject(1);
                 UpdateScene();
             }
@@ -359,13 +369,13 @@ namespace Multi.Cursor
 
         }
 
-        //public override void OnFunctionUnmarked(int funId)
-        //{
-        //    base.OnFunctionUnmarked(funId);
+        public override void OnFunctionUnmarked(int funId, GridPos rowCol)
+        {
+            base.OnFunctionUnmarked(funId, rowCol);
 
-        //    _activeTrialRecord.UnmarkObject(1);
-        //    UpdateScene();
-        //}
+            _activeTrialRecord.UnmarkObject(1);
+            UpdateScene();
+        }
 
         public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {
