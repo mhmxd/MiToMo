@@ -12,14 +12,14 @@
                        FontSize="32"
                        FontWeight="Bold"
                        TextAlignment="Center"
-                       Text="Block 1 is finished."
+                       Text="You can take a pause."
                        Foreground="#353535"
                        Margin="0,0,0,20"/>
             <TextBlock FontSize="30"
                        FontWeight="ExtraBold"
                        Foreground="#353535"
                        TextAlignment="Center">
-                When ready, press <Run Foreground="Blue">Blue</Run> + <Run Foreground="Red">Red</Run> keys on your keyboard to continue.
+                When ready, press <Run Foreground="Blue">SHIFT</Run> + <Run Foreground="Red">DEL</Run> keys on the keyboard to continue.
             </TextBlock>
         </StackPanel>
     </Grid>
