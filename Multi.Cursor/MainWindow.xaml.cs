@@ -1139,7 +1139,6 @@ namespace Multi.Cursor
 
         public void ShowAllAuxMarkers()
         {
-            this.TrialInfo($"Showing all aux markers");
             // Show all aux markers (without activation)
             _leftWindow.ShowMarker(OnFunctionMarked);
             _topWindow.ShowMarker(OnFunctionMarked);

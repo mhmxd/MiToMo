@@ -422,28 +422,28 @@ namespace Multi.Cursor
 
         public virtual void FillGridButton(int buttonId, Brush color)
         {
-            if (_buttonWraps.TryGetValue(buttonId, out var wrap))
-            {
-                // If the button isn't loaded, it's a ghost from a previous grid
-                if (!wrap.Button.IsLoaded)
-                {
-                    this.TrialInfo($"Button {buttonId} is a GHOST. Ignoring fill request.");
-                    return;
-                }
+            //if (_buttonWraps.TryGetValue(buttonId, out var wrap))
+            //{
+            //    // If the button isn't loaded, it's a ghost from a previous grid
+            //    if (!wrap.Button.IsLoaded)
+            //    {
+            //        this.TrialInfo($"Button {buttonId} is a GHOST. Ignoring fill request.");
+            //        return;
+            //    }
 
-                wrap.Button.Background = color;
-            }
+            //    wrap.Button.Background = color;
+            //}
 
             // Find the button with the specified ID
-            //if (_buttonWraps.ContainsKey(buttonId))
-            //{
-            //    _buttonWraps[buttonId].Button.Background = color; // Change the background color of the button
-            //    this.TrialInfo($"Button {buttonId} filled with color {color}.");
-            //}
-            //else
-            //{
-            //    this.TrialInfo($"Button with ID {buttonId} not found.");
-            //}
+            if (_buttonWraps.ContainsKey(buttonId))
+            {
+                _buttonWraps[buttonId].Button.Background = color; // Change the background color of the button
+                this.TrialInfo($"Button {buttonId} filled with color {color}.");
+            }
+            else
+            {
+                this.TrialInfo($"Button with ID {buttonId} not found.");
+            }
         }
 
         //public virtual void FillGridButton(int buttonId, Brush color)
@@ -800,6 +800,9 @@ namespace Multi.Cursor
 
             var btn = _buttonWraps[buttonId].Button;
 
+            // This will prove if we are looking at the same instance
+            this.TrialInfo($"Marking button {buttonId}. Hash: {btn.GetHashCode()}. BG: {btn.Background}");
+
             // DEBUG LOGS
             //this.TrialInfo($"DEBUG: Target Button ID: {btn.Id}");
             //this.TrialInfo($"DEBUG: Current BG: {btn.Background}");
@@ -807,6 +810,8 @@ namespace Multi.Cursor
 
             var buttonBgDefault =
                 btn.Background.Equals(UIColors.COLOR_BUTTON_DEFAULT_FILL);
+            var buttonBgHover =
+                btn.Background.Equals(UIColors.COLOR_BUTTON_HOVER_FILL);
             var buttonBgFunctionDefault =
                 btn.Background.Equals(UIColors.COLOR_FUNCTION_DEFAULT);
             var buttonBgEnabled =
@@ -814,30 +819,23 @@ namespace Multi.Cursor
             var buttonBgApplied =
                 btn.Background.Equals(UIColors.COLOR_FUNCTION_APPLIED);
 
-            // Find the button with the specified ID
-            if (_buttonWraps.ContainsKey(buttonId))
+            // Change the border color to highlight
+            _buttonWraps[buttonId].Button.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT;
+            this.TrialInfo($"Marking button {buttonId}. BG: {btn.Background}");
+            if (buttonBgFunctionDefault) // Function (default)
             {
-                _buttonWraps[buttonId].Button.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT; // Change the border color to highlight
-
-                if (buttonBgDefault) // Normal button
-                {
-                    //this.TrialInfo($"Set {buttonId} to Hover Fill");
-                    _buttonWraps[buttonId].Button.Background = UIColors.COLOR_BUTTON_HOVER_FILL;
-                }
-                else if (buttonBgFunctionDefault) // Function (default)
-                {
-                    //this.TrialInfo($"Set {_buttonWraps[buttonId].Button.Id} to Enabled");
-                    _buttonWraps[buttonId].Button.Background = UIColors.COLOR_FUNCTION_ENABLED;
-                    // Call the event
-                    OnFunctionMarked(_buttonWraps[buttonId].Button.Id, _buttonWraps[buttonId].Button.RowCol);
-                }
-
-                _lastMarkedButtonId = buttonId; // Store the ID of the highlighted button
+                this.TrialInfo($"Set {_buttonWraps[buttonId].Button.Id} to Enabled");
+                _buttonWraps[buttonId].Button.Background = UIColors.COLOR_FUNCTION_ENABLED;
+                // Call the event
+                OnFunctionMarked(_buttonWraps[buttonId].Button.Id, _buttonWraps[buttonId].Button.RowCol);
             }
-            else
+            else if (buttonBgDefault) // Normal button
             {
-                this.TrialInfo($"Button with ID {buttonId} not found.");
+                this.TrialInfo($"Set {buttonId} to Hover Fill");
+                _buttonWraps[buttonId].Button.Background = UIColors.COLOR_BUTTON_HOVER_FILL;
             }
+
+            _lastMarkedButtonId = buttonId; // Store the ID of the highlighted button
         }
 
         //public void ActivateMarker(Action<int> OnFunctionMarked)
