@@ -94,21 +94,32 @@ namespace Multi.Cursor
             MRange totalRange = new(Shortest_Dist_MM, Longest_Dist_MM);
 
             //-- For each complexity, create blocks and add to the list
-            List<Complexity> randomizedComplexities = ExpEnums.GetRandomComplexityList();
-            foreach (Complexity complexity in randomizedComplexities)
+            for (int i = 0; i < ExpDesign.MainTaskNumBlocks; i++)
             {
-                for (int i = 0; i < ExpDesign.MainTaskNumBlocks; i++)
-                {
-                    int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
-                    Block block = Block.CreateBlock(
-                        Active_Technique, ExpEnvironment.PTC_NUM,
-                        blockId, complexity,
-                        expType, totalRange,
-                        nFun, nObj);
+                int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
+                Block block = Block.CreateBlock(
+                    Active_Technique, ExpEnvironment.PTC_NUM,
+                    blockId, Complexity.Complex,
+                    expType, totalRange,
+                    nFun, nObj);
 
-                    _blocks.Add(block);
-                }
+                _blocks.Add(block);
             }
+            //List<Complexity> randomizedComplexities = ExpEnums.GetRandomComplexityList();
+            //foreach (Complexity complexity in randomizedComplexities)
+            //{
+            //    for (int i = 0; i < ExpDesign.MainTaskNumBlocks; i++)
+            //    {
+            //        int blockId = ExpEnvironment.PTC_NUM * 100 + i + 1;
+            //        Block block = Block.CreateBlock(
+            //            Active_Technique, ExpEnvironment.PTC_NUM,
+            //            blockId, complexity,
+            //            expType, totalRange,
+            //            nFun, nObj);
+
+            //        _blocks.Add(block);
+            //    }
+            //}
         }
 
         public int GetNumBlocks()

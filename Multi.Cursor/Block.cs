@@ -178,7 +178,7 @@ namespace Multi.Cursor
 
 
             // Create side trials (random L/R)
-            trialSide = Side.Left;
+            trialSide = ExpEnums.GetRandomLR();
             buttonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][trialSide];
             foreach (int funcW in buttonWidths)
             {
@@ -205,51 +205,6 @@ namespace Multi.Cursor
             block.ShuffleTrials();
 
             return block;
-
-            //// Create and add trials to the block
-            //int trialNum = 1;
-            //for (int sInd = 0; sInd < 3; sInd++)
-            //{
-            //    Side functionSide = (Side)sInd;
-
-            //    // Get the function widths based on side and complexity
-            //    List<int> buttonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][functionSide];
-
-            //    foreach (MRange range in distRange)
-            //    {
-            //        // For now all function Ws are the same. We may later create trials with multiple function Ws
-            //        foreach (int funcW in buttonWidths)
-            //        {
-            //            List<int> functionWidths = new List<int>(nFun);
-            //            for (int i = 0; i < nFun; i++)
-            //            {
-            //                functionWidths.Add(funcW);
-            //            }
-
-            //            Trial trial = Trial.CreateTrial(
-            //                id * 100 + trialNum,
-            //                technique,
-            //                ptc,
-            //                type,
-            //                complexity,
-            //                expType,
-            //                functionSide,
-            //                range,
-            //                nObj,
-            //                functionWidths);
-
-            //            block._trials.Add(trial);
-            //            trialNum++;
-            //        }
-
-            //    }
-            //}
-
-            //// Shuffle the trials
-            //block.ShuffleTrials();
-
-            //// Return the block
-            //return block;
         }
 
         public Trial GetTrial(int trialNum)
