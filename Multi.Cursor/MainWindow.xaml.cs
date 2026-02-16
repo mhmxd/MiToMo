@@ -230,7 +230,7 @@ namespace Multi.Cursor
             CreateExperiment(); // Create the experiment (sets _experiment)
 
             //--- Show the intro dialog (the choices affect the rest)
-            IntroDialog introDialog = new IntroDialog() { Owner = this };
+            IntroDialog introDialog = new() { Owner = this };
             bool result = false;
             try
             {
@@ -836,36 +836,6 @@ namespace Multi.Cursor
             this.TrialInfo($"All grids synchronized and registered for {complexity}. ready for trials.");
         }
 
-        private void BeginBlocks()
-        {
-            _activeBlockNum = 1;
-            //Block block = _experiment.GetBlock(_activeBlockNum);
-            _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
-
-            ExperiLogger.Init(_experiment.Active_Technique, _activeBlockHandler.GetBlockTaskType());
-
-            if (_experiment.Active_Technique.IsTomo())
-            {
-                _isTouchMouseActive = true;
-                if (_touchSurface == null) _touchSurface = new TouchSurface(_experiment.Active_Technique);
-                _touchSurface.SetGestureHandler(_activeBlockHandler);
-                this.TrialInfo($"TouchSurface Initiated");
-            }
-
-            _stopWatch.Start();
-            _activeBlockHandler.BeginActiveBlock();
-
-            //if (TaskType == TaskType.REPEATING) _activeBlockHandler = new MultiObjectBlockHandler(this, block);
-            //else if (TaskType == TaskType.ALTERNATING) _activeBlockHandler = new SingleObjectBlockHandler(this, block);
-
-            //bool positionsFound = _activeBlockHandler.FindPositionsForActiveBlock();
-            //if (positionsFound)
-            //{
-            //    UpdateInfoLabel(1, _activeBlockNum);
-            //    _activeBlockHandler.BeginActiveBlock();
-            //}
-        }
-
         //private bool FindPosForRepTrial(Trial trial)
         //{
         //    int startW = UITools.MM2PX(Experiment.OBJ_WIDTH_MM);
@@ -1009,6 +979,7 @@ namespace Multi.Cursor
                     {
                         Owner = this
                     };
+                    blockEndWindow.Show();
                 }
                 else
                 {
@@ -1168,6 +1139,7 @@ namespace Multi.Cursor
 
         public void ShowAllAuxMarkers()
         {
+            this.TrialInfo($"Showing all aux markers");
             // Show all aux markers (without activation)
             _leftWindow.ShowMarker(OnFunctionMarked);
             _topWindow.ShowMarker(OnFunctionMarked);
@@ -1298,16 +1270,13 @@ namespace Multi.Cursor
 
         public void FillButtonsInAuxWindow(Side side, List<int> buttonIds, Brush color)
         {
-            foreach (int buttonId in buttonIds)
-            {
-                FillButtonInAuxWindow(side, buttonId, color);
-            }
+            AuxWindow auxWindow = GetAuxWindow(side);
+            auxWindow.FillGridButtons(buttonIds, color);
         }
 
         public void FillButtonInAuxWindow(Side side, int buttonId, Brush color)
         {
             AuxWindow auxWindow = GetAuxWindow(side);
-            //auxWindow.ResetButtons();
             auxWindow.FillGridButton(buttonId, color);
         }
 

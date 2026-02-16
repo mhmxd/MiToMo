@@ -15,11 +15,11 @@
                        Text="Block 1 is finished."
                        Foreground="#353535"
                        Margin="0,0,0,20"/>
-            <TextBlock FontSize="36"
+            <TextBlock FontSize="30"
                        FontWeight="ExtraBold"
                        Foreground="#353535"
                        TextAlignment="Center">
-                Press <Run Foreground="Blue">Blue</Run> + <Run Foreground="Red">Red</Run> on your keyboard to start the next block.
+                When ready, press <Run Foreground="Blue">Blue</Run> + <Run Foreground="Red">Red</Run> keys on your keyboard to continue.
             </TextBlock>
         </StackPanel>
     </Grid>

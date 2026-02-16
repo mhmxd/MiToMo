@@ -65,7 +65,7 @@ namespace Multi.Cursor
             // Start logging cursor positions
             ExperiLogger.StartTrialLogs(_activeTrial.Id, _activeTrialNum);
 
-            // Rest in overriding classes
+            //-- Rest in overriding classes
         }
 
         public virtual void EndActiveTrial(Result result)
@@ -73,7 +73,10 @@ namespace Multi.Cursor
             this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
             _activeTrialRecord.Result = result;
             LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
+
             _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
+            _mainWindow.ResetAllAuxWindows(); // Reset the aux windows (for the next trial)
+            _mainWindow.ClearCanvas(); // Clear the canvas (for the next trial)
 
             //double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
             //_activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
@@ -403,13 +406,13 @@ namespace Multi.Cursor
         public virtual void OnFunctionMarked(int funId, GridPos rowCol)
         {
             _activeTrialRecord.MarkFunction(funId);
-            LogEvent(ExpStrs.FUN_MARKED, funId.ToString());
+            LogEvent(ExpStrs.FUN_MARKED, $"({rowCol.Row}, {rowCol.Col})");
         }
 
         public virtual void OnFunctionUnmarked(int funId, GridPos rowCol)
         {
             _activeTrialRecord.UnmarkFunction(funId);
-            LogEvent(ExpStrs.FUN_DEMARKED, funId.ToString());
+            LogEvent(ExpStrs.FUN_DEMARKED, $"({rowCol.Row}, {rowCol.Col})");
         }
 
         public void OnPaneButtonMarked(GridPos btnPos)

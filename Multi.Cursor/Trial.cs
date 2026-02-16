@@ -172,6 +172,29 @@ namespace Multi.Cursor
             return Technique == Technique.TOMO || Technique == Technique.TOMO_SWIPE || Technique == Technique.TOMO_TAP;
         }
 
+        public Trial Clone()
+        {
+            // 1. Shallow copy handles all value types/enums (Id, PtcNum, Technique, etc.)
+            Trial clone = (Trial)this.MemberwiseClone();
+
+            // 2. Deep copy the List of widths
+            // This ensures the clone has its own list instance in memory.
+            clone._functionWidths = new List<int>(this._functionWidths);
+
+            // 3. Deep copy the MRange object
+            // Check for null to avoid errors if this task type doesn't use a distance range.
+            if (this.DistRangeMM != null)
+            {
+                clone.DistRangeMM = new MRange(
+                    this.DistRangeMM.Min,
+                    this.DistRangeMM.Max,
+                    this.DistRangeMM.Label
+                );
+            }
+
+            return clone;
+        }
+
 
     }
 }

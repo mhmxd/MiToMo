@@ -112,7 +112,7 @@ namespace CommonUI
             }
 
             // Apply to the specified object
-            //if (objId != -1) ChangeObjectState(objId, ButtonState.SELECTED);
+            if (objId != -1) ChangeObjectState(objId, ButtonState.SELECTED);
 
         }
 
@@ -639,7 +639,7 @@ namespace CommonUI
         {
             foreach (TFunction func in Functions)
             {
-                this.TrialInfo($"Function#{func.Id} state: {func.State}");
+                this.LogsInfo($"Function#{func.Id} state: {func.State}");
                 if (func.State != ButtonState.SELECTED)
                 {
                     return false; // If any function is not selected, return false

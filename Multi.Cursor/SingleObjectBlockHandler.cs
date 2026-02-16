@@ -143,34 +143,25 @@ namespace Multi.Cursor
         {
             base.ShowActiveTrial();
 
-            // Update the main window label
-            //_mainWindow.UpdateInfoLabel(_activeTrialNum, _activeBlock.GetNumTrials());
-
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
             // Color the target button and set the handlers
-            this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().Str()}");
-            Brush funcDefaultColor = UIColors.COLOR_FUNCTION_DEFAULT;
-            UpdateScene(); // (comment for measuring panel selection time)
+            //this.TrialInfo($"Function Id(s): {_activeTrialRecord.GetFunctionIds().Str()}");
+            //Brush funcDefaultColor = UIColors.COLOR_FUNCTION_DEFAULT;
+            //UpdateScene(); // (comment for measuring panel selection time)
             //_mainWindow.FillButtonInTargetWindow(
             //    _activeTrial.FuncSide, 
             //    _activeTrialRecord.FunctionId, 
             //    funcDefaultColor);
 
-            _mainWindow.SetAuxButtonsHandlers(
-                _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
-                OnFunctionMouseEnter, this.OnFunctionMouseDown, this.OnFunctionMouseUp,
-                OnFunctionMouseExit, this.OnNonTargetMouseDown);
 
-            // If on ToMo, activate the auxiliary window marker on all sides
-            if (_mainWindow.IsTechniqueToMo()) _mainWindow.ShowAllAuxMarkers();
-
+            //-- Canvas is cleared in GoToNextTrial
             // Clear the main window canvas (to add shapes)
-            _mainWindow.ClearCanvas();
+            //_mainWindow.ClearCanvas();
 
             // Show the area
-            MouseEvents objAreaEvents = new MouseEvents(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
+            MouseEvents objAreaEvents = new(OnObjectAreaMouseEnter, OnObjectAreaMouseDown, OnObjectAreaMouseUp, OnObjectAreaMouseExit);
             _mainWindow.ShowObjectsArea(
                 _activeTrialRecord.ObjectAreaRect,
                 UIColors.COLOR_OBJ_AREA_BG,
@@ -178,15 +169,27 @@ namespace Multi.Cursor
 
             // Show objects
             Brush objDefaultColor = UIColors.COLOR_OBJ_DEFAULT;
-            MouseEvents objectEvents = new MouseEvents(
-                OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
-            _mainWindow.ShowObjects(
-                _activeTrialRecord.Objects, objDefaultColor, objectEvents);
+            MouseEvents objectEvents = new(OnObjectMouseEnter, OnObjectMouseDown, OnObjectMouseUp, OnObjectMouseLeave);
+            _mainWindow.ShowObjects(_activeTrialRecord.Objects, objDefaultColor, objectEvents);
 
             // Show Start Trial button
             MouseEvents startButtonEvents = new MouseEvents(
                 OnStartButtonMouseEnter, OnStartButtonMouseDown, OnStartButtonMouseUp, OnStartButtonMouseExit);
             _mainWindow.ShowStartTrialButton(_activeTrialRecord.ObjectAreaRect, startButtonEvents);
+
+            // Fill the function buttons and set their handlers
+            _mainWindow.FillButtonsInAuxWindow(
+                _activeTrial.FuncSide,
+                _activeTrialRecord.GetFunctionIds(),
+                UIColors.COLOR_FUNCTION_DEFAULT);
+            _mainWindow.SetAuxButtonsHandlers(
+                _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
+                OnFunctionMouseEnter, this.OnFunctionMouseDown, this.OnFunctionMouseUp,
+                OnFunctionMouseExit, this.OnNonTargetMouseDown);
+            //UpdateScene();
+
+            // If on ToMo, activate the auxiliary window marker on all sides
+            if (_activeBlock.Technique.IsTomo()) _mainWindow.ShowAllAuxMarkers();
 
             // Update info label
             _mainWindow.UpdateInfoLabel();
@@ -217,7 +220,7 @@ namespace Multi.Cursor
                 LogAverageTimeOnDistances();
 
                 // Log block time
-                ExperiLogger.LogBlockTime(_activeBlock);
+                ExperiLogger.LogBlockTime(_activeBlock, _activeBlockNum);
 
                 // Go to the next block
                 _mainWindow.GoToNextBlock();

@@ -25,7 +25,7 @@ namespace Multi.Cursor
         public BlockEndWindow(Action<long> blockFinishedCallback)
         {
             InitializeComponent();
-            BlockFinishedText.Text = $"You can take a pause.\n When ready, press blue and red buttons on the keyboard.";
+            BlockFinishedText.Text = $"You can take a pause.";
             BlockFinishedCallback = blockFinishedCallback;
             this.KeyDown += BlockEndWindow_KeyDown;
         }

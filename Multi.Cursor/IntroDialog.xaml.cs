@@ -28,7 +28,7 @@ namespace Multi.Cursor
 
             ParticipantNumberTextBlock.Text = ExpEnvironment.PTC_NUM.ToString();
 
-            TechniqueComboBox.ItemsSource = new string[] { ExpStrs.TAP_C, ExpStrs.SWIPE_C, ExpStrs.MOUSE_C };
+            TechniqueComboBox.ItemsSource = new string[] { ExpStrs.SWIPE_C, ExpStrs.MOUSE_C };
             TechniqueComboBox.SelectedValue = ExpStrs.MOUSE_C;
 
             TaskComboBox.ItemsSource = new string[] { ExpStrs.ONE_OBJ_MULTI_FUNC, ExpStrs.MULTI_OBJ_ONE_FUNC };

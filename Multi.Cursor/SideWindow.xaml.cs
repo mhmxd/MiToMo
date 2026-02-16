@@ -79,20 +79,6 @@ namespace Multi.Cursor
             _gridNavigator.Activate();
         }
 
-        public void ActivateCursor()
-        {
-            //inactiveCursor.Visibility = Visibility.Hidden;
-            //activeCursor.Visibility = Visibility.Visible;
-            //_auxursor.Activate();
-        }
-
-        public void DeactivateCursor()
-        {
-            //activeCursor.Visibility = Visibility.Hidden;
-            //inactiveCursor.Visibility = Visibility.Visible;
-            //_auxursor.Deactivate();
-        }
-
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //Console.WriteLine("MouseDown event triggered.");
@@ -133,41 +119,6 @@ namespace Multi.Cursor
             }
         }
 
-        public void SelectElement(int rowId, int colId)
-        {
-            _selectedElement.rowInd = rowId;
-            _selectedElement.colInd = colId;
-            SelectElement();
-        }
-
-        public void MoveSelection(int dCol, int dRow)
-        {
-            _selectedElement.rowInd += dRow;
-            _selectedElement.colInd += dCol;
-            if (_selectedElement.rowInd < 0) _selectedElement.rowInd = 0;
-            if (_selectedElement.colInd < 0) _selectedElement.colInd = 0;
-            SelectElement();
-        }
-
-        public void ResetElements()
-        {
-            foreach (Element element in _gridElements.Values)
-            {
-                element.ElementFill = UIColors.COLOR_BUTTON_DEFAULT_FILL; // Reset to default color
-            }
-        }
-
-        public Point GetElementCenter(string key)
-        {
-            Element element = _gridElements[key];
-
-            return new Point
-            {
-                X = Canvas.GetLeft(element) + element.ElementWidth / 2,
-                Y = Canvas.GetTop(element) + element.ElementWidth / 2
-            };
-        }
-
         public override void ShowPoint(Point p)
         {
             // Create a small circle to represent the point
@@ -194,6 +145,11 @@ namespace Multi.Cursor
 
         public override Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
         {
+            // 1. IMMEDIATELY kill the old dictionary references
+            // This prevents any "Fill" calls from finding old buttons during the transition
+            _buttonWraps.Clear();
+            _widthButtons.Clear();
+
             // A TaskCompletionSource allows us to create a Task
             // that we can complete manually later.
             var tcs = new TaskCompletionSource<bool>();
@@ -203,21 +159,11 @@ namespace Multi.Cursor
 
             _buttonsGrid = gridCreator(); // Create the new column Grid
 
-            // Set left position on the Canvas (horizontally centered)
-            //Output.TrialInfo(this, $"Placing single grid with size {grid.Width} in {this.Width}...");
-            //double leftPosition = (this.Width - grid.Width) / 2;
-            //Canvas.SetLeft(grid, leftPosition);
-
             // Set top position on the Canvas (from padding)
             Canvas.SetTop(_buttonsGrid, topPadding);
 
             // Add to the Canvas
             canvas.Children.Add(_buttonsGrid);
-
-            //double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
-            //Canvas.SetLeft(_buttonsGrid, leftPosition);
-
-
 
             // Subscribe to the Loaded event to get the correct width.
             _buttonsGrid.Loaded += (sender, e) =>
@@ -225,23 +171,16 @@ namespace Multi.Cursor
                 try
                 {
                     // Now ActualWidth has a valid value.
+                    this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
                     double leftPosition = (this.Width - _buttonsGrid.ActualWidth) / 2;
                     Canvas.SetLeft(_buttonsGrid, leftPosition);
 
                     RegisterAllButtons(_buttonsGrid);
                     LinkButtonNeighbors();
-
                     FindMiddleButton();
 
                     // Indicate that the task is successfully completed.
                     tcs.SetResult(true);
-
-                    // Register buttons after the grid is loaded and positioned.
-                    //Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
-                    //{
-                    //    RegisterAllButtons();
-                    //    LinkButtonNeighbors();
-                    //}));
                 }
                 catch (Exception ex)
                 {

@@ -314,7 +314,7 @@ namespace Multi.Cursor
             else
             {
                 // Log block time
-                ExperiLogger.LogBlockTime(_activeBlock);
+                ExperiLogger.LogBlockTime(_activeBlock, _activeBlockNum);
 
                 // Go to next block
                 _mainWindow.GoToNextBlock();

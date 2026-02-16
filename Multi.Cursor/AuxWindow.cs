@@ -422,16 +422,28 @@ namespace Multi.Cursor
 
         public virtual void FillGridButton(int buttonId, Brush color)
         {
+            if (_buttonWraps.TryGetValue(buttonId, out var wrap))
+            {
+                // If the button isn't loaded, it's a ghost from a previous grid
+                if (!wrap.Button.IsLoaded)
+                {
+                    this.TrialInfo($"Button {buttonId} is a GHOST. Ignoring fill request.");
+                    return;
+                }
+
+                wrap.Button.Background = color;
+            }
+
             // Find the button with the specified ID
-            if (_buttonWraps.ContainsKey(buttonId))
-            {
-                _buttonWraps[buttonId].Button.Background = color; // Change the background color of the button
-                this.PositionInfo($"Button {buttonId} filled with color {color}.");
-            }
-            else
-            {
-                this.PositionInfo($"Button with ID {buttonId} not found.");
-            }
+            //if (_buttonWraps.ContainsKey(buttonId))
+            //{
+            //    _buttonWraps[buttonId].Button.Background = color; // Change the background color of the button
+            //    this.TrialInfo($"Button {buttonId} filled with color {color}.");
+            //}
+            //else
+            //{
+            //    this.TrialInfo($"Button with ID {buttonId} not found.");
+            //}
         }
 
         //public virtual void FillGridButton(int buttonId, Brush color)

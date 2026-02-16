@@ -432,7 +432,7 @@ namespace Multi.Cursor
 
         private static void LogTotalTrialTime(int blockNum, int trialNum, Trial trial, TrialRecord trialRecord)
         {
-            TotalTrialLog log = new TotalTrialLog();
+            TotalTrialLog log = new();
 
             // Information
             LogTrialInfo(log, blockNum, trialNum, trial, trialRecord);
@@ -472,17 +472,18 @@ namespace Multi.Cursor
             log.func_width = trial.GetFunctionWidthMM();
             log.n_obj = trial.NObjects;
             log.n_fun = trial.GetNumFunctions();
-            log.dist_lvl = trial.DistRangeMM.Label.Split('-')[0].ToLower();
+            log.dist_lvl = "-";
             log.dist = $"{trialRecord.AvgDistanceMM:F2}";
             log.result = (int)trialRecord.Result;
         }
 
-        public static void LogBlockTime(Block block)
+        public static void LogBlockTime(Block block, int blkNum)
         {
             BlockLog log = new()
             {
                 ptc = block.PtcNum,
                 id = block.Id,
+                num = blkNum,
                 tech = block.Technique.ToString().ToLower(),
                 cmplx = block.Complexity.ToString().ToLower(),
                 exptype = block.ExpType.ToString().ToLower(),

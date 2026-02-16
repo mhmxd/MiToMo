@@ -8,6 +8,7 @@ namespace Common.Logs
     {
         public int ptc;                 // participant number
         public int id;                  // block id
+        public int num;                 // block number
         public string tech = "";        // technique
         public string cmplx = "";       // complexity
         public string exptype = "";     // experiment type

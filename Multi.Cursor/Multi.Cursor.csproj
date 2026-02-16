@@ -253,9 +253,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Tensorflow.Binding, Version=0.150.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\TensorFlow.NET.0.150.0\lib\netstandard2.0\Tensorflow.Binding.dll</HintPath>
-    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />

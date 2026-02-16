@@ -49,6 +49,11 @@ namespace Multi.Cursor
 
         public override Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
         {
+            // 1. IMMEDIATELY kill the old dictionary references
+            // This prevents any "Fill" calls from finding old buttons during the transition
+            _buttonWraps.Clear();
+            _widthButtons.Clear();
+
             // A TaskCompletionSource allows us to create a Task
             // that we can complete manually later.
             var tcs = new TaskCompletionSource<bool>();
@@ -65,14 +70,6 @@ namespace Multi.Cursor
             canvas.Children.Add(_buttonsGrid);
             //this.TrialInfo($"Grid added to canvas. Canvas size: {canvas.ActualWidth}x{canvas.ActualHeight}");
 
-            //this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
-            // Now ActualWidth has a valid value.
-            //double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
-            //Canvas.SetTop(_buttonsGrid, topPosition);
-
-            //RegisterAllButtons(_buttonsGrid);
-            //LinkButtonNeighbors();
-
             // Subscribe to the Loaded event to get the correct width.
             _buttonsGrid.Loaded += (sender, e) =>
             {
@@ -84,7 +81,6 @@ namespace Multi.Cursor
 
                     RegisterAllButtons(_buttonsGrid);
                     LinkButtonNeighbors();
-
                     FindMiddleButton();
 
                     // Indicate that the task is successfully completed.
@@ -100,6 +96,60 @@ namespace Multi.Cursor
             return tcs.Task; // Return the task to be awaited
 
         }
+
+        //public override Task PlaceGrid(Func<Grid> gridCreator, double topPadding, double leftPadding)
+        //{
+        //    // A TaskCompletionSource allows us to create a Task
+        //    // that we can complete manually later.
+        //    var tcs = new TaskCompletionSource<bool>();
+
+        //    // Clear any existing columns from the canvas and the list before generating new ones
+        //    canvas.Children.Clear();
+
+        //    _buttonsGrid = gridCreator(); // Create the new column Grid
+
+        //    // Set left position on the Canvas (from padding)
+        //    Canvas.SetLeft(_buttonsGrid, leftPadding);
+
+        //    // Add to the Canvas
+        //    canvas.Children.Add(_buttonsGrid);
+        //    //this.TrialInfo($"Grid added to canvas. Canvas size: {canvas.ActualWidth}x{canvas.ActualHeight}");
+
+        //    //this.TrialInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
+        //    // Now ActualWidth has a valid value.
+        //    //double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
+        //    //Canvas.SetTop(_buttonsGrid, topPosition);
+
+        //    //RegisterAllButtons(_buttonsGrid);
+        //    //LinkButtonNeighbors();
+
+        //    // Subscribe to the Loaded event to get the correct width.
+        //    _buttonsGrid.Loaded += (sender, e) =>
+        //    {
+        //        try
+        //        {
+        //            this.PositionInfo($"Grid loaded with ActualWidth: {_buttonsGrid.ActualWidth}, ActualHeight: {_buttonsGrid.ActualHeight}");
+        //            double topPosition = (this.Height - _buttonsGrid.ActualHeight) / 2;
+        //            Canvas.SetTop(_buttonsGrid, topPosition);
+
+        //            RegisterAllButtons(_buttonsGrid);
+        //            LinkButtonNeighbors();
+
+        //            FindMiddleButton();
+
+        //            // Indicate that the task is successfully completed.
+        //            tcs.SetResult(true);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            // If any error occurs, set the exception on the TaskCompletionSource
+        //            tcs.SetException(ex);
+        //        }
+        //    };
+
+        //    return tcs.Task; // Return the task to be awaited
+
+        //}
 
         //public override void GenerateGrid(Rect startConstraintsRectAbsolute, params Func<Grid>[] columnCreators)
         //{

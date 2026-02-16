@@ -6,7 +6,7 @@
         public static readonly int MainTaskNumObj = 3;
         public static readonly int MainTaskNumFunc = 3;
         public static readonly int MainTaskNumBlocks = 8;
-        public static readonly int MainTaskShowBreakAfterBlocks = 2; // After each 2 blocks
+        public static readonly int MainTaskShowBreakAfterBlocks = 8; // After each 8 blocks (essentially, after each complexity level)
 
         // Subtask: Function Point-and-Select
         public static readonly int FuncPointSelectNumBlocks = 8;
