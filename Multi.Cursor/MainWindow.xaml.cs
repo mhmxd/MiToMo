@@ -94,14 +94,6 @@ namespace Multi.Cursor
         private int TopWindowHeight = UITools.MM2PX(ExpLayouts.TOP_WINDOW_HEIGTH_MM);
         private int SideWindowWidth = UITools.MM2PX(ExpLayouts.SIDE_WINDOW_WIDTH_MM);
 
-
-        // Dead zone
-        private double DEAD_ZONE_DX = 0.3;
-        private double DEAD_ZONE_DY = 1.8;
-
-        // Tip/Whole finger
-        private double TIP_MAX_MASS = 1000; // < 1000 is the finger tip
-
         //------------------------------------------------------------------------------
 
         //private (double min, double max) distThresh;
@@ -191,6 +183,8 @@ namespace Multi.Cursor
         private List<BlockHandler> _blockHandlers = new();
         private Border _startButton;
         private Rectangle _objectArea;
+        private long _breakEndTime = -1;
+        private int _homingTime = -1;
 
         public MainWindow()
         {
@@ -685,8 +679,13 @@ namespace Multi.Cursor
 
         private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            _activeBlockHandler.OnMainWindowMouseMove(sender, e);
+            if (_breakEndTime != -1)
+            {
+                _homingTime = (int)(MTimer.GetCurrentMillis() - _breakEndTime);
+                _breakEndTime = -1;
+            }
 
+            _activeBlockHandler.OnMainWindowMouseMove(sender, e, _homingTime);
         }
 
         private void Window_MouseUp(object sender, MouseButtonEventArgs e)
@@ -694,6 +693,11 @@ namespace Multi.Cursor
 
             _activeBlockHandler.OnMainWindowMouseUp(sender, e);
 
+        }
+
+        public long GetBreakEndTime()
+        {
+            return _breakEndTime;
         }
 
         //private void AuxWindow_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
@@ -969,8 +973,10 @@ namespace Multi.Cursor
 
             if (_activeBlockNum < _experiment.GetNumBlocks()) // More blocks to show
             {
-                async void continueAction()
+                async void continueAction(long keyPressTime)
                 {
+                    _breakEndTime = keyPressTime; // Saved for homing time
+
                     _activeBlockNum++;
                     _activeBlockHandler = _blockHandlers[_activeBlockNum - 1];
 
@@ -993,22 +999,20 @@ namespace Multi.Cursor
 
                 this.TrialInfo($"Block finished. More to show...");
                 // If need to show a break
-                if (_activeBlockNum == ExpDesign.MutliFuncSelectBreakAfterBlocks)
+                if (_activeBlockNum % ExpDesign.MainTaskShowBreakAfterBlocks == 0)
                 {
                     this.TrialInfo($"Showing break");
                     ResetAllAuxWindows();
                     ClearCanvas();
 
-                    PausePopUp pausePopUp = new(continueAction)
+                    BlockEndWindow blockEndWindow = new(continueAction)
                     {
                         Owner = this
                     };
-
-                    pausePopUp.Show();
                 }
                 else
                 {
-                    continueAction();
+                    continueAction(-1);
                 }
 
             }
@@ -1046,6 +1050,30 @@ namespace Multi.Cursor
             // Clear the canvas
             canvas.Children.Clear();
         }
+
+        //public void ShowObjectsArea(Brush areaColor, MouseEvents mouseEvents)
+        //{
+        //    // Show the area rectangle
+        //    _objectArea = new Rectangle
+        //    {
+        //        Width = Experiment.GetObjAreaWidth(),
+        //        Height = Experiment.GetObjAreaWidth(),
+        //        Fill = areaColor
+        //    };
+
+        //    // Position the area rectangle on the Canvas
+        //    Canvas.SetLeft(_objectArea, areaRect.Left - this.Left);
+        //    Canvas.SetTop(_objectArea, areaRect.Top - this.Top);
+
+        //    // Add the event handler
+        //    _objectArea.MouseEnter += mouseEvents.MouseEnter;
+        //    _objectArea.MouseDown += mouseEvents.MouseDown;
+        //    _objectArea.MouseUp += mouseEvents.MouseUp;
+        //    _objectArea.MouseLeave += mouseEvents.MouseLeave;
+
+        //    // Add the rectangle to the Canvas
+        //    canvas.Children.Add(_objectArea);
+        //}
 
 
         public void ShowObjectsArea(Rect areaRect, Brush areaColor, MouseEvents mouseEvents)
@@ -1113,9 +1141,9 @@ namespace Multi.Cursor
         {
             //this.TrialInfo($"Activating aux window: {window}");
             // Deactivate all aux windows
-            _leftWindow.DeactivateGridNavigator();
-            _topWindow.DeactivateGridNavigator();
-            _rightWindow.DeactivateGridNavigator();
+            _leftWindow.DeactivateMarker();
+            _topWindow.DeactivateMarker();
+            _rightWindow.DeactivateMarker();
 
             switch (window)
             {
@@ -1146,14 +1174,9 @@ namespace Multi.Cursor
             _rightWindow.ShowMarker(OnFunctionMarked);
         }
 
-        private void OnFunctionMarked(int funId)
+        private void OnFunctionMarked(int funId, GridPos rowCol)
         {
-            _activeBlockHandler.OnFunctionMarked(funId);
-        }
-
-        private void OnFunctionDeMarked(int funId)
-        {
-            _activeBlockHandler.OnFunctionUnmarked(funId);
+            _activeBlockHandler.OnFunctionMarked(funId, rowCol);
         }
 
         public void SetTargetWindow(Side side,
@@ -1258,7 +1281,7 @@ namespace Multi.Cursor
             if (_targetWindow != null)
             {
                 _targetWindow.ResetButtons();
-                _targetWindow.DeactivateGridNavigator();
+                _targetWindow.DeactivateMarker();
             }
             else
             {
@@ -1310,43 +1333,82 @@ namespace Multi.Cursor
             auxWindow.SetGridButtonHandlers(targetId, mouseDownHandler, mouseUpHandler, nonTargetDownHandler);
         }
 
-        public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
-        {
-            double padding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
-            double objHalfWidth = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM) / 2;
-            double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
-            double startHalfWidth = ExpLayouts.OBJ_WIDTH_MM / 2;
-            double smallButtonHalfWidth = UITools.MM2PX(smallButtonHalfWidthMM);
-            double objAreaHalfWidth = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM / 2);
+        //public (int, Point) GetRadomTarget(Side side, int widthUnits, int dist)
+        //{
+        //    double padding = UITools.MM2PX(ExpLayouts.WINDOW_PADDING_MM);
+        //    double objHalfWidth = UITools.MM2PX(ExpLayouts.OBJ_WIDTH_MM) / 2;
+        //    double smallButtonHalfWidthMM = ExpSizes.BUTTON_MULTIPLES[ExpStrs.x6] / 2;
+        //    double startHalfWidth = ExpLayouts.OBJ_WIDTH_MM / 2;
+        //    double smallButtonHalfWidth = UITools.MM2PX(smallButtonHalfWidthMM);
+        //    double objAreaHalfWidth = UITools.MM2PX(ExpLayouts.OBJ_AREA_WIDTH_MM / 2);
 
-            // Find the Rect for the object area
-            Rect objAreaRect = new Rect(
-                this.Left + padding + objAreaHalfWidth,
-                this.Top + padding + objAreaHalfWidth,
-                this.Width - 2 * (padding + objAreaHalfWidth),
-                this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
-            );
-            AuxWindow auxWindow = GetAuxWindow(side);
-            int id = auxWindow.SelectRandButtonByConstraints(widthUnits, objAreaRect, dist);
-            Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
-            Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
+        //    // Find the Rect for the object area
+        //    Rect objAreaRect = new Rect(
+        //        this.Left + padding + objAreaHalfWidth,
+        //        this.Top + padding + objAreaHalfWidth,
+        //        this.Width - 2 * (padding + objAreaHalfWidth),
+        //        this.Height - 2 * (padding + objAreaHalfWidth) - _infoLabelHeight
+        //    );
+        //    AuxWindow auxWindow = GetAuxWindow(side);
+        //    int id = auxWindow.SelectRandButtonByConstraints(widthUnits, objAreaRect, dist);
+        //    Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
+        //    Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
 
-            return (id, centerPositionAbsolute);
-        }
+        //    return (id, centerPositionAbsolute);
+        //}
 
-        public TFunction FindRandomFunction(Side side, int widthUnits, MRange distRange)
-        {
-            AuxWindow auxWindow = GetAuxWindow(side);
-            int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
+        //public TFunction FindRandomFunction(Side side, int widthUnits, MRange distRange)
+        //{
+        //    AuxWindow auxWindow = GetAuxWindow(side);
+        //    int id = auxWindow.SelectRandButtonByConstraints(widthUnits, distRange);
 
-            Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
-            Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
-            Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
+        //    Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
+        //    Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
+        //    Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
 
-            return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
-        }
+        //    return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+        //}
 
-        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, MRange distRange)
+        //public TFunction FindRandomFunction(Side side, int widthUnits)
+        //{
+        //    AuxWindow auxWindow = GetAuxWindow(side);
+        //    int id = auxWindow.SelectRandButton(widthUnits);
+
+        //    Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
+        //    Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
+        //    Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
+
+        //    return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+        //}
+
+        //public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits, MRange distRange)
+        //{
+        //    this.PositionInfo($"Function widths: {widthUnits.ToStr()}");
+        //    List<TFunction> functions = new();
+        //    List<int> foundIds = new();
+        //    // Find a UNIQUE function for each width
+        //    int maxTries = 100;
+        //    int tries = 1;
+        //    do
+        //    {
+        //        tries++;
+        //        functions.Clear();
+        //        foundIds.Clear();
+        //        //this.TrialInfo($"Num. of Tries: {tries}");
+        //        foreach (int widthUnit in widthUnits)
+        //        {
+        //            TFunction function = FindRandomFunction(side, widthUnit);
+        //            //this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
+        //            functions.Add(function);
+        //            foundIds.Add(function.Id);
+        //        }
+
+        //    } while (foundIds.HasDuplicates() && tries < maxTries);
+
+        //    return functions;
+        //}
+
+        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits)
         {
             this.PositionInfo($"Function widths: {widthUnits.ToStr()}");
             List<TFunction> functions = new();
@@ -1359,11 +1421,11 @@ namespace Multi.Cursor
                 tries++;
                 functions.Clear();
                 foundIds.Clear();
-                //this.TrialInfo($"Num. of Tries: {tries}");
+                this.PositionInfo($"Num. of Tries: {tries}");
                 foreach (int widthUnit in widthUnits)
                 {
-                    TFunction function = FindRandomFunction(side, widthUnit, distRange);
-                    //this.TrialInfo($"Function found: ID {function.Id}, Width {widthUnit}");
+                    TFunction function = FindRandomFunction(side, widthUnit);
+                    this.PositionInfo($"Function found: ID {function.Id}, Width {widthUnit}");
                     functions.Add(function);
                     foundIds.Add(function.Id);
                 }
@@ -1371,6 +1433,27 @@ namespace Multi.Cursor
             } while (foundIds.HasDuplicates() && tries < maxTries);
 
             return functions;
+        }
+
+        public TFunction FindRandomFunction(Side side, int widthUnits)
+        {
+            AuxWindow auxWindow = GetAuxWindow(side);
+            int id = auxWindow.SelectRandButton(widthUnits);
+
+            if (id != -1)
+            {
+                this.PositionInfo($"Random function#{id} found for {widthUnits}");
+                Point centerPositionInAuxWindow = auxWindow.GetGridButtonCenter(id);
+                Point centerPositionAbsolute = centerPositionInAuxWindow.OffsetPosition(auxWindow.Left, auxWindow.Top);
+                Point positionInAuxWindow = auxWindow.GetGridButtonPosition(id);
+
+                return new TFunction(id, widthUnits, centerPositionAbsolute, positionInAuxWindow);
+            }
+            else
+            {
+                this.PositionInfo($"Could not find random function in {side} window!");
+                return null;
+            }
         }
 
         public Point GetCenterAbsolutePosition(Side side, int buttonId)
@@ -1432,10 +1515,12 @@ namespace Multi.Cursor
             return auxWindow.IsNavigatorOnButton(buttonId);
         }
 
-        public void MoveMarker(TouchPoint touchPoint, Action<int> OnFunctionMarked, Action<int> OnFunctionDeMarked)
+        public void MoveMarker(
+            TouchPoint touchPoint,
+            Action<int, GridPos> OnFunctionMarked, Action<int, GridPos> OnFunctionDeMarked,
+            Action<GridPos> OnButtonMarked)
         {
-            _activeAuxWindow?.MoveMarker(touchPoint, OnFunctionMarked, OnFunctionDeMarked);
-
+            _activeAuxWindow?.MoveMarker(touchPoint, OnFunctionMarked, OnFunctionDeMarked, OnButtonMarked);
         }
 
         public void StopAuxNavigator()

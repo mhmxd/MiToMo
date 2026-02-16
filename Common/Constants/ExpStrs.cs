@@ -58,6 +58,8 @@ namespace Common.Constants
         public static readonly string MAIN_WIN_PRESS = "main_win_press";
         public static readonly string MAIN_WIN_RELEASE = "main_win_release";
 
+        public static readonly string HOMING_TIME = "homing_time";
+
         public static readonly string TRIAL_END = "trial_end"; // Second release on Start
 
         public static readonly string TAP_C = "Tap";

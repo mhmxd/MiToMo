@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Common.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,12 +20,12 @@ namespace Multi.Cursor
     /// </summary>
     public partial class BlockEndWindow : Window
     {
-        public Action BlockFinishedCallback { get; set; }
+        public Action<long> BlockFinishedCallback { get; set; }
 
-        public BlockEndWindow(Action blockFinishedCallback )
+        public BlockEndWindow(Action<long> blockFinishedCallback)
         {
             InitializeComponent();
-            BlockFinishedText.Text = $"Block is finished.\n When ready, press blue and red buttons on the keyboard.";
+            BlockFinishedText.Text = $"You can take a pause.\n When ready, press blue and red buttons on the keyboard.";
             BlockFinishedCallback = blockFinishedCallback;
             this.KeyDown += BlockEndWindow_KeyDown;
         }
@@ -34,7 +35,7 @@ namespace Multi.Cursor
             if (e.Key == Key.Back && Keyboard.IsKeyDown(Key.LeftShift))
             {
                 // Call the callback method if it's set
-                BlockFinishedCallback?.Invoke();
+                BlockFinishedCallback?.Invoke(MTimer.GetCurrentMillis());
 
                 // Close the current window
                 this.Close();

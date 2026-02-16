@@ -26,7 +26,7 @@ namespace Multi.Cursor
         public ExperimentType ExpType { get; set; }
 
         public MRange DistRangeMM { get; set; }
-        public MRange DistRangePX => new MRange(
+        public MRange DistRangePX => new(
             UITools.MM2PX(DistRangeMM.Min),
             UITools.MM2PX(DistRangeMM.Max),
             DistRangeMM.Label);

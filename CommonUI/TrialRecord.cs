@@ -112,7 +112,7 @@ namespace CommonUI
             }
 
             // Apply to the specified object
-            if (objId != -1) ChangeObjectState(objId, ButtonState.SELECTED);
+            //if (objId != -1) ChangeObjectState(objId, ButtonState.SELECTED);
 
         }
 

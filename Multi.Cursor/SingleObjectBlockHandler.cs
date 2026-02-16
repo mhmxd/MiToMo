@@ -102,7 +102,7 @@ namespace Multi.Cursor
                 _mainWindow.Dispatcher.Invoke(() =>
                 {
                     _trialRecords[trial.Id].Functions.AddRange(
-                        _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
+                        _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths())
                     );
                 });
 
@@ -219,10 +219,13 @@ namespace Multi.Cursor
                 // Log block time
                 ExperiLogger.LogBlockTime(_activeBlock);
 
+                // Go to the next block
+                _mainWindow.GoToNextBlock();
+
                 // Show end of block window
-                BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
-                blockEndWindow.Owner = _mainWindow;
-                blockEndWindow.ShowDialog();
+                //BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
+                //blockEndWindow.Owner = _mainWindow;
+                //blockEndWindow.ShowDialog();
             }
         }
 
@@ -344,22 +347,22 @@ namespace Multi.Cursor
 
         }
 
-        public override void OnFunctionMarked(int funId)
+        public override void OnFunctionMarked(int funId, GridPos rowCol)
         {
-            base.OnFunctionMarked(funId);
+            base.OnFunctionMarked(funId, rowCol);
 
             _activeTrialRecord.MarkObject(1);
             UpdateScene();
 
         }
 
-        public override void OnFunctionUnmarked(int funId)
-        {
-            base.OnFunctionUnmarked(funId);
+        //public override void OnFunctionUnmarked(int funId)
+        //{
+        //    base.OnFunctionUnmarked(funId);
 
-            _activeTrialRecord.UnmarkObject(1);
-            UpdateScene();
-        }
+        //    _activeTrialRecord.UnmarkObject(1);
+        //    UpdateScene();
+        //}
 
         public override void OnFunctionMouseUp(Object sender, MouseButtonEventArgs e)
         {

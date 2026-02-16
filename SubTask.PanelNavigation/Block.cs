@@ -1,6 +1,6 @@
-﻿using Common.Helpers;
+﻿using Common.Constants;
+using Common.Helpers;
 using Common.Settings;
-using Common.Constants;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -101,7 +101,7 @@ namespace SubTask.PanelNavigation
 
             // Create side trials (random L/R)
             trialSide = ExpEnums.GetRandomLR();
-            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][trialSide)
+            foreach (int btnWidth in ExpLayouts.BUTTON_WIDTHS[complexity][trialSide])
             {
                 Trial trial = Trial.CreateTrial(id * 100 + trialNum,
                             technique, ptc,

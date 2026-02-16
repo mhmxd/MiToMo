@@ -53,9 +53,9 @@ namespace Multi.Cursor
             _midDistRangeMM = new MRange(oneThird + Dist_PADDING_MM, twoThird - Dist_PADDING_MM, ExpStrs.MID_DIST); // Middle distances range (will be set later)
             _longDistRangeMM = new MRange(twoThird + Dist_PADDING_MM, Longest_Dist_MM, ExpStrs.LONG_DIST); // Long distances range
 
-            this.TrialInfo($"Short dist range (mm): {_shortDistRangeMM.ToString()}");
-            this.TrialInfo($"Mid dist range (mm): {_midDistRangeMM.ToString()}");
-            this.TrialInfo($"Long dist range (mm): {_longDistRangeMM.ToString()}");
+            this.TrialInfo($"Short dist range (mm): {_shortDistRangeMM}");
+            this.TrialInfo($"Mid dist range (mm): {_midDistRangeMM}");
+            this.TrialInfo($"Long dist range (mm): {_longDistRangeMM}");
 
         }
 
@@ -83,12 +83,15 @@ namespace Multi.Cursor
             //Active_Complexity = complexity;
 
             // Create factor levels
-            List<MRange> distRanges = new List<MRange>()
+            List<MRange> distRanges = new()
             {
                 _shortDistRangeMM, // Short distances
                 _midDistRangeMM,   // Mid distances
                 _longDistRangeMM    // Long distances
             };
+
+            // For total random distance
+            MRange totalRange = new(Shortest_Dist_MM, Longest_Dist_MM);
 
             //-- For each complexity, create blocks and add to the list
             List<Complexity> randomizedComplexities = ExpEnums.GetRandomComplexityList();
@@ -100,7 +103,7 @@ namespace Multi.Cursor
                     Block block = Block.CreateBlock(
                         Active_Technique, ExpEnvironment.PTC_NUM,
                         blockId, complexity,
-                        expType, distRanges,
+                        expType, totalRange,
                         nFun, nObj);
 
                     _blocks.Add(block);

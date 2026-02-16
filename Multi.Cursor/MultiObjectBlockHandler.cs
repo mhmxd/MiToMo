@@ -31,7 +31,7 @@ namespace Multi.Cursor
             // Create records for all trials in the block
             foreach (Trial trial in _activeBlock.Trials)
             {
-                _trialRecords[trial.Id] = new TrialRecord();
+                _trialRecords[trial.Id] = new();
             }
 
             // Make sure the required directory exists
@@ -115,14 +115,14 @@ namespace Multi.Cursor
             // Ensure TrialRecord exists for this trial
             if (!_trialRecords.ContainsKey(trial.Id))
             {
-                _trialRecords[trial.Id] = new TrialRecord();
+                _trialRecords[trial.Id] = new();
             }
 
             // Find functions
             _mainWindow.Dispatcher.Invoke(() =>
             {
                 _trialRecords[trial.Id].Functions.AddRange(
-                        _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX)
+                        _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths())
                     );
             });
 
@@ -316,17 +316,20 @@ namespace Multi.Cursor
                 // Log block time
                 ExperiLogger.LogBlockTime(_activeBlock);
 
+                // Go to next block
+                _mainWindow.GoToNextBlock();
+
                 // Show end of block window
-                BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
-                blockEndWindow.Owner = _mainWindow;
-                blockEndWindow.ShowDialog();
+                //BlockEndWindow blockEndWindow = new BlockEndWindow(_mainWindow.GoToNextBlock);
+                //blockEndWindow.Owner = _mainWindow;
+                //blockEndWindow.ShowDialog();
             }
 
         }
 
-        public override void OnFunctionMarked(int funId)
+        public override void OnFunctionMarked(int funId, GridPos rowCol)
         {
-            base.OnFunctionMarked(funId);
+            base.OnFunctionMarked(funId, rowCol);
 
             // Enable the function and the corresponding objects
             if (_activeTrial.NFunctions > 1)
@@ -343,9 +346,9 @@ namespace Multi.Cursor
 
         }
 
-        public override void OnFunctionUnmarked(int funId)
+        public override void OnFunctionUnmarked(int funId, GridPos rowCol)
         {
-            base.OnFunctionUnmarked(funId);
+            base.OnFunctionUnmarked(funId, rowCol);
 
             // Disable the function and the corresponding objects
             if (_activeTrial.NFunctions > 1)
@@ -442,74 +445,74 @@ namespace Multi.Cursor
         //    return new List<CachedTrialPositions>();
         //}
 
-        private bool TryFindNewPositions(Trial trial)
-        {
-            // Reset trial record for current attempt
-            //_trialRecords[trial.Id].ObjectPositions.Clear();
-            //_trialRecords[trial.Id].FunctionId = -1;
+        //private bool TryFindNewPositions(Trial trial)
+        //{
+        //    // Reset trial record for current attempt
+        //    //_trialRecords[trial.Id].ObjectPositions.Clear();
+        //    //_trialRecords[trial.Id].FunctionId = -1;
 
-            // Find random functions from the main window
-            _mainWindow.Dispatcher.Invoke(() =>
-            {
-                _trialRecords[trial.Id].Functions.AddRange(
-                    _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX));
-                foreach (int funcWidthMX in trial.GetFunctionWidths())
-                {
-                    _trialRecords[trial.Id].Functions.Add(
-                        _mainWindow.FindRandomFunction(trial.FuncSide, funcWidthMX, trial.DistRangeMM));
-                }
-            });
+        //    // Find random functions from the main window
+        //    _mainWindow.Dispatcher.Invoke(() =>
+        //    {
+        //        _trialRecords[trial.Id].Functions.AddRange(
+        //            _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths(), trial.DistRangePX));
+        //        foreach (int funcWidthMX in trial.GetFunctionWidths())
+        //        {
+        //            _trialRecords[trial.Id].Functions.Add(
+        //                _mainWindow.FindRandomFunction(trial.FuncSide, funcWidthMX, trial.DistRangeMM));
+        //        }
+        //    });
 
-            // Get a random Target from the main window (which calls the side window)
-            //(int functionId, Point targetCenterAbsolute) = _mainWindow.Dispatcher.Invoke(() =>
-            //{
-            //    return _mainWindow.FindRandomFunction(trial.FuncSide, trial.TargetMultiple, trial.DistRangePX);
-            //});
+        //    // Get a random Target from the main window (which calls the side window)
+        //    //(int functionId, Point targetCenterAbsolute) = _mainWindow.Dispatcher.Invoke(() =>
+        //    //{
+        //    //    return _mainWindow.FindRandomFunction(trial.FuncSide, trial.TargetMultiple, trial.DistRangePX);
+        //    //});
 
-            // If a target was found, set the target id
-            //if (functionId != -1)
-            //{
-            //    _trialRecords[trial.Id].FunctionId = functionId;
-            //}
-            //else
-            //{
-            //    this.TrialInfo($"Failed to find a random target id for Trial#{trial.Id}.");
-            //    return false;
-            //}
+        //    // If a target was found, set the target id
+        //    //if (functionId != -1)
+        //    //{
+        //    //    _trialRecords[trial.Id].FunctionId = functionId;
+        //    //}
+        //    //else
+        //    //{
+        //    //    this.TrialInfo($"Failed to find a random target id for Trial#{trial.Id}.");
+        //    //    return false;
+        //    //}
 
-            // Get object constraint Rect
-            Rect objConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
-            {
-                return _mainWindow.GetObjAreaCenterConstraintRect();
-            });
+        //    // Get object constraint Rect
+        //    Rect objConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+        //    {
+        //        return _mainWindow.GetObjAreaCenterConstraintRect();
+        //    });
 
-            // Find a valid object area position
-            int maxRetries = 1000;
-            double randDistMM = trial.DistRangeMM.GetRandomValue();
+        //    // Find a valid object area position
+        //    int maxRetries = 1000;
+        //    double randDistMM = trial.DistRangeMM.GetRandomValue();
 
-            Point objAreaCenterPosition = new Point(0, 0);
-            //for (int t = 0; t < maxRetries; t++) {
-            //    objAreaCenterPosition = objConstraintRect.FindRandPointWithDist(
-            //        targetCenterAbsolute, 
-            //        UITools.MM2PX(randDistMM), 
-            //        trial.FuncSide.GetOpposite());
+        //    Point objAreaCenterPosition = new Point(0, 0);
+        //    //for (int t = 0; t < maxRetries; t++) {
+        //    //    objAreaCenterPosition = objConstraintRect.FindRandPointWithDist(
+        //    //        targetCenterAbsolute, 
+        //    //        UITools.MM2PX(randDistMM), 
+        //    //        trial.FuncSide.GetOpposite());
 
-            //    if (objAreaCenterPosition.x != 0 && objAreaCenterPosition.y != 0)
-            //    {
-            //        this.TrialInfo($"Found a valid object area center position for Trial#{trial.Id} at {objAreaCenterPosition}.");
-            //        // Set the Rect
-            //        _trialRecords[trial.Id].ObjectAreaRect = new Rect(
-            //            objAreaCenterPosition.x - UITools.MM2PX(OBJ_AREA_WIDTH_MM / 2),
-            //            objAreaCenterPosition.y - UITools.MM2PX(OBJ_AREA_WIDTH_MM / 2),
-            //            UITools.MM2PX(OBJ_AREA_WIDTH_MM),
-            //            UITools.MM2PX(OBJ_AREA_WIDTH_MM));
-            //        _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenterPosition, Experiment.REP_TRIAL_NUM_PASS);
-            //        return true; // Successfully found positions
-            //    }
-            //}
+        //    //    if (objAreaCenterPosition.x != 0 && objAreaCenterPosition.y != 0)
+        //    //    {
+        //    //        this.TrialInfo($"Found a valid object area center position for Trial#{trial.Id} at {objAreaCenterPosition}.");
+        //    //        // Set the Rect
+        //    //        _trialRecords[trial.Id].ObjectAreaRect = new Rect(
+        //    //            objAreaCenterPosition.x - UITools.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+        //    //            objAreaCenterPosition.y - UITools.MM2PX(OBJ_AREA_WIDTH_MM / 2),
+        //    //            UITools.MM2PX(OBJ_AREA_WIDTH_MM),
+        //    //            UITools.MM2PX(OBJ_AREA_WIDTH_MM));
+        //    //        _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenterPosition, Experiment.REP_TRIAL_NUM_PASS);
+        //    //        return true; // Successfully found positions
+        //    //    }
+        //    //}
 
-            return false;
-        }
+        //    return false;
+        //}
 
         //private void SavePositionsToCache(Trial trial, CachedTrialPositions positionsToCache)
         //{

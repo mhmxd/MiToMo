@@ -189,9 +189,15 @@ namespace Multi.Cursor
 
             //e.Handled = true; // Mark the event as handled to prevent further processing
         }
-        public virtual void OnMainWindowMouseMove(Object sender, MouseEventArgs e)
+        public virtual void OnMainWindowMouseMove(Object sender, MouseEventArgs e, int homingTime)
         {
             LogEventOnce(ExpStrs.FIRST_MOVE);
+
+            // Log the homing time if got any values higher than -1
+            if (homingTime > -1)
+            {
+                LogEvent(ExpStrs.HOMING_TIME, homingTime);
+            }
 
             // Log cursor movement
             ExperiLogger.RecordCursorPosition(e.GetPosition(_mainWindow.Owner));
@@ -364,7 +370,7 @@ namespace Multi.Cursor
         public void OnStartButtonMouseDown(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(ExpStrs.STR_PRESS);
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
+            //this.LogsInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             e.Handled = true; // Mark the event as handled to prevent further processing
         }
@@ -372,7 +378,7 @@ namespace Multi.Cursor
         public void OnStartButtonMouseUp(Object sender, MouseButtonEventArgs e)
         {
             LogEvent(ExpStrs.STR_RELEASE);
-            this.TrialInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
+            //this.LogsInfo($"Timestamps: {_activeTrialRecord.TrialEventsToString()}");
 
             var startButtonPressed = GetEventCount(ExpStrs.STR_PRESS) > 0;
 
@@ -394,16 +400,21 @@ namespace Multi.Cursor
             LogEvent(ExpStrs.STR_EXIT);
         }
 
-        public virtual void OnFunctionMarked(int funId)
+        public virtual void OnFunctionMarked(int funId, GridPos rowCol)
         {
             _activeTrialRecord.MarkFunction(funId);
             LogEvent(ExpStrs.FUN_MARKED, funId.ToString());
         }
 
-        public virtual void OnFunctionUnmarked(int funId)
+        public virtual void OnFunctionUnmarked(int funId, GridPos rowCol)
         {
             _activeTrialRecord.UnmarkFunction(funId);
             LogEvent(ExpStrs.FUN_DEMARKED, funId.ToString());
+        }
+
+        public void OnPaneButtonMarked(GridPos btnPos)
+        {
+            LogEvent(ExpStrs.BTN_MARKED, $"({btnPos.Row}, {btnPos.Col})");
         }
 
         public void SetFunctionAsEnabled(int funcId)
@@ -532,7 +543,7 @@ namespace Multi.Cursor
             if (_mainWindow.IsAuxWindowActivated(_activeTrial.FuncSide))
             {
                 LogEventOnce(ExpStrs.FLICK); // First flick after activation
-                _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked);
+                _mainWindow?.MoveMarker(indPoint, OnFunctionMarked, OnFunctionUnmarked, OnPaneButtonMarked);
             }
 
         }
@@ -778,7 +789,7 @@ namespace Multi.Cursor
 
         public override void RecordToMoAction(Finger finger, string action, Point point)
         {
-            this.TrialInfo($"Recording gesture: {finger} {action} at point ({point.X}, {point.Y})");
+            this.LogsInfo($"Recording gesture: {finger} {action} at point ({point.X}, {point.Y})");
             LogEvent(action, finger.ToString().ToLower());
             ExperiLogger.RecordGesture(MTimer.GetCurrentMillis(), finger, action, point);
         }

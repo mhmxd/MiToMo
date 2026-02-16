@@ -1,4 +1,5 @@
-﻿using Common.Helpers;
+﻿using Common.Constants;
+using Common.Helpers;
 using Common.Settings;
 using System;
 using System.Collections.Generic;
@@ -110,7 +111,7 @@ namespace Multi.Cursor
         /// Create all types of blocks
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="distRanges"></param>
+        /// <param name="distRange"></param>
         /// <param name="functionWidthsMX"></param>
         /// <param name="nObj"></param>
         /// <returns></returns>
@@ -120,7 +121,7 @@ namespace Multi.Cursor
             int id,
             Complexity complexity,
             ExperimentType expType,
-            List<MRange> distRanges,
+            MRange distRange,
             int nFun,
             int nObj)
         {
@@ -148,50 +149,106 @@ namespace Multi.Cursor
             // Create block
             Block block = new(ptc, technique, type, nFun, nObj, complexity, expType, id);
 
-            // Create and add trials to the block
+            //-- Create and add trials to the block
             int trialNum = 1;
-            for (int sInd = 0; sInd < 3; sInd++)
+
+            // Create Top trials for each button width
+            Side trialSide = Side.Top;
+            List<int> buttonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][trialSide];
+            foreach (int funcW in buttonWidths)
             {
-                Side functionSide = (Side)sInd;
-
-                // Get the function widths based on side and complexity
-                List<int> buttonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][functionSide];
-
-                foreach (MRange range in distRanges)
+                List<int> functionWidths = new(nFun);
+                for (int i = 0; i < nFun; i++)
                 {
-                    // For now all function Ws are the same. We may later create trials with multiple function Ws
-                    foreach (int funcW in buttonWidths)
-                    {
-                        List<int> functionWidths = new List<int>(nFun);
-                        for (int i = 0; i < nFun; i++)
-                        {
-                            functionWidths.Add(funcW);
-                        }
-
-                        Trial trial = Trial.CreateTrial(
-                            id * 100 + trialNum,
-                            technique,
-                            ptc,
-                            type,
-                            complexity,
-                            expType,
-                            functionSide,
-                            range,
-                            nObj,
-                            functionWidths);
-
-                        block._trials.Add(trial);
-                        trialNum++;
-                    }
-
+                    functionWidths.Add(funcW);
                 }
+
+                Trial trial = Trial.CreateTrial(
+                            id * 100 + trialNum,
+                            technique, ptc,
+                            type, complexity,
+                            expType, trialSide,
+                            distRange,
+                            nObj, functionWidths);
+
+                block._trials.Add(trial);
+                trialNum++;
             }
+
+
+            // Create side trials (random L/R)
+            trialSide = Side.Left;
+            buttonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][trialSide];
+            foreach (int funcW in buttonWidths)
+            {
+                List<int> functionWidths = new(nFun);
+                for (int i = 0; i < nFun; i++)
+                {
+                    functionWidths.Add(funcW);
+                }
+
+                Trial trial = Trial.CreateTrial(
+                            id * 100 + trialNum,
+                            technique, ptc,
+                            type, complexity,
+                            expType, trialSide,
+                            distRange,
+                            nObj, functionWidths);
+
+                block._trials.Add(trial);
+                trialNum++;
+            }
+
 
             // Shuffle the trials
             block.ShuffleTrials();
 
-            // Return the block
             return block;
+
+            //// Create and add trials to the block
+            //int trialNum = 1;
+            //for (int sInd = 0; sInd < 3; sInd++)
+            //{
+            //    Side functionSide = (Side)sInd;
+
+            //    // Get the function widths based on side and complexity
+            //    List<int> buttonWidths = ExpLayouts.BUTTON_WIDTHS[complexity][functionSide];
+
+            //    foreach (MRange range in distRange)
+            //    {
+            //        // For now all function Ws are the same. We may later create trials with multiple function Ws
+            //        foreach (int funcW in buttonWidths)
+            //        {
+            //            List<int> functionWidths = new List<int>(nFun);
+            //            for (int i = 0; i < nFun; i++)
+            //            {
+            //                functionWidths.Add(funcW);
+            //            }
+
+            //            Trial trial = Trial.CreateTrial(
+            //                id * 100 + trialNum,
+            //                technique,
+            //                ptc,
+            //                type,
+            //                complexity,
+            //                expType,
+            //                functionSide,
+            //                range,
+            //                nObj,
+            //                functionWidths);
+
+            //            block._trials.Add(trial);
+            //            trialNum++;
+            //        }
+
+            //    }
+            //}
+
+            //// Shuffle the trials
+            //block.ShuffleTrials();
+
+            //// Return the block
+            //return block;
         }
 
         public Trial GetTrial(int trialNum)
