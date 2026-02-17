@@ -4,6 +4,7 @@ using Common.Settings;
 using CommonUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -83,60 +84,119 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForTrial(Trial trial, Rect objectAreaConstraintRect)
         {
-            // 1. Setup local variables (no logic change here)
-            int objW = Experiment.GetObjWidth();
-            int objAreaW = Experiment.GetObjAreaWidth();
-            int objAreaHalfW = Experiment.GetObjAreaHalfWidth();
+            base.FindPositionsForTrial(trial, objectAreaConstraintRect);
 
-            _trialRecords[trial.Id] = new();
+            // Set the Obj...
+            Point objAreaPosition = _trialRecords[trial.Id].ObjectAreaRect.TopLeft;
+            Point objPosition = objAreaPosition.OffsetPosition(
+                (Experiment.GetObjAreaWidth() - Experiment.GetObjWidth()) / 2);
+            Point objAreaCenter = _trialRecords[trial.Id].ObjectAreaRect.GetCenter();
+            TObject obj = new(1, objPosition, objAreaCenter);
+            _trialRecords[trial.Id].Objects.Add(obj);
 
-            // 2. RETRY LOOP: This is the critical fix for "Failed to find positions"
-            // Instead of giving up if one button set is impossible, try a few others.
-            int maxTargetAttempts = 10;
-            for (int t = 0; t < maxTargetAttempts; t++)
-            {
-                _trialRecords[trial.Id].Functions.Clear();
+            return true;
 
-                // We still need Dispatcher here because FindRandomFunctions likely 
-                // touches UI elements to check widths/positions.
-                _mainWindow.Dispatcher.Invoke(() =>
-                {
-                    _trialRecords[trial.Id].Functions.AddRange(
-                        _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths())
-                    );
-                });
+            //_trialRecords[trial.Id] = new();
 
-                // 3. Use the PASSED-IN Rect (no more Dispatcher.Invoke here!)
-                (Point objCenter, double avgDist) = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
-                    _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
+            //// 1. Pick a random START (the Object Area)
+            //Point objCenter = new(
+            //    _random.NextDouble() * objectAreaConstraintRect.Width + objectAreaConstraintRect.Left,
+            //    _random.NextDouble() * objectAreaConstraintRect.Height + objectAreaConstraintRect.Top
+            //);
 
-                // 4. Check if we found a valid start position for these specific buttons
-                if (objCenter.X != -1 && objCenter.Y != -1)
-                {
-                    // SUCCESS: Set the values and return
-                    Point objAreaPosition = objCenter.OffsetPosition(-objAreaHalfW);
+            //// 2. Define the "Ideal" spot for the buttons based on the required trial distance
+            //double targetDist = trial.DistRangePX.Min + (_random.NextDouble() * (trial.DistRangePX.Max - trial.DistRangePX.Min));
+            //double angle = _random.NextDouble() * Math.PI * 2;
 
-                    _trialRecords[trial.Id].ObjectAreaRect = new Rect(
-                            objAreaPosition.X,
-                            objAreaPosition.Y,
-                            objAreaW,
-                            objAreaW);
+            //Point idealCenter = new(
+            //    objCenter.X + Math.Cos(angle) * targetDist,
+            //    objCenter.Y + Math.Sin(angle) * targetDist
+            //);
 
-                    _trialRecords[trial.Id].AvgDistanceMM = avgDist;
+            //// 3. Find buttons NEAR that ideal center
+            //List<TFunction> foundFunctions = _mainWindow.Dispatcher.Invoke(() =>
+            //{
+            //    return _mainWindow.FindRandomFunctionsNearPoint(trial.FuncSide, trial.GetFunctionWidths(), idealCenter);
+            //});
 
-                    Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
-                    TObject obj = new(1, objPosition, objCenter);
-                    _trialRecords[trial.Id].Objects.Add(obj);
+            //if (foundFunctions.Count < trial.GetFunctionWidths().Count) return false;
 
-                    return true;
-                }
+            //// 4. Record and Validate
+            //_trialRecords[trial.Id].Functions.AddRange(foundFunctions);
 
-                // If we reach here, this set of buttons was impossible to pair with a start point.
-                // The loop will try a different set of random buttons.
-            }
+            //// Calculate the ACTUAL average distance to store in the record
+            //double actualAvgDist = foundFunctions.Average(f => f.Center.DistanceTo(objCenter));
+            //_trialRecords[trial.Id].AvgDistanceMM = UITools.PX2MM(actualAvgDist);
 
-            // Only if 10 different sets of buttons fail do we give up.
-            return false;
+            //// Set the Rects...
+            //Point objAreaPosition = objCenter.OffsetPosition(-(Experiment.GetObjAreaHalfWidth()));
+            //_trialRecords[trial.Id].ObjectAreaRect = new Rect(objAreaPosition.X, objAreaPosition.Y,
+            //                                                  Experiment.GetObjAreaWidth(), Experiment.GetObjAreaWidth());
+            //// Set the Obj...
+            //Point objPosition = objAreaPosition.OffsetPosition(
+            //    (Experiment.GetObjAreaWidth() - Experiment.GetObjWidth()) / 2);
+            //TObject obj = new(1, objPosition, objCenter);
+            //_trialRecords[trial.Id].Objects.Add(obj);
+
+            //return true;
+
+
+
+
+            //// 1. Setup local variables (no logic change here)
+            //int objW = Experiment.GetObjWidth();
+            //int objAreaW = Experiment.GetObjAreaWidth();
+            //int objAreaHalfW = Experiment.GetObjAreaHalfWidth();
+
+            //_trialRecords[trial.Id] = new();
+
+            //// 2. RETRY LOOP: This is the critical fix for "Failed to find positions"
+            //// Instead of giving up if one button set is impossible, try a few others.
+            //int maxTargetAttempts = 10;
+            //for (int t = 0; t < maxTargetAttempts; t++)
+            //{
+            //    _trialRecords[trial.Id].Functions.Clear();
+
+            //    // We still need Dispatcher here because FindRandomFunctions likely 
+            //    // touches UI elements to check widths/positions.
+            //    _mainWindow.Dispatcher.Invoke(() =>
+            //    {
+            //        _trialRecords[trial.Id].Functions.AddRange(
+            //            _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths())
+            //        );
+            //    });
+
+            //    // 3. Use the PASSED-IN Rect (no more Dispatcher.Invoke here!)
+            //    (Point objCenter, double avgDist) = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
+            //        _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
+
+            //    // 4. Check if we found a valid start position for these specific buttons
+            //    if (objCenter.X != -1 && objCenter.Y != -1)
+            //    {
+            //        // SUCCESS: Set the values and return
+            //        Point objAreaPosition = objCenter.OffsetPosition(-objAreaHalfW);
+
+            //        _trialRecords[trial.Id].ObjectAreaRect = new Rect(
+            //                objAreaPosition.X,
+            //                objAreaPosition.Y,
+            //                objAreaW,
+            //                objAreaW);
+
+            //        _trialRecords[trial.Id].AvgDistanceMM = avgDist;
+
+            //        Point objPosition = objAreaPosition.OffsetPosition((objAreaW - objW) / 2);
+            //        TObject obj = new(1, objPosition, objCenter);
+            //        _trialRecords[trial.Id].Objects.Add(obj);
+
+            //        return true;
+            //    }
+
+            //    // If we reach here, this set of buttons was impossible to pair with a start point.
+            //    // The loop will try a different set of random buttons.
+            //}
+
+            //// Only if 10 different sets of buttons fail do we give up.
+            //return false;
         }
 
         public override void ShowActiveTrial()

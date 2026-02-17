@@ -12,6 +12,7 @@ namespace CommonUI
         public int DistanceToObjArea; // in pixels
         public ButtonState State { get; set; }
 
+        public TFunction() { }
         public TFunction(int id, int widthInUnits, Point center, Point position)
         {
             Id = id;

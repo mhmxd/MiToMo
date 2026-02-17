@@ -382,6 +382,13 @@ namespace CommonUI
             return new Rect(window.Left + padding, window.Top + padding, window.Width - 2 * padding, window.Height - 2 * padding);
         }
 
+        public static Point GetCenter(this Rect rect)
+        {
+            return new Point(
+                rect.Left + rect.Width / 2,
+                rect.Top + rect.Width / 2);
+        }
+
         public static int ThicknessInPX(double dips)
         {
             return (int)(dips * ExpEnvironment.PPI / 96.0);

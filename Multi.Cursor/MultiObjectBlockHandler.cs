@@ -107,73 +107,91 @@ namespace Multi.Cursor
 
         public override bool FindPositionsForTrial(Trial trial, Rect objectAreaConstraintRect)
         {
-            int objW = Experiment.GetObjWidth();
-            int objAreaW = Experiment.GetObjAreaWidth();
-            int objAreaHalfW = Experiment.GetObjAreaHalfWidth();
-            this.PositionInfo($"{trial.ToStr()}");
+            base.FindPositionsForTrial(trial, objectAreaConstraintRect);
 
-            // Ensure TrialRecord exists for this trial
-            if (!_trialRecords.ContainsKey(trial.Id))
+            // Place objects in the area
+            Point objAreaCenter = _trialRecords[trial.Id].ObjectAreaRect.GetCenter();
+            _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenter, trial.NObjects);
+            this.PositionInfo($"Placed {_trialRecords[trial.Id].Objects.Count} objects");
+
+            // Randomly map objects to functions
+            List<int> objIds = _trialRecords[trial.Id].Objects.Select(o => o.Id).ToList();
+            objIds.Shuffle();
+            for (int i = 0; i < objIds.Count; i++)
             {
-                _trialRecords[trial.Id] = new();
+                int functionId = _trialRecords[trial.Id].Functions[i % _trialRecords[trial.Id].Functions.Count].Id;
+                _trialRecords[trial.Id].MapObjectToFunction(objIds[i], functionId);
             }
 
-            // Find functions
-            _mainWindow.Dispatcher.Invoke(() =>
-            {
-                _trialRecords[trial.Id].Functions.AddRange(
-                        _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths())
-                    );
-            });
+            return true;
 
-            this.PositionInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().Str()}");
+            //int objW = Experiment.GetObjWidth();
+            //int objAreaW = Experiment.GetObjAreaWidth();
+            //int objAreaHalfW = Experiment.GetObjAreaHalfWidth();
+            //this.PositionInfo($"{trial.ToStr()}");
 
-            // Find a position for the object area
-            //Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+            //// Ensure TrialRecord exists for this trial
+            //if (!_trialRecords.ContainsKey(trial.Id))
             //{
-            //    return _mainWindow.GetObjAreaCenterConstraintRect();
-            //});
+            //    _trialRecords[trial.Id] = new();
+            //}
 
-            (Point objAreaCenter, double avgDist) = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
-                _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
+            //// Find functions
+            ////_mainWindow.Dispatcher.Invoke(() =>
+            ////{
+            ////    _trialRecords[trial.Id].Functions.AddRange(
+            ////            _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths())
+            ////        );
+            ////});
+
+            //this.PositionInfo($"Found functions: {_trialRecords[trial.Id].GetFunctionIds().Str()}");
+
+            //// Find a position for the object area
+            ////Rect objectAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+            ////{
+            ////    return _mainWindow.GetObjAreaCenterConstraintRect();
+            ////});
+
+            //(Point objAreaCenter, double avgDist) = objectAreaConstraintRect.FindPointWithinDistRangeFromMultipleSources(
+            //    _trialRecords[trial.Id].GetFunctionCenters(), trial.DistRangePX);
 
 
             // Add objects
-            if (objAreaCenter.X == -1 && objAreaCenter.Y == -1) // Failed to find a valid position 
-            {
-                this.PositionInfo($"No valid position found for object in Trial#{trial.Id}!");
-                return false; // Return false to indicate failure
-            }
-            else
-            {
-                // Get the top-left corner of the object area rectangle
-                Point objAreaPosition = objAreaCenter.OffsetPosition(-objAreaHalfW);
+            //if (objAreaCenter.X == -1 && objAreaCenter.Y == -1) // Failed to find a valid position 
+            //{
+            //    this.PositionInfo($"No valid position found for object in Trial#{trial.Id}!");
+            //    return false; // Return false to indicate failure
+            //}
+            //else
+            //{
+            //    // Get the top-left corner of the object area rectangle
+            //    Point objAreaPosition = objAreaCenter.OffsetPosition(-objAreaHalfW);
 
-                this.PositionInfo($"Found object area position: {objAreaPosition.Str()}");
+            //    this.PositionInfo($"Found object area position: {objAreaPosition.Str()}");
 
-                _trialRecords[trial.Id].ObjectAreaRect = new Rect(
-                        objAreaPosition.X,
-                        objAreaPosition.Y,
-                        objAreaW,
-                        objAreaW);
+            //    _trialRecords[trial.Id].ObjectAreaRect = new Rect(
+            //            objAreaPosition.X,
+            //            objAreaPosition.Y,
+            //            objAreaW,
+            //            objAreaW);
 
-                _trialRecords[trial.Id].AvgDistanceMM = avgDist;
+            //    _trialRecords[trial.Id].AvgDistanceMM = avgDist;
 
-                // Place objects in the area
-                _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenter, trial.NObjects);
-                this.PositionInfo($"Placed {_trialRecords[trial.Id].Objects.Count} objects");
+            //    // Place objects in the area
+            //    _trialRecords[trial.Id].Objects = PlaceObjectsInArea(objAreaCenter, trial.NObjects);
+            //    this.PositionInfo($"Placed {_trialRecords[trial.Id].Objects.Count} objects");
 
-                // Randomly map objects to functions
-                List<int> objIds = _trialRecords[trial.Id].Objects.Select(o => o.Id).ToList();
-                objIds.Shuffle();
-                for (int i = 0; i < objIds.Count; i++)
-                {
-                    int functionId = _trialRecords[trial.Id].Functions[i % _trialRecords[trial.Id].Functions.Count].Id;
-                    _trialRecords[trial.Id].MapObjectToFunction(objIds[i], functionId);
-                }
+            //    // Randomly map objects to functions
+            //    List<int> objIds = _trialRecords[trial.Id].Objects.Select(o => o.Id).ToList();
+            //    objIds.Shuffle();
+            //    for (int i = 0; i < objIds.Count; i++)
+            //    {
+            //        int functionId = _trialRecords[trial.Id].Functions[i % _trialRecords[trial.Id].Functions.Count].Id;
+            //        _trialRecords[trial.Id].MapObjectToFunction(objIds[i], functionId);
+            //    }
 
-                return true;
-            }
+            //    return true;
+            //}
 
             // --- Attempt to find new positions ---
             //bool success = TryFindNewPositions(trial, startW, startHalfW);
@@ -219,17 +237,8 @@ namespace Multi.Cursor
             // Set the target window based on the trial's target side
             _mainWindow.SetTargetWindow(_activeTrial.FuncSide, OnAuxWindowMouseEnter, OnAuxWindowMouseExit, OnAuxWindowMouseDown, OnAuxWindowMouseUp);
 
-            // Color the function button and set the handlers
-
-            //Brush funcDefaultColor = UIColors.FUNCTION_DEFAULT_COLOR;
-            //_mainWindow.FillButtonInTargetWindow(
-            //    _activeTrial.FuncSide, _activeTrialRecord.FunctionId, 
-            //    funcDefaultColor);
-            //_mainWindow.FillButtonsInAuxWindow(_activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(), funcDefaultColor);
-            //_mainWindow.SetGridButtonHandlers(
-            //    _activeTrial.FuncSide, _activeTrialRecord.FunctionId,
-            //    OnFunctionMouseDown, OnFunctionMouseUp, OnNonTargetMouseDown);
             UpdateScene();
+
             _mainWindow.SetAuxButtonsHandlers(
                 _activeTrial.FuncSide, _activeTrialRecord.GetFunctionIds(),
                 OnFunctionMouseEnter, OnFunctionMouseDown, OnFunctionMouseUp,
@@ -256,39 +265,6 @@ namespace Multi.Cursor
             // Update info label
             _mainWindow.UpdateInfoLabel();
         }
-
-        //public override void EndActiveTrial(Result result)
-        //{
-        //    this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
-        //    this.TrialInfo(ExpStrs.MAJOR_LINE);
-        //    LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
-        //    _mainWindow.DeactivateAuxWindow(); // Deactivate the aux window
-
-        //    switch (result)
-        //    {
-        //        case Result.HIT:
-        //            MSounder.PlayHit();
-        //            double trialTime = GetDuration(ExpStrs.STR_RELEASE + "_1", ExpStrs.TRIAL_END);
-        //            _activeTrialRecord.AddTime(ExpStrs.TRIAL_TIME, trialTime);
-
-        //            //ExperiLogger.LogTrialMessage($"{_activeTrial.ToStr().PadRight(34)} Trial Time = {trialTime:F2}s");
-        //            GoToNextTrial();
-        //            break;
-        //        case Result.MISS:
-        //            MSounder.PlayTargetMiss();
-
-        //            _activeBlock.ShuffleBackTrial(_activeTrialNum);
-        //            _trialRecords[_activeTrial.Id].ClearTimestamps();
-        //            _trialRecords[_activeTrial.Id].ResetStates();
-
-        //            GoToNextTrial();
-        //            break;
-        //    }
-
-        //    //-- Log
-        //    if (_activeTrial.GetNumFunctions() == 1) ExperiLogger.LogMOSFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
-        //    else ExperiLogger.LogMOMFTrial(_activeBlockNum, _activeTrialNum, _activeTrial, _activeTrialRecord);
-        //}
 
         public override void GoToNextTrial()
         {

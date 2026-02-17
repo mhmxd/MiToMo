@@ -215,6 +215,47 @@ namespace Multi.Cursor
 
         //}
 
+        /// <summary>
+        /// Latest version
+        /// </summary>
+        /// <param name="side"></param>
+        /// <param name="widthUnits"></param>
+        /// <param name="idealCenter"></param>
+        /// <returns></returns>
+        public List<TFunction> FindRandomFunctionsNearPoint(List<int> widthUnits, Point idealCenter)
+        {
+            // 1. Get all available buttons of the required width on this side
+            // (Assuming all widthUnits are the same, e.g., {6, 6, 6}, we just take the first)
+            int targetWidth = widthUnits[0];
+
+            // This assumes your Window class has a way to get all registered buttons
+            var allValidButtons = _buttonWraps.Values
+                .Where(w => w.Button.WidthMultiple == targetWidth)
+                .Select(w => new TFunction
+                {
+                    Id = w.Button.Id,
+                    WidthInUnits = (int)w.Rect.Width,
+                    Center = w.Position.OffsetPosition(w.Button.ActualWidth / 2, w.Button.ActualHeight / 2),
+                    Position = w.Position
+                })
+                .ToList();
+
+            // 2. Sort all these buttons by how close they are to our "Ideal Center"
+            var sortedByProximity = allValidButtons
+                .OrderBy(b => b.Center.DistanceTo(idealCenter))
+                .ToList();
+
+            // 3. Pick the top 'N' buttons
+            // To keep it from being TOO predictable, we can pick from the top 5 or 6 
+            // instead of just the top 3. This adds "jitter" to the average distance.
+            int poolSize = Math.Min(6, sortedByProximity.Count);
+            var candidatePool = sortedByProximity.Take(poolSize).ToList();
+
+            // Shuffle the small pool and take the number of buttons we actually need
+            candidatePool.Shuffle();
+            return candidatePool.Take(widthUnits.Count).ToList();
+        }
+
         protected int FindMiddleButtonId()
         {
             // Calculate the center of the overall button grid
@@ -701,7 +742,7 @@ namespace Multi.Cursor
                         _buttonWraps[buttonId].Button.Background = UIColors.COLOR_FUNCTION_APPLIED;
                         break;
                 }
-                
+
             }
         }
 
@@ -815,7 +856,7 @@ namespace Multi.Cursor
         {
             if (!_buttonWraps.ContainsKey(buttonId)) return;
 
-            
+
             // Change the border color to highlight
             _buttonWraps[buttonId].Button.BorderBrush = UIColors.COLOR_ELEMENT_HIGHLIGHT;
 
@@ -851,7 +892,7 @@ namespace Multi.Cursor
             //var buttonBgApplied =
             //    btn.Background.Equals(UIColors.COLOR_FUNCTION_APPLIED);
 
-            
+
             //this.TrialInfo($"Marking button {buttonId}. BG: {btn.Background}");
             //if (buttonBgFunctionDefault) // Function (default)
             //{
