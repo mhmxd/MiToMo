@@ -23,64 +23,64 @@ namespace Multi.Cursor
             _activeBlockNum = blockNum;
         }
 
-        public override bool FindPositionsForActiveBlock()
-        {
-            // 1. GET THE RECT ONCE (The part I missed!)
-            // We do this on the UI thread before the loop starts.
-            Rect objAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
-            {
-                return _mainWindow.GetObjAreaCenterConstraintRect();
-            });
+        //public override bool FindPositionsForActiveBlock()
+        //{
+        //    // 1. GET THE RECT ONCE (The part I missed!)
+        //    // We do this on the UI thread before the loop starts.
+        //    Rect objAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+        //    {
+        //        return _mainWindow.GetObjAreaCenterConstraintRect();
+        //    });
 
-            // 2. Pass it into each trial
-            foreach (Trial trial in _activeBlock.Trials)
-            {
-                // We pass 'startRect' here so the trial method doesn't have to ask the UI for it
-                if (!FindPositionsForTrial(trial, objAreaConstraintRect))
-                {
-                    this.PositionInfo($"Failed to find positions for Trial#{trial.Id}");
-                    return false;
-                }
-            }
+        //    // 2. Pass it into each trial
+        //    foreach (Trial trial in _activeBlock.Trials)
+        //    {
+        //        // We pass 'startRect' here so the trial method doesn't have to ask the UI for it
+        //        if (!FindPositionsForTrial(trial, objAreaConstraintRect))
+        //        {
+        //            this.PositionInfo($"Failed to find positions for Trial#{trial.Id}");
+        //            return false;
+        //        }
+        //    }
+        //    this.TrialInfo($"Found positions for all trials. Now checking for middle button...");
+        //    // 3. Shuffle logic (with the fixed OR condition)
+        //    int maxAttempts = 1000;
+        //    int attempt = 0;
+        //    while (attempt < maxAttempts && DoesFirstTrialsFunInclMidBtn())
+        //    {
+        //        _activeBlock.Trials.Shuffle();
+        //        attempt++;
+        //    }
 
-            // 3. Shuffle logic (with the fixed OR condition)
-            int maxAttempts = 500;
-            int attempt = 0;
-            while (attempt < maxAttempts && (AreFunctionsRepeated() || DoesFirstTrialsFunInclMidBtn()))
-            {
-                _activeBlock.Trials.Shuffle();
-                attempt++;
-            }
-
-            return attempt < maxAttempts;
-            //foreach (Trial trial in _activeBlock.Trials)
-            //{
-            //    if (!FindPositionsForTrial(trial))
-            //    {
-            //        this.PositionInfo($"Failed to find positions for Trial#{trial.Id}");
-            //        return false; // If any trial fails, return false
-            //    }
-            //}
+        //    return attempt < maxAttempts;
+        //    //foreach (Trial trial in _activeBlock.Trials)
+        //    //{
+        //    //    if (!FindPositionsForTrial(trial))
+        //    //    {
+        //    //        this.PositionInfo($"Failed to find positions for Trial#{trial.Id}");
+        //    //        return false; // If any trial fails, return false
+        //    //    }
+        //    //}
 
 
-            //// If consecutive trials have the same function Ids or first trial's functions are over the middle button,
-            //// re-order them (so marker doesn't stay on the same function)
-            //int maxAttempts = 500;
-            //int attempt = 0;
-            //while (attempt < maxAttempts && (AreFunctionsRepeated() || DoesFirstTrialsFunInclMidBtn()))
-            //{
-            //    _activeBlock.Trials.Shuffle();
-            //    attempt++;
-            //}
+        //    //// If consecutive trials have the same function Ids or first trial's functions are over the middle button,
+        //    //// re-order them (so marker doesn't stay on the same function)
+        //    //int maxAttempts = 500;
+        //    //int attempt = 0;
+        //    //while (attempt < maxAttempts && (AreFunctionsRepeated() || DoesFirstTrialsFunInclMidBtn()))
+        //    //{
+        //    //    _activeBlock.Trials.Shuffle();
+        //    //    attempt++;
+        //    //}
 
-            //if (attempt == maxAttempts)
-            //{
-            //    this.TrialInfo($"Warning: Could not eliminate repeated functions in consecutive trials after {maxAttempts} attempts.");
-            //    return false;
-            //}
+        //    //if (attempt == maxAttempts)
+        //    //{
+        //    //    this.TrialInfo($"Warning: Could not eliminate repeated functions in consecutive trials after {maxAttempts} attempts.");
+        //    //    return false;
+        //    //}
 
-            //return true;
-        }
+        //    //return true;
+        //}
 
         public override bool FindPositionsForTrial(Trial trial, Rect objectAreaConstraintRect)
         {
