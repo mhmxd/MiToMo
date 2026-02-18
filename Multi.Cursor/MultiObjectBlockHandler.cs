@@ -654,8 +654,10 @@ namespace Multi.Cursor
                 }
                 else
                 {
-                    // Is object already clicked? => MISS
-                    if (_activeTrialRecord.IsObjectClicked(objId))
+                    // Is object already clicked AFTER START? => MISS
+                    long startReleaseTime = _activeTrialRecord.GetLastTime(ExpStrs.STR_RELEASE);
+                    long lastObjClickTime = _activeTrialRecord.GetLastTime(ExpStrs.OBJ_RELEASE, objId.ToString());
+                    if (lastObjClickTime > startReleaseTime)
                     {
                         EndActiveTrial(Result.MISS);
                     }

@@ -512,9 +512,12 @@ namespace Multi.Cursor
 
         public static void LogCursorRecords()
         {
-            foreach (var record in _trialCursorRecords[_activeTrialId])
+            if (_cursorLogWriter != null)
             {
-                _cursorLogWriter.WriteLine($"{record.x};{record.y}");
+                foreach (var record in _trialCursorRecords[_activeTrialId])
+                {
+                    _cursorLogWriter.WriteLine($"{record.x};{record.y}");
+                }
             }
 
             _cursorLogWriter?.Dispose();

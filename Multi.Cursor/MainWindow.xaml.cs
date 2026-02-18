@@ -417,27 +417,28 @@ namespace Multi.Cursor
             // Find positions for the block
             bool positionsFound = blockHandler.FindPositionsForActiveBlock();
 
-            if (positionsFound)
-            {
-                //_blockHandlers.Add(blockHandler);
-                return true;
-            }
-            else
-            {
-                // Show a message box with an error and a retry option
-                SysWin.MessageBoxResult result = SysWin.MessageBox.Show(
-                    $"Couldn't find valid positions for the block. Retry?",
-                    "Error",
-                    (MessageBoxButton)MessageBoxButtons.YesNo,
-                    (MessageBoxImage)MessageBoxIcon.Error);
+            return true;
+            //if (positionsFound)
+            //{
+            //    //_blockHandlers.Add(blockHandler);
+            //    return true;
+            //}
+            //else
+            //{
+            //    // Show a message box with an error and a retry option
+            //    SysWin.MessageBoxResult result = SysWin.MessageBox.Show(
+            //        $"Couldn't find valid positions for the block. Retry?",
+            //        "Error",
+            //        (MessageBoxButton)MessageBoxButtons.YesNo,
+            //        (MessageBoxImage)MessageBoxIcon.Error);
 
-                if (result == MessageBoxResult.Yes)
-                {
-                    return SetupPositions(blockHandler); // Retry
-                }
+            //    if (result == MessageBoxResult.Yes)
+            //    {
+            //        return SetupPositions(blockHandler); // Retry
+            //    }
 
-                return false;
-            }
+            //    return false;
+            //}
         }
 
         private void UpdateLabelPosition()

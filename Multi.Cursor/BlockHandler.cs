@@ -81,13 +81,13 @@ namespace Multi.Cursor
 
         public void BeginActiveBlock()
         {
-            this.TrialInfo("------------------- Beginning block -------------------------------------------");
-            this.TrialInfo(ExpStrs.MINOR_LINE);
+            //this.TrialInfo("------------------- Beginning block -------------------------------------------");
+            //this.TrialInfo(ExpStrs.MINOR_LINE);
 
             _activeTrialNum = 1;
             _activeTrial = _activeBlock.GetTrial(_activeTrialNum);
             _activeTrialRecord = _trialRecords[_activeTrial.Id];
-            this.TrialInfo($"Active block id: {_activeBlock.Id}");
+            //this.TrialInfo($"Active block id: {_activeBlock.Id}");
 
             // Clear the main window canvas (to add shapes)
             _mainWindow.ClearCanvas();
@@ -100,7 +100,7 @@ namespace Multi.Cursor
         public virtual void ShowActiveTrial()
         {
             this.TrialInfo(ExpStrs.MINOR_LINE);
-            this.TrialInfo($"Showing " + _activeTrial.ToStr());
+            //this.TrialInfo($"Showing " + _activeTrial.ToStr());
 
             LogEvent(ExpStrs.TRIAL_SHOW, _activeTrial.Id);
 
@@ -112,7 +112,7 @@ namespace Multi.Cursor
 
         public virtual void EndActiveTrial(Result result)
         {
-            this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
+            //this.TrialInfo($"Trial#{_activeTrial.Id} completed: {result}");
             _activeTrialRecord.Result = result;
             LogEvent(ExpStrs.TRIAL_END, _activeTrial.Id); // Log the trial end timestamp
 

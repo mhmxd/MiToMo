@@ -329,6 +329,8 @@ namespace Multi.Cursor
             if (!IsStartClicked())
             {
                 MSounder.PlayStartMiss();
+                e.Handled = true;
+                return;
             }
 
             //-- Trial started:
@@ -356,7 +358,9 @@ namespace Multi.Cursor
             }
             else // Mouse
             {
-                if (_activeTrialRecord.IsObjectClicked(1)) // Object already clicked => MISS
+                long startReleaseTime = _activeTrialRecord.GetLastTime(ExpStrs.STR_RELEASE);
+                //this.TrialInfo($"_activeTrialRecord.GetObjectClickTime(1): {_activeTrialRecord.GetLastTime(ExpStrs.OBJ_RELEASE)}");
+                if (_activeTrialRecord.GetLastTime(ExpStrs.OBJ_RELEASE) > startReleaseTime) // Object already clicked AFTER Start => MISS
                 {
                     this.TrialInfo($"Object already clicked");
                     EndActiveTrial(Result.MISS);

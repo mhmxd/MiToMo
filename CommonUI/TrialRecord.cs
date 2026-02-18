@@ -278,6 +278,17 @@ namespace CommonUI
             return -1; // Return -1 if the type is not found
         }
 
+        public long GetLastTime(string type, string id)
+        {
+            var trialEvent = Events.LastOrDefault(ts => ts.Type == type && ts.Id == id);
+            if (trialEvent != null)
+            {
+                return trialEvent.Time;
+            }
+
+            return -1; // Return -1 if the type is not found
+        }
+
         public long GetLastFingerActionTime(string action)
         {
             var trialEvent = Events.LastOrDefault(ts => ts.Type == action);
@@ -661,10 +672,15 @@ namespace CommonUI
             Functions.AddRange(functions);
         }
 
-        public bool IsObjectClicked(int objId)
-        {
-            return Events.Any(ts => ts.Type == ExpStrs.OBJ_RELEASE && ts.Id == objId.ToString());
-        }
+        //public long GetObjectClickTime(int objId)
+        //{
+        //    // Is object clicked AFTER trial is started?
+        //    TrialEvent objReleaseEvent = Events.FirstOrDefault(
+        //            ts => ts.Type == ExpStrs.OBJ_RELEASE
+        //            && ts.Id == objId.ToString());
+        //    if (objReleaseEvent != null) return objReleaseEvent.Time;
+        //    return -1;
+        //}
 
         public void MarkObject(int id)
         {
