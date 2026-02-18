@@ -1401,32 +1401,33 @@ namespace Multi.Cursor
         //}
 
 
-        //public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits)
-        //{
-        //    this.PositionInfo($"Function widths: {widthUnits.ToStr()}");
-        //    List<TFunction> functions = new();
-        //    List<int> foundIds = new();
-        //    // Find a UNIQUE function for each width
-        //    int maxTries = 100;
-        //    int tries = 1;
-        //    do
-        //    {
-        //        tries++;
-        //        functions.Clear();
-        //        foundIds.Clear();
-        //        this.PositionInfo($"Num. of Tries: {tries}");
-        //        foreach (int widthUnit in widthUnits)
-        //        {
-        //            TFunction function = FindRandomFunction(side, widthUnit);
-        //            this.PositionInfo($"Function found: ID {function.Id}, Width {widthUnit}");
-        //            functions.Add(function);
-        //            foundIds.Add(function.Id);
-        //        }
+        public List<TFunction> FindRandomFunctions(Side side, List<int> widthUnits)
+        {
+            this.PositionInfo($"Function widths: {widthUnits.ToStr()}");
+            List<TFunction> functions = new();
+            List<int> foundIds = new();
 
-        //    } while (foundIds.HasDuplicates() && tries < maxTries);
+            // Find a UNIQUE function for each width
+            int maxTries = 100;
+            int tries = 1;
+            do
+            {
+                tries++;
+                functions.Clear();
+                foundIds.Clear();
+                this.PositionInfo($"Num. of Tries: {tries}");
+                foreach (int widthUnit in widthUnits)
+                {
+                    TFunction function = FindRandomFunction(side, widthUnit);
+                    this.PositionInfo($"Function found: ID {function.Id}, Width {widthUnit}");
+                    functions.Add(function);
+                    foundIds.Add(function.Id);
+                }
 
-        //    return functions;
-        //}
+            } while (foundIds.HasDuplicates() && tries < maxTries);
+
+            return functions;
+        }
 
         public List<TFunction> FindRandomFunctionsNearPoint(Side side, List<int> widthUnits, Point idealCenter)
         {

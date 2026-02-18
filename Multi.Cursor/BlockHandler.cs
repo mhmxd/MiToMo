@@ -36,48 +36,109 @@ namespace Multi.Cursor
 
         protected Random _random = new();
 
-        public abstract bool FindPositionsForActiveBlock();
+        public virtual bool FindPositionsForActiveBlock()
+        {
+            // 1. GET THE RECT ONCE (The part I missed!)
+            // We do this on the UI thread before the loop starts.
+            Rect objAreaConstraintRect = _mainWindow.Dispatcher.Invoke(() =>
+            {
+                return _mainWindow.GetObjAreaCenterConstraintRect();
+            });
+
+            // 2. Pass it into each trial
+            foreach (Trial trial in _activeBlock.Trials)
+            {
+                // We pass 'startRect' here so the trial method doesn't have to ask the UI for it
+                if (!FindPositionsForTrial(trial, objAreaConstraintRect))
+                {
+                    this.PositionInfo($"Failed to find positions for Trial#{trial.Id}");
+                    return false;
+                }
+            }
+            //this.TrialInfo($"Found positions for all trials. Now checking for middle button...");
+            // 3. Shuffle logic (with the fixed OR condition)
+            int maxAttempts = 1000;
+            int attempt = 0;
+            while (attempt < maxAttempts && DoesFirstTrialsFunInclMidBtn())
+            {
+                _activeBlock.Trials.Shuffle();
+                attempt++;
+            }
+
+            return attempt < maxAttempts;
+        }
+
         public virtual bool FindPositionsForTrial(Trial trial, Rect objectAreaConstraintRect)
         {
             _trialRecords[trial.Id] = new();
 
-            // 1. Pick a random START (the Object Area)
-            Point objCenter = new(
+            //-- Pick and add random functions
+            // If first trial, keep picking until it doesn't include middle button
+            List<TFunction> foundFunctions = _mainWindow.Dispatcher.Invoke(() =>
+            {
+                return _mainWindow.FindRandomFunctions(trial.FuncSide, trial.GetFunctionWidths());
+            });
+            _trialRecords[trial.Id].Functions.AddRange(foundFunctions);
+
+            // Pick random objarea position
+            Point objAreaCenter = new(
                 _random.NextDouble() * objectAreaConstraintRect.Width + objectAreaConstraintRect.Left,
                 _random.NextDouble() * objectAreaConstraintRect.Height + objectAreaConstraintRect.Top
             );
 
-            // 2. Define the "Ideal" spot for the buttons based on the required trial distance
-            double targetDist = trial.DistRangePX.Min + (_random.NextDouble() * (trial.DistRangePX.Max - trial.DistRangePX.Min));
-            double angle = _random.NextDouble() * Math.PI * 2;
-
-            Point idealCenter = new(
-                objCenter.X + Math.Cos(angle) * targetDist,
-                objCenter.Y + Math.Sin(angle) * targetDist
-            );
-
-            // 3. Find buttons NEAR that ideal center
-            List<TFunction> foundFunctions = _mainWindow.Dispatcher.Invoke(() =>
-            {
-                return _mainWindow.FindRandomFunctionsNearPoint(trial.FuncSide, trial.GetFunctionWidths(), idealCenter);
-            });
-
-            if (foundFunctions.Count < trial.GetFunctionWidths().Count) return false;
-
-            // 4. Record and Validate
-            _trialRecords[trial.Id].Functions.AddRange(foundFunctions);
-
             // Calculate the ACTUAL average distance to store in the record
-            double actualAvgDist = foundFunctions.Average(f => f.Center.DistanceTo(objCenter));
+            double actualAvgDist = foundFunctions.Average(f => f.Center.DistanceTo(objAreaCenter));
             _trialRecords[trial.Id].AvgDistanceMM = UITools.PX2MM(actualAvgDist);
 
             // Set the Rects...
-            Point objAreaPosition = objCenter.OffsetPosition(-(Experiment.GetObjAreaHalfWidth()));
+            Point objAreaPosition = objAreaCenter.OffsetPosition(-(Experiment.GetObjAreaHalfWidth()));
             _trialRecords[trial.Id].ObjectAreaRect = new Rect(objAreaPosition.X, objAreaPosition.Y,
                                                               Experiment.GetObjAreaWidth(), Experiment.GetObjAreaWidth());
 
             return true;
         }
+
+        //public virtual bool FindPositionsForTrial(Trial trial, Rect objectAreaConstraintRect)
+        //{
+        //    _trialRecords[trial.Id] = new();
+
+        //    // 1. Pick a random START (the Object Area)
+        //    Point objCenter = new(
+        //        _random.NextDouble() * objectAreaConstraintRect.Width + objectAreaConstraintRect.Left,
+        //        _random.NextDouble() * objectAreaConstraintRect.Height + objectAreaConstraintRect.Top
+        //    );
+
+        //    // 2. Define the "Ideal" spot for the buttons based on the required trial distance
+        //    double targetDist = trial.DistRangePX.Min + (_random.NextDouble() * (trial.DistRangePX.Max - trial.DistRangePX.Min));
+        //    double angle = _random.NextDouble() * Math.PI * 2;
+
+        //    Point idealCenter = new(
+        //        objCenter.X + Math.Cos(angle) * targetDist,
+        //        objCenter.Y + Math.Sin(angle) * targetDist
+        //    );
+
+        //    // 3. Find buttons NEAR that ideal center
+        //    List<TFunction> foundFunctions = _mainWindow.Dispatcher.Invoke(() =>
+        //    {
+        //        return _mainWindow.FindRandomFunctionsNearPoint(trial.FuncSide, trial.GetFunctionWidths(), idealCenter);
+        //    });
+
+        //    if (foundFunctions.Count < trial.GetFunctionWidths().Count) return false;
+
+        //    // 4. Record and Validate
+        //    _trialRecords[trial.Id].Functions.AddRange(foundFunctions);
+
+        //    // Calculate the ACTUAL average distance to store in the record
+        //    double actualAvgDist = foundFunctions.Average(f => f.Center.DistanceTo(objCenter));
+        //    _trialRecords[trial.Id].AvgDistanceMM = UITools.PX2MM(actualAvgDist);
+
+        //    // Set the Rects...
+        //    Point objAreaPosition = objCenter.OffsetPosition(-(Experiment.GetObjAreaHalfWidth()));
+        //    _trialRecords[trial.Id].ObjectAreaRect = new Rect(objAreaPosition.X, objAreaPosition.Y,
+        //                                                      Experiment.GetObjAreaWidth(), Experiment.GetObjAreaWidth());
+
+        //    return true;
+        //}
 
         public void BeginActiveBlock()
         {
